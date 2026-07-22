@@ -5,6 +5,7 @@ import { ShopPage } from './pages/ShopPage'
 import { ProductPage } from './pages/ProductPage'
 import { ChatPage } from './pages/ChatPage'
 import { AddProductPage } from './pages/AddProductPage'
+import { FavoritesPage } from './pages/FavoritesPage'
 import './App.css'
 
 export default function App() {
@@ -17,6 +18,7 @@ export default function App() {
           <Route path="shop/:categoryId" element={<ShopPage />} />
           <Route path="shop/:categoryId/:subcategoryId" element={<ShopPage />} />
           <Route path="product/:productId" element={<ProductPage />} />
+          <Route path="favorites" element={<FavoritesPage />} />
           <Route path="chat" element={<ChatPage />} />
           <Route path="add-product" element={<AddProductPage />} />
           <Route path="*" element={<Navigate to="/" replace />} />

@@ -4,6 +4,7 @@ import './Layout.css'
 
 const links = [
   { to: '/shop', label: 'Shop' },
+  { to: '/favorites', label: 'Favorites' },
   { to: '/chat', label: 'AI Guide' },
   { to: '/add-product', label: 'Add Product' },
 ]

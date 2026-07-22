@@ -2,6 +2,7 @@ import { Link, useParams } from 'react-router-dom'
 import { formatPrice, getCategory, getSubcategory } from '../data/catalog'
 import { getProductById, getProductsByCategory } from '../lib/products'
 import { ProductCard } from '../components/ProductCard'
+import { FavoriteButton } from '../components/FavoriteButton'
 import './ProductPage.css'
 
 export function ProductPage() {
@@ -55,6 +56,7 @@ export function ProductPage() {
             ))}
           </div>
           <div className="product-page__actions">
+            <FavoriteButton productId={product.id} />
             <Link className="btn btn--dark" to="/chat">
               Ask AI about this
             </Link>

@@ -1,5 +1,6 @@
 import { useSyncExternalStore } from 'react'
 import {
+  addConfiguredToCart,
   addToCart,
   getCartCount,
   getCartItems,
@@ -27,6 +28,7 @@ export function useCartCount(): number {
 export function useCartActions() {
   return {
     addToCart,
+    addConfiguredToCart,
     setCartQuantity,
     removeFromCart,
     getCartQuantity,

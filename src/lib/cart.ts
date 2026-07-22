@@ -1,12 +1,25 @@
+import {
+  configKey,
+  defaultConfig,
+  type PriceConfig,
+} from './pricing'
+
 export type CartItem = {
+  id: string
   productId: string
   quantity: number
+  config: PriceConfig
+  unitPrice: number
 }
 
-const STORAGE_KEY = 'priya-badal-cart'
+const STORAGE_KEY = 'priya-badal-cart-v2'
 
 type Listener = () => void
 const listeners = new Set<Listener>()
+
+function makeId(productId: string, config: PriceConfig) {
+  return `${productId}__${configKey(config)}`
+}
 
 function readCart(): CartItem[] {
   try {
@@ -14,14 +27,18 @@ function readCart(): CartItem[] {
     if (!raw) return []
     const parsed = JSON.parse(raw) as unknown
     if (!Array.isArray(parsed)) return []
-    return parsed.filter(
-      (item): item is CartItem =>
-        item &&
-        typeof item === 'object' &&
-        typeof (item as CartItem).productId === 'string' &&
-        typeof (item as CartItem).quantity === 'number' &&
-        (item as CartItem).quantity > 0,
-    )
+    return parsed.filter((item): item is CartItem => {
+      if (!item || typeof item !== 'object') return false
+      const row = item as CartItem
+      return (
+        typeof row.productId === 'string' &&
+        typeof row.quantity === 'number' &&
+        row.quantity > 0 &&
+        typeof row.unitPrice === 'number' &&
+        row.config &&
+        typeof row.config === 'object'
+      )
+    })
   } catch {
     return []
   }
@@ -41,30 +58,59 @@ export function getCartCount(): number {
 }
 
 export function getCartQuantity(productId: string): number {
-  return readCart().find((item) => item.productId === productId)?.quantity ?? 0
+  return readCart()
+    .filter((item) => item.productId === productId)
+    .reduce((sum, item) => sum + item.quantity, 0)
 }
 
-export function addToCart(productId: string, quantity = 1) {
+/** Simple add using default finish/thickness/size and base price */
+export function addToCart(productId: string, quantity = 1, unitPrice?: number) {
+  const config = defaultConfig('living-room')
+  addConfiguredToCart({
+    productId,
+    quantity,
+    config,
+    unitPrice: unitPrice ?? 0,
+  })
+}
+
+export function addConfiguredToCart(input: {
+  productId: string
+  quantity?: number
+  config: PriceConfig
+  unitPrice: number
+}) {
+  const quantity = input.quantity ?? 1
+  const id = makeId(input.productId, input.config)
   const cart = readCart()
-  const existing = cart.find((item) => item.productId === productId)
+  const existing = cart.find((item) => item.id === id)
   if (existing) {
     existing.quantity += quantity
+    existing.unitPrice = input.unitPrice
   } else {
-    cart.push({ productId, quantity })
+    cart.push({
+      id,
+      productId: input.productId,
+      quantity,
+      config: input.config,
+      unitPrice: input.unitPrice,
+    })
   }
   writeCart(cart)
 }
 
-export function setCartQuantity(productId: string, quantity: number) {
-  const cart = readCart().filter((item) => item.productId !== productId)
-  if (quantity > 0) {
-    cart.push({ productId, quantity })
-  }
-  writeCart(cart)
+export function setCartQuantity(itemId: string, quantity: number) {
+  const cart = readCart()
+  const next = cart
+    .map((item) =>
+      item.id === itemId ? { ...item, quantity } : item,
+    )
+    .filter((item) => item.quantity > 0)
+  writeCart(next)
 }
 
-export function removeFromCart(productId: string) {
-  writeCart(readCart().filter((item) => item.productId !== productId))
+export function removeFromCart(itemId: string) {
+  writeCart(readCart().filter((item) => item.id !== itemId))
 }
 
 export function clearCart() {

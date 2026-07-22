@@ -3,7 +3,7 @@ import { formatPrice, getCategory, getSubcategory } from '../data/catalog'
 import { getProductById, getProductsByCategory } from '../lib/products'
 import { ProductCard } from '../components/ProductCard'
 import { FavoriteButton } from '../components/FavoriteButton'
-import { AddToCartButton } from '../components/AddToCartButton'
+import { PriceCalculator } from '../components/PriceCalculator'
 import './ProductPage.css'
 
 export function ProductPage() {
@@ -49,15 +49,17 @@ export function ProductPage() {
             {subcategory ? ` · ${subcategory.name}` : ''}
           </p>
           <h1>{product.name}</h1>
-          <p className="product-page__price">{formatPrice(product.price)}</p>
+          <p className="product-page__price">From {formatPrice(product.price)}</p>
           <p className="product-page__desc">{product.description}</p>
           <div className="product-page__tags">
             {product.style.map((s) => (
               <span key={s}>{s}</span>
             ))}
           </div>
+
+          <PriceCalculator product={product} />
+
           <div className="product-page__actions">
-            <AddToCartButton productId={product.id} className="cart-btn--lg" />
             <FavoriteButton productId={product.id} />
             <Link className="btn btn--outline" to="/chat">
               Ask AI about this

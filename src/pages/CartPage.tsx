@@ -3,6 +3,7 @@ import { formatPrice } from '../data/catalog'
 import { getAllProducts } from '../lib/products'
 import { useCartActions, useCartItems } from '../hooks/useCart'
 import { clearCart } from '../lib/cart'
+import { describeConfig } from '../lib/pricing'
 import './CartPage.css'
 
 export function CartPage() {
@@ -14,7 +15,12 @@ export function CartPage() {
     .map((item) => {
       const product = products.find((p) => p.id === item.productId)
       if (!product) return null
-      return { item, product, lineTotal: product.price * item.quantity }
+      return {
+        item,
+        product,
+        lineTotal: item.unitPrice * item.quantity,
+        summary: describeConfig(product.categoryId, item.config),
+      }
     })
     .filter((row): row is NonNullable<typeof row> => Boolean(row))
 
@@ -28,7 +34,7 @@ export function CartPage() {
         <p>
           {rows.length === 0
             ? 'Your cart is empty — browse the shop to add pieces.'
-            : `${rows.length} item${rows.length === 1 ? '' : 's'} ready for checkout.`}
+            : `${rows.length} configured item${rows.length === 1 ? '' : 's'}.`}
         </p>
       </header>
 
@@ -41,8 +47,8 @@ export function CartPage() {
       ) : (
         <>
           <ul className="cart__list">
-            {rows.map(({ item, product, lineTotal }) => (
-              <li key={product.id} className="cart__row">
+            {rows.map(({ item, product, lineTotal, summary }) => (
+              <li key={item.id} className="cart__row">
                 <Link className="cart__media" to={`/product/${product.id}`}>
                   <img src={product.image} alt="" />
                 </Link>
@@ -50,7 +56,8 @@ export function CartPage() {
                   <h2>
                     <Link to={`/product/${product.id}`}>{product.name}</Link>
                   </h2>
-                  <p className="cart__unit">{formatPrice(product.price)} each</p>
+                  <p className="cart__config">{summary}</p>
+                  <p className="cart__unit">{formatPrice(item.unitPrice)} each</p>
                   <div className="cart__controls">
                     <label>
                       Qty
@@ -59,14 +66,17 @@ export function CartPage() {
                         min={1}
                         value={item.quantity}
                         onChange={(e) =>
-                          setCartQuantity(product.id, Math.max(1, Number(e.target.value) || 1))
+                          setCartQuantity(
+                            item.id,
+                            Math.max(1, Number(e.target.value) || 1),
+                          )
                         }
                       />
                     </label>
                     <button
                       type="button"
                       className="cart__remove"
-                      onClick={() => removeFromCart(product.id)}
+                      onClick={() => removeFromCart(item.id)}
                     >
                       Remove
                     </button>

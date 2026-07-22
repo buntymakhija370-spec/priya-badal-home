@@ -20,14 +20,14 @@ export function ProductCard({ product }: Props) {
         <h3>
           <Link to={`/product/${product.id}`}>{product.name}</Link>
         </h3>
-        <p className="product-card__price">{formatPrice(product.price)}</p>
+        <p className="product-card__price">From {formatPrice(product.price)}</p>
         <p className="product-card__desc">{product.description}</p>
         <div className="product-card__actions">
-          <AddToCartButton productId={product.id} />
+          <AddToCartButton product={product} />
           <FavoriteButton productId={product.id} />
         </div>
         <Link className="product-card__cta" to={`/product/${product.id}`}>
-          View details
+          Customize size & finish
         </Link>
       </div>
     </article>

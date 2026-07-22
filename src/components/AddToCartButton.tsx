@@ -1,21 +1,30 @@
 import { useState } from 'react'
-import { addToCart, getCartQuantity } from '../lib/cart'
+import { calculatePrice, defaultConfig } from '../lib/pricing'
+import { addConfiguredToCart, getCartQuantity } from '../lib/cart'
 import { useCartItems } from '../hooks/useCart'
+import type { Product } from '../data/catalog'
 import './AddToCartButton.css'
 
 type Props = {
-  productId: string
+  product: Product
   className?: string
 }
 
-export function AddToCartButton({ productId, className = '' }: Props) {
+export function AddToCartButton({ product, className = '' }: Props) {
   const items = useCartItems()
-  const inCart = items.some((item) => item.productId === productId)
-  const qty = getCartQuantity(productId)
+  const inCart = items.some((item) => item.productId === product.id)
+  const qty = getCartQuantity(product.id)
   const [justAdded, setJustAdded] = useState(false)
 
   const onAdd = () => {
-    addToCart(productId, 1)
+    const config = defaultConfig(product.categoryId)
+    const quote = calculatePrice(product.price, product.categoryId, config)
+    addConfiguredToCart({
+      productId: product.id,
+      quantity: 1,
+      config: quote.config,
+      unitPrice: quote.unitPrice,
+    })
     setJustAdded(true)
     window.setTimeout(() => setJustAdded(false), 1200)
   }

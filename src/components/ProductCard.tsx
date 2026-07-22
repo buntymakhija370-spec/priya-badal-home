@@ -1,6 +1,7 @@
 import { Link } from 'react-router-dom'
 import { formatPrice, type Product } from '../data/catalog'
 import { FavoriteButton } from './FavoriteButton'
+import { AddToCartButton } from './AddToCartButton'
 import './ProductCard.css'
 
 type Props = {
@@ -22,11 +23,12 @@ export function ProductCard({ product }: Props) {
         <p className="product-card__price">{formatPrice(product.price)}</p>
         <p className="product-card__desc">{product.description}</p>
         <div className="product-card__actions">
+          <AddToCartButton productId={product.id} />
           <FavoriteButton productId={product.id} />
-          <Link className="btn btn--outline product-card__view" to={`/product/${product.id}`}>
-            View details
-          </Link>
         </div>
+        <Link className="product-card__cta" to={`/product/${product.id}`}>
+          View details
+        </Link>
       </div>
     </article>
   )

@@ -3,6 +3,7 @@ import { formatPrice, getCategory, getSubcategory } from '../data/catalog'
 import { getProductById, getProductsByCategory } from '../lib/products'
 import { ProductCard } from '../components/ProductCard'
 import { FavoriteButton } from '../components/FavoriteButton'
+import { AddToCartButton } from '../components/AddToCartButton'
 import './ProductPage.css'
 
 export function ProductPage() {
@@ -56,12 +57,10 @@ export function ProductPage() {
             ))}
           </div>
           <div className="product-page__actions">
+            <AddToCartButton productId={product.id} className="cart-btn--lg" />
             <FavoriteButton productId={product.id} />
-            <Link className="btn btn--dark" to="/chat">
+            <Link className="btn btn--outline" to="/chat">
               Ask AI about this
-            </Link>
-            <Link className="btn btn--outline" to={`/shop/${product.categoryId}`}>
-              More in {category?.name}
             </Link>
           </div>
         </div>

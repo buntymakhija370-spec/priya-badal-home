@@ -1,5 +1,6 @@
 import { NavLink, Outlet } from 'react-router-dom'
 import { useEffect, useState } from 'react'
+import { useCartCount } from '../hooks/useCart'
 import './Layout.css'
 
 const links = [
@@ -12,6 +13,7 @@ const links = [
 export function Layout() {
   const [scrolled, setScrolled] = useState(false)
   const [menuOpen, setMenuOpen] = useState(false)
+  const cartCount = useCartCount()
 
   useEffect(() => {
     const onScroll = () => setScrolled(window.scrollY > 20)
@@ -37,16 +39,23 @@ export function Layout() {
           Priya Badal
         </NavLink>
 
-        <button
-          className={`nav__toggle ${menuOpen ? 'is-open' : ''}`}
-          type="button"
-          aria-label={menuOpen ? 'Close menu' : 'Open menu'}
-          aria-expanded={menuOpen}
-          onClick={() => setMenuOpen((v) => !v)}
-        >
-          <span />
-          <span />
-        </button>
+        <div className="nav__end">
+          <NavLink className="nav__cart" to="/cart" onClick={close}>
+            Cart
+            {cartCount > 0 && <span className="nav__cart-count">{cartCount}</span>}
+          </NavLink>
+
+          <button
+            className={`nav__toggle ${menuOpen ? 'is-open' : ''}`}
+            type="button"
+            aria-label={menuOpen ? 'Close menu' : 'Open menu'}
+            aria-expanded={menuOpen}
+            onClick={() => setMenuOpen((v) => !v)}
+          >
+            <span />
+            <span />
+          </button>
+        </div>
 
         <nav className={`nav__links ${menuOpen ? 'is-open' : ''}`} aria-label="Primary">
           {links.map((link) => (
@@ -54,6 +63,9 @@ export function Layout() {
               {link.label}
             </NavLink>
           ))}
+          <NavLink className="nav__links-cart" to="/cart" onClick={close}>
+            Cart{cartCount > 0 ? ` (${cartCount})` : ''}
+          </NavLink>
         </nav>
       </header>
 

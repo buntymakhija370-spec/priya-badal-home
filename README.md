@@ -1,6 +1,13 @@
 # Priya Badal Home
 
-Personal website for **Priya Badal** — a calm home base for ideas, stories, and work in progress.
+Interior products website with categories, prices, photo uploads, and an AI room guide.
+
+## Features
+
+- **Shop** — categories & subcategories with product photos and INR prices
+- **Product pages** — details, price, related pieces
+- **AI Interior Guide** — chat board that suggests products for a room/style/budget
+- **Add Product** — upload a photograph (or paste image URL), set category, subcategory, and price
 
 ## Develop
 
@@ -15,5 +22,3 @@ npm run dev
 npm run build
 npm run preview
 ```
-
-Built with Vite + React + TypeScript.

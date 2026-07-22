@@ -1,0 +1,124 @@
+.chat__header {
+  max-width: 40rem;
+  margin-bottom: 1.75rem;
+}
+
+.chat__header h1 {
+  font-family: var(--font-display);
+  font-size: clamp(2.2rem, 5vw, 3.2rem);
+  letter-spacing: -0.03em;
+  margin-bottom: 0.75rem;
+}
+
+.chat__header p {
+  color: var(--ink-soft);
+  line-height: 1.65;
+  font-weight: 300;
+}
+
+.chat__board {
+  width: min(52rem, 100%);
+  border: 1px solid rgba(21, 32, 25, 0.1);
+  background:
+    linear-gradient(180deg, rgba(255, 255, 255, 0.7), rgba(241, 245, 242, 0.9));
+  padding: 1rem;
+}
+
+.chat__messages {
+  display: flex;
+  flex-direction: column;
+  gap: 0.9rem;
+  min-height: 22rem;
+  max-height: 55vh;
+  overflow-y: auto;
+  padding: 0.5rem 0.25rem 1rem;
+}
+
+.bubble {
+  max-width: min(36rem, 92%);
+  padding: 0.9rem 1rem;
+  border-radius: 0.35rem;
+  white-space: pre-wrap;
+  line-height: 1.55;
+}
+
+.bubble--assistant {
+  align-self: flex-start;
+  background: #fff;
+  border: 1px solid rgba(21, 32, 25, 0.08);
+}
+
+.bubble--user {
+  align-self: flex-end;
+  background: #1c2a22;
+  color: #eef4ef;
+}
+
+.bubble__products {
+  display: grid;
+  gap: 0.55rem;
+  margin-top: 0.9rem;
+}
+
+.bubble__product {
+  display: grid;
+  grid-template-columns: 3.5rem 1fr;
+  gap: 0.7rem;
+  align-items: center;
+  padding: 0.4rem;
+  background: var(--fog);
+  transition: background 0.25s var(--ease-out);
+}
+
+.bubble__product:hover {
+  background: #e7eee9;
+}
+
+.bubble__product img {
+  width: 3.5rem;
+  height: 3.5rem;
+  object-fit: cover;
+}
+
+.bubble__product strong {
+  display: block;
+  font-size: 0.92rem;
+}
+
+.bubble__product em {
+  font-style: normal;
+  color: var(--honey-deep);
+  font-size: 0.88rem;
+}
+
+.chat__suggestions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+  margin: 0.5rem 0 0.85rem;
+}
+
+.chat__form {
+  display: grid;
+  grid-template-columns: 1fr auto;
+  gap: 0.6rem;
+}
+
+.chat__form input {
+  min-height: 2.85rem;
+  padding: 0.7rem 0.9rem;
+  border: 1px solid rgba(21, 32, 25, 0.16);
+  border-radius: 0.35rem;
+  background: #fff;
+}
+
+.chat__form input:focus {
+  outline: 2px solid rgba(79, 106, 88, 0.35);
+  outline-offset: 1px;
+}
+
+@media (max-width: 600px) {
+  .chat__form {
+    grid-template-columns: 1fr;
+  }
+}

@@ -41,6 +41,8 @@ export type Product = {
   rooms: string[]
   image: string
   images?: string[]
+  /** Optional product videos (mp4/webm) shown in the gallery */
+  videos?: string[]
   custom?: boolean
   /** Shown above the title, like Pepperfry brand line */
   brand?: string
@@ -73,8 +75,7 @@ export const categories: Category[] = [
     id: 'kitchen',
     name: 'Kitchen',
     description: 'Modular kitchens, cabinets, and counter finishes.',
-    image:
-      'https://images.unsplash.com/photo-1556912173-46c336c7fd55?auto=format&fit=crop&w=1400&q=80',
+    image: '/products/kitchen-modular-showcase.jpg',
     subcategories: [
       { id: 'modular', name: 'Modular Units' },
       { id: 'cabinets', name: 'Cabinets' },
@@ -322,6 +323,30 @@ export const baseProducts: Product[] = [
     rooms: ['bedroom', 'living room', 'wall panels'],
     image:
       'https://images.unsplash.com/photo-1616486338812-3dadae4b4ace?auto=format&fit=crop&w=1200&q=80',
+  },
+  {
+    id: 'modular-kitchen-showcase',
+    name: 'Modular Kitchen Showcase',
+    categoryId: 'kitchen',
+    subcategoryId: 'modular',
+    price: 189999,
+    currency: 'INR',
+    brand: 'Priyabadal Homes',
+    collection: 'Kitchen',
+    sku: 'PBH-KIT-VIDEO-01',
+    description:
+      'Made-to-measure modular kitchen with clean cabinetry, soft lighting, and a practical layout — see the walkthrough video for the full look.',
+    style: ['modern', 'warm', 'minimal'],
+    rooms: ['kitchen'],
+    image: '/products/kitchen-modular-showcase.jpg',
+    images: ['/products/kitchen-modular-showcase.jpg'],
+    videos: ['/products/kitchen-modular-showcase.mp4'],
+    highlights: [
+      'Product walkthrough video',
+      'Modular made-to-measure layout',
+      'Customise size & finish',
+      'WhatsApp quote available',
+    ],
   },
   {
     id: 'modular-l-kitchen',

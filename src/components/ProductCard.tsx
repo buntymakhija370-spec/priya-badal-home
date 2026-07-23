@@ -1,5 +1,6 @@
 import { Link } from 'react-router-dom'
 import { formatPrice, getCategory, type Product } from '../data/catalog'
+import { getProductMedia } from '../lib/media'
 import { productPath } from '../lib/links'
 import { ProductImageScroller } from './ProductImageScroller'
 import { CustomizeButton } from './PriceCalculator'
@@ -12,13 +13,13 @@ type Props = {
 
 export function ProductCard({ product }: Props) {
   const href = productPath(product.id)
-  const images = product.images?.length ? product.images : [product.image]
+  const media = getProductMedia(product)
   const category = getCategory(product.categoryId)
 
   return (
     <article className="product-card">
       <div className="product-card__media">
-        <ProductImageScroller images={images} alt={product.name} />
+        <ProductImageScroller media={media} alt={product.name} />
         <FavoriteButton
           productId={product.id}
           className="fav-btn--icon fav-btn--on-media product-card__fav"

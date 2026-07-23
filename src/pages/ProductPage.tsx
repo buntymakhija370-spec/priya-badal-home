@@ -2,6 +2,7 @@ import { Link, useParams } from 'react-router-dom'
 import { useMemo, useState } from 'react'
 import { formatPrice, getCategory, getSubcategory, type SpecRow } from '../data/catalog'
 import { getAllProducts, getProductById } from '../lib/products'
+import { getProductMedia } from '../lib/media'
 import { resolveProductPresentation } from '../lib/productSpecs'
 import { ProductGallery } from '../components/ProductGallery'
 import { ProductCard } from '../components/ProductCard'
@@ -54,7 +55,7 @@ export function ProductPage() {
 
   const category = getCategory(product.categoryId)
   const subcategory = getSubcategory(product.categoryId, product.subcategoryId)
-  const gallery = product.images?.length ? product.images : [product.image]
+  const media = getProductMedia(product)
   const presentation = resolveProductPresentation(product)
 
   return (
@@ -73,7 +74,7 @@ export function ProductPage() {
 
       <div className="product-page__layout">
         <div className="product-page__gallery">
-          <ProductGallery images={gallery} alt={product.name} />
+          <ProductGallery media={media} alt={product.name} />
         </div>
 
         <div className="product-page__info">

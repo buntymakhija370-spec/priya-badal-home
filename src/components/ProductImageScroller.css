@@ -34,13 +34,34 @@
   scroll-snap-stop: always;
 }
 
-.img-scroller__slide img {
+.img-scroller__slide img,
+.img-scroller__video {
   width: 100%;
   height: 100%;
   object-fit: cover;
   display: block;
   pointer-events: none;
   user-select: none;
+  background: #111;
+}
+
+.img-scroller__video {
+  object-fit: cover;
+}
+
+.img-scroller__video-badge {
+  position: absolute;
+  left: 0.55rem;
+  bottom: 0.55rem;
+  z-index: 2;
+  padding: 0.2rem 0.45rem;
+  border-radius: 0.25rem;
+  background: rgba(21, 32, 25, 0.78);
+  color: #fff;
+  font-size: 0.68rem;
+  font-weight: 600;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
 }
 
 .img-scroller__dots {

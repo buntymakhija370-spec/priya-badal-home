@@ -1,14 +1,16 @@
 import { useEffect, useRef, useState } from 'react'
+import type { MediaItem } from '../lib/media'
 import './ProductGallery.css'
 
 type Props = {
-  images: string[]
+  media: MediaItem[]
   alt: string
 }
 
-export function ProductGallery({ images, alt }: Props) {
-  const gallery = images.length > 0 ? images : []
+export function ProductGallery({ media, alt }: Props) {
+  const gallery = media.length > 0 ? media : []
   const trackRef = useRef<HTMLDivElement>(null)
+  const videoRefs = useRef<Map<number, HTMLVideoElement>>(new Map())
   const [active, setActive] = useState(0)
   const touchRef = useRef<{ x: number; y: number; locked: 'x' | 'y' | null }>({
     x: 0,
@@ -20,7 +22,7 @@ export function ProductGallery({ images, alt }: Props) {
     setActive(0)
     const el = trackRef.current
     if (el) el.scrollTo({ left: 0 })
-  }, [images])
+  }, [media])
 
   useEffect(() => {
     const el = trackRef.current
@@ -36,6 +38,19 @@ export function ProductGallery({ images, alt }: Props) {
     el.addEventListener('scroll', onScroll, { passive: true })
     return () => el.removeEventListener('scroll', onScroll)
   }, [gallery.length])
+
+  // Pause off-screen videos; try play the active one
+  useEffect(() => {
+    videoRefs.current.forEach((video, index) => {
+      if (index === active) {
+        video.play().catch(() => {
+          /* autoplay may be blocked until user taps */
+        })
+      } else {
+        video.pause()
+      }
+    })
+  }, [active])
 
   useEffect(() => {
     const el = trackRef.current
@@ -58,7 +73,6 @@ export function ProductGallery({ images, alt }: Props) {
         touchRef.current.locked = dx > dy ? 'x' : 'y'
       }
 
-      // Vertical scroll intent: don't trap the gesture in the gallery
       if (touchRef.current.locked === 'y') {
         el.style.overflowX = 'hidden'
       }
@@ -95,14 +109,14 @@ export function ProductGallery({ images, alt }: Props) {
   return (
     <div className="product-gallery">
       {gallery.length > 1 && (
-        <div className="product-gallery__thumbs" role="tablist" aria-label="Product photos">
-          {gallery.map((src, index) => (
+        <div className="product-gallery__thumbs" role="tablist" aria-label="Product media">
+          {gallery.map((item, index) => (
             <button
-              key={`${src}-${index}`}
+              key={`${item.src}-${index}`}
               type="button"
               role="tab"
               aria-selected={index === active}
-              aria-label={`Photo ${index + 1}`}
+              aria-label={item.type === 'video' ? `Video ${index + 1}` : `Photo ${index + 1}`}
               className={
                 index === active
                   ? 'product-gallery__thumb is-active'
@@ -110,7 +124,16 @@ export function ProductGallery({ images, alt }: Props) {
               }
               onClick={() => goTo(index)}
             >
-              <img src={src} alt="" loading={index === 0 ? 'eager' : 'lazy'} />
+              {item.type === 'video' ? (
+                <>
+                  <img src={item.poster || item.src} alt="" loading="lazy" />
+                  <span className="product-gallery__thumb-play" aria-hidden="true">
+                    ▶
+                  </span>
+                </>
+              ) : (
+                <img src={item.src} alt="" loading={index === 0 ? 'eager' : 'lazy'} />
+              )}
             </button>
           ))}
         </div>
@@ -123,29 +146,47 @@ export function ProductGallery({ images, alt }: Props) {
           tabIndex={0}
           role="region"
           aria-roledescription="carousel"
-          aria-label={`${alt} photos`}
+          aria-label={`${alt} media`}
         >
-          {gallery.map((src, index) => (
-            <figure key={`${src}-${index}`} className="product-gallery__slide">
-              <img
-                src={src}
-                alt={index === 0 ? alt : `${alt} — photo ${index + 1}`}
-                loading={index === 0 ? 'eager' : 'lazy'}
-                draggable={false}
-              />
+          {gallery.map((item, index) => (
+            <figure key={`${item.src}-${index}`} className="product-gallery__slide">
+              {item.type === 'video' ? (
+                <video
+                  ref={(el) => {
+                    if (el) videoRefs.current.set(index, el)
+                    else videoRefs.current.delete(index)
+                  }}
+                  className="product-gallery__video"
+                  src={item.src}
+                  poster={item.poster}
+                  controls
+                  playsInline
+                  preload="metadata"
+                  aria-label={`${alt} video`}
+                />
+              ) : (
+                <img
+                  src={item.src}
+                  alt={index === 0 ? alt : `${alt} — photo ${index + 1}`}
+                  loading={index === 0 ? 'eager' : 'lazy'}
+                  draggable={false}
+                />
+              )}
             </figure>
           ))}
         </div>
 
         {gallery.length > 1 && (
-          <div className="product-gallery__dots" role="tablist" aria-label="Photo position">
-            {gallery.map((_, index) => (
+          <div className="product-gallery__dots" role="tablist" aria-label="Media position">
+            {gallery.map((item, index) => (
               <button
                 key={index}
                 type="button"
                 role="tab"
                 aria-selected={index === active}
-                aria-label={`Photo ${index + 1}`}
+                aria-label={
+                  item.type === 'video' ? `Video ${index + 1}` : `Photo ${index + 1}`
+                }
                 className={
                   index === active
                     ? 'product-gallery__dot is-active'

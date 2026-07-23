@@ -1,5 +1,5 @@
 import { Link, useParams } from 'react-router-dom'
-import { useMemo, useState } from 'react'
+import { useEffect, useMemo, useState } from 'react'
 import { categories, getCategory, getSubcategory } from '../data/catalog'
 import { getProductsByCategory, getAllProducts } from '../lib/products'
 import { ProductCard } from '../components/ProductCard'
@@ -18,6 +18,13 @@ export function ShopPage() {
 
   const [query, setQuery] = useState('')
   const [sort, setSort] = useState<SortId>('featured')
+
+  // Same ShopPage instance is reused across categories — reset filters + scroll
+  useEffect(() => {
+    setQuery('')
+    setSort('featured')
+    window.scrollTo({ top: 0, left: 0, behavior: 'auto' })
+  }, [categoryId, subcategoryId])
 
   const baseProducts = useMemo(() => {
     if (!categoryId) return getAllProducts()

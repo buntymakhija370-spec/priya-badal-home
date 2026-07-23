@@ -2,12 +2,12 @@ import { useEffect, useId, useMemo, useState } from 'react'
 import { createPortal } from 'react-dom'
 import { formatPrice, type Product } from '../data/catalog'
 import {
-  FINISHES,
-  THICKNESSES,
   calculatePrice,
   defaultConfig,
   describeConfig,
+  getFinishOptionsForProduct,
   getSizeLimits,
+  getThicknessOptionsForProduct,
   type PriceConfig,
 } from '../lib/pricing'
 import { buildWhatsAppQuoteUrl } from '../lib/whatsapp'
@@ -63,6 +63,8 @@ function CalculatorOverlay({ product, onClose }: OverlayProps) {
     defaultConfig(product.categoryId, product),
   )
   const size = getSizeLimits(product.categoryId)
+  const finishOptions = getFinishOptionsForProduct(product)
+  const thicknessOptions = getThicknessOptionsForProduct(product)
 
   const quote = useMemo(
     () => calculatePrice(product, config),
@@ -102,6 +104,11 @@ function CalculatorOverlay({ product, onClose }: OverlayProps) {
     quote.unitPrice,
   )
 
+  const sqft =
+    product.pricingMode === 'per-sqft'
+      ? Math.round(quote.config.width * quote.config.height * 10) / 10
+      : null
+
   return createPortal(
     <div className="calc-overlay" role="presentation">
       <button
@@ -133,51 +140,39 @@ function CalculatorOverlay({ product, onClose }: OverlayProps) {
         </div>
 
         <div className="calc-sheet__grid">
-          <label className="calc-sheet__field">
-            Finish
-            <select
-              value={config.finishId}
-              onChange={(e) => update({ finishId: e.target.value })}
-            >
-              {FINISHES.map((finish) => (
-                <option key={finish.id} value={finish.id}>
-                  {finish.name}
-                </option>
-              ))}
-            </select>
-          </label>
+          {finishOptions.length > 0 && (
+            <div className="calc-sheet__field">
+              <span>Finish</span>
+              <p className="calc-sheet__locked">{finishOptions[0]!.name}</p>
+            </div>
+          )}
+
+          {thicknessOptions.length > 0 && (
+            <div className="calc-sheet__field">
+              <span>Thickness</span>
+              <p className="calc-sheet__locked">{thicknessOptions[0]!.label}</p>
+            </div>
+          )}
 
           <label className="calc-sheet__field">
-            Thickness
-            <select
-              value={config.thicknessId}
-              onChange={(e) => update({ thicknessId: e.target.value })}
-            >
-              {THICKNESSES.map((item) => (
-                <option key={item.id} value={item.id}>
-                  {item.label}
-                </option>
-              ))}
-            </select>
-          </label>
-
-          <label className="calc-sheet__field">
-            Width (cm)
+            Width (ft)
             <input
               type="number"
               min={size.minWidth}
               max={size.maxWidth}
+              step={0.1}
               value={config.width}
               onChange={(e) => update({ width: Number(e.target.value) })}
             />
           </label>
 
           <label className="calc-sheet__field">
-            Height (cm)
+            Height (ft)
             <input
               type="number"
               min={size.minHeight}
               max={size.maxHeight}
+              step={0.1}
               value={config.height}
               onChange={(e) => update({ height: Number(e.target.value) })}
             />
@@ -185,11 +180,12 @@ function CalculatorOverlay({ product, onClose }: OverlayProps) {
 
           {size.usesDepth && (
             <label className="calc-sheet__field calc-sheet__field--full">
-              Depth (cm)
+              Depth (ft)
               <input
                 type="number"
                 min={size.minDepth}
                 max={size.maxDepth}
+                step={0.1}
                 value={config.depth}
                 onChange={(e) => update({ depth: Number(e.target.value) })}
               />
@@ -203,8 +199,9 @@ function CalculatorOverlay({ product, onClose }: OverlayProps) {
             <p className="calc-sheet__price">{formatPrice(quote.unitPrice)}</p>
             <p className="calc-sheet__meta">
               {describeConfig(product.categoryId, quote.config)}
+              {sqft != null ? ` · ${sqft} sq ft` : ''}
               {product.pricingMode === 'per-sqft'
-                ? ` · base ${formatPrice(product.price)}/sq ft`
+                ? ` · ${formatPrice(product.price)}/sq ft`
                 : ''}
             </p>
           </div>

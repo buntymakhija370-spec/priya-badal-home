@@ -104,6 +104,18 @@
   font-size: 0.95rem;
 }
 
+.calc-sheet__locked {
+  min-height: 2.55rem;
+  display: flex;
+  align-items: center;
+  padding: 0.5rem 0.65rem;
+  border: 1px solid rgba(21, 32, 25, 0.12);
+  border-radius: 0.35rem;
+  background: rgba(21, 32, 25, 0.04);
+  font-weight: 500;
+  font-size: 0.95rem;
+}
+
 .calc-sheet__footer {
   display: grid;
   grid-template-columns: minmax(0, 1fr) auto;

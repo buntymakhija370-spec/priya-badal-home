@@ -13,6 +13,7 @@ export type ThicknessOption = {
   multiplier: number
 }
 
+/** All size values are in feet */
 export type SizeLimits = {
   minWidth: number
   maxWidth: number
@@ -32,112 +33,122 @@ export type SizeLimits = {
 export type PriceConfig = {
   finishId: string
   thicknessId: string
+  /** feet */
   width: number
+  /** feet */
   height: number
+  /** feet */
   depth: number
 }
 
-export const FINISHES: FinishOption[] = [
-  { id: 'pu', name: 'PU finish', multiplier: 1 },
-  { id: 'matte', name: 'Matte laminate', multiplier: 0.92 },
-  { id: 'natural-oak', name: 'Natural oak', multiplier: 1.18 },
-  { id: 'walnut', name: 'Walnut veneer', multiplier: 1.32 },
-  { id: 'gloss', name: 'High gloss lacquer', multiplier: 1.2 },
-  { id: 'textured', name: 'Textured finish', multiplier: 1.08 },
-]
+const FINISH_LOOKUP: Record<string, FinishOption> = {
+  pu: { id: 'pu', name: 'PU', multiplier: 1 },
+  matte: { id: 'matte', name: 'Matte laminate', multiplier: 0.92 },
+  'natural-oak': { id: 'natural-oak', name: 'Natural oak', multiplier: 1.18 },
+  walnut: { id: 'walnut', name: 'Walnut veneer', multiplier: 1.32 },
+  gloss: { id: 'gloss', name: 'High gloss lacquer', multiplier: 1.2 },
+  textured: { id: 'textured', name: 'Textured finish', multiplier: 1.08 },
+}
 
-export const THICKNESSES: ThicknessOption[] = [
-  { id: '12', label: '12 mm', mm: 12, multiplier: 0.82 },
-  { id: '18', label: '18 mm', mm: 18, multiplier: 0.92 },
-  { id: '25', label: '25 mm', mm: 25, multiplier: 1 },
-  { id: '32', label: '32 mm', mm: 32, multiplier: 1.18 },
-]
+const THICKNESS_LOOKUP: Record<string, ThicknessOption> = {
+  '12': { id: '12', label: '12 mm', mm: 12, multiplier: 0.82 },
+  '18': { id: '18', label: '18 mm', mm: 18, multiplier: 0.92 },
+  '25': { id: '25', label: '25 mm', mm: 25, multiplier: 1 },
+  '32': { id: '32', label: '32 mm', mm: 32, multiplier: 1.18 },
+}
+
+/** @deprecated Prefer getFinishOptionsForProduct — kept for lookups only */
+export const FINISHES: FinishOption[] = Object.values(FINISH_LOOKUP)
+
+export const THICKNESSES: ThicknessOption[] = Object.values(THICKNESS_LOOKUP)
 
 const DEFAULT_SIZE: SizeLimits = {
-  minWidth: 30,
-  maxWidth: 400,
-  minHeight: 20,
-  maxHeight: 300,
-  minDepth: 20,
-  maxDepth: 120,
-  defaultWidth: 120,
-  defaultHeight: 75,
-  defaultDepth: 45,
-  baseWidth: 120,
-  baseHeight: 75,
-  baseDepth: 45,
+  minWidth: 1,
+  maxWidth: 14,
+  minHeight: 1,
+  maxHeight: 12,
+  minDepth: 0.5,
+  maxDepth: 4,
+  defaultWidth: 4,
+  defaultHeight: 2.5,
+  defaultDepth: 1.5,
+  baseWidth: 4,
+  baseHeight: 2.5,
+  baseDepth: 1.5,
   usesDepth: true,
 }
 
 const SIZE_BY_CATEGORY: Record<string, Partial<SizeLimits>> = {
   'wall-panels': {
-    defaultWidth: 60,
-    defaultHeight: 240,
-    defaultDepth: 2,
-    baseWidth: 60,
-    baseHeight: 240,
-    baseDepth: 2,
+    defaultWidth: 2,
+    defaultHeight: 8,
+    defaultDepth: 0.1,
+    baseWidth: 2,
+    baseHeight: 8,
+    baseDepth: 0.1,
     usesDepth: false,
-    minWidth: 30,
-    maxWidth: 120,
-    minHeight: 60,
-    maxHeight: 300,
+    minWidth: 1,
+    maxWidth: 4,
+    minHeight: 2,
+    maxHeight: 10,
   },
   kitchen: {
-    defaultWidth: 240,
-    defaultHeight: 210,
-    defaultDepth: 60,
-    baseWidth: 240,
-    baseHeight: 210,
-    baseDepth: 60,
-    maxWidth: 500,
-    maxHeight: 270,
-    maxDepth: 90,
+    defaultWidth: 8,
+    defaultHeight: 7,
+    defaultDepth: 2,
+    baseWidth: 8,
+    baseHeight: 7,
+    baseDepth: 2,
+    maxWidth: 16,
+    maxHeight: 9,
+    maxDepth: 3,
   },
   wardrobe: {
-    defaultWidth: 180,
-    defaultHeight: 210,
-    defaultDepth: 60,
-    baseWidth: 180,
-    baseHeight: 210,
-    baseDepth: 60,
-    maxWidth: 360,
-    maxHeight: 270,
-    maxDepth: 80,
+    defaultWidth: 6,
+    defaultHeight: 7,
+    defaultDepth: 2,
+    baseWidth: 6,
+    baseHeight: 7,
+    baseDepth: 2,
+    minWidth: 2,
+    maxWidth: 12,
+    minHeight: 5,
+    maxHeight: 9,
+    maxDepth: 3,
   },
   temple: {
-    defaultWidth: 90,
-    defaultHeight: 180,
-    defaultDepth: 45,
-    baseWidth: 90,
-    baseHeight: 180,
-    baseDepth: 45,
-    maxWidth: 180,
-    maxHeight: 240,
-    maxDepth: 70,
+    defaultWidth: 3,
+    defaultHeight: 6,
+    defaultDepth: 1.5,
+    baseWidth: 3,
+    baseHeight: 6,
+    baseDepth: 1.5,
+    maxWidth: 6,
+    maxHeight: 8,
+    maxDepth: 2.5,
   },
   doors: {
-    defaultWidth: 90,
-    defaultHeight: 210,
-    defaultDepth: 4,
-    baseWidth: 90,
-    baseHeight: 210,
-    baseDepth: 4,
+    defaultWidth: 3,
+    defaultHeight: 7,
+    defaultDepth: 0.15,
+    baseWidth: 3,
+    baseHeight: 7,
+    baseDepth: 0.15,
     usesDepth: false,
-    minWidth: 60,
-    maxWidth: 120,
-    minHeight: 180,
-    maxHeight: 240,
+    minWidth: 2,
+    maxWidth: 4,
+    minHeight: 6,
+    maxHeight: 8,
   },
   'sculpted-furniture': {
-    defaultWidth: 180,
-    defaultHeight: 85,
-    defaultDepth: 90,
-    baseWidth: 180,
-    baseHeight: 85,
-    baseDepth: 90,
-    maxWidth: 320,
-    maxDepth: 120,
+    defaultWidth: 6,
+    defaultHeight: 2.8,
+    defaultDepth: 3,
+    baseWidth: 6,
+    baseHeight: 2.8,
+    baseDepth: 3,
+    maxWidth: 10,
+    maxDepth: 4,
   },
 }
 
@@ -146,11 +157,27 @@ export function getSizeLimits(categoryId: string): SizeLimits {
 }
 
 export function getFinish(id: string) {
-  return FINISHES.find((f) => f.id === id) ?? FINISHES[0]!
+  return FINISH_LOOKUP[id] ?? FINISH_LOOKUP.pu!
 }
 
 export function getThickness(id: string) {
-  return THICKNESSES.find((t) => t.id === id) ?? THICKNESSES[1]!
+  return THICKNESS_LOOKUP[id] ?? THICKNESS_LOOKUP['25']!
+}
+
+/** Only the finish stated on the product — never invent extra options */
+export function getFinishOptionsForProduct(
+  product?: Pick<Product, 'defaultFinishId'>,
+): FinishOption[] {
+  if (!product?.defaultFinishId) return []
+  return [getFinish(product.defaultFinishId)]
+}
+
+/** Only the thickness stated on the product */
+export function getThicknessOptionsForProduct(
+  product?: Pick<Product, 'defaultThicknessId'>,
+): ThicknessOption[] {
+  if (!product?.defaultThicknessId) return []
+  return [getThickness(product.defaultThicknessId)]
 }
 
 export function defaultConfig(
@@ -172,23 +199,22 @@ function clamp(value: number, min: number, max: number) {
   return Math.min(max, Math.max(min, value))
 }
 
+function roundFt(value: number) {
+  return Math.round(value * 10) / 10
+}
+
 export function normalizeConfig(categoryId: string, config: PriceConfig): PriceConfig {
   const size = getSizeLimits(categoryId)
   return {
     finishId: getFinish(config.finishId).id,
     thicknessId: getThickness(config.thicknessId).id,
-    width: clamp(Math.round(config.width), size.minWidth, size.maxWidth),
-    height: clamp(Math.round(config.height), size.minHeight, size.maxHeight),
-    depth: clamp(Math.round(config.depth), size.minDepth, size.maxDepth),
+    width: clamp(roundFt(config.width), size.minWidth, size.maxWidth),
+    height: clamp(roundFt(config.height), size.minHeight, size.maxHeight),
+    depth: clamp(roundFt(config.depth), size.minDepth, size.maxDepth),
   }
 }
 
-/** cm² → sq ft */
-function toSqFt(widthCm: number, heightCm: number) {
-  return (widthCm * heightCm) / 929.0304
-}
-
-/** Price from base product price × finish × thickness × size */
+/** Price from base product price × finish × thickness × size (sizes in feet) */
 export function calculatePrice(
   product: Pick<
     Product,
@@ -200,8 +226,8 @@ export function calculatePrice(
   const normalized = normalizeConfig(product.categoryId, config)
   const finish = getFinish(normalized.finishId)
   const thickness = getThickness(normalized.thicknessId)
-  const baseFinish = getFinish(product.defaultFinishId ?? 'pu')
-  const baseThickness = getThickness(product.defaultThicknessId ?? '25')
+  const baseFinish = getFinish(product.defaultFinishId ?? normalized.finishId)
+  const baseThickness = getThickness(product.defaultThicknessId ?? normalized.thicknessId)
 
   const finishMult = finish.multiplier / baseFinish.multiplier
   const thicknessMult = thickness.multiplier / baseThickness.multiplier
@@ -210,7 +236,7 @@ export function calculatePrice(
   let sizeFactor = 1
 
   if (product.pricingMode === 'per-sqft') {
-    const sqft = toSqFt(normalized.width, normalized.height)
+    const sqft = normalized.width * normalized.height
     sizeFactor = sqft
     unitPrice = Math.round(product.price * sqft * finishMult * thicknessMult)
   } else {
@@ -255,7 +281,9 @@ export function describeConfig(categoryId: string, config: PriceConfig) {
   const finish = getFinish(config.finishId)
   const thickness = getThickness(config.thicknessId)
   const dims = size.usesDepth
-    ? `${config.width} × ${config.height} × ${config.depth} cm`
-    : `${config.width} × ${config.height} cm`
-  return `${finish.name} · ${thickness.label} · ${dims}`
+    ? `${config.width} × ${config.height} × ${config.depth} ft`
+    : `${config.width} × ${config.height} ft`
+  const finishPart = finish.name
+  const thicknessPart = thickness.label
+  return `${finishPart} · ${thicknessPart} · ${dims}`
 }

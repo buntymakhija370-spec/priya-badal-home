@@ -1,0 +1,31 @@
+.cart-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 2.4rem;
+  padding: 0.45rem 0.9rem;
+  border-radius: 0.35rem;
+  background: var(--ink);
+  color: var(--fog);
+  font-size: 0.85rem;
+  font-weight: 500;
+  transition:
+    background 0.25s var(--ease-out),
+    transform 0.25s var(--ease-out);
+}
+
+.cart-btn:hover,
+.cart-btn:focus-visible {
+  background: #24322a;
+  transform: translateY(-1px);
+}
+
+.cart-btn.is-in-cart {
+  background: #31483b;
+}
+
+.cart-btn--lg {
+  min-height: 2.85rem;
+  padding: 0.7rem 1.25rem;
+  font-size: 0.95rem;
+}

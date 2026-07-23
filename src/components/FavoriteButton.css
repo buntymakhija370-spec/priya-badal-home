@@ -1,0 +1,61 @@
+.fav-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.4rem;
+  min-height: 2.4rem;
+  padding: 0.4rem 0.75rem;
+  border: 1px solid rgba(21, 32, 25, 0.14);
+  border-radius: 0.35rem;
+  background: rgba(255, 255, 255, 0.92);
+  color: var(--ink);
+  font-size: 0.85rem;
+  font-weight: 500;
+  transition:
+    background 0.25s var(--ease-out),
+    color 0.25s var(--ease-out),
+    border-color 0.25s var(--ease-out),
+    transform 0.25s var(--ease-out);
+}
+
+.fav-btn svg {
+  width: 1.1rem;
+  height: 1.1rem;
+  flex-shrink: 0;
+}
+
+.fav-btn:hover,
+.fav-btn:focus-visible {
+  border-color: var(--ink);
+  transform: translateY(-1px);
+}
+
+.fav-btn.is-active {
+  background: #1c2a22;
+  border-color: #1c2a22;
+  color: #f4f8f5;
+}
+
+.fav-btn--icon {
+  width: 2.5rem;
+  height: 2.5rem;
+  min-height: 2.5rem;
+  padding: 0;
+  border-radius: 0.35rem;
+}
+
+.fav-btn--icon .fav-btn__label {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  overflow: hidden;
+  clip: rect(0, 0, 0, 0);
+}
+
+.fav-btn--on-media {
+  position: absolute;
+  top: 0.75rem;
+  right: 0.75rem;
+  z-index: 2;
+  box-shadow: 0 1px 0 rgba(21, 32, 25, 0.06);
+}

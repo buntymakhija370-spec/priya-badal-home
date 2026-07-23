@@ -145,6 +145,25 @@ p {
   background: #24322a;
 }
 
+.btn--customise {
+  width: 100%;
+  background: #fff;
+  color: var(--ink);
+  border: 1px solid rgba(21, 32, 25, 0.14);
+  box-shadow: 0 1px 0 rgba(21, 32, 25, 0.04);
+  font-size: 0.84rem;
+  font-weight: 600;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+}
+
+.btn--customise:hover,
+.btn--customise:focus-visible {
+  background: var(--ink);
+  color: var(--fog);
+  border-color: var(--ink);
+}
+
 .btn--outline {
   border: 1px solid rgba(21, 32, 25, 0.2);
   background: transparent;

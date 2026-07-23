@@ -1,8 +1,6 @@
 import { Link } from 'react-router-dom'
 import { formatPrice, type Product } from '../data/catalog'
 import { productPath } from '../lib/links'
-import { FavoriteButton } from './FavoriteButton'
-import { AddToCartButton } from './AddToCartButton'
 import './ProductCard.css'
 
 type Props = {
@@ -11,10 +9,6 @@ type Props = {
 
 export function ProductCard({ product }: Props) {
   const href = productPath(product.id)
-  const priceLabel =
-    product.pricingMode === 'per-sqft'
-      ? `${formatPrice(product.price)}/sq ft`
-      : `From ${formatPrice(product.price)}`
 
   return (
     <article className="product-card">
@@ -27,14 +21,16 @@ export function ProductCard({ product }: Props) {
         <h3>
           <Link to={href}>{product.name}</Link>
         </h3>
-        <p className="product-card__price">{priceLabel}</p>
+        <p className="product-card__price">
+          <span className="product-card__price-from">From</span>{' '}
+          {formatPrice(product.price)}
+          {product.pricingMode === 'per-sqft' ? (
+            <span className="product-card__price-unit"> /sq ft</span>
+          ) : null}
+        </p>
         <p className="product-card__desc">{product.description}</p>
-        <div className="product-card__actions">
-          <AddToCartButton product={product} />
-          <FavoriteButton productId={product.id} />
-        </div>
-        <Link className="product-card__cta" to={href}>
-          View · Customize
+        <Link className="btn btn--customise product-card__customise" to={href}>
+          Customise &amp; Price
         </Link>
       </div>
     </article>

@@ -3,8 +3,6 @@ import { Link, useParams } from 'react-router-dom'
 import { formatPrice, getCategory, getSubcategory } from '../data/catalog'
 import { getProductById, getProductsByCategory } from '../lib/products'
 import { ProductCard } from '../components/ProductCard'
-import { FavoriteButton } from '../components/FavoriteButton'
-import { AddToCartButton } from '../components/AddToCartButton'
 import { CustomizeButton } from '../components/PriceCalculator'
 import { useProductSeo } from '../hooks/useProductSeo'
 import { shopPath } from '../lib/links'
@@ -40,10 +38,6 @@ export function ProductPage() {
     .filter((p) => p.id !== product.id)
     .slice(0, 3)
   const shown = gallery[Math.min(activeImage, gallery.length - 1)] ?? product.image
-  const priceLabel =
-    product.pricingMode === 'per-sqft'
-      ? `${formatPrice(product.price)} / sq ft`
-      : `From ${formatPrice(product.price)}`
 
   return (
     <main className="product-page page-pad">
@@ -92,7 +86,15 @@ export function ProductPage() {
             {subcategory ? ` · ${subcategory.name}` : ''}
           </p>
           <h1>{product.name}</h1>
-          <p className="product-page__price">{priceLabel}</p>
+
+          <div className="product-page__price-block">
+            <span className="product-page__price-from">From</span>
+            <span className="product-page__price-value">{formatPrice(product.price)}</span>
+            {product.pricingMode === 'per-sqft' && (
+              <span className="product-page__price-unit">/sq ft</span>
+            )}
+          </div>
+
           <ul className="product-page__specs">
             {product.defaultFinishId && (
               <li>
@@ -107,11 +109,6 @@ export function ProductPage() {
                 Thickness: <strong>{product.defaultThicknessId} mm</strong>
               </li>
             )}
-            {product.pricingMode === 'per-sqft' && (
-              <li>
-                Rate: <strong>{formatPrice(product.price)} / sq ft</strong>
-              </li>
-            )}
           </ul>
           <p className="product-page__desc">{product.description}</p>
 
@@ -123,8 +120,6 @@ export function ProductPage() {
 
           <div className="product-page__actions">
             <CustomizeButton product={product} />
-            <AddToCartButton product={product} />
-            <FavoriteButton productId={product.id} />
           </div>
 
           <Link className="product-page__ai" to="/chat">

@@ -24,12 +24,12 @@ export function CustomizeButton({ product }: Props) {
     <>
       <button
         type="button"
-        className="btn btn--dark"
+        className="btn btn--customise"
         aria-haspopup="dialog"
         aria-expanded={open}
         onClick={() => setOpen(true)}
       >
-        Customize
+        Customise &amp; Price
       </button>
       {open && (
         <CalculatorOverlay
@@ -117,7 +117,7 @@ function CalculatorOverlay({ product, onClose }: OverlayProps) {
         <div className="calc-sheet__handle" aria-hidden="true" />
         <div className="calc-sheet__top">
           <div>
-            <p className="calc-sheet__eyebrow">Customize</p>
+            <p className="calc-sheet__eyebrow">Customise &amp; Price</p>
             <h2 id={titleId}>{product.name}</h2>
           </div>
           <button

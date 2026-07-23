@@ -62,30 +62,24 @@ export function ShopPage() {
         <p className="shop__lede">
           {category
             ? category.description
-            : 'Browse every piece from the collection — customise sizes and request WhatsApp quotes.'}
+            : 'Customise sizes and request WhatsApp quotes.'}
         </p>
-        {categoryId && (
-          <p className="shop__back">
-            <Link to="/shop">All products</Link>
-            {subcategoryId && category ? (
-              <>
-                {' · '}
-                <Link to={`/shop/${category.id}`}>{category.name}</Link>
-              </>
-            ) : null}
-          </p>
-        )}
       </header>
 
-      {!categoryId && (
-        <div className="shop__cats" aria-label="Categories">
-          {categories.map((cat) => (
-            <Link key={cat.id} className="chip" to={shopPath(cat.id)}>
-              {cat.name}
-            </Link>
-          ))}
-        </div>
-      )}
+      <div className="shop__cats" aria-label="Categories">
+        <Link className={`chip ${!categoryId ? 'chip--active' : ''}`} to="/shop">
+          All
+        </Link>
+        {categories.map((cat) => (
+          <Link
+            key={cat.id}
+            className={`chip ${categoryId === cat.id ? 'chip--active' : ''}`}
+            to={shopPath(cat.id)}
+          >
+            {cat.name}
+          </Link>
+        ))}
+      </div>
 
       {category && subcats.length > 0 && (
         <div className="shop__subs" aria-label="Subcategories">

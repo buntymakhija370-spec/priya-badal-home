@@ -1,6 +1,7 @@
 import { Link } from 'react-router-dom'
 import { formatPrice, type Product } from '../data/catalog'
 import { productPath } from '../lib/links'
+import { ProductImageScroller } from './ProductImageScroller'
 import './ProductCard.css'
 
 type Props = {
@@ -9,13 +10,12 @@ type Props = {
 
 export function ProductCard({ product }: Props) {
   const href = productPath(product.id)
+  const images = product.images?.length ? product.images : [product.image]
 
   return (
     <article className="product-card">
       <div className="product-card__media">
-        <Link to={href} tabIndex={-1} aria-hidden="true">
-          <img src={product.image} alt="" loading="lazy" />
-        </Link>
+        <ProductImageScroller images={images} alt={product.name} />
       </div>
       <div className="product-card__body">
         <h3>

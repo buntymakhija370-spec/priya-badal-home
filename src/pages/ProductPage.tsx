@@ -1,8 +1,8 @@
-import { useEffect, useState } from 'react'
 import { Link, useParams } from 'react-router-dom'
 import { formatPrice, getCategory, getSubcategory } from '../data/catalog'
 import { getProductById, getProductsByCategory } from '../lib/products'
 import { ProductCard } from '../components/ProductCard'
+import { ProductImageScroller } from '../components/ProductImageScroller'
 import { CustomizeButton } from '../components/PriceCalculator'
 import { useProductSeo } from '../hooks/useProductSeo'
 import { shopPath } from '../lib/links'
@@ -12,16 +12,6 @@ export function ProductPage() {
   const { productId } = useParams()
   const product = productId ? getProductById(productId) : undefined
   useProductSeo(product)
-  const gallery = product
-    ? product.images?.length
-      ? product.images
-      : [product.image]
-    : []
-  const [activeImage, setActiveImage] = useState(0)
-
-  useEffect(() => {
-    setActiveImage(0)
-  }, [productId])
 
   if (!product) {
     return (
@@ -37,7 +27,7 @@ export function ProductPage() {
   const related = getProductsByCategory(product.categoryId)
     .filter((p) => p.id !== product.id)
     .slice(0, 3)
-  const shown = gallery[Math.min(activeImage, gallery.length - 1)] ?? product.image
+  const gallery = product.images?.length ? product.images : [product.image]
 
   return (
     <main className="product-page page-pad">
@@ -56,28 +46,11 @@ export function ProductPage() {
       <div className="product-page__layout">
         <div className="product-page__gallery">
           <div className="product-page__media">
-            <img src={shown} alt={product.name} />
+            <ProductImageScroller images={gallery} alt={product.name} />
           </div>
-          {gallery.length > 1 && (
-            <div className="product-page__thumbs" role="tablist" aria-label="Product photos">
-              {gallery.map((src, index) => (
-                <button
-                  key={src}
-                  type="button"
-                  role="tab"
-                  aria-selected={index === activeImage}
-                  className={
-                    index === activeImage
-                      ? 'product-page__thumb is-active'
-                      : 'product-page__thumb'
-                  }
-                  onClick={() => setActiveImage(index)}
-                >
-                  <img src={src} alt="" />
-                </button>
-              ))}
-            </div>
-          )}
+          <p className="product-page__swipe-hint">
+            {gallery.length > 1 ? `Swipe to see all ${gallery.length} photos` : null}
+          </p>
         </div>
 
         <div className="product-page__info">

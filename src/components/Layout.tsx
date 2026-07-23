@@ -37,8 +37,12 @@ export function Layout() {
     <div className="site">
       <div className="grain" aria-hidden="true" />
       <header className={`nav ${scrolled ? 'nav--scrolled' : ''} ${menuOpen ? 'nav--open' : ''}`}>
-        <NavLink className="nav__brand" to="/" onClick={close}>
-          Priya Badal
+        <NavLink className="nav__brand" to="/" onClick={close} aria-label="Priyabadal Homes home">
+          <img
+            className="nav__logo"
+            src="/brand/priyabadal-homes-logo.svg"
+            alt="Priyabadal Homes"
+          />
         </NavLink>
 
         <div className="nav__end">
@@ -88,8 +92,14 @@ export function Layout() {
       <Outlet />
 
       <footer className="footer">
-        <p className="footer__brand">Priya Badal Home</p>
-        <p className="footer__meta">Interiors · Products · AI Guide</p>
+        <div className="footer__brand-block">
+          <img
+            className="footer__logo"
+            src="/brand/priyabadal-homes-logo.svg"
+            alt="Priyabadal Homes"
+          />
+          <p className="footer__meta">Shutters · Doors · Wall Panels</p>
+        </div>
       </footer>
     </div>
   )

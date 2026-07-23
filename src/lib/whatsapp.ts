@@ -10,7 +10,7 @@ export function buildWhatsAppQuoteUrl(
   unitPrice: number,
 ) {
   const lines = [
-    'Hi Priya Badal, I would like a custom quotation:',
+    'Hi Priyabadal Homes, I would like a custom quotation:',
     '',
     `Product: ${product.name}`,
     `Estimated price: ${formatPrice(unitPrice)}`,

@@ -17,7 +17,14 @@ export function HomePage() {
           />
         </div>
         <div className="hero__content">
-          <p className="hero__brand reveal reveal--1">Priya Badal</p>
+          <div className="hero__brand reveal reveal--1">
+            <img
+              className="hero__logo"
+              src="/brand/priyabadal-homes-logo.svg"
+              alt="Priyabadal Homes"
+            />
+            <p className="hero__tagline">Shutters · Doors · Wall Panels</p>
+          </div>
           <h1 className="hero__headline reveal reveal--2">
             Interiors, curated pieces, and an AI guide for your home.
           </h1>

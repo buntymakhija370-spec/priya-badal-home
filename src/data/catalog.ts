@@ -135,6 +135,27 @@ export const baseProducts: Product[] = [
     ],
   },
   {
+    id: 'rose-gold-inset-wardrobe',
+    name: 'Rose Gold Inset Wardrobe',
+    categoryId: 'wardrobe',
+    subcategoryId: 'hinged',
+    price: 1500,
+    currency: 'INR',
+    pricingMode: 'per-sqft',
+    defaultFinishId: 'pu',
+    defaultThicknessId: '25',
+    description:
+      'Floor-to-ceiling hinged wardrobe in matte taupe PU with rose-gold metallic inset frames, rounded capsule panels, and soft-close dark wood interiors. Priced at ₹1,500 / sq ft · 25 mm · PU finish.',
+    style: ['modern', 'luxe', 'geometric'],
+    rooms: ['bedroom', 'wardrobe'],
+    image: '/products/wardrobe-rose-closed.png',
+    images: [
+      '/products/wardrobe-rose-closed.png',
+      '/products/wardrobe-rose-ajar.png',
+      '/products/wardrobe-rose-open.png',
+    ],
+  },
+  {
     id: 'fluted-oak-panel',
     name: 'Fluted Oak Wall Panel',
     categoryId: 'wall-panels',

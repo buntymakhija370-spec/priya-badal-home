@@ -40,14 +40,14 @@
   height: var(--nav-h);
   display: inline-flex;
   align-items: center;
-  max-width: min(58vw, 17rem);
+  max-width: min(72vw, 22rem);
 }
 
 .nav__logo {
   display: block;
   width: 100%;
   height: auto;
-  max-height: 2.35rem;
+  max-height: 3rem;
   object-fit: contain;
   object-position: left center;
 }
@@ -212,16 +212,14 @@
 
 .footer__logo {
   display: block;
-  width: min(16rem, 100%);
+  width: min(22rem, 100%);
   height: auto;
   filter: brightness(0) invert(1);
-  opacity: 0.92;
+  opacity: 0.95;
 }
 
 .footer__meta {
-  font-size: 0.82rem;
-  letter-spacing: 0.08em;
-  text-transform: uppercase;
+  display: none;
 }
 
 .grain {

@@ -1,24 +1,26 @@
-<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 720 140" role="img" aria-label="Priyabadal Homes">
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 900 160" role="img" aria-label="Priyabadal Homes — Shutters, Doors, Wall Panels">
+  <!-- Main wordmark: left → right -->
   <text
-    x="360"
-    y="68"
-    text-anchor="middle"
-    font-family="Arial, Helvetica, sans-serif"
-    font-size="48"
+    x="20"
+    y="78"
+    text-anchor="start"
+    font-family="Arial Black, Arial, Helvetica, sans-serif"
+    font-size="56"
     font-weight="700"
-    letter-spacing="4"
+    letter-spacing="3.5"
   >
     <tspan fill="#2f3133">PRIYABADAL</tspan>
-    <tspan dx="14" fill="#8b5a3c">HOMES</tspan>
+    <tspan dx="18" fill="#8b5a3c">HOMES</tspan>
   </text>
+  <!-- Tagline: larger, same left→right alignment -->
   <text
-    x="360"
-    y="108"
-    text-anchor="middle"
+    x="20"
+    y="128"
+    text-anchor="start"
     fill="#3d2b6b"
     font-family="Arial, Helvetica, sans-serif"
-    font-size="16"
-    font-weight="500"
-    letter-spacing="5"
+    font-size="28"
+    font-weight="600"
+    letter-spacing="4.5"
   >SHUTTERS | DOORS | WALL PANELS</text>
 </svg>

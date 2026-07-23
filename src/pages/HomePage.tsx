@@ -21,9 +21,8 @@ export function HomePage() {
             <img
               className="hero__logo"
               src="/brand/priyabadal-homes-logo.svg"
-              alt="Priyabadal Homes"
+              alt="Priyabadal Homes — Shutters, Doors, Wall Panels"
             />
-            <p className="hero__tagline">Shutters · Doors · Wall Panels</p>
           </div>
           <h1 className="hero__headline reveal reveal--2">
             Interiors, curated pieces, and an AI guide for your home.

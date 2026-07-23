@@ -50,23 +50,16 @@
 }
 
 .hero__brand {
-  margin-bottom: 1.35rem;
+  margin-bottom: 1.5rem;
 }
 
 .hero__logo {
   display: block;
-  width: min(22rem, 88vw);
+  width: min(34rem, 94vw);
   height: auto;
   filter: brightness(0) invert(1);
-}
-
-.hero__tagline {
-  margin-top: 0.65rem;
-  font-size: 0.78rem;
-  letter-spacing: 0.16em;
-  text-transform: uppercase;
-  opacity: 0.82;
-  font-weight: 400;
+  object-fit: contain;
+  object-position: left center;
 }
 
 .hero__headline {

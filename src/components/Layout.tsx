@@ -96,9 +96,8 @@ export function Layout() {
           <img
             className="footer__logo"
             src="/brand/priyabadal-homes-logo.svg"
-            alt="Priyabadal Homes"
+            alt="Priyabadal Homes — Shutters, Doors, Wall Panels"
           />
-          <p className="footer__meta">Shutters · Doors · Wall Panels</p>
         </div>
       </footer>
     </div>

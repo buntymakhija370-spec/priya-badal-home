@@ -17,8 +17,8 @@ export function AddToCartButton({ product, className = '' }: Props) {
   const [justAdded, setJustAdded] = useState(false)
 
   const onAdd = () => {
-    const config = defaultConfig(product.categoryId)
-    const quote = calculatePrice(product.price, product.categoryId, config)
+    const config = defaultConfig(product.categoryId, product)
+    const quote = calculatePrice(product, config)
     addConfiguredToCart({
       productId: product.id,
       quantity: 1,

@@ -49,14 +49,14 @@ type OverlayProps = {
 function CalculatorOverlay({ product, onClose }: OverlayProps) {
   const titleId = useId()
   const [config, setConfig] = useState<PriceConfig>(() =>
-    defaultConfig(product.categoryId),
+    defaultConfig(product.categoryId, product),
   )
   const [justAdded, setJustAdded] = useState(false)
   const size = getSizeLimits(product.categoryId)
 
   const quote = useMemo(
-    () => calculatePrice(product.price, product.categoryId, config),
-    [product.price, product.categoryId, config],
+    () => calculatePrice(product, config),
+    [product, config],
   )
 
   useEffect(() => {
@@ -200,6 +200,9 @@ function CalculatorOverlay({ product, onClose }: OverlayProps) {
             <p className="calc-sheet__price">{formatPrice(quote.unitPrice)}</p>
             <p className="calc-sheet__meta">
               {describeConfig(product.categoryId, quote.config)}
+              {product.pricingMode === 'per-sqft'
+                ? ` · base ${formatPrice(product.price)}/sq ft`
+                : ''}
             </p>
           </div>
           <button type="button" className="cart-btn cart-btn--lg" onClick={onAdd}>

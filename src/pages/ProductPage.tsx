@@ -1,3 +1,4 @@
+import { useEffect, useState } from 'react'
 import { Link, useParams } from 'react-router-dom'
 import { formatPrice, getCategory, getSubcategory } from '../data/catalog'
 import { getProductById, getProductsByCategory } from '../lib/products'
@@ -13,6 +14,16 @@ export function ProductPage() {
   const { productId } = useParams()
   const product = productId ? getProductById(productId) : undefined
   useProductSeo(product)
+  const gallery = product
+    ? product.images?.length
+      ? product.images
+      : [product.image]
+    : []
+  const [activeImage, setActiveImage] = useState(0)
+
+  useEffect(() => {
+    setActiveImage(0)
+  }, [productId])
 
   if (!product) {
     return (
@@ -28,6 +39,11 @@ export function ProductPage() {
   const related = getProductsByCategory(product.categoryId)
     .filter((p) => p.id !== product.id)
     .slice(0, 3)
+  const shown = gallery[Math.min(activeImage, gallery.length - 1)] ?? product.image
+  const priceLabel =
+    product.pricingMode === 'per-sqft'
+      ? `${formatPrice(product.price)} / sq ft`
+      : `From ${formatPrice(product.price)}`
 
   return (
     <main className="product-page page-pad">
@@ -44,8 +60,30 @@ export function ProductPage() {
       </nav>
 
       <div className="product-page__layout">
-        <div className="product-page__media">
-          <img src={product.image} alt={product.name} />
+        <div className="product-page__gallery">
+          <div className="product-page__media">
+            <img src={shown} alt={product.name} />
+          </div>
+          {gallery.length > 1 && (
+            <div className="product-page__thumbs" role="tablist" aria-label="Product photos">
+              {gallery.map((src, index) => (
+                <button
+                  key={src}
+                  type="button"
+                  role="tab"
+                  aria-selected={index === activeImage}
+                  className={
+                    index === activeImage
+                      ? 'product-page__thumb is-active'
+                      : 'product-page__thumb'
+                  }
+                  onClick={() => setActiveImage(index)}
+                >
+                  <img src={src} alt="" />
+                </button>
+              ))}
+            </div>
+          )}
         </div>
 
         <div className="product-page__info">
@@ -54,7 +92,27 @@ export function ProductPage() {
             {subcategory ? ` · ${subcategory.name}` : ''}
           </p>
           <h1>{product.name}</h1>
-          <p className="product-page__price">From {formatPrice(product.price)}</p>
+          <p className="product-page__price">{priceLabel}</p>
+          <ul className="product-page__specs">
+            {product.defaultFinishId && (
+              <li>
+                Finish:{' '}
+                <strong>
+                  {product.defaultFinishId === 'pu' ? 'PU' : product.defaultFinishId}
+                </strong>
+              </li>
+            )}
+            {product.defaultThicknessId && (
+              <li>
+                Thickness: <strong>{product.defaultThicknessId} mm</strong>
+              </li>
+            )}
+            {product.pricingMode === 'per-sqft' && (
+              <li>
+                Rate: <strong>{formatPrice(product.price)} / sq ft</strong>
+              </li>
+            )}
+          </ul>
           <p className="product-page__desc">{product.description}</p>
 
           <div className="product-page__tags">

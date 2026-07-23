@@ -11,6 +11,10 @@ type Props = {
 
 export function ProductCard({ product }: Props) {
   const href = productPath(product.id)
+  const priceLabel =
+    product.pricingMode === 'per-sqft'
+      ? `${formatPrice(product.price)}/sq ft`
+      : `From ${formatPrice(product.price)}`
 
   return (
     <article className="product-card">
@@ -23,7 +27,7 @@ export function ProductCard({ product }: Props) {
         <h3>
           <Link to={href}>{product.name}</Link>
         </h3>
-        <p className="product-card__price">From {formatPrice(product.price)}</p>
+        <p className="product-card__price">{priceLabel}</p>
         <p className="product-card__desc">{product.description}</p>
         <div className="product-card__actions">
           <AddToCartButton product={product} />

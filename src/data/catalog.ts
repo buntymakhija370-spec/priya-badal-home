@@ -26,6 +26,10 @@ export type Product = {
   subcategoryId: string
   price: number
   currency: 'INR'
+  /** unit = fixed piece price scaled by size; per-sqft = price × face area in sq ft */
+  pricingMode?: 'unit' | 'per-sqft'
+  defaultFinishId?: string
+  defaultThicknessId?: string
   description: string
   style: string[]
   rooms: string[]
@@ -110,6 +114,26 @@ export const categories: Category[] = [
 ]
 
 export const baseProducts: Product[] = [
+  {
+    id: 'geometric-pu-wardrobe',
+    name: 'Geometric PU Wardrobe',
+    categoryId: 'wardrobe',
+    subcategoryId: 'hinged',
+    price: 1050,
+    currency: 'INR',
+    pricingMode: 'per-sqft',
+    defaultFinishId: 'pu',
+    defaultThicknessId: '25',
+    description:
+      'Floor-to-ceiling hinged wardrobe in matte greige PU with engraved geometric doors and gold handles. Soft-close interiors with hanging and shelf storage. Priced at ₹1,050 / sq ft · 25 mm · PU finish.',
+    style: ['modern', 'luxe', 'geometric'],
+    rooms: ['bedroom', 'wardrobe'],
+    image: '/products/wardrobe-geo-closed.png',
+    images: [
+      '/products/wardrobe-geo-closed.png',
+      '/products/wardrobe-geo-open.png',
+    ],
+  },
   {
     id: 'fluted-oak-panel',
     name: 'Fluted Oak Wall Panel',

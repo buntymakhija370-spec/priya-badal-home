@@ -1,3 +1,5 @@
+import type { Product } from '../data/catalog'
+
 export type FinishOption = {
   id: string
   name: string
@@ -36,18 +38,19 @@ export type PriceConfig = {
 }
 
 export const FINISHES: FinishOption[] = [
-  { id: 'matte', name: 'Matte laminate', multiplier: 1 },
+  { id: 'pu', name: 'PU finish', multiplier: 1 },
+  { id: 'matte', name: 'Matte laminate', multiplier: 0.92 },
   { id: 'natural-oak', name: 'Natural oak', multiplier: 1.18 },
   { id: 'walnut', name: 'Walnut veneer', multiplier: 1.32 },
-  { id: 'gloss', name: 'High gloss lacquer', multiplier: 1.25 },
-  { id: 'textured', name: 'Textured finish', multiplier: 1.1 },
+  { id: 'gloss', name: 'High gloss lacquer', multiplier: 1.2 },
+  { id: 'textured', name: 'Textured finish', multiplier: 1.08 },
 ]
 
 export const THICKNESSES: ThicknessOption[] = [
-  { id: '12', label: '12 mm', mm: 12, multiplier: 0.88 },
-  { id: '18', label: '18 mm', mm: 18, multiplier: 1 },
-  { id: '25', label: '25 mm', mm: 25, multiplier: 1.22 },
-  { id: '32', label: '32 mm', mm: 32, multiplier: 1.45 },
+  { id: '12', label: '12 mm', mm: 12, multiplier: 0.82 },
+  { id: '18', label: '18 mm', mm: 18, multiplier: 0.92 },
+  { id: '25', label: '25 mm', mm: 25, multiplier: 1 },
+  { id: '32', label: '32 mm', mm: 32, multiplier: 1.18 },
 ]
 
 const DEFAULT_SIZE: SizeLimits = {
@@ -150,11 +153,14 @@ export function getThickness(id: string) {
   return THICKNESSES.find((t) => t.id === id) ?? THICKNESSES[1]!
 }
 
-export function defaultConfig(categoryId: string): PriceConfig {
+export function defaultConfig(
+  categoryId: string,
+  product?: Pick<Product, 'defaultFinishId' | 'defaultThicknessId'>,
+): PriceConfig {
   const size = getSizeLimits(categoryId)
   return {
-    finishId: 'matte',
-    thicknessId: '18',
+    finishId: product?.defaultFinishId ?? 'pu',
+    thicknessId: product?.defaultThicknessId ?? '25',
     width: size.defaultWidth,
     height: size.defaultHeight,
     depth: size.defaultDepth,
@@ -177,29 +183,52 @@ export function normalizeConfig(categoryId: string, config: PriceConfig): PriceC
   }
 }
 
-/** Price from base product price × finish × thickness × size factor */
-export function calculatePrice(basePrice: number, categoryId: string, config: PriceConfig) {
-  const size = getSizeLimits(categoryId)
-  const normalized = normalizeConfig(categoryId, config)
+/** cm² → sq ft */
+function toSqFt(widthCm: number, heightCm: number) {
+  return (widthCm * heightCm) / 929.0304
+}
+
+/** Price from base product price × finish × thickness × size */
+export function calculatePrice(
+  product: Pick<
+    Product,
+    'price' | 'categoryId' | 'pricingMode' | 'defaultFinishId' | 'defaultThicknessId'
+  >,
+  config: PriceConfig,
+) {
+  const size = getSizeLimits(product.categoryId)
+  const normalized = normalizeConfig(product.categoryId, config)
   const finish = getFinish(normalized.finishId)
   const thickness = getThickness(normalized.thicknessId)
+  const baseFinish = getFinish(product.defaultFinishId ?? 'pu')
+  const baseThickness = getThickness(product.defaultThicknessId ?? '25')
 
-  const baseArea = size.baseWidth * size.baseHeight
-  const customArea = normalized.width * normalized.height
-  let sizeFactor = customArea / baseArea
+  const finishMult = finish.multiplier / baseFinish.multiplier
+  const thicknessMult = thickness.multiplier / baseThickness.multiplier
 
-  if (size.usesDepth) {
-    const baseVol = size.baseWidth * size.baseHeight * size.baseDepth
-    const customVol = normalized.width * normalized.height * normalized.depth
-    sizeFactor = customVol / baseVol
+  let unitPrice: number
+  let sizeFactor = 1
+
+  if (product.pricingMode === 'per-sqft') {
+    const sqft = toSqFt(normalized.width, normalized.height)
+    sizeFactor = sqft
+    unitPrice = Math.round(product.price * sqft * finishMult * thicknessMult)
+  } else {
+    const baseArea = size.baseWidth * size.baseHeight
+    const customArea = normalized.width * normalized.height
+    sizeFactor = customArea / baseArea
+
+    if (size.usesDepth) {
+      const baseVol = size.baseWidth * size.baseHeight * size.baseDepth
+      const customVol = normalized.width * normalized.height * normalized.depth
+      sizeFactor = customVol / baseVol
+    }
+
+    sizeFactor = clamp(sizeFactor, 0.45, 3.5)
+    unitPrice = Math.round(
+      product.price * finishMult * thicknessMult * sizeFactor,
+    )
   }
-
-  // Keep extreme custom sizes from going absurdly cheap/expensive
-  sizeFactor = clamp(sizeFactor, 0.45, 3.5)
-
-  const unitPrice = Math.round(
-    basePrice * finish.multiplier * thickness.multiplier * sizeFactor,
-  )
 
   return {
     unitPrice: Math.max(499, unitPrice),

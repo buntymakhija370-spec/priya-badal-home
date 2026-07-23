@@ -36,19 +36,12 @@ export function HomePage() {
         </div>
       </section>
 
-      <section className="home-cats">
-        <div className="home-cats__intro">
-          <p className="eyebrow">Categories</p>
-          <h2>Shop by room & style.</h2>
-        </div>
-        <div className="home-cats__grid">
+      <section className="home-cats" aria-label="Shop categories">
+        <div className="home-cats__stack">
           {categories.map((cat) => (
             <Link key={cat.id} className="home-cat" to={`/shop/${cat.id}`}>
               <img src={cat.image} alt="" loading="lazy" />
-              <span>
-                <strong>{cat.name}</strong>
-                <em>{cat.subcategories.length} subcategories</em>
-              </span>
+              <span className="home-cat__label">{cat.name}</span>
             </Link>
           ))}
         </div>

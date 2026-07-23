@@ -67,9 +67,15 @@
   text-transform: capitalize;
 }
 
+.product-page__buy {
+  display: grid;
+  gap: 0.85rem;
+}
+
 .product-page__actions {
   display: flex;
   flex-wrap: wrap;
+  align-items: center;
   gap: 0.75rem;
 }
 

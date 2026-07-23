@@ -58,13 +58,15 @@ export function ProductPage() {
             ))}
           </div>
 
-          <div className="product-page__actions">
-            <AddToCartButton product={product} className="cart-btn--lg" />
+          <div className="product-page__buy">
+            <div className="product-page__actions">
+              <AddToCartButton product={product} className="cart-btn--lg" />
+              <FavoriteButton productId={product.id} />
+              <Link className="btn btn--outline" to="/chat">
+                Ask AI about this
+              </Link>
+            </div>
             <CustomizeButton product={product} />
-            <FavoriteButton productId={product.id} />
-            <Link className="btn btn--outline" to="/chat">
-              Ask AI about this
-            </Link>
           </div>
         </div>
       </div>

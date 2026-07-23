@@ -16,20 +16,14 @@
   font-weight: 300;
 }
 
-.shop__cats,
-.shop__subs {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 0.55rem;
-  margin-bottom: 1rem;
+.shop__back {
+  margin-top: 0.85rem;
+  font-size: 0.88rem;
+  color: var(--ink-soft);
 }
 
-.shop__subs {
-  margin-bottom: 1.75rem;
-}
-
-.shop__filter-note {
-  color: var(--honey-deep);
-  margin-bottom: 1.25rem;
-  font-size: 0.95rem;
+.shop__back a {
+  color: var(--moss);
+  text-decoration: underline;
+  text-underline-offset: 0.15em;
 }

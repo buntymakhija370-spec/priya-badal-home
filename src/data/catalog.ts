@@ -19,6 +19,12 @@ export type Category = {
   subcategories: Subcategory[]
 }
 
+/** Pepperfry-style label/value row for Product Details & Specifications */
+export type SpecRow = {
+  label: string
+  value: string
+}
+
 export type Product = {
   id: string
   name: string
@@ -36,6 +42,18 @@ export type Product = {
   image: string
   images?: string[]
   custom?: boolean
+  /** Shown above the title, like Pepperfry brand line */
+  brand?: string
+  collection?: string
+  sku?: string
+  /** Short bullets near the price */
+  highlights?: string[]
+  /** Product Details table rows */
+  details?: SpecRow[]
+  /** Specifications table rows */
+  specifications?: SpecRow[]
+  features?: string[]
+  disclaimer?: string
 }
 
 export const categories: Category[] = [
@@ -124,15 +142,68 @@ export const baseProducts: Product[] = [
     pricingMode: 'per-sqft',
     defaultFinishId: 'pu',
     defaultThicknessId: '25',
+    brand: 'Priyabadal Homes',
+    collection: 'Geometric PU',
+    sku: 'PBH-GEO-PU-WR',
     description:
       'Floor-to-ceiling hinged wardrobe in matte greige PU with engraved geometric doors and gold handles. Soft-close interiors with hanging and shelf storage. Priced at ₹1,050 / sq ft · 25 mm · PU finish.',
     style: ['modern', 'luxe', 'geometric'],
-    rooms: ['bedroom', 'wardrobe'],
+    rooms: ['bedroom'],
     image: '/products/wardrobe-geo-closed.jpg',
     images: [
       '/products/wardrobe-geo-closed.jpg',
       '/products/wardrobe-geo-open.jpg',
     ],
+    highlights: [
+      '₹1,050 / sq ft',
+      '25 mm PU shutters',
+      'Hinged doors with geometric engraving',
+      'Soft-close hardware',
+      'Made to your wall size',
+    ],
+    details: [
+      { label: 'Brand', value: 'Priyabadal Homes' },
+      { label: 'Assembly', value: 'Carpenter Assembly (on-site)' },
+      { label: 'Collection', value: 'Geometric PU' },
+      { label: 'Dimensions', value: 'Made to measure — custom width × height' },
+      {
+        label: 'Dimensions (reference)',
+        value: 'Typical floor-to-ceiling bay; share opening size in ft',
+      },
+      {
+        label: 'Primary Material',
+        value: '25 mm engineered board with matte PU finish',
+      },
+      { label: 'Secondary Material', value: 'Internal carcass with hanging & shelves' },
+      { label: 'Product Rating', value: 'Made-to-order quality' },
+      { label: 'Room Type', value: 'Bedroom' },
+      { label: 'Warranty', value: "12 Months' warranty on manufacturing defects" },
+      { label: 'Weight', value: 'Depends on final size' },
+      { label: 'Sku', value: 'PBH-GEO-PU-WR' },
+    ],
+    specifications: [
+      { label: 'Colour / Finish', value: 'Matte greige PU' },
+      { label: 'Board Thickness', value: '25 mm' },
+      { label: 'Door Type', value: 'Hinged' },
+      { label: 'Number of Doors', value: 'Custom (based on width)' },
+      { label: 'Storage Type', value: 'Hanging rails + adjustable shelves' },
+      { label: 'Handles', value: 'Gold-tone metal handles' },
+      { label: 'Hardware', value: 'Soft-close hinges' },
+      { label: 'Interior Layout', value: 'Open hanging + shelf bays (customisable)' },
+      { label: 'Pricing', value: 'Per sq ft (width × height)' },
+      { label: 'Country of Origin', value: 'India' },
+      { label: 'Care', value: 'Wipe with a soft dry cloth; avoid harsh cleaners' },
+    ],
+    features: [
+      'Engraved geometric door pattern for a premium façade',
+      'Durable 25 mm board with matte PU finish',
+      'Soft-close hinged doors for quiet everyday use',
+      'Flexible hanging and shelf storage layout',
+      'Sized exactly to your bedroom wall or niche',
+      'Low-maintenance surfaces for easy cleaning',
+    ],
+    disclaimer:
+      'Accessories shown in images are for representation only and are not part of the product. Final colour may vary slightly from screen display. Custom sizes are confirmed before production.',
   },
   {
     id: 'rose-gold-inset-wardrobe',
@@ -144,16 +215,72 @@ export const baseProducts: Product[] = [
     pricingMode: 'per-sqft',
     defaultFinishId: 'pu',
     defaultThicknessId: '25',
+    brand: 'Priyabadal Homes',
+    collection: 'Rose Gold Inset',
+    sku: 'PBH-ROSE-PU-WR',
     description:
       'Floor-to-ceiling hinged wardrobe in matte taupe PU with rose-gold metallic inset frames, rounded capsule panels, and soft-close dark wood interiors. Priced at ₹1,500 / sq ft · 25 mm · PU finish.',
     style: ['modern', 'luxe', 'geometric'],
-    rooms: ['bedroom', 'wardrobe'],
+    rooms: ['bedroom'],
     image: '/products/wardrobe-rose-closed.png',
     images: [
       '/products/wardrobe-rose-closed.png',
       '/products/wardrobe-rose-ajar.png',
       '/products/wardrobe-rose-open.png',
     ],
+    highlights: [
+      '₹1,500 / sq ft',
+      '25 mm PU shutters',
+      'Rose-gold metallic inset frames',
+      'Soft-close dark wood interiors',
+      'Made to your wall size',
+    ],
+    details: [
+      { label: 'Brand', value: 'Priyabadal Homes' },
+      { label: 'Assembly', value: 'Carpenter Assembly (on-site)' },
+      { label: 'Collection', value: 'Rose Gold Inset' },
+      { label: 'Dimensions', value: 'Made to measure — custom width × height' },
+      {
+        label: 'Dimensions (reference)',
+        value: 'Typical floor-to-ceiling bay; share opening size in ft',
+      },
+      {
+        label: 'Primary Material',
+        value: '25 mm engineered board with matte taupe PU',
+      },
+      {
+        label: 'Secondary Material',
+        value: 'Rose-gold metallic inset profiles; dark wood interiors',
+      },
+      { label: 'Product Rating', value: 'Made-to-order quality' },
+      { label: 'Room Type', value: 'Bedroom' },
+      { label: 'Warranty', value: "12 Months' warranty on manufacturing defects" },
+      { label: 'Weight', value: 'Depends on final size' },
+      { label: 'Sku', value: 'PBH-ROSE-PU-WR' },
+    ],
+    specifications: [
+      { label: 'Colour / Finish', value: 'Matte taupe PU with rose-gold insets' },
+      { label: 'Board Thickness', value: '25 mm' },
+      { label: 'Door Type', value: 'Hinged' },
+      { label: 'Number of Doors', value: 'Custom (based on width)' },
+      { label: 'Storage Type', value: 'Hanging rails + shelves + drawers (customisable)' },
+      { label: 'Accent', value: 'Rose-gold metallic inset frames' },
+      { label: 'Hardware', value: 'Soft-close hinges' },
+      { label: 'Interior Layout', value: 'Dark wood interiors with open & closed storage' },
+      { label: 'Pricing', value: 'Per sq ft (width × height)' },
+      { label: 'Country of Origin', value: 'India' },
+      { label: 'Care', value: 'Wipe with a soft dry cloth; avoid harsh cleaners' },
+    ],
+    features: [
+      'Rose-gold inset frames for a distinctive façade',
+      'Rounded capsule panel detailing',
+      'Durable 25 mm board with matte PU finish',
+      'Soft-close hinged doors and dark wood interiors',
+      'Sized exactly to your bedroom wall or niche',
+      'Low-maintenance surfaces for easy cleaning',
+    ],
+    disclaimer:
+      'Accessories shown in images are for representation only and are not part of the product. Final colour and metal tone may vary slightly from screen display. Custom sizes are confirmed before production.',
   },
   {
     id: 'fluted-oak-panel',

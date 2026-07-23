@@ -1,16 +1,39 @@
 import { Link, useParams } from 'react-router-dom'
-import { formatPrice, getCategory, getSubcategory } from '../data/catalog'
+import { useState } from 'react'
+import { formatPrice, getCategory, getSubcategory, type SpecRow } from '../data/catalog'
 import { getProductById } from '../lib/products'
-import { ProductImageScroller } from '../components/ProductImageScroller'
+import { resolveProductPresentation } from '../lib/productSpecs'
+import { ProductGallery } from '../components/ProductGallery'
 import { CustomizeButton } from '../components/PriceCalculator'
+import { FavoriteButton } from '../components/FavoriteButton'
+import { ShareProductLink } from '../components/ShareProductLink'
 import { useProductSeo } from '../hooks/useProductSeo'
 import { shopPath } from '../lib/links'
 import './ProductPage.css'
+
+type SectionId = 'details' | 'specs' | 'features'
+
+function SpecTable({ rows, caption }: { rows: SpecRow[]; caption: string }) {
+  return (
+    <table className="spec-table">
+      <caption className="sr-only">{caption}</caption>
+      <tbody>
+        {rows.map((row) => (
+          <tr key={`${row.label}-${row.value}`}>
+            <th scope="row">{row.label}</th>
+            <td>{row.value}</td>
+          </tr>
+        ))}
+      </tbody>
+    </table>
+  )
+}
 
 export function ProductPage() {
   const { productId } = useParams()
   const product = productId ? getProductById(productId) : undefined
   useProductSeo(product)
+  const [section, setSection] = useState<SectionId>('details')
 
   if (!product) {
     return (
@@ -24,10 +47,11 @@ export function ProductPage() {
   const category = getCategory(product.categoryId)
   const subcategory = getSubcategory(product.categoryId, product.subcategoryId)
   const gallery = product.images?.length ? product.images : [product.image]
+  const presentation = resolveProductPresentation(product)
 
   return (
     <main className="product-page page-pad">
-      <nav className="crumbs">
+      <nav className="crumbs" aria-label="Breadcrumb">
         <Link to="/shop">Shop</Link>
         <span>/</span>
         {category && (
@@ -41,16 +65,11 @@ export function ProductPage() {
 
       <div className="product-page__layout">
         <div className="product-page__gallery">
-          <div className="product-page__media">
-            <ProductImageScroller images={gallery} alt={product.name} />
-          </div>
+          <ProductGallery images={gallery} alt={product.name} />
         </div>
 
         <div className="product-page__info">
-          <p className="eyebrow">
-            {category?.name}
-            {subcategory ? ` · ${subcategory.name}` : ''}
-          </p>
+          <p className="product-page__brand">by {presentation.brand}</p>
           <h1>{product.name}</h1>
 
           <div className="product-page__price-block">
@@ -61,29 +80,85 @@ export function ProductPage() {
             )}
           </div>
 
-          <ul className="product-page__specs">
-            {product.defaultFinishId && (
-              <li>
-                Finish:{' '}
-                <strong>
-                  {product.defaultFinishId === 'pu' ? 'PU' : product.defaultFinishId}
-                </strong>
-              </li>
-            )}
-            {product.defaultThicknessId && (
-              <li>
-                Thickness: <strong>{product.defaultThicknessId} mm</strong>
-              </li>
-            )}
+          <ul className="product-page__highlights">
+            {presentation.highlights.map((item) => (
+              <li key={item}>{item}</li>
+            ))}
           </ul>
 
           <p className="product-page__desc">{product.description}</p>
 
           <div className="product-page__actions">
             <CustomizeButton product={product} />
+            <FavoriteButton productId={product.id} className="product-page__fav" />
           </div>
+
+          <p className="product-page__sku">Sku: {presentation.sku}</p>
         </div>
       </div>
+
+      <section className="product-page__panels" aria-label="Product information">
+        <div className="product-page__tabs" role="tablist" aria-label="Product sections">
+          {(
+            [
+              ['details', 'Product Details'],
+              ['specs', 'Specifications'],
+              ['features', 'Features'],
+            ] as const
+          ).map(([id, label]) => (
+            <button
+              key={id}
+              type="button"
+              role="tab"
+              aria-selected={section === id}
+              className={
+                section === id
+                  ? 'product-page__tab is-active'
+                  : 'product-page__tab'
+              }
+              onClick={() => setSection(id)}
+            >
+              {label}
+            </button>
+          ))}
+        </div>
+
+        <div className="product-page__panel" role="tabpanel">
+          {section === 'details' && (
+            <>
+              <h2 className="product-page__panel-title">Product Details</h2>
+              <SpecTable rows={presentation.details} caption="Product details" />
+            </>
+          )}
+
+          {section === 'specs' && (
+            <>
+              <h2 className="product-page__panel-title">Specifications</h2>
+              <SpecTable
+                rows={presentation.specifications}
+                caption="Product specifications"
+              />
+            </>
+          )}
+
+          {section === 'features' && (
+            <>
+              <h2 className="product-page__panel-title">Features</h2>
+              <ul className="product-page__features">
+                {presentation.features.map((item) => (
+                  <li key={item}>{item}</li>
+                ))}
+              </ul>
+            </>
+          )}
+        </div>
+
+        <p className="product-page__disclaimer">
+          <strong>Disclaimer:</strong> {presentation.disclaimer}
+        </p>
+      </section>
+
+      <ShareProductLink product={product} />
     </main>
   )
 }

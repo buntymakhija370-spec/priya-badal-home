@@ -118,9 +118,8 @@ export function ProductPage() {
             ))}
           </div>
 
-          <div className="product-page__actions">
-            <CustomizeButton product={product} />
-          </div>
+          <div className="product-page__actions-spacer" aria-hidden="true" />
+          <CustomizeButton product={product} fixed />
 
           <Link className="product-page__ai" to="/chat">
             Need ideas? Ask the AI interior guide

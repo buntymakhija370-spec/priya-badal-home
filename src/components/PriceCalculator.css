@@ -105,15 +105,23 @@
 }
 
 .calc-sheet__footer {
-  display: flex;
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto;
   align-items: end;
-  justify-content: space-between;
   gap: 0.85rem;
   padding-top: 0.95rem;
   border-top: 1px solid rgba(21, 32, 25, 0.1);
   position: sticky;
   bottom: 0;
   background: #f7faf8;
+}
+
+.calc-sheet__estimate-label {
+  font-size: 0.68rem;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: var(--ink-soft);
+  margin-bottom: 0.25rem;
 }
 
 .calc-sheet__price {
@@ -131,6 +139,55 @@
   max-width: 16rem;
 }
 
+.whatsapp-quote-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 3rem;
+  padding: 0.7rem 1.1rem;
+  border-radius: 0.4rem;
+  background: #25d366;
+  color: #fff;
+  font-size: 0.84rem;
+  font-weight: 600;
+  letter-spacing: 0.02em;
+  white-space: nowrap;
+  box-shadow: 0 4px 14px rgba(37, 211, 102, 0.28);
+}
+
+.whatsapp-quote-btn:hover,
+.whatsapp-quote-btn:focus-visible {
+  background: #1ebe57;
+  color: #fff;
+}
+
+.customise-dock {
+  position: fixed;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  z-index: 60;
+  padding: 0.75rem 1rem calc(0.75rem + env(safe-area-inset-bottom));
+  background: rgba(247, 250, 248, 0.94);
+  backdrop-filter: blur(12px);
+  border-top: 1px solid rgba(21, 32, 25, 0.1);
+  box-shadow: 0 -8px 28px rgba(16, 24, 20, 0.08);
+}
+
+.customise-dock[hidden] {
+  display: none;
+}
+
+.customise-dock__inner {
+  width: min(28rem, 100%);
+  margin: 0 auto;
+}
+
+.customise-dock .btn--customise {
+  width: 100%;
+  min-height: 3.1rem;
+}
+
 @keyframes calc-up {
   from {
     opacity: 0;
@@ -139,6 +196,16 @@
   to {
     opacity: 1;
     transform: translateY(0);
+  }
+}
+
+@media (max-width: 420px) {
+  .calc-sheet__footer {
+    grid-template-columns: 1fr;
+  }
+
+  .whatsapp-quote-btn {
+    width: 100%;
   }
 }
 

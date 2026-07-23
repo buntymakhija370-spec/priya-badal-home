@@ -10,32 +10,43 @@ import {
   getSizeLimits,
   type PriceConfig,
 } from '../lib/pricing'
-import { addConfiguredToCart } from '../lib/cart'
+import { buildWhatsAppQuoteUrl } from '../lib/whatsapp'
 import './PriceCalculator.css'
 
 type Props = {
   product: Product
+  fixed?: boolean
 }
 
-export function CustomizeButton({ product }: Props) {
+export function CustomizeButton({ product, fixed = false }: Props) {
   const [open, setOpen] = useState(false)
+
+  const button = (
+    <button
+      type="button"
+      className="btn btn--customise"
+      aria-haspopup="dialog"
+      aria-expanded={open}
+      onClick={() => setOpen(true)}
+    >
+      Customise &amp; Price
+    </button>
+  )
 
   return (
     <>
-      <button
-        type="button"
-        className="btn btn--customise"
-        aria-haspopup="dialog"
-        aria-expanded={open}
-        onClick={() => setOpen(true)}
-      >
-        Customise &amp; Price
-      </button>
+      {fixed ? (
+        createPortal(
+          <div className="customise-dock" hidden={open}>
+            <div className="customise-dock__inner">{button}</div>
+          </div>,
+          document.body,
+        )
+      ) : (
+        button
+      )}
       {open && (
-        <CalculatorOverlay
-          product={product}
-          onClose={() => setOpen(false)}
-        />
+        <CalculatorOverlay product={product} onClose={() => setOpen(false)} />
       )}
     </>
   )
@@ -51,7 +62,6 @@ function CalculatorOverlay({ product, onClose }: OverlayProps) {
   const [config, setConfig] = useState<PriceConfig>(() =>
     defaultConfig(product.categoryId, product),
   )
-  const [justAdded, setJustAdded] = useState(false)
   const size = getSizeLimits(product.categoryId)
 
   const quote = useMemo(
@@ -86,19 +96,11 @@ function CalculatorOverlay({ product, onClose }: OverlayProps) {
     setConfig((prev) => ({ ...prev, ...patch }))
   }
 
-  const onAdd = () => {
-    addConfiguredToCart({
-      productId: product.id,
-      quantity: 1,
-      config: quote.config,
-      unitPrice: quote.unitPrice,
-    })
-    setJustAdded(true)
-    window.setTimeout(() => {
-      setJustAdded(false)
-      onClose()
-    }, 900)
-  }
+  const whatsappHref = buildWhatsAppQuoteUrl(
+    product,
+    quote.config,
+    quote.unitPrice,
+  )
 
   return createPortal(
     <div className="calc-overlay" role="presentation">
@@ -196,7 +198,8 @@ function CalculatorOverlay({ product, onClose }: OverlayProps) {
         </div>
 
         <div className="calc-sheet__footer">
-          <div>
+          <div className="calc-sheet__estimate">
+            <p className="calc-sheet__estimate-label">Estimated price</p>
             <p className="calc-sheet__price">{formatPrice(quote.unitPrice)}</p>
             <p className="calc-sheet__meta">
               {describeConfig(product.categoryId, quote.config)}
@@ -205,9 +208,14 @@ function CalculatorOverlay({ product, onClose }: OverlayProps) {
                 : ''}
             </p>
           </div>
-          <button type="button" className="cart-btn cart-btn--lg" onClick={onAdd}>
-            {justAdded ? 'Added' : 'Add to cart'}
-          </button>
+          <a
+            className="whatsapp-quote-btn"
+            href={whatsappHref}
+            target="_blank"
+            rel="noopener noreferrer"
+          >
+            WhatsApp Quote
+          </a>
         </div>
       </div>
     </div>,

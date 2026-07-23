@@ -148,13 +148,9 @@
   background: rgba(255, 255, 255, 0.55);
 }
 
-.product-page__actions {
-  display: grid;
-  margin-bottom: 1.1rem;
-}
-
-.product-page__actions .btn--customise {
-  min-height: 3.1rem;
+.product-page__actions-spacer {
+  height: 4.75rem;
+  margin-bottom: 0.25rem;
 }
 
 .product-page__ai {
@@ -195,17 +191,5 @@
   .product-page__media {
     aspect-ratio: 3 / 4;
     margin-inline: -0.15rem;
-  }
-
-  .product-page__actions {
-    position: sticky;
-    bottom: 0.75rem;
-    z-index: 20;
-    padding: 0.65rem;
-    margin-inline: -0.35rem;
-    background: rgba(247, 250, 248, 0.92);
-    backdrop-filter: blur(10px);
-    border: 1px solid rgba(21, 32, 25, 0.08);
-    border-radius: 0.45rem;
   }
 }

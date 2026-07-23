@@ -276,14 +276,9 @@ export function configKey(config: PriceConfig) {
   ].join('|')
 }
 
-export function describeConfig(categoryId: string, config: PriceConfig) {
-  const size = getSizeLimits(categoryId)
+export function describeConfig(_categoryId: string, config: PriceConfig) {
   const finish = getFinish(config.finishId)
   const thickness = getThickness(config.thicknessId)
-  const dims = size.usesDepth
-    ? `${config.width} × ${config.height} × ${config.depth} ft`
-    : `${config.width} × ${config.height} ft`
-  const finishPart = finish.name
-  const thicknessPart = thickness.label
-  return `${finishPart} · ${thicknessPart} · ${dims}`
+  const dims = `${config.width} × ${config.height} ft`
+  return `${finish.name} · ${thickness.label} · ${dims}`
 }

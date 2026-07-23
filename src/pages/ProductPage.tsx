@@ -48,9 +48,6 @@ export function ProductPage() {
           <div className="product-page__media">
             <ProductImageScroller images={gallery} alt={product.name} />
           </div>
-          <p className="product-page__swipe-hint">
-            {gallery.length > 1 ? `Swipe to see all ${gallery.length} photos` : null}
-          </p>
         </div>
 
         <div className="product-page__info">
@@ -83,20 +80,12 @@ export function ProductPage() {
               </li>
             )}
           </ul>
+
           <p className="product-page__desc">{product.description}</p>
 
-          <div className="product-page__tags">
-            {product.style.map((s) => (
-              <span key={s}>{s}</span>
-            ))}
+          <div className="product-page__actions">
+            <CustomizeButton product={product} />
           </div>
-
-          <div className="product-page__actions-spacer" aria-hidden="true" />
-          <CustomizeButton product={product} fixed />
-
-          <Link className="product-page__ai" to="/chat">
-            Need ideas? Ask the AI interior guide
-          </Link>
         </div>
       </div>
 

@@ -15,36 +15,22 @@ import './PriceCalculator.css'
 
 type Props = {
   product: Product
-  fixed?: boolean
 }
 
-export function CustomizeButton({ product, fixed = false }: Props) {
+export function CustomizeButton({ product }: Props) {
   const [open, setOpen] = useState(false)
-
-  const button = (
-    <button
-      type="button"
-      className="btn btn--customise"
-      aria-haspopup="dialog"
-      aria-expanded={open}
-      onClick={() => setOpen(true)}
-    >
-      Customise &amp; Price
-    </button>
-  )
 
   return (
     <>
-      {fixed ? (
-        createPortal(
-          <div className="customise-dock" hidden={open}>
-            <div className="customise-dock__inner">{button}</div>
-          </div>,
-          document.body,
-        )
-      ) : (
-        button
-      )}
+      <button
+        type="button"
+        className="btn btn--customise"
+        aria-haspopup="dialog"
+        aria-expanded={open}
+        onClick={() => setOpen(true)}
+      >
+        Customise &amp; Price
+      </button>
       {open && (
         <CalculatorOverlay product={product} onClose={() => setOpen(false)} />
       )}
@@ -177,20 +163,6 @@ function CalculatorOverlay({ product, onClose }: OverlayProps) {
               onChange={(e) => update({ height: Number(e.target.value) })}
             />
           </label>
-
-          {size.usesDepth && (
-            <label className="calc-sheet__field calc-sheet__field--full">
-              Depth (ft)
-              <input
-                type="number"
-                min={size.minDepth}
-                max={size.maxDepth}
-                step={0.1}
-                value={config.depth}
-                onChange={(e) => update({ depth: Number(e.target.value) })}
-              />
-            </label>
-          )}
         </div>
 
         <div className="calc-sheet__footer">

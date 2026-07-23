@@ -5,19 +5,17 @@ type Props = {
   images: string[]
   alt: string
   className?: string
-  /** When true, tapping an image does not navigate — used inside cards with separate links */
-  stopLinkNav?: boolean
 }
 
-export function ProductImageScroller({
-  images,
-  alt,
-  className = '',
-  stopLinkNav = false,
-}: Props) {
+export function ProductImageScroller({ images, alt, className = '' }: Props) {
   const gallery = images.length > 0 ? images : []
   const scrollerRef = useRef<HTMLDivElement>(null)
   const [active, setActive] = useState(0)
+  const touchRef = useRef<{ x: number; y: number; locked: 'x' | 'y' | null }>({
+    x: 0,
+    y: 0,
+    locked: null,
+  })
 
   useEffect(() => {
     const el = scrollerRef.current
@@ -33,6 +31,51 @@ export function ProductImageScroller({
     el.addEventListener('scroll', onScroll, { passive: true })
     return () => el.removeEventListener('scroll', onScroll)
   }, [gallery.length])
+
+  useEffect(() => {
+    const el = scrollerRef.current
+    if (!el) return
+
+    const onTouchStart = (e: TouchEvent) => {
+      const t = e.touches[0]
+      if (!t) return
+      touchRef.current = { x: t.clientX, y: t.clientY, locked: null }
+      el.style.overflowX = 'auto'
+    }
+
+    const onTouchMove = (e: TouchEvent) => {
+      const t = e.touches[0]
+      if (!t) return
+      const dx = Math.abs(t.clientX - touchRef.current.x)
+      const dy = Math.abs(t.clientY - touchRef.current.y)
+
+      if (!touchRef.current.locked && (dx > 6 || dy > 6)) {
+        touchRef.current.locked = dx > dy ? 'x' : 'y'
+      }
+
+      // Vertical intent: let the page scroll; disable horizontal capture
+      if (touchRef.current.locked === 'y') {
+        el.style.overflowX = 'hidden'
+      }
+    }
+
+    const onTouchEnd = () => {
+      el.style.overflowX = 'auto'
+      touchRef.current.locked = null
+    }
+
+    el.addEventListener('touchstart', onTouchStart, { passive: true })
+    el.addEventListener('touchmove', onTouchMove, { passive: true })
+    el.addEventListener('touchend', onTouchEnd, { passive: true })
+    el.addEventListener('touchcancel', onTouchEnd, { passive: true })
+
+    return () => {
+      el.removeEventListener('touchstart', onTouchStart)
+      el.removeEventListener('touchmove', onTouchMove)
+      el.removeEventListener('touchend', onTouchEnd)
+      el.removeEventListener('touchcancel', onTouchEnd)
+    }
+  }, [])
 
   if (gallery.length === 0) return null
 
@@ -51,7 +94,6 @@ export function ProductImageScroller({
         role="region"
         aria-roledescription="carousel"
         aria-label={`${alt} photos`}
-        onClick={stopLinkNav ? (e) => e.preventDefault() : undefined}
       >
         {gallery.map((src, index) => (
           <figure key={`${src}-${index}`} className="img-scroller__slide">

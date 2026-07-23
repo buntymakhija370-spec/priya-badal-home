@@ -9,10 +9,10 @@ import { formatPrice } from '../data/catalog'
 import './ChatPage.css'
 
 const SUGGESTIONS = [
-  'Warm living room under ₹50,000',
-  'Japandi bedroom ideas',
-  'Dining set for six',
-  'Soft lighting for bedroom',
+  'Wall panels under ₹50,000',
+  'Modular kitchen ideas',
+  'Sliding wardrobe for bedroom',
+  'Temple unit under ₹40,000',
 ]
 
 export function ChatPage() {

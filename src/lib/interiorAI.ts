@@ -24,12 +24,16 @@ const STYLE_WORDS = [
 ]
 
 const ROOM_WORDS = [
+  'wall panels',
+  'kitchen',
+  'wardrobe',
+  'temple',
+  'doors',
+  'sculpted furniture',
   'living room',
   'bedroom',
-  'kitchen',
-  'dining',
-  'lounge',
-  'hallway',
+  'puja',
+  'entrance',
 ]
 
 function extractBudget(text: string): number | null {
@@ -98,7 +102,7 @@ function greetingReply(): ChatMessage {
     id: crypto.randomUUID(),
     role: 'assistant',
     text:
-      'Hi — I’m Priya’s Interior Guide. Tell me the room, style, and budget, and I’ll suggest pieces from our collection with prices. Example: “Warm living room under ₹50,000” or “Japandi bedroom lighting”.',
+      'Hi — I’m Priya’s Interior Guide. Ask about wall panels, kitchen, wardrobe, temple, doors, or sculpted furniture — with style and budget. Example: “Fluted wall panels under ₹30,000” or “Sliding wardrobe in walnut”.',
   }
 }
 
@@ -142,7 +146,7 @@ export function answerInteriorQuery(userText: string): ChatMessage {
       text:
         budget != null
           ? `I couldn’t match that exactly, but here are approachable pieces${budget ? ` around your budget of ${formatPrice(budget)}` : ''}. You can also browse categories or ask about a specific room.`
-          : 'Try mentioning a room (living room, bedroom), a style (minimal, warm, japandi), or a budget (under ₹30,000). Meanwhile, here are a few starting pieces:',
+          : 'Try mentioning a category (wall panels, kitchen, wardrobe, temple, doors), a style, or a budget (under ₹50,000). Meanwhile, here are a few starting pieces:',
       products: fallback,
     }
   }

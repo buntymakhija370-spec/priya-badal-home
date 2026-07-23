@@ -1,26 +1,27 @@
-<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 920 180" role="img" aria-label="Priyabadal Homes — Shutters, Doors, Wall Panels">
-  <!-- Main wordmark: left → right -->
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 640 150" role="img" aria-label="Priyabadal Homes — Shutters, Doors, Wall Panels">
+  <!-- Main wordmark width ≈ 600; tagline forced to the same left→right span -->
   <text
-    x="12"
-    y="72"
+    x="8"
+    y="68"
     text-anchor="start"
     font-family="Arial Black, Arial, Helvetica, sans-serif"
-    font-size="52"
-    font-weight="700"
-    letter-spacing="3"
-  >
-    <tspan fill="#2f3133">PRIYABADAL</tspan>
-    <tspan dx="16" fill="#8b5a3c">HOMES</tspan>
-  </text>
-  <!-- Tagline: larger text, same left→right start as wordmark -->
-  <text
-    x="12"
-    y="138"
-    text-anchor="start"
-    fill="#3d2b6b"
-    font-family="Arial Black, Arial, Helvetica, sans-serif"
-    font-size="36"
+    font-size="46"
     font-weight="700"
     letter-spacing="2.5"
+  >
+    <tspan fill="#2f3133">PRIYABADAL</tspan>
+    <tspan dx="14" fill="#8b5a3c">HOMES</tspan>
+  </text>
+  <text
+    x="8"
+    y="118"
+    text-anchor="start"
+    fill="#3d2b6b"
+    font-family="Arial, Helvetica, sans-serif"
+    font-size="18"
+    font-weight="600"
+    letter-spacing="1.5"
+    textLength="600"
+    lengthAdjust="spacing"
   >SHUTTERS | DOORS | WALL PANELS</text>
 </svg>

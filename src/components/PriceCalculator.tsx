@@ -10,6 +10,7 @@ import {
   getThicknessOptionsForProduct,
   type PriceConfig,
 } from '../lib/pricing'
+import { addConfiguredToCart } from '../lib/cart'
 import { buildWhatsAppQuoteUrl } from '../lib/whatsapp'
 import './PriceCalculator.css'
 
@@ -53,6 +54,7 @@ function CalculatorOverlay({ product, onClose }: OverlayProps) {
   const [config, setConfig] = useState<PriceConfig>(() =>
     defaultConfig(product.categoryId, product),
   )
+  const [added, setAdded] = useState(false)
   const size = getSizeLimits(product.categoryId)
   const finishOptions = getFinishOptionsForProduct(product)
   const thicknessOptions = getThicknessOptionsForProduct(product)
@@ -182,14 +184,32 @@ function CalculatorOverlay({ product, onClose }: OverlayProps) {
                 : ''}
             </p>
           </div>
-          <a
-            className="whatsapp-quote-btn"
-            href={whatsappHref}
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            WhatsApp Quote
-          </a>
+          <div className="calc-sheet__cta">
+            <button
+              type="button"
+              className="btn btn--dark calc-sheet__add"
+              onClick={() => {
+                addConfiguredToCart({
+                  productId: product.id,
+                  quantity: 1,
+                  config: quote.config,
+                  unitPrice: quote.unitPrice,
+                })
+                setAdded(true)
+                window.setTimeout(() => setAdded(false), 1400)
+              }}
+            >
+              {added ? 'Added to cart' : 'Add to cart'}
+            </button>
+            <a
+              className="whatsapp-quote-btn"
+              href={whatsappHref}
+              target="_blank"
+              rel="noopener noreferrer"
+            >
+              WhatsApp Quote
+            </a>
+          </div>
         </div>
       </div>
     </div>,

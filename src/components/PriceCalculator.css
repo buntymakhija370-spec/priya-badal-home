@@ -128,6 +128,17 @@
   background: #f7faf8;
 }
 
+.calc-sheet__cta {
+  display: grid;
+  gap: 0.5rem;
+  min-width: min(14rem, 100%);
+}
+
+.calc-sheet__add {
+  min-height: 3rem;
+  width: 100%;
+}
+
 .calc-sheet__estimate-label {
   font-size: 0.68rem;
   letter-spacing: 0.14em;
@@ -184,11 +195,12 @@
   }
 }
 
-@media (max-width: 420px) {
+@media (max-width: 560px) {
   .calc-sheet__footer {
     grid-template-columns: 1fr;
   }
 
+  .calc-sheet__cta,
   .whatsapp-quote-btn {
     width: 100%;
   }

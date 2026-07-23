@@ -1,9 +1,10 @@
 import { Link, useParams } from 'react-router-dom'
-import { useState } from 'react'
+import { useMemo, useState } from 'react'
 import { formatPrice, getCategory, getSubcategory, type SpecRow } from '../data/catalog'
-import { getProductById } from '../lib/products'
+import { getAllProducts, getProductById } from '../lib/products'
 import { resolveProductPresentation } from '../lib/productSpecs'
 import { ProductGallery } from '../components/ProductGallery'
+import { ProductCard } from '../components/ProductCard'
 import { CustomizeButton } from '../components/PriceCalculator'
 import { FavoriteButton } from '../components/FavoriteButton'
 import { ShareProductLink } from '../components/ShareProductLink'
@@ -34,6 +35,13 @@ export function ProductPage() {
   const product = productId ? getProductById(productId) : undefined
   useProductSeo(product)
   const [section, setSection] = useState<SectionId>('details')
+
+  const related = useMemo(() => {
+    if (!product) return []
+    return getAllProducts()
+      .filter((p) => p.categoryId === product.categoryId && p.id !== product.id)
+      .slice(0, 4)
+  }, [product])
 
   if (!product) {
     return (
@@ -79,6 +87,12 @@ export function ProductPage() {
               <span className="product-page__price-unit">/sq ft</span>
             )}
           </div>
+
+          <ul className="product-page__trust">
+            <li>12-month warranty</li>
+            <li>On-site assembly</li>
+            <li>Made to measure</li>
+          </ul>
 
           <ul className="product-page__highlights">
             {presentation.highlights.map((item) => (
@@ -159,6 +173,22 @@ export function ProductPage() {
       </section>
 
       <ShareProductLink product={product} />
+
+      {related.length > 0 && (
+        <section className="product-page__related">
+          <div className="product-page__related-head">
+            <h2>You may also like</h2>
+            {category && (
+              <Link to={shopPath(category.id)}>More in {category.name}</Link>
+            )}
+          </div>
+          <div className="product-grid">
+            {related.map((item) => (
+              <ProductCard key={item.id} product={item} />
+            ))}
+          </div>
+        </section>
+      )}
     </main>
   )
 }

@@ -1,9 +1,12 @@
 import { Link, useParams } from 'react-router-dom'
-import { useMemo } from 'react'
-import { getCategory, getSubcategory } from '../data/catalog'
+import { useMemo, useState } from 'react'
+import { categories, getCategory, getSubcategory } from '../data/catalog'
 import { getProductsByCategory, getAllProducts } from '../lib/products'
 import { ProductCard } from '../components/ProductCard'
+import { shopPath } from '../lib/links'
 import './ShopPage.css'
+
+type SortId = 'featured' | 'price-asc' | 'price-desc' | 'name'
 
 export function ShopPage() {
   const { categoryId, subcategoryId } = useParams()
@@ -13,11 +16,34 @@ export function ShopPage() {
       ? getSubcategory(categoryId, subcategoryId)
       : undefined
 
-  const products = useMemo(() => {
+  const [query, setQuery] = useState('')
+  const [sort, setSort] = useState<SortId>('featured')
+
+  const baseProducts = useMemo(() => {
     if (!categoryId) return getAllProducts()
     if (subcategoryId) return getProductsByCategory(categoryId, subcategoryId)
     return getProductsByCategory(categoryId)
   }, [categoryId, subcategoryId])
+
+  const products = useMemo(() => {
+    const q = query.trim().toLowerCase()
+    let list = baseProducts
+    if (q) {
+      list = list.filter(
+        (p) =>
+          p.name.toLowerCase().includes(q) ||
+          p.description.toLowerCase().includes(q) ||
+          p.style.some((s) => s.toLowerCase().includes(q)),
+      )
+    }
+    const sorted = [...list]
+    if (sort === 'price-asc') sorted.sort((a, b) => a.price - b.price)
+    if (sort === 'price-desc') sorted.sort((a, b) => b.price - a.price)
+    if (sort === 'name') sorted.sort((a, b) => a.name.localeCompare(b.name))
+    return sorted
+  }, [baseProducts, query, sort])
+
+  const subcats = category?.subcategories ?? []
 
   return (
     <main className="shop page-pad">
@@ -29,7 +55,7 @@ export function ShopPage() {
         <p className="shop__lede">
           {category
             ? category.description
-            : 'Browse every piece from the collection.'}
+            : 'Browse every piece from the collection — customise sizes and request WhatsApp quotes.'}
         </p>
         {categoryId && (
           <p className="shop__back">
@@ -44,6 +70,63 @@ export function ShopPage() {
         )}
       </header>
 
+      {!categoryId && (
+        <div className="shop__cats" aria-label="Categories">
+          {categories.map((cat) => (
+            <Link key={cat.id} className="chip" to={shopPath(cat.id)}>
+              {cat.name}
+            </Link>
+          ))}
+        </div>
+      )}
+
+      {category && subcats.length > 0 && (
+        <div className="shop__subs" aria-label="Subcategories">
+          <Link
+            className={`chip ${!subcategoryId ? 'chip--active' : ''}`}
+            to={shopPath(category.id)}
+          >
+            All {category.name}
+          </Link>
+          {subcats.map((sub) => (
+            <Link
+              key={sub.id}
+              className={`chip ${subcategoryId === sub.id ? 'chip--active' : ''}`}
+              to={shopPath(category.id, sub.id)}
+            >
+              {sub.name}
+            </Link>
+          ))}
+        </div>
+      )}
+
+      <div className="shop__toolbar">
+        <label className="shop__search">
+          <span className="sr-only">Search products</span>
+          <input
+            type="search"
+            value={query}
+            onChange={(e) => setQuery(e.target.value)}
+            placeholder="Search products…"
+          />
+        </label>
+        <label className="shop__sort">
+          <span>Sort</span>
+          <select
+            value={sort}
+            onChange={(e) => setSort(e.target.value as SortId)}
+          >
+            <option value="featured">Featured</option>
+            <option value="price-asc">Price: Low to High</option>
+            <option value="price-desc">Price: High to Low</option>
+            <option value="name">Name A–Z</option>
+          </select>
+        </label>
+        <p className="shop__count">
+          {products.length} product{products.length === 1 ? '' : 's'}
+        </p>
+      </div>
+
       <div className="product-grid">
         {products.map((product) => (
           <ProductCard key={product.id} product={product} />
@@ -51,7 +134,7 @@ export function ShopPage() {
       </div>
 
       {products.length === 0 && (
-        <p className="empty">No products in this category yet.</p>
+        <p className="empty">No products match this search.</p>
       )}
     </main>
   )

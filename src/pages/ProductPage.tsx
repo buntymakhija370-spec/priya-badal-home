@@ -107,6 +107,12 @@ export function ProductPage() {
             <CustomizeButton product={product} />
             <FavoriteButton productId={product.id} className="product-page__fav" />
           </div>
+          <Link
+            className="btn btn--outline product-page__visualise"
+            to={`/visualise?product=${product.id}`}
+          >
+            Visualise in my room (AI)
+          </Link>
 
           <p className="product-page__sku">Sku: {presentation.sku}</p>
         </div>

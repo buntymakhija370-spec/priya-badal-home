@@ -11,6 +11,7 @@ import './Layout.css'
 
 const utilityLinks = [
   { to: '/shop', label: 'All products' },
+  { to: '/visualise', label: 'Visualise AI' },
   { to: '/favorites', label: 'Favorites' },
   { to: '/chat', label: 'AI Guide' },
   { to: '/add-product', label: 'Add Product' },
@@ -50,11 +51,14 @@ export function Layout() {
         </NavLink>
 
         <nav className="nav__desktop" aria-label="Shop categories">
-          {categories.slice(0, 5).map((cat) => (
+          {categories.slice(0, 4).map((cat) => (
             <NavLink key={cat.id} to={shopPath(cat.id)} onClick={close}>
               {cat.name}
             </NavLink>
           ))}
+          <NavLink to="/visualise" onClick={close}>
+            Visualise
+          </NavLink>
           <NavLink to="/shop" onClick={close}>
             All
           </NavLink>
@@ -137,6 +141,9 @@ export function Layout() {
               </li>
               <li>
                 <NavLink to="/favorites">Favorites</NavLink>
+              </li>
+              <li>
+                <NavLink to="/visualise">Visualise AI</NavLink>
               </li>
               <li>
                 <NavLink to="/chat">AI Guide</NavLink>

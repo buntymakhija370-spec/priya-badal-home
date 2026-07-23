@@ -8,6 +8,7 @@ import { ChatPage } from './pages/ChatPage'
 import { AddProductPage } from './pages/AddProductPage'
 import { FavoritesPage } from './pages/FavoritesPage'
 import { CartPage } from './pages/CartPage'
+import { VisualisePage } from './pages/VisualisePage'
 import './App.css'
 
 export default function App() {
@@ -21,6 +22,7 @@ export default function App() {
           <Route path="shop/:categoryId" element={<ShopPage />} />
           <Route path="shop/:categoryId/:subcategoryId" element={<ShopPage />} />
           <Route path="product/:productId" element={<ProductPage />} />
+          <Route path="visualise" element={<VisualisePage />} />
           <Route path="favorites" element={<FavoritesPage />} />
           <Route path="cart" element={<CartPage />} />
           <Route path="chat" element={<ChatPage />} />

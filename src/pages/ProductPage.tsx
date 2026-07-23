@@ -3,7 +3,8 @@ import { formatPrice, getCategory, getSubcategory } from '../data/catalog'
 import { getProductById, getProductsByCategory } from '../lib/products'
 import { ProductCard } from '../components/ProductCard'
 import { FavoriteButton } from '../components/FavoriteButton'
-import { PriceCalculator } from '../components/PriceCalculator'
+import { AddToCartButton } from '../components/AddToCartButton'
+import { CustomizeButton } from '../components/PriceCalculator'
 import './ProductPage.css'
 
 export function ProductPage() {
@@ -57,9 +58,9 @@ export function ProductPage() {
             ))}
           </div>
 
-          <PriceCalculator product={product} />
-
           <div className="product-page__actions">
+            <AddToCartButton product={product} className="cart-btn--lg" />
+            <CustomizeButton product={product} />
             <FavoriteButton productId={product.id} />
             <Link className="btn btn--outline" to="/chat">
               Ask AI about this

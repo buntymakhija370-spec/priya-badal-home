@@ -27,7 +27,7 @@ export function ProductCard({ product }: Props) {
           <FavoriteButton productId={product.id} />
         </div>
         <Link className="product-card__cta" to={`/product/${product.id}`}>
-          Customize size & finish
+          View · Customize
         </Link>
       </div>
     </article>

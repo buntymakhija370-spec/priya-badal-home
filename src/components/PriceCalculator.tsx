@@ -1,4 +1,4 @@
-import { useMemo, useState } from 'react'
+import { useEffect, useId, useMemo, useRef, useState } from 'react'
 import { formatPrice, type Product } from '../data/catalog'
 import {
   FINISHES,
@@ -16,7 +16,33 @@ type Props = {
   product: Product
 }
 
-export function PriceCalculator({ product }: Props) {
+export function CustomizeButton({ product }: Props) {
+  const [open, setOpen] = useState(false)
+
+  return (
+    <>
+      <button
+        type="button"
+        className="btn btn--dark"
+        onClick={() => setOpen(true)}
+      >
+        Customize
+      </button>
+      {open && (
+        <PriceCalculatorModal product={product} onClose={() => setOpen(false)} />
+      )}
+    </>
+  )
+}
+
+type ModalProps = {
+  product: Product
+  onClose: () => void
+}
+
+function PriceCalculatorModal({ product, onClose }: ModalProps) {
+  const titleId = useId()
+  const closeRef = useRef<HTMLButtonElement>(null)
   const [config, setConfig] = useState<PriceConfig>(() =>
     defaultConfig(product.categoryId),
   )
@@ -27,6 +53,21 @@ export function PriceCalculator({ product }: Props) {
     () => calculatePrice(product.price, product.categoryId, config),
     [product.price, product.categoryId, config],
   )
+
+  useEffect(() => {
+    const prev = document.body.style.overflow
+    document.body.style.overflow = 'hidden'
+    closeRef.current?.focus()
+
+    const onKey = (e: KeyboardEvent) => {
+      if (e.key === 'Escape') onClose()
+    }
+    window.addEventListener('keydown', onKey)
+    return () => {
+      document.body.style.overflow = prev
+      window.removeEventListener('keydown', onKey)
+    }
+  }, [onClose])
 
   const update = (patch: Partial<PriceConfig>) => {
     setConfig((prev) => ({ ...prev, ...patch }))
@@ -40,101 +81,114 @@ export function PriceCalculator({ product }: Props) {
       unitPrice: quote.unitPrice,
     })
     setJustAdded(true)
-    window.setTimeout(() => setJustAdded(false), 1400)
+    window.setTimeout(() => {
+      setJustAdded(false)
+      onClose()
+    }, 900)
   }
 
   return (
-    <section className="calc" aria-labelledby="calc-title">
-      <div className="calc__head">
-        <h2 id="calc-title">Custom calculator</h2>
-        <p>Adjust finish, thickness, and size — price updates instantly.</p>
-      </div>
-
-      <div className="calc__grid">
-        <label className="calc__field">
-          Finish
-          <select
-            value={config.finishId}
-            onChange={(e) => update({ finishId: e.target.value })}
+    <div className="calc-overlay" role="presentation" onClick={onClose}>
+      <div
+        className="calc-panel"
+        role="dialog"
+        aria-modal="true"
+        aria-labelledby={titleId}
+        onClick={(e) => e.stopPropagation()}
+      >
+        <div className="calc-panel__top">
+          <div>
+            <p className="calc-panel__eyebrow">Customize</p>
+            <h2 id={titleId}>{product.name}</h2>
+          </div>
+          <button
+            ref={closeRef}
+            type="button"
+            className="calc-panel__close"
+            aria-label="Close calculator"
+            onClick={onClose}
           >
-            {FINISHES.map((finish) => (
-              <option key={finish.id} value={finish.id}>
-                {finish.name}
-              </option>
-            ))}
-          </select>
-        </label>
+            ×
+          </button>
+        </div>
 
-        <label className="calc__field">
-          Thickness
-          <select
-            value={config.thicknessId}
-            onChange={(e) => update({ thicknessId: e.target.value })}
-          >
-            {THICKNESSES.map((item) => (
-              <option key={item.id} value={item.id}>
-                {item.label}
-              </option>
-            ))}
-          </select>
-        </label>
+        <div className="calc-panel__grid">
+          <label className="calc-panel__field">
+            Finish
+            <select
+              value={config.finishId}
+              onChange={(e) => update({ finishId: e.target.value })}
+            >
+              {FINISHES.map((finish) => (
+                <option key={finish.id} value={finish.id}>
+                  {finish.name}
+                </option>
+              ))}
+            </select>
+          </label>
 
-        <label className="calc__field">
-          Width (cm)
-          <input
-            type="number"
-            min={size.minWidth}
-            max={size.maxWidth}
-            value={config.width}
-            onChange={(e) => update({ width: Number(e.target.value) })}
-          />
-        </label>
+          <label className="calc-panel__field">
+            Thickness
+            <select
+              value={config.thicknessId}
+              onChange={(e) => update({ thicknessId: e.target.value })}
+            >
+              {THICKNESSES.map((item) => (
+                <option key={item.id} value={item.id}>
+                  {item.label}
+                </option>
+              ))}
+            </select>
+          </label>
 
-        <label className="calc__field">
-          Height (cm)
-          <input
-            type="number"
-            min={size.minHeight}
-            max={size.maxHeight}
-            value={config.height}
-            onChange={(e) => update({ height: Number(e.target.value) })}
-          />
-        </label>
-
-        {size.usesDepth && (
-          <label className="calc__field">
-            Depth (cm)
+          <label className="calc-panel__field">
+            Width (cm)
             <input
               type="number"
-              min={size.minDepth}
-              max={size.maxDepth}
-              value={config.depth}
-              onChange={(e) => update({ depth: Number(e.target.value) })}
+              min={size.minWidth}
+              max={size.maxWidth}
+              value={config.width}
+              onChange={(e) => update({ width: Number(e.target.value) })}
             />
           </label>
-        )}
-      </div>
 
-      <div className="calc__result">
-        <div>
-          <p className="calc__result-label">Estimated price</p>
-          <p className="calc__result-price">{formatPrice(quote.unitPrice)}</p>
-          <p className="calc__result-meta">
-            {describeConfig(product.categoryId, quote.config)}
-          </p>
-          <p className="calc__result-base">
-            Base from {formatPrice(product.price)} · scaled by finish, thickness &
-            size
-          </p>
+          <label className="calc-panel__field">
+            Height (cm)
+            <input
+              type="number"
+              min={size.minHeight}
+              max={size.maxHeight}
+              value={config.height}
+              onChange={(e) => update({ height: Number(e.target.value) })}
+            />
+          </label>
+
+          {size.usesDepth && (
+            <label className="calc-panel__field calc-panel__field--full">
+              Depth (cm)
+              <input
+                type="number"
+                min={size.minDepth}
+                max={size.maxDepth}
+                value={config.depth}
+                onChange={(e) => update({ depth: Number(e.target.value) })}
+              />
+            </label>
+          )}
         </div>
-        <button
-          type="button"
-          className="cart-btn cart-btn--lg"
-          onClick={onAdd}
-        >
-          {justAdded ? 'Added to cart' : 'Add to cart'}
-        </button>
+
+        <div className="calc-panel__footer">
+          <div>
+            <p className="calc-panel__price">{formatPrice(quote.unitPrice)}</p>
+            <p className="calc-panel__meta">
+              {describeConfig(product.categoryId, quote.config)}
+            </p>
+          </div>
+          <button type="button" className="cart-btn" onClick={onAdd}>
+            {justAdded ? 'Added' : 'Add to cart'}
+          </button>
+        </div>
       </div>
-    </section>
+    </div>
   )
 }

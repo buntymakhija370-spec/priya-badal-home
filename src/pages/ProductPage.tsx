@@ -1,7 +1,6 @@
 import { Link, useParams } from 'react-router-dom'
 import { formatPrice, getCategory, getSubcategory } from '../data/catalog'
-import { getProductById, getProductsByCategory } from '../lib/products'
-import { ProductCard } from '../components/ProductCard'
+import { getProductById } from '../lib/products'
 import { ProductImageScroller } from '../components/ProductImageScroller'
 import { CustomizeButton } from '../components/PriceCalculator'
 import { useProductSeo } from '../hooks/useProductSeo'
@@ -24,9 +23,6 @@ export function ProductPage() {
 
   const category = getCategory(product.categoryId)
   const subcategory = getSubcategory(product.categoryId, product.subcategoryId)
-  const related = getProductsByCategory(product.categoryId)
-    .filter((p) => p.id !== product.id)
-    .slice(0, 3)
   const gallery = product.images?.length ? product.images : [product.image]
 
   return (
@@ -88,20 +84,6 @@ export function ProductPage() {
           </div>
         </div>
       </div>
-
-      {related.length > 0 && (
-        <section className="related">
-          <div className="related__head">
-            <p className="eyebrow">More like this</p>
-            <h2>You may also like</h2>
-          </div>
-          <div className="product-grid">
-            {related.map((item) => (
-              <ProductCard key={item.id} product={item} />
-            ))}
-          </div>
-        </section>
-      )}
     </main>
   )
 }

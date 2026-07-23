@@ -128,10 +128,10 @@ export const baseProducts: Product[] = [
       'Floor-to-ceiling hinged wardrobe in matte greige PU with engraved geometric doors and gold handles. Soft-close interiors with hanging and shelf storage. Priced at ₹1,050 / sq ft · 25 mm · PU finish.',
     style: ['modern', 'luxe', 'geometric'],
     rooms: ['bedroom', 'wardrobe'],
-    image: '/products/wardrobe-geo-closed.png',
+    image: '/products/wardrobe-geo-closed.jpg',
     images: [
-      '/products/wardrobe-geo-closed.png',
-      '/products/wardrobe-geo-open.png',
+      '/products/wardrobe-geo-closed.jpg',
+      '/products/wardrobe-geo-open.jpg',
     ],
   },
   {

@@ -86,6 +86,17 @@
   letter-spacing: -0.02em;
 }
 
+.product-page__permalink {
+  margin-top: 2rem;
+  font-size: 0.88rem;
+  color: var(--ink-soft);
+}
+
+.product-page__permalink a {
+  text-decoration: underline;
+  text-underline-offset: 0.15em;
+}
+
 @media (max-width: 860px) {
   .product-page__layout {
     grid-template-columns: 1fr;

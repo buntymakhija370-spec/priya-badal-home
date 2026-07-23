@@ -5,11 +5,15 @@ import { ProductCard } from '../components/ProductCard'
 import { FavoriteButton } from '../components/FavoriteButton'
 import { AddToCartButton } from '../components/AddToCartButton'
 import { CustomizeButton } from '../components/PriceCalculator'
+import { ShareProductLink } from '../components/ShareProductLink'
+import { useProductSeo } from '../hooks/useProductSeo'
+import { productPath, shopPath } from '../lib/links'
 import './ProductPage.css'
 
 export function ProductPage() {
   const { productId } = useParams()
   const product = productId ? getProductById(productId) : undefined
+  useProductSeo(product)
 
   if (!product) {
     return (
@@ -33,7 +37,7 @@ export function ProductPage() {
         <span>/</span>
         {category && (
           <>
-            <Link to={`/shop/${category.id}`}>{category.name}</Link>
+            <Link to={shopPath(category.id)}>{category.name}</Link>
             <span>/</span>
           </>
         )}
@@ -58,6 +62,8 @@ export function ProductPage() {
             ))}
           </div>
 
+          <ShareProductLink product={product} />
+
           <div className="product-page__buy">
             <div className="product-page__actions">
               <AddToCartButton product={product} className="cart-btn--lg" />
@@ -81,6 +87,11 @@ export function ProductPage() {
           </div>
         </section>
       )}
+
+      <p className="product-page__permalink">
+        Permalink:{' '}
+        <Link to={productPath(product.id)}>{productPath(product.id)}</Link>
+      </p>
     </main>
   )
 }

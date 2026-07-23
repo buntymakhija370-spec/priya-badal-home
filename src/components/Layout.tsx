@@ -1,6 +1,7 @@
 import { NavLink, Outlet } from 'react-router-dom'
 import { useEffect, useState } from 'react'
 import { useCartCount } from '../hooks/useCart'
+import { SITE, whatsappUrl } from '../lib/site'
 import './Layout.css'
 
 const links = [
@@ -36,10 +37,19 @@ export function Layout() {
       <div className="grain" aria-hidden="true" />
       <header className={`nav ${scrolled ? 'nav--scrolled' : ''} ${menuOpen ? 'nav--open' : ''}`}>
         <NavLink className="nav__brand" to="/" onClick={close}>
-          Priya Badal
+          <span className="nav__brand-main">{SITE.shortName}</span>
+          <span className="nav__brand-sub">Homes</span>
         </NavLink>
 
         <div className="nav__end">
+          <a
+            className="nav__whatsapp"
+            href={whatsappUrl('Hi Priyabadal Homes — I want a custom quote.')}
+            target="_blank"
+            rel="noreferrer"
+          >
+            WhatsApp
+          </a>
           <NavLink className="nav__cart" to="/cart" onClick={close}>
             Cart
             {cartCount > 0 && <span className="nav__cart-count">{cartCount}</span>}
@@ -66,14 +76,37 @@ export function Layout() {
           <NavLink className="nav__links-cart" to="/cart" onClick={close}>
             Cart{cartCount > 0 ? ` (${cartCount})` : ''}
           </NavLink>
+          <a
+            className="nav__links-wa"
+            href={whatsappUrl('Hi Priyabadal Homes — I want a custom quote.')}
+            target="_blank"
+            rel="noreferrer"
+            onClick={close}
+          >
+            Get Quote
+          </a>
         </nav>
       </header>
 
       <Outlet />
 
       <footer className="footer">
-        <p className="footer__brand">Priya Badal Home</p>
-        <p className="footer__meta">Interiors · Products · AI Guide</p>
+        <div className="footer__brand-block">
+          <p className="footer__brand">{SITE.name}</p>
+          <p className="footer__meta">
+            Handcrafted by Local Artists · Custom Made · Priced Per Sq Ft · Made in India
+          </p>
+        </div>
+        <div className="footer__contact">
+          <a href={`tel:${SITE.phoneTel}`}>{SITE.phoneDisplay}</a>
+          <a href={`mailto:${SITE.email}`}>{SITE.email}</a>
+          <a href={whatsappUrl()} target="_blank" rel="noreferrer">
+            WhatsApp
+          </a>
+        </div>
+        <p className="footer__copy">
+          © {new Date().getFullYear()} {SITE.name} · {SITE.domain}
+        </p>
       </footer>
     </div>
   )

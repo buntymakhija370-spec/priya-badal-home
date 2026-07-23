@@ -4,6 +4,7 @@ export type CategoryId =
   | 'wardrobe'
   | 'temple'
   | 'doors'
+  | 'partitions'
   | 'sculpted-furniture'
 
 export type Subcategory = {
@@ -16,6 +17,8 @@ export type Category = {
   name: string
   description: string
   image: string
+  /** Starting price per sq ft shown on marketing surfaces */
+  startingFrom?: number
   subcategories: Subcategory[]
 }
 
@@ -42,7 +45,8 @@ export const categories: Category[] = [
   {
     id: 'wall-panels',
     name: 'Wall Panels',
-    description: 'Feature walls, fluted panels, and decorative cladding.',
+    description: 'Feature walls, fluted panels, and decorative cladding — custom size & colour.',
+    startingFrom: 400,
     image:
       'https://images.unsplash.com/photo-1616046229478-9901c5536a45?auto=format&fit=crop&w=1400&q=80',
     subcategories: [
@@ -53,8 +57,9 @@ export const categories: Category[] = [
   },
   {
     id: 'kitchen',
-    name: 'Kitchen',
-    description: 'Modular kitchens, cabinets, and counter finishes.',
+    name: 'Kitchen Shutters',
+    description: 'Custom kitchen shutters and cabinet faces — priced per sq ft.',
+    startingFrom: 200,
     image:
       'https://images.unsplash.com/photo-1556912173-46c336c7fd55?auto=format&fit=crop&w=1400&q=80',
     subcategories: [
@@ -65,8 +70,9 @@ export const categories: Category[] = [
   },
   {
     id: 'wardrobe',
-    name: 'Wardrobe',
-    description: 'Sliding, hinged, and walk-in wardrobes made to measure.',
+    name: 'Wardrobe Shutters',
+    description: 'Sliding, hinged, and walk-in wardrobe shutters made to measure.',
+    startingFrom: 420,
     image:
       'https://images.unsplash.com/photo-1595428774223-ef52624120d2?auto=format&fit=crop&w=1400&q=80',
     subcategories: [
@@ -77,8 +83,9 @@ export const categories: Category[] = [
   },
   {
     id: 'temple',
-    name: 'Temple',
+    name: 'Temple Collections',
     description: 'Home mandirs and carved temple units for puja spaces.',
+    startingFrom: 600,
     image:
       'https://images.unsplash.com/photo-1600585154340-be6161a56a0c?auto=format&fit=crop&w=1400&q=80',
     subcategories: [
@@ -91,6 +98,7 @@ export const categories: Category[] = [
     id: 'doors',
     name: 'Doors',
     description: 'Main doors, room doors, and designer flush shutters.',
+    startingFrom: 300,
     image:
       'https://images.unsplash.com/photo-1505693416388-ac5ce068fe85?auto=format&fit=crop&w=1400&q=80',
     subcategories: [
@@ -100,8 +108,21 @@ export const categories: Category[] = [
     ],
   },
   {
+    id: 'partitions',
+    name: 'Partitions',
+    description: 'Room dividers and carved partition screens — custom sized.',
+    startingFrom: 350,
+    image:
+      'https://images.unsplash.com/photo-1600210492493-0946911123ea?auto=format&fit=crop&w=1400&q=80',
+    subcategories: [
+      { id: 'screen', name: 'Screen Partitions' },
+      { id: 'lattice', name: 'Lattice' },
+      { id: 'fluted-divider', name: 'Fluted Dividers' },
+    ],
+  },
+  {
     id: 'sculpted-furniture',
-    name: 'Sculpted Furniture',
+    name: 'Furniture & Sculptures',
     description: 'Statement carved pieces — sofas, consoles, and art furniture.',
     image:
       'https://images.unsplash.com/photo-1555041469-a586c61ea9bc?auto=format&fit=crop&w=1400&q=80',
@@ -364,6 +385,51 @@ export const baseProducts: Product[] = [
     rooms: ['doors', 'hallway'],
     image:
       'https://images.unsplash.com/photo-1600047509807-ba8f99d2cd00?auto=format&fit=crop&w=1200&q=80',
+  },
+  {
+    id: 'lattice-partition',
+    name: 'Lattice Partition Screen',
+    categoryId: 'partitions',
+    subcategoryId: 'lattice',
+    price: 350,
+    currency: 'INR',
+    pricingMode: 'per-sqft',
+    description:
+      'Open lattice partition for living and dining separation — custom size from ₹350 / sq ft.',
+    style: ['modern', 'natural', 'warm'],
+    rooms: ['living room', 'partitions'],
+    image:
+      'https://images.unsplash.com/photo-1600210492493-0946911123ea?auto=format&fit=crop&w=1200&q=80',
+  },
+  {
+    id: 'fluted-room-divider',
+    name: 'Fluted Room Divider',
+    categoryId: 'partitions',
+    subcategoryId: 'fluted-divider',
+    price: 420,
+    currency: 'INR',
+    pricingMode: 'per-sqft',
+    description:
+      'Vertical fluted divider that softens open plans while keeping light flowing.',
+    style: ['modern', 'minimal', 'warm'],
+    rooms: ['living room', 'bedroom', 'partitions'],
+    image:
+      'https://images.unsplash.com/photo-1618221195710-dd6b41faaea6?auto=format&fit=crop&w=1200&q=80',
+  },
+  {
+    id: 'carved-screen-partition',
+    name: 'Carved Screen Partition',
+    categoryId: 'partitions',
+    subcategoryId: 'screen',
+    price: 480,
+    currency: 'INR',
+    pricingMode: 'per-sqft',
+    description:
+      'Hand-carved screen partition — a sculptural divider for statement interiors.',
+    style: ['carved', 'classic', 'luxe'],
+    rooms: ['living room', 'partitions'],
+    image:
+      'https://images.unsplash.com/photo-1600566753086-00f18fb6b3ea?auto=format&fit=crop&w=1200&q=80',
   },
   {
     id: 'sculpted-sofa',

@@ -12,7 +12,7 @@ export type CartItem = {
   unitPrice: number
 }
 
-const STORAGE_KEY = 'priya-badal-cart-v2'
+const STORAGE_KEY = 'priyabadal-homes-cart-v2'
 
 type Listener = () => void
 const listeners = new Set<Listener>()

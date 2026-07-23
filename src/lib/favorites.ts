@@ -1,4 +1,4 @@
-const STORAGE_KEY = 'priya-badal-favorites'
+const STORAGE_KEY = 'priyabadal-homes-favorites'
 
 type Listener = () => void
 

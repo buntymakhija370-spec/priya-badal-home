@@ -22,18 +22,48 @@
 }
 
 .nav--open {
-  color: #f4f8f5;
-  background: #152019;
+  color: #faf7f2;
+  background: var(--ink);
   box-shadow: none;
 }
 
 .nav__brand {
   position: relative;
   z-index: 60;
+  display: flex;
+  flex-direction: column;
+  line-height: 1;
+  gap: 0.1rem;
+}
+
+.nav__brand-main {
   font-family: var(--font-display);
-  font-size: 1.2rem;
+  font-size: 1.35rem;
   font-weight: 600;
-  letter-spacing: -0.02em;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+}
+
+.nav__brand-sub {
+  font-size: 0.65rem;
+  font-weight: 600;
+  letter-spacing: 0.28em;
+  text-transform: uppercase;
+  opacity: 0.7;
+}
+
+.nav__whatsapp {
+  display: none;
+  font-size: 0.85rem;
+  font-weight: 600;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  opacity: 0.85;
+}
+
+.nav__whatsapp:hover,
+.nav__whatsapp:focus-visible {
+  opacity: 1;
 }
 
 .nav__end {
@@ -67,8 +97,8 @@
 }
 
 .nav--open .nav__cart-count {
-  background: #f4f8f5;
-  color: #152019;
+  background: #faf7f2;
+  color: var(--ink);
 }
 
 .nav__links-cart {
@@ -131,18 +161,55 @@
 }
 
 .footer {
-  display: flex;
-  flex-wrap: wrap;
-  justify-content: space-between;
-  gap: 0.75rem 1.5rem;
-  padding: 1.75rem clamp(1.25rem, 4vw, 3rem) 2.25rem;
-  background: #152019;
-  color: rgba(238, 244, 239, 0.72);
+  display: grid;
+  gap: 1.25rem;
+  padding: 2.25rem clamp(1.25rem, 4vw, 3rem) 2.5rem;
+  background: var(--ink);
+  color: rgba(250, 247, 242, 0.68);
+}
+
+.footer__brand-block {
+  display: grid;
+  gap: 0.4rem;
 }
 
 .footer__brand {
   font-family: var(--font-display);
-  color: #eef4ef;
+  font-size: 1.45rem;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  color: #faf7f2;
+}
+
+.footer__meta {
+  max-width: 42ch;
+  font-size: 0.9rem;
+  line-height: 1.5;
+}
+
+.footer__contact {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.75rem 1.5rem;
+  font-size: 0.95rem;
+}
+
+.footer__contact a {
+  border-bottom: 1px solid rgba(250, 247, 242, 0.25);
+  padding-bottom: 0.1rem;
+}
+
+.footer__contact a:hover,
+.footer__contact a:focus-visible {
+  color: #faf7f2;
+  border-bottom-color: currentColor;
+}
+
+.footer__copy {
+  font-size: 0.82rem;
+  opacity: 0.75;
+  border-top: 1px solid rgba(250, 247, 242, 0.12);
+  padding-top: 1.1rem;
 }
 
 .grain {
@@ -155,6 +222,16 @@
   mix-blend-mode: multiply;
 }
 
+.nav__links-wa {
+  display: none;
+}
+
+@media (min-width: 721px) {
+  .nav__whatsapp {
+    display: inline-flex;
+  }
+}
+
 @media (max-width: 720px) {
   .nav__toggle {
     display: block;
@@ -162,6 +239,16 @@
 
   .nav__links-cart {
     display: none;
+  }
+
+  .nav__links-wa {
+    display: inline-flex;
+    margin-top: 0.5rem;
+    font-size: 1rem !important;
+    font-family: var(--font-body) !important;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    opacity: 0.85 !important;
   }
 
   .nav__links {
@@ -173,8 +260,8 @@
     align-items: flex-start;
     gap: 1.25rem;
     padding: calc(var(--nav-h) + 2rem) 1.75rem 2.5rem;
-    background: #152019;
-    color: #f4f8f5;
+    background: var(--ink);
+    color: #faf7f2;
     opacity: 0;
     visibility: hidden;
     pointer-events: none;

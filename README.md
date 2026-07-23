@@ -1,13 +1,19 @@
-# Priya Badal Home
+# Priyabadal Homes
 
-Interior products website with categories, prices, photo uploads, and an AI room guide.
+Website for [www.priyabadalhomes.com](https://www.priyabadalhomes.com) — custom handcrafted furniture made to exact measurements.
 
 ## Features
 
-- **Shop** — categories & subcategories with product photos and INR prices
-- **Product pages** — details, price, related pieces
-- **AI Interior Guide** — chat board that suggests products for a room/style/budget
-- **Add Product** — upload a photograph (or paste image URL), set category, subcategory, and price
+- **Shop** — Wall Panels, Kitchen Shutters, Wardrobe Shutters, Temple, Doors, Partitions, Furniture & Sculptures
+- **Product pages** — photos, INR / sq ft pricing, Customize calculator
+- **WhatsApp quote** — direct contact for custom size & colour
+- **AI Interior Guide** — chat that suggests products for a room/style/budget
+- **Add Product** — upload photos, set category and price
+
+## Contact
+
+- Call / WhatsApp: **+91 81099 49649**
+- Email: **info@priyabadalhomes.com**
 
 ## Develop
 

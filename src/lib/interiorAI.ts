@@ -29,7 +29,9 @@ const ROOM_WORDS = [
   'wardrobe',
   'temple',
   'doors',
+  'partitions',
   'sculpted furniture',
+  'furniture',
   'living room',
   'bedroom',
   'puja',
@@ -102,7 +104,7 @@ function greetingReply(): ChatMessage {
     id: crypto.randomUUID(),
     role: 'assistant',
     text:
-      'Hi — I’m Priya’s Interior Guide. Ask about wall panels, kitchen, wardrobe, temple, doors, or sculpted furniture — with style and budget. Example: “Fluted wall panels under ₹30,000” or “Sliding wardrobe in walnut”.',
+      'Hi — I’m the Priyabadal Homes Interior Guide. Ask about wall panels, kitchen shutters, wardrobe shutters, temple, doors, partitions, or furniture — with style and budget. Example: “Fluted wall panels under ₹30,000” or “Sliding wardrobe in walnut”.',
   }
 }
 

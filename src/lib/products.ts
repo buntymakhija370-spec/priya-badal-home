@@ -1,6 +1,6 @@
 import { baseProducts, type Product } from '../data/catalog'
 
-const STORAGE_KEY = 'priya-badal-custom-products'
+const STORAGE_KEY = 'priyabadal-homes-custom-products'
 
 function readCustom(): Product[] {
   try {

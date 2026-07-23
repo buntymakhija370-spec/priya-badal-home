@@ -5,9 +5,8 @@ import { ProductCard } from '../components/ProductCard'
 import { FavoriteButton } from '../components/FavoriteButton'
 import { AddToCartButton } from '../components/AddToCartButton'
 import { CustomizeButton } from '../components/PriceCalculator'
-import { ShareProductLink } from '../components/ShareProductLink'
 import { useProductSeo } from '../hooks/useProductSeo'
-import { productPath, shopPath } from '../lib/links'
+import { shopPath } from '../lib/links'
 import './ProductPage.css'
 
 export function ProductPage() {
@@ -48,6 +47,7 @@ export function ProductPage() {
         <div className="product-page__media">
           <img src={product.image} alt={product.name} />
         </div>
+
         <div className="product-page__info">
           <p className="eyebrow">
             {category?.name}
@@ -56,30 +56,31 @@ export function ProductPage() {
           <h1>{product.name}</h1>
           <p className="product-page__price">From {formatPrice(product.price)}</p>
           <p className="product-page__desc">{product.description}</p>
+
           <div className="product-page__tags">
             {product.style.map((s) => (
               <span key={s}>{s}</span>
             ))}
           </div>
 
-          <ShareProductLink product={product} />
-
-          <div className="product-page__buy">
-            <div className="product-page__actions">
-              <AddToCartButton product={product} className="cart-btn--lg" />
-              <FavoriteButton productId={product.id} />
-              <Link className="btn btn--outline" to="/chat">
-                Ask AI about this
-              </Link>
-            </div>
+          <div className="product-page__actions">
             <CustomizeButton product={product} />
+            <AddToCartButton product={product} />
+            <FavoriteButton productId={product.id} />
           </div>
+
+          <Link className="product-page__ai" to="/chat">
+            Need ideas? Ask the AI interior guide
+          </Link>
         </div>
       </div>
 
       {related.length > 0 && (
         <section className="related">
-          <h2>You may also like</h2>
+          <div className="related__head">
+            <p className="eyebrow">More like this</p>
+            <h2>You may also like</h2>
+          </div>
           <div className="product-grid">
             {related.map((item) => (
               <ProductCard key={item.id} product={item} />
@@ -87,11 +88,6 @@ export function ProductPage() {
           </div>
         </section>
       )}
-
-      <p className="product-page__permalink">
-        Permalink:{' '}
-        <Link to={productPath(product.id)}>{productPath(product.id)}</Link>
-      </p>
     </main>
   )
 }

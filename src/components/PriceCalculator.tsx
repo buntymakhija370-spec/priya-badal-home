@@ -15,19 +15,24 @@ import './PriceCalculator.css'
 
 type Props = {
   product: Product
+  className?: string
 }
 
-export function CustomizeButton({ product }: Props) {
+export function CustomizeButton({ product, className = '' }: Props) {
   const [open, setOpen] = useState(false)
 
   return (
     <>
       <button
         type="button"
-        className="btn btn--customise"
+        className={`btn btn--customise ${className}`.trim()}
         aria-haspopup="dialog"
         aria-expanded={open}
-        onClick={() => setOpen(true)}
+        onClick={(e) => {
+          e.preventDefault()
+          e.stopPropagation()
+          setOpen(true)
+        }}
       >
         Customise &amp; Price
       </button>

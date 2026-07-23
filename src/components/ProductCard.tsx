@@ -2,6 +2,7 @@ import { Link } from 'react-router-dom'
 import { formatPrice, type Product } from '../data/catalog'
 import { productPath } from '../lib/links'
 import { ProductImageScroller } from './ProductImageScroller'
+import { CustomizeButton } from './PriceCalculator'
 import './ProductCard.css'
 
 type Props = {
@@ -29,9 +30,7 @@ export function ProductCard({ product }: Props) {
           ) : null}
         </p>
         <p className="product-card__desc">{product.description}</p>
-        <Link className="btn btn--customise product-card__customise" to={href}>
-          Customise &amp; Price
-        </Link>
+        <CustomizeButton product={product} className="product-card__customise" />
       </div>
     </article>
   )

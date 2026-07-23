@@ -1,0 +1,211 @@
+.nav {
+  position: fixed;
+  inset: 0 0 auto;
+  z-index: 40;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  height: var(--nav-h);
+  padding: 0 clamp(1.25rem, 4vw, 3rem);
+  color: var(--ink);
+  background: rgba(247, 250, 248, 0.72);
+  backdrop-filter: blur(12px);
+  transition:
+    background 0.35s var(--ease-out),
+    color 0.35s var(--ease-out),
+    box-shadow 0.35s var(--ease-out);
+}
+
+.nav--scrolled {
+  background: rgba(247, 250, 248, 0.94);
+  box-shadow: 0 1px 0 rgba(21, 32, 25, 0.06);
+}
+
+.nav--open {
+  inset: 0;
+  z-index: 1000;
+  height: 100dvh;
+  align-items: flex-start;
+  color: #f4f8f5;
+  background: #152019;
+  box-shadow: none;
+  /* backdrop-filter creates a containing block that traps the menu height */
+  backdrop-filter: none;
+  -webkit-backdrop-filter: none;
+}
+
+.nav__brand {
+  position: relative;
+  z-index: 60;
+  height: var(--nav-h);
+  display: inline-flex;
+  align-items: center;
+  font-family: var(--font-display);
+  font-size: 1.2rem;
+  font-weight: 600;
+  letter-spacing: -0.02em;
+}
+
+.nav__end {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  position: relative;
+  z-index: 60;
+  height: var(--nav-h);
+}
+
+.nav__cart {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.4rem;
+  font-size: 0.95rem;
+  font-weight: 500;
+}
+
+.nav__cart-count {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 1.35rem;
+  height: 1.35rem;
+  padding: 0 0.3rem;
+  border-radius: 0.25rem;
+  background: var(--ink);
+  color: #f4f8f5;
+  font-size: 0.75rem;
+  font-weight: 600;
+}
+
+.nav--open .nav__cart-count {
+  background: #f4f8f5;
+  color: #152019;
+}
+
+.nav__links {
+  position: absolute;
+  inset: 0;
+  z-index: 50;
+  display: flex;
+  flex-direction: column;
+  justify-content: flex-start;
+  align-items: flex-start;
+  gap: 0.15rem;
+  padding: calc(var(--nav-h) + 1rem) clamp(1.5rem, 4vw, 3rem) 2rem;
+  background: #152019;
+  color: #f4f8f5;
+  opacity: 0;
+  visibility: hidden;
+  pointer-events: none;
+  overflow-y: auto;
+  -webkit-overflow-scrolling: touch;
+  overscroll-behavior: contain;
+  transition: opacity 0.35s var(--ease-out), visibility 0.35s var(--ease-out);
+}
+
+.nav__links.is-open {
+  opacity: 1;
+  visibility: visible;
+  pointer-events: auto;
+}
+
+.nav__section-label {
+  display: block;
+  margin: 0 0 0.55rem;
+  font-size: 0.72rem;
+  font-weight: 500;
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+  color: rgba(244, 248, 245, 0.55);
+}
+
+.nav__divider {
+  display: block;
+  width: min(12rem, 100%);
+  height: 1px;
+  margin: 0.85rem 0 0.7rem;
+  background: rgba(244, 248, 245, 0.14);
+  flex-shrink: 0;
+}
+
+.nav__links a {
+  position: relative;
+  font-family: var(--font-display);
+  font-size: clamp(1.45rem, 4.5vw, 1.9rem);
+  line-height: 1.25;
+  opacity: 1;
+  transition: opacity 0.25s var(--ease-out);
+}
+
+.nav__links a.nav__utility {
+  font-family: var(--font-body);
+  font-size: 1rem;
+  font-weight: 400;
+  opacity: 0.82;
+}
+
+.nav__links a.active,
+.nav__links a:hover,
+.nav__links a:focus-visible {
+  opacity: 1;
+}
+
+.nav__links a.active::after,
+.nav__links a:hover::after,
+.nav__links a:focus-visible::after {
+  display: none;
+}
+
+.nav__toggle {
+  display: block;
+  position: relative;
+  z-index: 60;
+  width: 2.5rem;
+  height: 2.5rem;
+}
+
+.nav__toggle span {
+  display: block;
+  width: 1.35rem;
+  height: 1.5px;
+  margin: 0.35rem auto;
+  background: currentColor;
+  transition: transform 0.35s var(--ease-out);
+}
+
+.nav__toggle.is-open span:first-child {
+  transform: translateY(3.5px) rotate(45deg);
+}
+
+.nav__toggle.is-open span:last-child {
+  transform: translateY(-3.5px) rotate(-45deg);
+}
+
+.nav__links-cart {
+  display: block;
+}
+
+.footer {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: space-between;
+  gap: 0.75rem 1.5rem;
+  padding: 1.75rem clamp(1.25rem, 4vw, 3rem) 2.25rem;
+  background: #152019;
+  color: rgba(238, 244, 239, 0.72);
+}
+
+.footer__brand {
+  font-family: var(--font-display);
+  color: #eef4ef;
+}
+
+.grain {
+  pointer-events: none;
+  position: fixed;
+  inset: 0;
+  z-index: 30;
+  opacity: 0.04;
+  background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
+  mix-blend-mode: multiply;
+}

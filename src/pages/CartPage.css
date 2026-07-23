@@ -43,7 +43,7 @@
   display: block;
   width: 100%;
   max-width: 6.5rem;
-  aspect-ratio: 1;
+  aspect-ratio: 3 / 4;
   overflow: hidden;
   background: var(--mist);
 }

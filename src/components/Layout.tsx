@@ -1,10 +1,12 @@
 import { NavLink, Outlet } from 'react-router-dom'
 import { useEffect, useState } from 'react'
+import { categories } from '../data/catalog'
+import { shopPath } from '../lib/links'
 import { useCartCount } from '../hooks/useCart'
 import './Layout.css'
 
-const links = [
-  { to: '/shop', label: 'Shop' },
+const utilityLinks = [
+  { to: '/shop', label: 'All products' },
   { to: '/favorites', label: 'Favorites' },
   { to: '/chat', label: 'AI Guide' },
   { to: '/add-product', label: 'Add Product' },
@@ -58,12 +60,26 @@ export function Layout() {
         </div>
 
         <nav className={`nav__links ${menuOpen ? 'is-open' : ''}`} aria-label="Primary">
-          {links.map((link) => (
-            <NavLink key={link.to} to={link.to} onClick={close}>
+          <p className="nav__section-label">Categories</p>
+          {categories.map((cat) => (
+            <NavLink
+              key={cat.id}
+              className="nav__category"
+              to={shopPath(cat.id)}
+              onClick={close}
+            >
+              {cat.name}
+            </NavLink>
+          ))}
+
+          <div className="nav__divider" aria-hidden="true" />
+
+          {utilityLinks.map((link) => (
+            <NavLink key={link.to} className="nav__utility" to={link.to} onClick={close}>
               {link.label}
             </NavLink>
           ))}
-          <NavLink className="nav__links-cart" to="/cart" onClick={close}>
+          <NavLink className="nav__links-cart nav__utility" to="/cart" onClick={close}>
             Cart{cartCount > 0 ? ` (${cartCount})` : ''}
           </NavLink>
         </nav>

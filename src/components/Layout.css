@@ -40,14 +40,14 @@
   height: var(--nav-h);
   display: inline-flex;
   align-items: center;
-  max-width: min(72vw, 22rem);
+  max-width: min(78vw, 26rem);
 }
 
 .nav__logo {
   display: block;
   width: 100%;
   height: auto;
-  max-height: 3rem;
+  max-height: 3.75rem;
   object-fit: contain;
   object-position: left center;
 }
@@ -212,7 +212,7 @@
 
 .footer__logo {
   display: block;
-  width: min(22rem, 100%);
+  width: min(26rem, 100%);
   height: auto;
   filter: brightness(0) invert(1);
   opacity: 0.95;

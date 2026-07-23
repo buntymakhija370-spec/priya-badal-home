@@ -55,7 +55,7 @@
 
 .hero__logo {
   display: block;
-  width: min(34rem, 94vw);
+  width: min(40rem, 96vw);
   height: auto;
   filter: brightness(0) invert(1);
   object-fit: contain;

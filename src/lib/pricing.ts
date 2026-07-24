@@ -292,7 +292,7 @@ export function calculatePrice(
 
   const finishMult = finish.multiplier / baseFinish.multiplier
   const thicknessMult = thickness.multiplier / baseThickness.multiplier
-  const buildScope = getBuildScope(normalized.buildScope)
+  const buildScope = getBuildScope(normalized.buildScope ?? 'shutter')
   const scopeMult = supportsBuildScope(product.categoryId)
     ? buildScope.multiplier
     : 1

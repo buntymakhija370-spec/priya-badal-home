@@ -1,9 +1,46 @@
 import { Link } from 'react-router-dom'
-import { useMemo } from 'react'
+import { useMemo, useRef } from 'react'
 import { categories } from '../data/catalog'
 import { getAllProducts } from '../lib/products'
 import { ProductCard } from '../components/ProductCard'
 import './HomePage.css'
+
+const CATEGORY_CLIP_SECONDS = 10
+
+function CategoryVideo({
+  src,
+  poster,
+}: {
+  src: string
+  poster: string
+}) {
+  const ref = useRef<HTMLVideoElement>(null)
+
+  return (
+    <video
+      ref={ref}
+      className="home-cat__video"
+      src={src}
+      poster={poster}
+      muted
+      playsInline
+      autoPlay
+      loop
+      preload="metadata"
+      onTimeUpdate={() => {
+        const el = ref.current
+        if (!el) return
+        if (el.currentTime >= CATEGORY_CLIP_SECONDS) {
+          el.currentTime = 0
+          void el.play().catch(() => undefined)
+        }
+      }}
+      onLoadedMetadata={() => {
+        void ref.current?.play().catch(() => undefined)
+      }}
+    />
+  )
+}
 
 export function HomePage() {
   const featured = useMemo(() => getAllProducts().slice(0, 4), [])
@@ -13,12 +50,15 @@ export function HomePage() {
       <section className="hero">
         <div className="hero__media" aria-hidden="true">
           <div className="hero__wash" />
-          <img
+          <video
             className="hero__image"
-            src="https://images.unsplash.com/photo-1616046229478-9901c5536a45?auto=format&fit=crop&w=2400&q=80"
-            alt=""
-            width={2400}
-            height={1600}
+            src="/products/categories/kitchen.mp4"
+            poster="/products/categories/kitchen.jpg"
+            muted
+            playsInline
+            autoPlay
+            loop
+            preload="metadata"
           />
         </div>
         <div className="hero__content">
@@ -33,8 +73,8 @@ export function HomePage() {
             Made-to-measure interiors with clear prices.
           </h1>
           <p className="hero__lede reveal reveal--3">
-            Shop wardrobes, kitchens, doors, and panels. Customise sizes, add to
-            cart, and get a WhatsApp quote.
+            Shop wardrobes, kitchens, doors, panels, and silai bunai. Customise
+            sizes, add to cart, and get a WhatsApp quote.
           </p>
           <div className="hero__actions reveal reveal--4">
             <Link className="btn btn--primary" to="/shop">
@@ -72,7 +112,11 @@ export function HomePage() {
         <div className="home-cats__stack">
           {categories.map((cat) => (
             <Link key={cat.id} className="home-cat" to={`/shop/${cat.id}`}>
-              <img src={cat.image} alt="" loading="lazy" />
+              {cat.video ? (
+                <CategoryVideo src={cat.video} poster={cat.image} />
+              ) : (
+                <img src={cat.image} alt="" loading="lazy" />
+              )}
               <span className="home-cat__label">{cat.name}</span>
             </Link>
           ))}

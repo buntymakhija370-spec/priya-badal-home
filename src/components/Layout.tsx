@@ -118,7 +118,7 @@ export function Layout() {
             alt="Priyabadal Homes — Shutters, Doors, Wall Panels"
           />
           <p className="footer__tag">
-            Shutters · Doors · Wall Panels · Made-to-measure interiors
+            Shutters · Doors · Wall Panels · Silai Bunai · Made-to-measure interiors
           </p>
         </div>
 

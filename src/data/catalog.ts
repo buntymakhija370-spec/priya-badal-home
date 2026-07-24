@@ -5,6 +5,7 @@ export type CategoryId =
   | 'temple'
   | 'doors'
   | 'sculpted-furniture'
+  | 'silaibunai'
 
 export type Subcategory = {
   id: string
@@ -16,6 +17,8 @@ export type Category = {
   name: string
   description: string
   image: string
+  /** Home-page loop clip (~10s). Falls back to image if missing. */
+  video?: string
   subcategories: Subcategory[]
 }
 
@@ -63,8 +66,8 @@ export const categories: Category[] = [
     id: 'wall-panels',
     name: 'Wall Panels',
     description: 'Feature walls, fluted panels, and decorative cladding.',
-    image:
-      'https://images.unsplash.com/photo-1616046229478-9901c5536a45?auto=format&fit=crop&w=1400&q=80',
+    image: '/products/categories/wall-panels.jpg',
+    video: '/products/categories/wall-panels.mp4',
     subcategories: [
       { id: 'fluted', name: 'Fluted Panels' },
       { id: '3d-panels', name: '3D Panels' },
@@ -75,7 +78,8 @@ export const categories: Category[] = [
     id: 'kitchen',
     name: 'Kitchen',
     description: 'Modular kitchens, cabinets, and counter finishes.',
-    image: '/products/kitchen-modular-showcase.jpg',
+    image: '/products/categories/kitchen.jpg',
+    video: '/products/categories/kitchen.mp4',
     subcategories: [
       { id: 'modular', name: 'Modular Units' },
       { id: 'cabinets', name: 'Cabinets' },
@@ -86,8 +90,8 @@ export const categories: Category[] = [
     id: 'wardrobe',
     name: 'Wardrobe',
     description: 'Sliding, hinged, and walk-in wardrobes made to measure.',
-    image:
-      'https://images.unsplash.com/photo-1595428774223-ef52624120d2?auto=format&fit=crop&w=1400&q=80',
+    image: '/products/categories/wardrobe.jpg',
+    video: '/products/categories/wardrobe.mp4',
     subcategories: [
       { id: 'sliding', name: 'Sliding' },
       { id: 'hinged', name: 'Hinged' },
@@ -98,7 +102,8 @@ export const categories: Category[] = [
     id: 'temple',
     name: 'Temple',
     description: 'Designer home mandirs and prayer niches — made to measure.',
-    image: '/products/temple-1-1.jpg',
+    image: '/products/categories/temple.jpg',
+    video: '/products/categories/temple.mp4',
     subcategories: [
       { id: 'wall-mounted', name: 'Wall Mounted' },
       { id: 'floor', name: 'Floor Standing' },
@@ -109,8 +114,8 @@ export const categories: Category[] = [
     id: 'doors',
     name: 'Doors',
     description: 'Main doors, room doors, and designer flush shutters.',
-    image:
-      'https://images.unsplash.com/photo-1505693416388-ac5ce068fe85?auto=format&fit=crop&w=1400&q=80',
+    image: '/products/categories/doors.jpg',
+    video: '/products/categories/doors.mp4',
     subcategories: [
       { id: 'main-door', name: 'Main Door' },
       { id: 'room-door', name: 'Room Door' },
@@ -121,12 +126,25 @@ export const categories: Category[] = [
     id: 'sculpted-furniture',
     name: 'Sculpted Furniture',
     description: 'Statement carved pieces — sofas, consoles, and art furniture.',
-    image:
-      'https://images.unsplash.com/photo-1555041469-a586c61ea9bc?auto=format&fit=crop&w=1400&q=80',
+    image: '/products/categories/sculpted-furniture.jpg',
+    video: '/products/categories/sculpted-furniture.mp4',
     subcategories: [
       { id: 'sofa', name: 'Sofa' },
       { id: 'console', name: 'Console' },
       { id: 'centre-table', name: 'Centre Table' },
+    ],
+  },
+  {
+    id: 'silaibunai',
+    name: 'Silai Bunai',
+    description:
+      'Custom silai bunai — upholstery, cushion stitch work, and soft furnishing finishes.',
+    image: '/products/categories/silaibunai.jpg',
+    video: '/products/categories/silaibunai.mp4',
+    subcategories: [
+      { id: 'sofa-upholstery', name: 'Sofa Upholstery' },
+      { id: 'cushions', name: 'Cushions & Covers' },
+      { id: 'custom-stitch', name: 'Custom Stitch' },
     ],
   },
 ]
@@ -804,6 +822,28 @@ export const baseProducts: Product[] = [
     rooms: ['living room', 'sculpted furniture'],
     image:
       'https://images.unsplash.com/photo-1611269154421-4e27233ac5c7?auto=format&fit=crop&w=1200&q=80',
+  },
+  {
+    id: 'silaibunai-sofa-refresh',
+    name: 'Sofa Silai Bunai Refresh',
+    categoryId: 'silaibunai',
+    subcategoryId: 'sofa-upholstery',
+    price: 14999,
+    currency: 'INR',
+    brand: 'Priyabadal Homes',
+    collection: 'Silai Bunai',
+    sku: 'PBH-SILAI-SOFA',
+    description:
+      'Custom sofa silai bunai — fabric change, cushion restitch, and neat piping finishes measured to your piece.',
+    style: ['custom', 'soft', 'homely'],
+    rooms: ['living room', 'bedroom'],
+    image: '/products/categories/silaibunai.jpg',
+    highlights: [
+      'Custom fabric & stitch',
+      'Cushion refill options',
+      'On-site measurement',
+      'WhatsApp quote',
+    ],
   },
 ]
 

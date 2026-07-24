@@ -6,10 +6,12 @@ export type CategoryId =
   | 'doors'
   | 'sculpted-furniture'
   | 'silaibunai'
+  | 'commercials'
 
 export type Subcategory = {
   id: string
   name: string
+  description?: string
 }
 
 export type Category = {
@@ -19,6 +21,12 @@ export type Category = {
   image: string
   /** Home-page loop clip (~10s). Falls back to image if missing. */
   video?: string
+  /** Short marketing caption for category landing */
+  caption?: string
+  /** Shown as a bulk / commercial callout on the shop page */
+  conceptNote?: string
+  /** Default minimum order for this category (e.g. bulk commercials) */
+  minOrderQuantity?: number
   subcategories: Subcategory[]
 }
 
@@ -59,6 +67,8 @@ export type Product = {
   specifications?: SpecRow[]
   features?: string[]
   disclaimer?: string
+  /** Bulk / commercial minimum units (overrides category default) */
+  minOrderQuantity?: number
 }
 
 export const categories: Category[] = [
@@ -145,6 +155,38 @@ export const categories: Category[] = [
       { id: 'sofa-upholstery', name: 'Sofa Upholstery' },
       { id: 'cushions', name: 'Cushions & Covers' },
       { id: 'custom-stitch', name: 'Custom Stitch' },
+    ],
+  },
+  {
+    id: 'commercials',
+    name: 'Commercials',
+    description:
+      'Bulk apartment packages at our lowest rates — 1BHK, 2BHK & 3BHK sets for projects and builders.',
+    caption: 'Lowest cost · Bulk only · Minimum 10 copies',
+    conceptNote:
+      'Commercials are project packs we produce in bulk at the lowest cost. We take orders only for a minimum of 10 copies of the same package — that volume lets us keep prices sharp for builders, hostels, and housing projects.',
+    minOrderQuantity: 10,
+    image: '/products/categories/commercials.jpg',
+    video: '/products/categories/commercials.mp4',
+    subcategories: [
+      {
+        id: '1bhk',
+        name: '1BHK',
+        description:
+          'Compact 1BHK commercial pack — kitchen + wardrobe basics for bulk housing. Min. 10 sets.',
+      },
+      {
+        id: '2bhk',
+        name: '2BHK',
+        description:
+          '2BHK commercial pack — kitchen, bedroom storage, and doors for project scale. Min. 10 sets.',
+      },
+      {
+        id: '3bhk',
+        name: '3BHK',
+        description:
+          '3BHK commercial pack — fuller apartment set for builders at bulk rates. Min. 10 sets.',
+      },
     ],
   },
 ]
@@ -845,7 +887,153 @@ export const baseProducts: Product[] = [
       'WhatsApp quote',
     ],
   },
+  {
+    id: 'commercial-1bhk-pack',
+    name: '1BHK Commercial Pack',
+    categoryId: 'commercials',
+    subcategoryId: '1bhk',
+    price: 68500,
+    currency: 'INR',
+    pricingMode: 'unit',
+    minOrderQuantity: 10,
+    brand: 'Priyabadal Homes',
+    collection: 'Commercial Bulk',
+    sku: 'PBH-COM-1BHK',
+    description:
+      'Lowest-cost 1BHK commercial set for bulk housing — modular kitchen shell, bedroom wardrobe, and essential room doors. Ordered only in lots of 10+ identical packs.',
+    style: ['commercial', 'bulk', 'value'],
+    rooms: ['1bhk', 'project housing'],
+    image: '/products/categories/commercials-1bhk.jpg',
+    highlights: [
+      'Bulk rate — lowest commercial cost',
+      'Minimum order: 10 packs',
+      '1BHK kitchen + wardrobe + doors',
+      'Same finish across the full lot',
+    ],
+    details: [
+      { label: 'Brand', value: 'Priyabadal Homes' },
+      { label: 'Collection', value: 'Commercial Bulk' },
+      { label: 'Order type', value: 'Bulk only — minimum 10 identical packs' },
+      { label: 'Typical content', value: 'Kitchen shell, 1 wardrobe, room doors' },
+      { label: 'Sku', value: 'PBH-COM-1BHK' },
+    ],
+    specifications: [
+      { label: 'Apartment type', value: '1BHK' },
+      { label: 'Pricing', value: 'Per pack · volume rate' },
+      { label: 'Minimum quantity', value: '10 packs' },
+      { label: 'Finish', value: 'Project laminate (standard colours)' },
+      { label: 'Country of Origin', value: 'India' },
+    ],
+    features: [
+      'Built for builders, hostels, and housing societies that need many matching units',
+      'Bulk production keeps the unit cost as low as possible',
+      'One specification locked for the full order of 10+',
+    ],
+    disclaimer:
+      'Commercial packs are bulk-only. We do not accept single-piece commercial orders. Final pack contents and sizes are confirmed on WhatsApp after site / layout details.',
+  },
+  {
+    id: 'commercial-2bhk-pack',
+    name: '2BHK Commercial Pack',
+    categoryId: 'commercials',
+    subcategoryId: '2bhk',
+    price: 98500,
+    currency: 'INR',
+    pricingMode: 'unit',
+    minOrderQuantity: 10,
+    brand: 'Priyabadal Homes',
+    collection: 'Commercial Bulk',
+    sku: 'PBH-COM-2BHK',
+    description:
+      '2BHK commercial apartment pack at project pricing — kitchen, two bedroom wardrobes, and door set. Minimum 10 identical copies for bulk manufacture.',
+    style: ['commercial', 'bulk', 'value'],
+    rooms: ['2bhk', 'project housing'],
+    image: '/products/categories/commercials-2bhk.jpg',
+    highlights: [
+      'Bulk rate — lowest commercial cost',
+      'Minimum order: 10 packs',
+      '2BHK kitchen + 2 wardrobes + doors',
+      'Ideal for builder projects',
+    ],
+    details: [
+      { label: 'Brand', value: 'Priyabadal Homes' },
+      { label: 'Collection', value: 'Commercial Bulk' },
+      { label: 'Order type', value: 'Bulk only — minimum 10 identical packs' },
+      { label: 'Typical content', value: 'Kitchen, 2 wardrobes, door set' },
+      { label: 'Sku', value: 'PBH-COM-2BHK' },
+    ],
+    specifications: [
+      { label: 'Apartment type', value: '2BHK' },
+      { label: 'Pricing', value: 'Per pack · volume rate' },
+      { label: 'Minimum quantity', value: '10 packs' },
+      { label: 'Finish', value: 'Project laminate (standard colours)' },
+      { label: 'Country of Origin', value: 'India' },
+    ],
+    features: [
+      'Standardised 2BHK layout packs for faster bulk production',
+      'Lower cost because we manufacture a minimum of 10 matching sets',
+      'Quote on WhatsApp with your project quantity (10+)',
+    ],
+    disclaimer:
+      'Commercial packs are bulk-only. We do not accept single-piece commercial orders. Final pack contents and sizes are confirmed on WhatsApp after site / layout details.',
+  },
+  {
+    id: 'commercial-3bhk-pack',
+    name: '3BHK Commercial Pack',
+    categoryId: 'commercials',
+    subcategoryId: '3bhk',
+    price: 138500,
+    currency: 'INR',
+    pricingMode: 'unit',
+    minOrderQuantity: 10,
+    brand: 'Priyabadal Homes',
+    collection: 'Commercial Bulk',
+    sku: 'PBH-COM-3BHK',
+    description:
+      '3BHK commercial pack for large projects — kitchen, multi-bedroom storage, and doors at our sharpest bulk price. Orders start at 10 identical packs.',
+    style: ['commercial', 'bulk', 'value'],
+    rooms: ['3bhk', 'project housing'],
+    image: '/products/categories/commercials-3bhk.jpg',
+    highlights: [
+      'Bulk rate — lowest commercial cost',
+      'Minimum order: 10 packs',
+      '3BHK full apartment commercial set',
+      'Best unit price at volume',
+    ],
+    details: [
+      { label: 'Brand', value: 'Priyabadal Homes' },
+      { label: 'Collection', value: 'Commercial Bulk' },
+      { label: 'Order type', value: 'Bulk only — minimum 10 identical packs' },
+      { label: 'Typical content', value: 'Kitchen, 3 wardrobes / storage, door set' },
+      { label: 'Sku', value: 'PBH-COM-3BHK' },
+    ],
+    specifications: [
+      { label: 'Apartment type', value: '3BHK' },
+      { label: 'Pricing', value: 'Per pack · volume rate' },
+      { label: 'Minimum quantity', value: '10 packs' },
+      { label: 'Finish', value: 'Project laminate (standard colours)' },
+      { label: 'Country of Origin', value: 'India' },
+    ],
+    features: [
+      'Built for township and multi-tower commercial fit-outs',
+      'Volume manufacturing from 10 packs upward unlocks the lowest rate',
+      'Share floor plans on WhatsApp for a project quote',
+    ],
+    disclaimer:
+      'Commercial packs are bulk-only. We do not accept single-piece commercial orders. Final pack contents and sizes are confirmed on WhatsApp after site / layout details.',
+  },
 ]
+
+/** Effective minimum order quantity for a product (commercials default to 10). */
+export function getMinOrderQuantity(product: Product): number {
+  if (product.minOrderQuantity && product.minOrderQuantity > 1) {
+    return product.minOrderQuantity
+  }
+  const category = getCategory(product.categoryId)
+  return category?.minOrderQuantity && category.minOrderQuantity > 1
+    ? category.minOrderQuantity
+    : 1
+}
 
 export function formatPrice(price: number, currency: 'INR' = 'INR') {
   return new Intl.NumberFormat('en-IN', {

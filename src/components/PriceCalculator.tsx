@@ -1,6 +1,6 @@
 import { useEffect, useId, useMemo, useState } from 'react'
 import { createPortal } from 'react-dom'
-import { formatPrice, type Product } from '../data/catalog'
+import { formatPrice, getMinOrderQuantity, type Product } from '../data/catalog'
 import {
   calculatePrice,
   defaultConfig,
@@ -21,6 +21,8 @@ type Props = {
 
 export function CustomizeButton({ product, className = '' }: Props) {
   const [open, setOpen] = useState(false)
+  const minQty = getMinOrderQuantity(product)
+  const label = minQty > 1 ? 'Bulk quote & cart' : 'Customise & Price'
 
   return (
     <>
@@ -35,7 +37,7 @@ export function CustomizeButton({ product, className = '' }: Props) {
           setOpen(true)
         }}
       >
-        Customise &amp; Price
+        {label}
       </button>
       {open && (
         <CalculatorOverlay product={product} onClose={() => setOpen(false)} />
@@ -51,6 +53,7 @@ type OverlayProps = {
 
 function CalculatorOverlay({ product, onClose }: OverlayProps) {
   const titleId = useId()
+  const minQty = getMinOrderQuantity(product)
   const [config, setConfig] = useState<PriceConfig>(() =>
     defaultConfig(product.categoryId, product),
   )
@@ -119,7 +122,9 @@ function CalculatorOverlay({ product, onClose }: OverlayProps) {
         <div className="calc-sheet__handle" aria-hidden="true" />
         <div className="calc-sheet__top">
           <div>
-            <p className="calc-sheet__eyebrow">Customise &amp; Price</p>
+            <p className="calc-sheet__eyebrow">
+              {minQty > 1 ? 'Bulk commercial' : 'Customise & Price'}
+            </p>
             <h2 id={titleId}>{product.name}</h2>
           </div>
           <button
@@ -131,6 +136,13 @@ function CalculatorOverlay({ product, onClose }: OverlayProps) {
             ×
           </button>
         </div>
+
+        {minQty > 1 ? (
+          <p className="calc-sheet__bulk-note">
+            Lowest commercial rate — we accept orders only for a minimum of{' '}
+            <strong>{minQty} identical packs</strong> (bulk manufacture).
+          </p>
+        ) : null}
 
         <div className="calc-sheet__grid">
           {finishOptions.length > 0 && (
@@ -147,29 +159,38 @@ function CalculatorOverlay({ product, onClose }: OverlayProps) {
             </div>
           )}
 
-          <label className="calc-sheet__field">
-            Width (ft)
-            <input
-              type="number"
-              min={size.minWidth}
-              max={size.maxWidth}
-              step={0.1}
-              value={config.width}
-              onChange={(e) => update({ width: Number(e.target.value) })}
-            />
-          </label>
+          {minQty <= 1 ? (
+            <>
+              <label className="calc-sheet__field">
+                Width (ft)
+                <input
+                  type="number"
+                  min={size.minWidth}
+                  max={size.maxWidth}
+                  step={0.1}
+                  value={config.width}
+                  onChange={(e) => update({ width: Number(e.target.value) })}
+                />
+              </label>
 
-          <label className="calc-sheet__field">
-            Height (ft)
-            <input
-              type="number"
-              min={size.minHeight}
-              max={size.maxHeight}
-              step={0.1}
-              value={config.height}
-              onChange={(e) => update({ height: Number(e.target.value) })}
-            />
-          </label>
+              <label className="calc-sheet__field">
+                Height (ft)
+                <input
+                  type="number"
+                  min={size.minHeight}
+                  max={size.maxHeight}
+                  step={0.1}
+                  value={config.height}
+                  onChange={(e) => update({ height: Number(e.target.value) })}
+                />
+              </label>
+            </>
+          ) : (
+            <div className="calc-sheet__field">
+              <span>Order quantity</span>
+              <p className="calc-sheet__locked">Minimum {minQty} identical packs</p>
+            </div>
+          )}
         </div>
 
         <div className="calc-sheet__footer">
@@ -182,6 +203,7 @@ function CalculatorOverlay({ product, onClose }: OverlayProps) {
               {product.pricingMode === 'per-sqft'
                 ? ` · ${formatPrice(product.price)}/sq ft`
                 : ''}
+              {minQty > 1 ? ` · min ${minQty} packs` : ''}
             </p>
           </div>
           <div className="calc-sheet__cta">
@@ -191,7 +213,7 @@ function CalculatorOverlay({ product, onClose }: OverlayProps) {
               onClick={() => {
                 addConfiguredToCart({
                   productId: product.id,
-                  quantity: 1,
+                  quantity: minQty,
                   config: quote.config,
                   unitPrice: quote.unitPrice,
                 })
@@ -199,7 +221,11 @@ function CalculatorOverlay({ product, onClose }: OverlayProps) {
                 window.setTimeout(() => setAdded(false), 1400)
               }}
             >
-              {added ? 'Added to cart' : 'Add to cart'}
+              {added
+                ? `Added ${minQty}+ to cart`
+                : minQty > 1
+                  ? `Add ${minQty} packs to cart`
+                  : 'Add to cart'}
             </button>
             <a
               className="whatsapp-quote-btn"

@@ -29,6 +29,66 @@
   max-width: 42ch;
 }
 
+.shop__caption {
+  margin: 0 0 0.35rem;
+  font-size: 0.82rem;
+  font-weight: 600;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  color: var(--honey-deep);
+}
+
+.shop__concept {
+  margin: 0 0 0.9rem;
+  padding: 0.95rem 1rem;
+  border: 1px solid rgba(125, 92, 48, 0.22);
+  background: linear-gradient(180deg, #fff9f0 0%, #fff 100%);
+}
+
+.shop__concept-kicker {
+  margin: 0 0 0.35rem;
+  font-size: 0.72rem;
+  font-weight: 700;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: var(--honey-deep);
+}
+
+.shop__concept > p {
+  margin: 0 0 0.65rem;
+  color: var(--ink-soft);
+  font-size: 0.9rem;
+  line-height: 1.5;
+  max-width: 52ch;
+}
+
+.shop__concept ul {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: grid;
+  gap: 0.3rem;
+}
+
+.shop__concept li {
+  position: relative;
+  padding-left: 0.9rem;
+  font-size: 0.86rem;
+  line-height: 1.4;
+  color: var(--ink);
+}
+
+.shop__concept li::before {
+  content: '';
+  position: absolute;
+  left: 0;
+  top: 0.55em;
+  width: 0.35rem;
+  height: 0.35rem;
+  border-radius: 999px;
+  background: var(--honey-deep);
+}
+
 .shop__back {
   margin-top: 0.4rem;
   font-size: 0.8rem;

@@ -1,5 +1,10 @@
 import { Link } from 'react-router-dom'
-import { formatPrice, getCategory, type Product } from '../data/catalog'
+import {
+  formatPrice,
+  getCategory,
+  getMinOrderQuantity,
+  type Product,
+} from '../data/catalog'
 import { getProductMedia } from '../lib/media'
 import { productPath } from '../lib/links'
 import { ProductImageScroller } from './ProductImageScroller'
@@ -15,6 +20,7 @@ export function ProductCard({ product }: Props) {
   const href = productPath(product.id)
   const media = getProductMedia(product)
   const category = getCategory(product.categoryId)
+  const minQty = getMinOrderQuantity(product)
 
   return (
     <article className="product-card">
@@ -24,6 +30,9 @@ export function ProductCard({ product }: Props) {
           productId={product.id}
           className="fav-btn--icon fav-btn--on-media product-card__fav"
         />
+        {minQty > 1 ? (
+          <span className="product-card__bulk">Min. {minQty} packs</span>
+        ) : null}
       </div>
       <div className="product-card__body">
         {category && <p className="product-card__cat">{category.name}</p>}
@@ -36,7 +45,15 @@ export function ProductCard({ product }: Props) {
           {product.pricingMode === 'per-sqft' ? (
             <span className="product-card__price-unit"> /sq ft</span>
           ) : null}
+          {minQty > 1 ? (
+            <span className="product-card__price-unit"> /pack</span>
+          ) : null}
         </p>
+        {minQty > 1 ? (
+          <p className="product-card__min">
+            Bulk commercial · order {minQty}+ identical packs
+          </p>
+        ) : null}
         <p className="product-card__desc">{product.description}</p>
         <CustomizeButton product={product} className="product-card__customise" />
       </div>

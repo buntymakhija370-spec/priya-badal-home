@@ -235,7 +235,11 @@ export function calculatePrice(
   let unitPrice: number
   let sizeFactor = 1
 
-  if (product.pricingMode === 'per-sqft') {
+  if (product.categoryId === 'commercials') {
+    // Bulk packs are quoted per fixed package — not resized on the calculator
+    sizeFactor = 1
+    unitPrice = Math.round(product.price * finishMult * thicknessMult)
+  } else if (product.pricingMode === 'per-sqft') {
     const sqft = normalized.width * normalized.height
     sizeFactor = sqft
     unitPrice = Math.round(product.price * sqft * finishMult * thicknessMult)

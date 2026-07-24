@@ -44,7 +44,21 @@
   align-items: flex-start;
   justify-content: space-between;
   gap: 0.75rem;
-  margin-bottom: 1rem;
+  margin-bottom: 0.85rem;
+}
+
+.calc-sheet__bulk-note {
+  margin: 0 0 1rem;
+  padding: 0.7rem 0.8rem;
+  border: 1px solid rgba(125, 92, 48, 0.22);
+  background: #fff9f0;
+  font-size: 0.86rem;
+  line-height: 1.45;
+  color: var(--ink-soft);
+}
+
+.calc-sheet__bulk-note strong {
+  color: var(--honey-deep);
 }
 
 .calc-sheet__eyebrow {

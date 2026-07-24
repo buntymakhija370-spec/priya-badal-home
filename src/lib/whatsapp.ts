@@ -1,4 +1,4 @@
-import { formatPrice, type Product } from '../data/catalog'
+import { formatPrice, getMinOrderQuantity, type Product } from '../data/catalog'
 import { describeConfig, type PriceConfig } from './pricing'
 import type { CartItem } from './cart'
 
@@ -12,16 +12,24 @@ export function buildWhatsAppQuoteUrl(
   config: PriceConfig,
   unitPrice: number,
 ) {
+  const minQty = getMinOrderQuantity(product)
   const lines = [
     'Hi Priyabadal Homes, I would like a custom quotation:',
     '',
     `Product: ${product.name}`,
-    `Estimated price: ${formatPrice(unitPrice)}`,
+    `Estimated price: ${formatPrice(unitPrice)}${minQty > 1 ? ' / pack' : ''}`,
     `Configuration: ${describeConfig(product.categoryId, config)}`,
   ]
 
   if (product.pricingMode === 'per-sqft') {
     lines.push(`Base rate: ${formatPrice(product.price)} / sq ft`)
+  }
+
+  if (minQty > 1) {
+    lines.push(
+      `Bulk commercial order — minimum ${minQty} identical packs`,
+      `Requested quantity: ${minQty}+`,
+    )
   }
 
   lines.push('', 'Please share the final quote. Thank you.')

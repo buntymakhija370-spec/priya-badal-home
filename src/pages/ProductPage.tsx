@@ -1,6 +1,12 @@
 import { Link, useParams } from 'react-router-dom'
 import { useMemo, useState } from 'react'
-import { formatPrice, getCategory, getSubcategory, type SpecRow } from '../data/catalog'
+import {
+  formatPrice,
+  getCategory,
+  getMinOrderQuantity,
+  getSubcategory,
+  type SpecRow,
+} from '../data/catalog'
 import { getAllProducts, getProductById } from '../lib/products'
 import { getProductMedia } from '../lib/media'
 import { resolveProductPresentation } from '../lib/productSpecs'
@@ -57,6 +63,8 @@ export function ProductPage() {
   const subcategory = getSubcategory(product.categoryId, product.subcategoryId)
   const media = getProductMedia(product)
   const presentation = resolveProductPresentation(product)
+  const minQty = getMinOrderQuantity(product)
+  const isCommercial = product.categoryId === 'commercials'
 
   return (
     <main className="product-page page-pad">
@@ -81,18 +89,37 @@ export function ProductPage() {
           <p className="product-page__brand">by {presentation.brand}</p>
           <h1>{product.name}</h1>
 
+          {isCommercial ? (
+            <p className="product-page__bulk-caption">
+              Lowest cost commercial pack · Minimum {minQty} copies
+            </p>
+          ) : null}
+
           <div className="product-page__price-block">
             <span className="product-page__price-from">From</span>
             <span className="product-page__price-value">{formatPrice(product.price)}</span>
             {product.pricingMode === 'per-sqft' && (
               <span className="product-page__price-unit">/sq ft</span>
             )}
+            {isCommercial ? (
+              <span className="product-page__price-unit">/pack</span>
+            ) : null}
           </div>
 
           <ul className="product-page__trust">
-            <li>12-month warranty</li>
-            <li>On-site assembly</li>
-            <li>Made to measure</li>
+            {isCommercial ? (
+              <>
+                <li>Bulk only · min {minQty}</li>
+                <li>Lowest commercial rate</li>
+                <li>Project WhatsApp quote</li>
+              </>
+            ) : (
+              <>
+                <li>12-month warranty</li>
+                <li>On-site assembly</li>
+                <li>Made to measure</li>
+              </>
+            )}
           </ul>
 
           <ul className="product-page__highlights">

@@ -25,6 +25,28 @@
   background: #dce6df;
 }
 
+.product-card__bulk {
+  position: absolute;
+  left: 0.55rem;
+  bottom: 0.55rem;
+  z-index: 2;
+  padding: 0.28rem 0.5rem;
+  background: rgba(21, 32, 25, 0.82);
+  color: #f7faf8;
+  font-size: 0.68rem;
+  font-weight: 600;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+}
+
+.product-card__min {
+  margin: 0;
+  font-size: 0.78rem;
+  font-weight: 600;
+  color: var(--honey-deep);
+  line-height: 1.35;
+}
+
 .product-card__media-link {
   display: block;
   width: 100%;

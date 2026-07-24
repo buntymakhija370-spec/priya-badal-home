@@ -51,20 +51,36 @@ export function ShopPage() {
   }, [baseProducts, query, sort])
 
   const subcats = category?.subcategories ?? []
+  const lede =
+    subcategory?.description ??
+    category?.description ??
+    'Customise sizes and request WhatsApp quotes.'
 
   return (
-    <main className="shop page-pad">
+    <main className={`shop page-pad ${category?.id === 'commercials' ? 'shop--commercials' : ''}`}>
       <header className="shop__header">
         <p className="eyebrow">Shop</p>
         <h1>
           {subcategory?.name ?? (category ? category.name : 'All products')}
         </h1>
-        <p className="shop__lede">
-          {category
-            ? category.description
-            : 'Customise sizes and request WhatsApp quotes.'}
-        </p>
+        {category?.caption && category.id === 'commercials' ? (
+          <p className="shop__caption">{category.caption}</p>
+        ) : null}
+        <p className="shop__lede">{lede}</p>
       </header>
+
+      {category?.id === 'commercials' && category.conceptNote ? (
+        <aside className="shop__concept" aria-label="Commercials concept">
+          <p className="shop__concept-kicker">How commercials work</p>
+          <p>{category.conceptNote}</p>
+          <ul>
+            <li>Lowest project cost through bulk manufacture</li>
+            <li>Minimum order: {category.minOrderQuantity ?? 10} identical packs</li>
+            <li>Choose 1BHK, 2BHK, or 3BHK package type</li>
+            <li>WhatsApp quote with your project quantity (10+)</li>
+          </ul>
+        </aside>
+      ) : null}
 
       <div className="shop__cats" aria-label="Categories">
         <Link className={`chip ${!categoryId ? 'chip--active' : ''}`} to="/shop">

@@ -17,13 +17,15 @@ npm install
 npm run dev
 ```
 
-### Paid Visualise AI (Fal)
+### Professional Visualise AI (Fal)
 
-1. Copy `.env.example` → `.env`
-2. Add your Fal key: `FAL_KEY=...` (from https://fal.ai/dashboard/keys)
-3. Restart `npm run dev` or `npm run preview`
+1. Get a key at https://fal.ai/dashboard/keys  
+2. Either:
+   - Paste it on the **/visualise** page (Connect professional AI), or
+   - Put `FAL_KEY=...` in `.env` and restart `npm run dev` / `npm run preview`
+3. Generate uses **your product photo + room photo** (Nano Banana Pro edit)
 
-Without a key, Visualise still works in **product-matched preview** mode and can send the request to WhatsApp.
+Cheap overlay previews are disabled — only real AI renders are shown.
 
 ## Build
 

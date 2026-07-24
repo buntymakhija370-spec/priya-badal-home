@@ -32,6 +32,76 @@
   color: var(--moss);
 }
 
+.visualise__keybox {
+  display: grid;
+  gap: 0.65rem;
+  max-width: 36rem;
+  margin-bottom: 1.5rem;
+  padding: 1rem 1.1rem;
+  border: 1px solid rgba(154, 115, 64, 0.28);
+  border-radius: 0.45rem;
+  background: linear-gradient(180deg, #fff9f0 0%, #fff 100%);
+}
+
+.visualise__keybox h2 {
+  font-size: 1rem;
+  font-family: var(--font-display);
+  letter-spacing: -0.02em;
+}
+
+.visualise__keybox p {
+  font-size: 0.88rem;
+  color: var(--ink-soft);
+  line-height: 1.45;
+}
+
+.visualise__keybox a {
+  color: var(--moss);
+  text-decoration: underline;
+  text-underline-offset: 0.12em;
+}
+
+.visualise__key-form {
+  display: grid;
+  gap: 0.65rem;
+}
+
+.visualise__key-ok {
+  margin: 0;
+  color: var(--moss);
+  font-size: 0.88rem;
+  font-weight: 600;
+}
+
+.visualise__field input[type='password'],
+.visualise__field input[type='text'] {
+  width: 100%;
+  border: 1px solid rgba(21, 32, 25, 0.16);
+  border-radius: 0.35rem;
+  background: #fff;
+  padding: 0.55rem 0.7rem;
+  color: var(--ink);
+  font-size: 0.92rem;
+}
+
+.visualise__result-empty {
+  display: grid;
+  gap: 0.4rem;
+  text-align: center;
+  padding: 1.5rem;
+  max-width: 22rem;
+}
+
+.visualise__result-empty strong {
+  color: var(--ink);
+  font-size: 0.95rem;
+}
+
+.visualise__result-empty span {
+  font-size: 0.85rem;
+  line-height: 1.45;
+}
+
 .visualise__layout {
   display: grid;
   grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);

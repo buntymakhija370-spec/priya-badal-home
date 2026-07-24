@@ -25,16 +25,23 @@ export type VisualiseRequest = {
 }
 
 export type VisualiseResult = {
-  imageUrl: string
-  source: 'ai' | 'preview'
-  message?: string
+  imageUrl?: string
+  source: 'ai' | 'error'
+  message: string
+  code?: string
+}
+
+export type VisualiseStatus = {
+  configured: boolean
+  mode: string
+  model?: string
 }
 
 /** Compress / resize room photo for upload + AI */
 export async function fileToDataUrl(
   file: File,
-  maxSide = 1280,
-  quality = 0.82,
+  maxSide = 1400,
+  quality = 0.85,
 ): Promise<string> {
   const bitmap = await createImageBitmap(file)
   const scale = Math.min(1, maxSide / Math.max(bitmap.width, bitmap.height))
@@ -50,93 +57,64 @@ export async function fileToDataUrl(
   return canvas.toDataURL('image/jpeg', quality)
 }
 
-function loadImage(src: string): Promise<HTMLImageElement> {
-  return new Promise((resolve, reject) => {
-    const img = new Image()
-    img.crossOrigin = 'anonymous'
-    img.onload = () => resolve(img)
-    img.onerror = () => reject(new Error('Could not load image'))
-    img.src = src
-  })
-}
-
-/**
- * Instant local preview (no API key): composites product into the room
- * with a colour wash. Used until FAL_KEY is set / if AI fails.
- */
-export async function composeProductPreview(
-  roomDataUrl: string,
-  productImageUrl: string,
-  colourHex: string,
-): Promise<string> {
-  const [room, product] = await Promise.all([
-    loadImage(roomDataUrl),
-    loadImage(productImageUrl),
-  ])
-
+/** Send product image as data URL so the server can upload it to Fal CDN */
+export async function urlToDataUrl(url: string): Promise<string> {
+  const absolute = url.startsWith('http') ? url : `${window.location.origin}${url}`
+  const res = await fetch(absolute)
+  if (!res.ok) throw new Error('Could not load product image')
+  const blob = await res.blob()
+  const bitmap = await createImageBitmap(blob)
+  const maxSide = 1200
+  const scale = Math.min(1, maxSide / Math.max(bitmap.width, bitmap.height))
+  const w = Math.max(1, Math.round(bitmap.width * scale))
+  const h = Math.max(1, Math.round(bitmap.height * scale))
   const canvas = document.createElement('canvas')
-  canvas.width = room.width
-  canvas.height = room.height
+  canvas.width = w
+  canvas.height = h
   const ctx = canvas.getContext('2d')
   if (!ctx) throw new Error('Canvas not available')
-
-  ctx.drawImage(room, 0, 0)
-
-  // Place product in lower-centre "installation zone"
-  const targetW = room.width * 0.55
-  const scale = targetW / product.width
-  const targetH = product.height * scale
-  const x = (room.width - targetW) / 2
-  const y = room.height * 0.58 - targetH * 0.35
-
-  ctx.save()
-  ctx.globalAlpha = 0.92
-  ctx.drawImage(product, x, y, targetW, targetH)
-
-  // Colour wash over product area
-  ctx.globalCompositeOperation = 'source-atop'
-  ctx.fillStyle = colourHex
-  ctx.globalAlpha = 0.22
-  ctx.fillRect(x, y, targetW, targetH)
-  ctx.restore()
-
-  // Soft vignette label bar
-  ctx.fillStyle = 'rgba(21, 32, 25, 0.55)'
-  ctx.fillRect(0, room.height - 48, room.width, 48)
-  ctx.fillStyle = '#f4f8f5'
-  ctx.font = '600 18px Outfit, system-ui, sans-serif'
-  ctx.fillText('Preview · Priyabadal Homes product match', 16, room.height - 18)
-
+  ctx.drawImage(bitmap, 0, 0, w, h)
+  bitmap.close()
   return canvas.toDataURL('image/jpeg', 0.88)
 }
 
-export async function fetchVisualiseStatus(): Promise<{
-  configured: boolean
-  mode: string
-}> {
+export async function fetchVisualiseStatus(): Promise<VisualiseStatus> {
   try {
     const res = await fetch('/api/visualise-status')
-    if (!res.ok) return { configured: false, mode: 'preview-fallback' }
-    return (await res.json()) as { configured: boolean; mode: string }
+    if (!res.ok) return { configured: false, mode: 'needs-key' }
+    return (await res.json()) as VisualiseStatus
   } catch {
-    return { configured: false, mode: 'preview-fallback' }
+    return { configured: false, mode: 'needs-key' }
+  }
+}
+
+export async function connectFalKey(key: string): Promise<VisualiseStatus> {
+  const res = await fetch('/api/visualise-config', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ key }),
+  })
+  const data = (await res.json()) as VisualiseStatus & { error?: string }
+  if (!res.ok) throw new Error(data.error || 'Could not connect AI key')
+  return {
+    configured: Boolean(data.configured),
+    mode: data.mode || 'paid-ai',
+    model: data.model,
   }
 }
 
 export async function generateVisualise(
   input: VisualiseRequest,
 ): Promise<VisualiseResult> {
-  const absoluteProductUrl = input.product.image.startsWith('http')
-    ? input.product.image
-    : `${window.location.origin}${input.product.image}`
-
   try {
+    const productDataUrl = await urlToDataUrl(input.product.image)
+
     const res = await fetch('/api/visualise', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({
         roomDataUrl: input.roomDataUrl,
-        productImageUrl: absoluteProductUrl,
+        productImageUrl: productDataUrl,
         productName: input.product.name,
         categoryName: input.categoryName,
         colour: input.colour.hex,
@@ -149,41 +127,35 @@ export async function generateVisualise(
       imageUrl?: string
       error?: string
       code?: string
+      hint?: string
     }
 
     if (res.ok && data.imageUrl) {
       return {
         imageUrl: data.imageUrl,
         source: 'ai',
-        message: 'Generated with your selected Priyabadal Homes product as reference.',
+        message:
+          'Professional AI render using your Priyabadal Homes product as reference.',
       }
     }
 
-    // Fall through to local preview
-    const preview = await composeProductPreview(
-      input.roomDataUrl,
-      absoluteProductUrl,
-      input.colour.hex,
-    )
     return {
-      imageUrl: preview,
-      source: 'preview',
+      source: 'error',
+      code: data.code,
       message:
         data.code === 'MISSING_FAL_KEY'
-          ? 'Paid AI key not set yet — showing product-matched preview. Add FAL_KEY for full AI renders.'
-          : `AI unavailable (${data.error || 'error'}) — showing product-matched preview instead.`,
+          ? 'Connect your Fal.ai key below to generate professional room renders.'
+          : data.error ||
+            data.hint ||
+            'Professional AI could not generate this look. Try again or WhatsApp us.',
     }
-  } catch {
-    const preview = await composeProductPreview(
-      input.roomDataUrl,
-      absoluteProductUrl,
-      input.colour.hex,
-    )
+  } catch (err) {
     return {
-      imageUrl: preview,
-      source: 'preview',
+      source: 'error',
       message:
-        'Could not reach AI service — showing product-matched preview. WhatsApp us for a precise mockup.',
+        err instanceof Error
+          ? err.message
+          : 'Could not reach professional AI. Check your key / connection.',
     }
   }
 }
@@ -199,7 +171,7 @@ export function buildVisualiseWhatsAppUrl(input: {
     '',
     `Product: ${input.product.name}`,
     `Finish colour: ${input.colour.label}`,
-    `Mode: ${input.usedAi ? 'AI product-referenced render' : 'Preview + need exact mockup'}`,
+    `Mode: ${input.usedAi ? 'Professional AI product-referenced render' : 'Need professional mockup'}`,
     input.notes ? `Note: ${input.notes}` : '',
     '',
     `Product link: ${window.location.origin}/product/${input.product.id}`,

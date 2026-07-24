@@ -182,8 +182,8 @@ const SIZE_BY_CATEGORY: Record<string, Partial<SizeLimits>> = {
     baseDepth: 2,
     minWidth: 2,
     maxWidth: 12,
-    minHeight: 5,
-    maxHeight: 9,
+    minHeight: 1,
+    maxHeight: 12,
     maxDepth: 3,
   },
   temple: {

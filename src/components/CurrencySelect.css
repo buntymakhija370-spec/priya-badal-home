@@ -31,7 +31,19 @@
   font-size: 0.78rem;
 }
 
-.nav--scrolled .currency-select--compact select,
-.nav--open .currency-select--compact select {
+.nav--scrolled .currency-select--compact select {
   background: #fff;
+}
+
+.nav--open .nav__currency .currency-select--compact select {
+  background: rgba(255, 255, 255, 0.1);
+  border-color: rgba(255, 255, 255, 0.28);
+  color: #f4f8f5;
+}
+
+@media (max-width: 420px) {
+  .currency-select--compact select {
+    padding-inline: 0.3rem;
+    font-size: 0.72rem;
+  }
 }

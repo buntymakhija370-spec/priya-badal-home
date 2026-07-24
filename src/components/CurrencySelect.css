@@ -1,0 +1,37 @@
+.currency-select {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.4rem;
+  font-size: 0.82rem;
+  color: var(--ink-soft);
+}
+
+.currency-select__label {
+  font-weight: 500;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  font-size: 0.68rem;
+}
+
+.currency-select select {
+  min-height: 2rem;
+  padding: 0.25rem 0.45rem;
+  border: 1px solid rgba(21, 32, 25, 0.16);
+  border-radius: 0.3rem;
+  background: #fff;
+  color: var(--ink);
+  font-size: 0.82rem;
+  font-weight: 600;
+}
+
+.currency-select--compact select {
+  min-height: 1.85rem;
+  border-color: rgba(21, 32, 25, 0.14);
+  background: rgba(255, 255, 255, 0.92);
+  font-size: 0.78rem;
+}
+
+.nav--scrolled .currency-select--compact select,
+.nav--open .currency-select--compact select {
+  background: #fff;
+}

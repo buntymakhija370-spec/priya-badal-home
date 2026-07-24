@@ -1035,13 +1035,7 @@ export function getMinOrderQuantity(product: Product): number {
     : 1
 }
 
-export function formatPrice(price: number, currency: 'INR' = 'INR') {
-  return new Intl.NumberFormat('en-IN', {
-    style: 'currency',
-    currency,
-    maximumFractionDigits: 0,
-  }).format(price)
-}
+export { formatPrice } from '../lib/currency'
 
 export function getCategory(id: string) {
   return categories.find((c) => c.id === id)

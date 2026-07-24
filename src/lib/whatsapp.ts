@@ -1,4 +1,5 @@
-import { formatPrice, getMinOrderQuantity, type Product } from '../data/catalog'
+import { getMinOrderQuantity, type Product } from '../data/catalog'
+import { formatPrice } from './currency'
 import { describeConfig, type PriceConfig } from './pricing'
 import type { CartItem } from './cart'
 
@@ -17,12 +18,12 @@ export function buildWhatsAppQuoteUrl(
     'Hi Priyabadal Homes, I would like a custom quotation:',
     '',
     `Product: ${product.name}`,
-    `Estimated price: ${formatPrice(unitPrice)}${minQty > 1 ? ' / pack' : ''}`,
+    `Estimated price: ${formatPrice(unitPrice, 'INR')}${minQty > 1 ? ' / pack' : ''}`,
     `Configuration: ${describeConfig(product.categoryId, config)}`,
   ]
 
   if (product.pricingMode === 'per-sqft') {
-    lines.push(`Base rate: ${formatPrice(product.price)} / sq ft`)
+    lines.push(`Base rate: ${formatPrice(product.price, 'INR')} / sq ft`)
   }
 
   if (minQty > 1) {
@@ -57,13 +58,13 @@ export function buildWhatsAppCartUrl(lines: CartQuoteLine[], customerNote = '') 
       `${index + 1}. ${product.name}`,
       `   Qty: ${item.quantity}`,
       `   Config: ${describeConfig(product.categoryId, item.config)}`,
-      `   Line: ${formatPrice(item.unitPrice * item.quantity)}`,
+      `   Line: ${formatPrice(item.unitPrice * item.quantity, 'INR')}`,
       '',
     ]),
-    `Cart total (estimate): ${formatPrice(total)}`,
+    `Cart total (estimate): ${formatPrice(total, 'INR')}`,
     customerNote ? `\nNote: ${customerNote}` : '',
     '',
-    'Please share the final quote and next steps. Thank you.',
+    'Please share the final quote in INR and next steps. Thank you.',
   ]
     .filter((line) => line !== '')
     .join('\n')

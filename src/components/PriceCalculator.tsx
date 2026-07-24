@@ -12,6 +12,7 @@ import {
 } from '../lib/pricing'
 import { addConfiguredToCart } from '../lib/cart'
 import { buildWhatsAppQuoteUrl } from '../lib/whatsapp'
+import { useCurrency } from '../hooks/useCurrency'
 import './PriceCalculator.css'
 
 type Props = {
@@ -52,6 +53,7 @@ type OverlayProps = {
 }
 
 function CalculatorOverlay({ product, onClose }: OverlayProps) {
+  useCurrency()
   const titleId = useId()
   const minQty = getMinOrderQuantity(product)
   const [config, setConfig] = useState<PriceConfig>(() =>

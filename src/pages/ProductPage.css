@@ -159,6 +159,13 @@
   color: var(--honey-deep);
 }
 
+.product-page__fx-note {
+  margin: -0.35rem 0 0.75rem;
+  font-size: 0.78rem;
+  color: var(--ink-soft);
+  line-height: 1.4;
+}
+
 .product-page__actions .btn--customise {
   min-height: 2.85rem;
   font-size: 0.78rem;

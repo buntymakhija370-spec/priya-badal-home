@@ -11,9 +11,11 @@ import {
   generateVisualise,
   type VisualiseColour,
 } from '../lib/visualise'
+import { useCurrency } from '../hooks/useCurrency'
 import './VisualisePage.css'
 
 export function VisualisePage() {
+  useCurrency()
   const [params] = useSearchParams()
   const products = useMemo(() => getAllProducts(), [])
   const preselect = params.get('product')

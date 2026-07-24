@@ -9,12 +9,15 @@ import {
   buildWhatsAppCartUrl,
   WHATSAPP_DISPLAY,
 } from '../lib/whatsapp'
+import { useCurrency } from '../hooks/useCurrency'
+import { isApproxDisplayCurrency } from '../lib/currency'
 import './CartPage.css'
 
 export function CartPage() {
   const items = useCartItems()
   const { setCartQuantity, removeFromCart } = useCartActions()
   const products = getAllProducts()
+  const { currency } = useCurrency()
   const [note, setNote] = useState('')
 
   const rows = useMemo(
@@ -116,7 +119,11 @@ export function CartPage() {
               <div>
                 <p className="cart__total-label">Estimated total</p>
                 <p className="cart__total">{formatPrice(total)}</p>
-                <p className="cart__hint">Final price confirmed on WhatsApp · {WHATSAPP_DISPLAY}</p>
+                <p className="cart__hint">
+                  {isApproxDisplayCurrency(currency)
+                    ? `Approx. in ${currency} · WhatsApp quote sent in ₹ INR · ${WHATSAPP_DISPLAY}`
+                    : `Final price confirmed on WhatsApp · ${WHATSAPP_DISPLAY}`}
+                </p>
               </div>
               <div className="cart__summary-actions">
                 <button type="button" className="btn btn--outline" onClick={() => clearCart()}>

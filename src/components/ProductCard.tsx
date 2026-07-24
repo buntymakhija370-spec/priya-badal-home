@@ -7,6 +7,7 @@ import {
 } from '../data/catalog'
 import { getProductMedia } from '../lib/media'
 import { productPath } from '../lib/links'
+import { useCurrency } from '../hooks/useCurrency'
 import { ProductImageScroller } from './ProductImageScroller'
 import { CustomizeButton } from './PriceCalculator'
 import { FavoriteButton } from './FavoriteButton'
@@ -17,6 +18,7 @@ type Props = {
 }
 
 export function ProductCard({ product }: Props) {
+  useCurrency()
   const href = productPath(product.id)
   const media = getProductMedia(product)
   const category = getCategory(product.categoryId)

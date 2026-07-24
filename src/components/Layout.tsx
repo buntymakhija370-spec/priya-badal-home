@@ -7,6 +7,9 @@ import {
   WHATSAPP_CHAT_URL,
   WHATSAPP_DISPLAY,
 } from '../lib/whatsapp'
+import { CurrencySelect } from './CurrencySelect'
+import { isApproxDisplayCurrency } from '../lib/currency'
+import { useCurrency } from '../hooks/useCurrency'
 import './Layout.css'
 
 const utilityLinks = [
@@ -22,6 +25,8 @@ export function Layout() {
   const [scrolled, setScrolled] = useState(false)
   const [menuOpen, setMenuOpen] = useState(false)
   const cartCount = useCartCount()
+  const { currency } = useCurrency()
+  const showFxNote = isApproxDisplayCurrency(currency)
 
   useEffect(() => {
     const onScroll = () => setScrolled(window.scrollY > 20)
@@ -66,6 +71,7 @@ export function Layout() {
         </nav>
 
         <div className="nav__end">
+          <CurrencySelect compact className="nav__currency" />
           <NavLink className="nav__cart" to="/cart" onClick={close}>
             Cart
             {cartCount > 0 && <span className="nav__cart-count">{cartCount}</span>}
@@ -97,6 +103,13 @@ export function Layout() {
           ))}
 
           <div className="nav__divider" aria-hidden="true" />
+
+          <div className="nav__currency-menu">
+            <CurrencySelect />
+            {showFxNote ? (
+              <p className="nav__fx-note">Approx. display · quotes confirmed in ₹ INR</p>
+            ) : null}
+          </div>
 
           {utilityLinks.map((link) => (
             <NavLink key={link.to} className="nav__utility" to={link.to} onClick={close}>

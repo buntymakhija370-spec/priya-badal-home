@@ -16,7 +16,9 @@ import { CustomizeButton } from '../components/PriceCalculator'
 import { FavoriteButton } from '../components/FavoriteButton'
 import { ShareProductLink } from '../components/ShareProductLink'
 import { useProductSeo } from '../hooks/useProductSeo'
+import { useCurrency } from '../hooks/useCurrency'
 import { shopPath } from '../lib/links'
+import { isApproxDisplayCurrency } from '../lib/currency'
 import './ProductPage.css'
 
 type SectionId = 'details' | 'specs' | 'features'
@@ -41,6 +43,7 @@ export function ProductPage() {
   const { productId } = useParams()
   const product = productId ? getProductById(productId) : undefined
   useProductSeo(product)
+  const { currency } = useCurrency()
   const [section, setSection] = useState<SectionId>('details')
 
   const related = useMemo(() => {
@@ -105,6 +108,11 @@ export function ProductPage() {
               <span className="product-page__price-unit">/pack</span>
             ) : null}
           </div>
+          {isApproxDisplayCurrency(currency) ? (
+            <p className="product-page__fx-note">
+              Approx. in {currency} · WhatsApp quotes confirmed in ₹ INR
+            </p>
+          ) : null}
 
           <ul className="product-page__trust">
             {isCommercial ? (

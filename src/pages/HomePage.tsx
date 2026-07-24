@@ -1,6 +1,7 @@
 import { Link } from 'react-router-dom'
 import { useEffect, useMemo, useRef, useState } from 'react'
 import { categories, type Category } from '../data/catalog'
+import { BRAND_STATS } from '../data/brandStats'
 import { MATERIAL_POINTS, MATERIALS_LEDE } from '../data/materials'
 import { ORDER_STEPS } from '../data/orderProcess'
 import { getAllProducts } from '../lib/products'
@@ -229,6 +230,21 @@ export function HomePage() {
             <strong>WhatsApp quotes</strong>
             <span>Confirm orders on chat</span>
           </li>
+        </ul>
+      </section>
+
+      <section className="home-impact" aria-labelledby="home-impact-title">
+        <div className="home-impact__intro">
+          <p className="eyebrow">Across India</p>
+          <h2 id="home-impact-title">Trusted at scale</h2>
+        </div>
+        <ul className="home-impact__stats">
+          {BRAND_STATS.map((stat) => (
+            <li key={stat.id}>
+              <strong>{stat.value}</strong>
+              <span>{stat.label}</span>
+            </li>
+          ))}
         </ul>
       </section>
 

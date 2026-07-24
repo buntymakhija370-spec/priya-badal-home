@@ -1,4 +1,5 @@
 import { Link } from 'react-router-dom'
+import { BRAND_STATS } from '../data/brandStats'
 import {
   MATERIAL_POINTS,
   MATERIALS_HEADLINE,
@@ -19,6 +20,14 @@ export function HowItWorksPage() {
           choosing a look to carpenter fitting — with clear prices and WhatsApp
           support throughout.
         </p>
+        <ul className="how__stats" aria-label="Priyabadal Homes reach">
+          {BRAND_STATS.map((stat) => (
+            <li key={stat.id}>
+              <strong>{stat.value}</strong>
+              <span>{stat.label}</span>
+            </li>
+          ))}
+        </ul>
         <div className="how__hero-actions">
           <Link className="btn btn--dark" to="/shop">
             Start shopping

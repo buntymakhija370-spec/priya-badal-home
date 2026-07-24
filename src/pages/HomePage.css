@@ -1,6 +1,7 @@
 /* Shared home section rhythm (no nav-offset — that belongs on inner pages only) */
 .home-cats,
 .home-trust,
+.home-impact,
 .home-process,
 .home-materials,
 .home-featured,
@@ -125,6 +126,70 @@
   font-size: 0.82rem;
   color: var(--ink-soft);
   line-height: 1.4;
+}
+
+.home-impact {
+  padding: var(--home-block) var(--home-inline);
+  background:
+    linear-gradient(160deg, #24332a 0%, #1a241e 55%, #152019 100%);
+  color: #f4f8f5;
+}
+
+.home-impact__intro {
+  margin-bottom: 1.35rem;
+  max-width: 28rem;
+}
+
+.home-impact__intro .eyebrow {
+  color: #c4a574;
+  margin-bottom: 0.4rem;
+}
+
+.home-impact__intro h2 {
+  margin: 0;
+  font-family: var(--font-display);
+  font-size: clamp(1.7rem, 3.5vw, 2.25rem);
+  letter-spacing: -0.03em;
+}
+
+.home-impact__stats {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: grid;
+  gap: 1.25rem 1.5rem;
+  grid-template-columns: 1fr;
+}
+
+.home-impact__stats li {
+  display: grid;
+  gap: 0.3rem;
+  padding-top: 1rem;
+  border-top: 1px solid rgba(244, 248, 245, 0.16);
+}
+
+.home-impact__stats strong {
+  font-family: var(--font-display);
+  font-size: clamp(2.2rem, 7vw, 3.1rem);
+  font-weight: 500;
+  letter-spacing: -0.04em;
+  line-height: 1;
+  color: #fff;
+}
+
+.home-impact__stats span {
+  font-size: 0.95rem;
+  font-weight: 300;
+  line-height: 1.4;
+  color: rgba(244, 248, 245, 0.78);
+  max-width: 18ch;
+}
+
+@media (min-width: 720px) {
+  .home-impact__stats {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    gap: 1.5rem 2rem;
+  }
 }
 
 .home-featured {

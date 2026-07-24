@@ -64,6 +64,10 @@ export function ProductCard({ product }: Props) {
           <p className="product-card__price-alt">
             Carcass {formatPrice(product.carcassPrice)}
             <span className="product-card__price-unit"> /sq ft</span>
+            <span className="product-card__price-note">
+              {' '}
+              · with carcass = shutter + carcass
+            </span>
           </p>
         ) : null}
         {minQty > 1 ? (

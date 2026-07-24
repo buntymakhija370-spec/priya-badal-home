@@ -166,7 +166,7 @@ function CalculatorOverlay({ product, onClose }: OverlayProps) {
           <fieldset className="calc-sheet__scopes">
             <legend>Price category</legend>
             <p className="calc-sheet__scopes-hint">
-              Choose shutter only, or shutter with carcass.
+              Shutter only, or with carcass (shutter + carcass rates added).
             </p>
             <div className="calc-sheet__scope-grid" role="radiogroup" aria-label="Price category">
               {scopeQuotes.map(({ scope, unitPrice }) => {

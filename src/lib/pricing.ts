@@ -54,7 +54,8 @@ export const BUILD_SCOPES: BuildScopeOption[] = [
     id: 'with-carcass',
     name: 'With carcass',
     shortName: 'Carcass',
-    description: 'Carcass / cabinet box pricing (structure with shutters as quoted).',
+    description: 'Shutter + carcass combined (both rates added).',
+    /** Fallback when product has no carcassPrice: shutter × this */
     multiplier: 1.7,
   },
 ]
@@ -84,15 +85,19 @@ export function getBuildScopeOptions(categoryId: string): BuildScopeOption[] {
   return supportsBuildScope(categoryId) ? BUILD_SCOPES : []
 }
 
-/** Base rate for shutter vs carcass (product.price = shutter; carcassPrice optional) */
+/**
+ * Rate used in estimates.
+ * - shutter: product.price (shutter rate)
+ * - with-carcass: shutter + carcass (both added). If no carcassPrice, uses multiplier fallback.
+ */
 export function getBuildScopeRate(
   product: Pick<Product, 'price' | 'carcassPrice'>,
   scopeId: BuildScopeId,
 ): number {
-  if (scopeId === 'with-carcass' && product.carcassPrice != null) {
-    return product.carcassPrice
-  }
-  if (scopeId === 'with-carcass' && product.carcassPrice == null) {
+  if (scopeId === 'with-carcass') {
+    if (product.carcassPrice != null) {
+      return product.price + product.carcassPrice
+    }
     return Math.round(product.price * getBuildScope('with-carcass').multiplier)
   }
   return product.price

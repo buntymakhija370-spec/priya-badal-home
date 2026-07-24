@@ -77,6 +77,11 @@
   color: var(--ink-soft);
 }
 
+.product-page__price-note {
+  font-weight: 500;
+  font-size: 0.82rem;
+}
+
 .product-page__tags {
   display: flex;
   flex-wrap: wrap;

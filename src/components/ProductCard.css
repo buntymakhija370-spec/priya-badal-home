@@ -70,6 +70,11 @@
   color: var(--ink-soft);
 }
 
+.product-card__price-note {
+  font-weight: 500;
+  font-size: 0.78rem;
+}
+
 .product-card__min {
   margin: 0;
   font-size: 0.78rem;

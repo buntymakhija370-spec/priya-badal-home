@@ -216,7 +216,7 @@ export const baseProducts: Product[] = [
     collection: 'Geometric PU',
     sku: 'PBH-GEO-PU-WR',
     description:
-      'Floor-to-ceiling hinged wardrobe in matte greige PU with engraved geometric doors and gold handles. Soft-close interiors with hanging and shelf storage. Shutter ₹900 / sq ft · Carcass ₹1,500 / sq ft · 25 mm.',
+      'Floor-to-ceiling hinged wardrobe in matte greige PU with engraved geometric doors and gold handles. Soft-close interiors with hanging and shelf storage. Shutter ₹900 / sq ft · Carcass ₹1,500 / sq ft (with carcass = both added) · 25 mm.',
     style: ['modern', 'luxe', 'geometric'],
     rooms: ['bedroom'],
     image: '/products/wardrobe-geo-closed.jpg',
@@ -228,6 +228,7 @@ export const baseProducts: Product[] = [
     highlights: [
       'Shutter ₹900 / sq ft',
       'Carcass ₹1,500 / sq ft',
+      'With carcass = shutter + carcass (₹2,400 / sq ft)',
       'Front PU coated · back side laminated',
       '25 mm board',
       'Hinged doors with geometric engraving',
@@ -266,7 +267,8 @@ export const baseProducts: Product[] = [
       { label: 'Interior Layout', value: 'Open hanging + shelf bays (customisable)' },
       {
         label: 'Pricing',
-        value: 'Per sq ft — shutter ₹900 · carcass ₹1,500',
+        value:
+          'Per sq ft — shutter ₹900 · carcass ₹1,500 · with carcass = both (₹2,400)',
       },
       { label: 'Country of Origin', value: 'India' },
       { label: 'Care', value: 'Wipe with a soft dry cloth; avoid harsh cleaners' },

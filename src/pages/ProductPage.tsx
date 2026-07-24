@@ -114,6 +114,11 @@ export function ProductPage() {
             <p className="product-page__price-alt">
               Carcass {formatPrice(product.carcassPrice)}
               <span className="product-page__price-unit"> /sq ft</span>
+              <span className="product-page__price-note">
+                {' '}
+                · with carcass adds shutter too (
+                {formatPrice(product.price + product.carcassPrice)} /sq ft)
+              </span>
             </p>
           ) : null}
           {product.tags?.length ? (

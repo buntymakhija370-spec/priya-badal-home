@@ -25,8 +25,9 @@ export function buildWhatsAppQuoteUrl(
   if (product.pricingMode === 'per-sqft') {
     const shutter = formatPrice(product.price, 'INR')
     if (product.carcassPrice != null) {
+      const combined = formatPrice(product.price + product.carcassPrice, 'INR')
       lines.push(
-        `Rates: shutter ${shutter}/sq ft · carcass ${formatPrice(product.carcassPrice, 'INR')}/sq ft`,
+        `Rates: shutter ${shutter}/sq ft · carcass ${formatPrice(product.carcassPrice, 'INR')}/sq ft · with carcass = both (${combined}/sq ft)`,
       )
     } else {
       lines.push(`Base rate: ${shutter} / sq ft`)

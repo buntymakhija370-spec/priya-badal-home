@@ -46,9 +46,7 @@
   flex-wrap: wrap;
   align-items: baseline;
   gap: 0.25rem 0.4rem;
-  margin-bottom: 1rem;
-  padding-bottom: 0.95rem;
-  border-bottom: 1px solid rgba(21, 32, 25, 0.12);
+  margin-bottom: 0.35rem;
 }
 
 .product-page__price-from {
@@ -70,6 +68,41 @@
 .product-page__price-unit {
   font-size: 0.85rem;
   color: var(--ink-soft);
+}
+
+.product-page__price-alt {
+  margin: 0 0 0.65rem;
+  font-size: 0.95rem;
+  font-weight: 600;
+  color: var(--ink-soft);
+}
+
+.product-page__tags {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.4rem;
+  margin: 0 0 1rem;
+}
+
+.product-page__tag {
+  padding: 0.35rem 0.6rem;
+  border: 1px solid rgba(125, 92, 48, 0.28);
+  background: #fff9f0;
+  color: var(--honey-deep);
+  font-size: 0.75rem;
+  font-weight: 650;
+  line-height: 1.3;
+}
+
+/* Keep divider under price section whether or not tags follow */
+.product-page__price-block:not(:has(+ .product-page__price-alt)):not(
+    :has(+ .product-page__tags)
+  ),
+.product-page__price-alt:not(:has(+ .product-page__tags)),
+.product-page__tags {
+  padding-bottom: 0.95rem;
+  border-bottom: 1px solid rgba(21, 32, 25, 0.12);
+  margin-bottom: 1rem;
 }
 
 .product-page__trust {

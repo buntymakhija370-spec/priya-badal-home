@@ -247,7 +247,7 @@ function CalculatorOverlay({ product, onClose }: OverlayProps) {
               {describeConfig(product.categoryId, quote.config)}
               {sqft != null ? ` · ${sqft} sq ft` : ''}
               {product.pricingMode === 'per-sqft'
-                ? ` · ${formatPrice(product.price)}/sq ft`
+                ? ` · ${formatPrice(quote.baseRate)}/sq ft`
                 : ''}
               {minQty > 1 ? ` · min ${minQty} packs` : ''}
             </p>

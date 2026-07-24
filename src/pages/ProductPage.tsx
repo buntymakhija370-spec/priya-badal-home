@@ -102,12 +102,29 @@ export function ProductPage() {
             <span className="product-page__price-from">From</span>
             <span className="product-page__price-value">{formatPrice(product.price)}</span>
             {product.pricingMode === 'per-sqft' && (
-              <span className="product-page__price-unit">/sq ft</span>
+              <span className="product-page__price-unit">
+                /sq ft{product.carcassPrice != null ? ' shutter' : ''}
+              </span>
             )}
             {isCommercial ? (
               <span className="product-page__price-unit">/pack</span>
             ) : null}
           </div>
+          {product.carcassPrice != null && product.pricingMode === 'per-sqft' ? (
+            <p className="product-page__price-alt">
+              Carcass {formatPrice(product.carcassPrice)}
+              <span className="product-page__price-unit"> /sq ft</span>
+            </p>
+          ) : null}
+          {product.tags?.length ? (
+            <div className="product-page__tags">
+              {product.tags.map((tag) => (
+                <span key={tag} className="product-page__tag">
+                  {tag}
+                </span>
+              ))}
+            </div>
+          ) : null}
           {isApproxDisplayCurrency(currency) ? (
             <p className="product-page__fx-note">
               Approx. in {currency} · WhatsApp quotes confirmed in ₹ INR

@@ -35,6 +35,15 @@ export function ProductCard({ product }: Props) {
         {minQty > 1 ? (
           <span className="product-card__bulk">Min. {minQty} packs</span>
         ) : null}
+        {product.tags?.length ? (
+          <div className="product-card__tags">
+            {product.tags.map((tag) => (
+              <span key={tag} className="product-card__tag">
+                {tag}
+              </span>
+            ))}
+          </div>
+        ) : null}
       </div>
       <div className="product-card__body">
         {category && <p className="product-card__cat">{category.name}</p>}
@@ -45,12 +54,18 @@ export function ProductCard({ product }: Props) {
           <span className="product-card__price-from">From</span>{' '}
           {formatPrice(product.price)}
           {product.pricingMode === 'per-sqft' ? (
-            <span className="product-card__price-unit"> /sq ft</span>
+            <span className="product-card__price-unit"> /sq ft shutter</span>
           ) : null}
           {minQty > 1 ? (
             <span className="product-card__price-unit"> /pack</span>
           ) : null}
         </p>
+        {product.carcassPrice != null && product.pricingMode === 'per-sqft' ? (
+          <p className="product-card__price-alt">
+            Carcass {formatPrice(product.carcassPrice)}
+            <span className="product-card__price-unit"> /sq ft</span>
+          </p>
+        ) : null}
         {minQty > 1 ? (
           <p className="product-card__min">
             Bulk commercial · order {minQty}+ identical packs

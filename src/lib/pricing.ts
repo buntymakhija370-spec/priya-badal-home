@@ -54,7 +54,7 @@ export const BUILD_SCOPES: BuildScopeOption[] = [
     id: 'with-carcass',
     name: 'With carcass',
     shortName: 'Carcass',
-    description: 'Shutters plus carcass (cabinet box / body).',
+    description: 'Carcass / cabinet box pricing (structure with shutters as quoted).',
     multiplier: 1.7,
   },
 ]
@@ -82,6 +82,20 @@ export function getBuildScope(id: string): BuildScopeOption {
 
 export function getBuildScopeOptions(categoryId: string): BuildScopeOption[] {
   return supportsBuildScope(categoryId) ? BUILD_SCOPES : []
+}
+
+/** Base rate for shutter vs carcass (product.price = shutter; carcassPrice optional) */
+export function getBuildScopeRate(
+  product: Pick<Product, 'price' | 'carcassPrice'>,
+  scopeId: BuildScopeId,
+): number {
+  if (scopeId === 'with-carcass' && product.carcassPrice != null) {
+    return product.carcassPrice
+  }
+  if (scopeId === 'with-carcass' && product.carcassPrice == null) {
+    return Math.round(product.price * getBuildScope('with-carcass').multiplier)
+  }
+  return product.price
 }
 
 export type PriceConfig = {
@@ -279,7 +293,12 @@ export function normalizeConfig(categoryId: string, config: PriceConfig): PriceC
 export function calculatePrice(
   product: Pick<
     Product,
-    'price' | 'categoryId' | 'pricingMode' | 'defaultFinishId' | 'defaultThicknessId'
+    | 'price'
+    | 'carcassPrice'
+    | 'categoryId'
+    | 'pricingMode'
+    | 'defaultFinishId'
+    | 'defaultThicknessId'
   >,
   config: PriceConfig,
 ) {
@@ -293,9 +312,10 @@ export function calculatePrice(
   const finishMult = finish.multiplier / baseFinish.multiplier
   const thicknessMult = thickness.multiplier / baseThickness.multiplier
   const buildScope = getBuildScope(normalized.buildScope ?? 'shutter')
-  const scopeMult = supportsBuildScope(product.categoryId)
-    ? buildScope.multiplier
-    : 1
+  const usesScope = supportsBuildScope(product.categoryId)
+  const baseRate = usesScope
+    ? getBuildScopeRate(product, buildScope.id)
+    : product.price
 
   let unitPrice: number
   let sizeFactor = 1
@@ -303,13 +323,11 @@ export function calculatePrice(
   if (product.categoryId === 'commercials') {
     // Bulk packs are quoted per fixed package — not resized on the calculator
     sizeFactor = 1
-    unitPrice = Math.round(product.price * finishMult * thicknessMult)
+    unitPrice = Math.round(baseRate * finishMult * thicknessMult)
   } else if (product.pricingMode === 'per-sqft') {
     const sqft = normalized.width * normalized.height
     sizeFactor = sqft
-    unitPrice = Math.round(
-      product.price * sqft * finishMult * thicknessMult * scopeMult,
-    )
+    unitPrice = Math.round(baseRate * sqft * finishMult * thicknessMult)
   } else {
     const baseArea = size.baseWidth * size.baseHeight
     const customArea = normalized.width * normalized.height
@@ -322,9 +340,7 @@ export function calculatePrice(
     }
 
     sizeFactor = clamp(sizeFactor, 0.45, 3.5)
-    unitPrice = Math.round(
-      product.price * finishMult * thicknessMult * sizeFactor * scopeMult,
-    )
+    unitPrice = Math.round(baseRate * finishMult * thicknessMult * sizeFactor)
   }
 
   return {
@@ -335,6 +351,7 @@ export function calculatePrice(
     size,
     config: normalized,
     sizeFactor,
+    baseRate,
   }
 }
 

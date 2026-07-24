@@ -41,7 +41,14 @@ export type Product = {
   name: string
   categoryId: CategoryId
   subcategoryId: string
+  /** Base / shutter-only price (INR). For per-sqft products this is ₹ / sq ft. */
   price: number
+  /**
+   * Optional carcass / with-carcass rate (INR).
+   * For per-sqft products: ₹ / sq ft for the carcass option.
+   * When set, Customise & Price uses this instead of the default multiplier.
+   */
+  carcassPrice?: number
   currency: 'INR'
   /** unit = fixed piece price scaled by size; per-sqft = price × face area in sq ft */
   pricingMode?: 'unit' | 'per-sqft'
@@ -59,6 +66,8 @@ export type Product = {
   brand?: string
   collection?: string
   sku?: string
+  /** Short pills / badges on card & PDP (e.g. finish tags) */
+  tags?: string[]
   /** Short bullets near the price */
   highlights?: string[]
   /** Product Details table rows */
@@ -197,7 +206,8 @@ export const baseProducts: Product[] = [
     name: 'Geometric PU Wardrobe',
     categoryId: 'wardrobe',
     subcategoryId: 'hinged',
-    price: 1050,
+    price: 900,
+    carcassPrice: 1500,
     currency: 'INR',
     pricingMode: 'per-sqft',
     defaultFinishId: 'pu',
@@ -206,7 +216,7 @@ export const baseProducts: Product[] = [
     collection: 'Geometric PU',
     sku: 'PBH-GEO-PU-WR',
     description:
-      'Floor-to-ceiling hinged wardrobe in matte greige PU with engraved geometric doors and gold handles. Soft-close interiors with hanging and shelf storage. Priced at ₹1,050 / sq ft · 25 mm · PU finish.',
+      'Floor-to-ceiling hinged wardrobe in matte greige PU with engraved geometric doors and gold handles. Soft-close interiors with hanging and shelf storage. Shutter ₹900 / sq ft · Carcass ₹1,500 / sq ft · 25 mm.',
     style: ['modern', 'luxe', 'geometric'],
     rooms: ['bedroom'],
     image: '/products/wardrobe-geo-closed.jpg',
@@ -214,9 +224,12 @@ export const baseProducts: Product[] = [
       '/products/wardrobe-geo-closed.jpg',
       '/products/wardrobe-geo-open.jpg',
     ],
+    tags: ['Front PU coated · back side laminated'],
     highlights: [
-      '₹1,050 / sq ft',
-      '25 mm PU shutters',
+      'Shutter ₹900 / sq ft',
+      'Carcass ₹1,500 / sq ft',
+      'Front PU coated · back side laminated',
+      '25 mm board',
       'Hinged doors with geometric engraving',
       'Soft-close hardware',
       'Made to your wall size',
@@ -232,7 +245,7 @@ export const baseProducts: Product[] = [
       },
       {
         label: 'Primary Material',
-        value: '25 mm engineered board with matte PU finish',
+        value: '25 mm engineered board — front PU coated, back side laminated',
       },
       { label: 'Secondary Material', value: 'Internal carcass with hanging & shelves' },
       { label: 'Product Rating', value: 'Made-to-order quality' },
@@ -242,25 +255,29 @@ export const baseProducts: Product[] = [
       { label: 'Sku', value: 'PBH-GEO-PU-WR' },
     ],
     specifications: [
-      { label: 'Colour / Finish', value: 'Matte greige PU' },
+      { label: 'Colour / Finish', value: 'Matte greige PU (front) · laminated back' },
       { label: 'Board Thickness', value: '25 mm' },
+      { label: 'Shutter finish', value: 'Front PU coated · back side laminated' },
       { label: 'Door Type', value: 'Hinged' },
       { label: 'Number of Doors', value: 'Custom (based on width)' },
       { label: 'Storage Type', value: 'Hanging rails + adjustable shelves' },
       { label: 'Handles', value: 'Gold-tone metal handles' },
       { label: 'Hardware', value: 'Soft-close hinges' },
       { label: 'Interior Layout', value: 'Open hanging + shelf bays (customisable)' },
-      { label: 'Pricing', value: 'Per sq ft (width × height)' },
+      {
+        label: 'Pricing',
+        value: 'Per sq ft — shutter ₹900 · carcass ₹1,500',
+      },
       { label: 'Country of Origin', value: 'India' },
       { label: 'Care', value: 'Wipe with a soft dry cloth; avoid harsh cleaners' },
     ],
     features: [
       'Engraved geometric door pattern for a premium façade',
-      'Durable 25 mm board with matte PU finish',
+      'Front PU coated with laminated back for durable everyday use',
       'Soft-close hinged doors for quiet everyday use',
       'Flexible hanging and shelf storage layout',
       'Sized exactly to your bedroom wall or niche',
-      'Low-maintenance surfaces for easy cleaning',
+      'Choose shutter only or with carcass at customise',
     ],
     disclaimer:
       'Accessories shown in images are for representation only and are not part of the product. Final colour may vary slightly from screen display. Custom sizes are confirmed before production.',

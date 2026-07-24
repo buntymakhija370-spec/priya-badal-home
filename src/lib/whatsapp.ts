@@ -23,7 +23,14 @@ export function buildWhatsAppQuoteUrl(
   ]
 
   if (product.pricingMode === 'per-sqft') {
-    lines.push(`Base rate: ${formatPrice(product.price, 'INR')} / sq ft`)
+    const shutter = formatPrice(product.price, 'INR')
+    if (product.carcassPrice != null) {
+      lines.push(
+        `Rates: shutter ${shutter}/sq ft · carcass ${formatPrice(product.carcassPrice, 'INR')}/sq ft`,
+      )
+    } else {
+      lines.push(`Base rate: ${shutter} / sq ft`)
+    }
   }
 
   if (minQty > 1) {

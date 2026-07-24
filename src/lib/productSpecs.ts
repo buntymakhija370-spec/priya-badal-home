@@ -95,7 +95,20 @@ export function resolveProductPresentation(product: Product) {
     { label: 'Board Thickness', value: thickness },
     { label: 'Category', value: category?.name ?? '—' },
     { label: 'Subcategory', value: subcategory?.name ?? '—' },
-    { label: 'Pricing', value: product.pricingMode === 'per-sqft' ? 'Per sq ft' : 'Per unit' },
+    {
+      label: 'Pricing',
+      value:
+        product.categoryId === 'kitchen' ||
+        product.categoryId === 'wardrobe' ||
+        product.categoryId === 'temple' ||
+        product.categoryId === 'sculpted-furniture'
+          ? product.pricingMode === 'per-sqft'
+            ? 'Per sq ft — shutter only or with carcass'
+            : 'Per unit — shutter only or with carcass'
+          : product.pricingMode === 'per-sqft'
+            ? 'Per sq ft'
+            : 'Per unit',
+    },
     { label: 'Style tags', value: product.style.join(', ') || '—' },
     { label: 'Country of Origin', value: 'India' },
     { label: 'Care', value: 'Wipe with a soft dry cloth; avoid harsh cleaners' },

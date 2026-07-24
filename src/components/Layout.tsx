@@ -11,6 +11,7 @@ import './Layout.css'
 
 const utilityLinks = [
   { to: '/shop', label: 'All products' },
+  { to: '/how-it-works', label: 'How it works' },
   { to: '/visualise', label: 'Visualise AI' },
   { to: '/favorites', label: 'Favorites' },
   { to: '/chat', label: 'AI Guide' },
@@ -136,6 +137,9 @@ export function Layout() {
           <div>
             <p className="footer__heading">Help</p>
             <ul>
+              <li>
+                <NavLink to="/how-it-works">How your order works</NavLink>
+              </li>
               <li>
                 <NavLink to="/cart">Cart</NavLink>
               </li>

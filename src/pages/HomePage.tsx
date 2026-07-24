@@ -1,6 +1,7 @@
 import { Link } from 'react-router-dom'
 import { useEffect, useMemo, useRef, useState } from 'react'
 import { categories, type Category } from '../data/catalog'
+import { ORDER_STEPS } from '../data/orderProcess'
 import { getAllProducts } from '../lib/products'
 import { ProductCard } from '../components/ProductCard'
 import './HomePage.css'
@@ -228,6 +229,31 @@ export function HomePage() {
             <span>Confirm orders on chat</span>
           </li>
         </ul>
+      </section>
+
+      <section className="home-process page-pad" aria-labelledby="home-process-title">
+        <div className="home-process__head">
+          <div>
+            <p className="eyebrow">Custom orders</p>
+            <h2 id="home-process-title">How your custom order works</h2>
+            <p>
+              From choosing a look to carpenter fitting — made to your wall size,
+              with WhatsApp quotes at every step.
+            </p>
+          </div>
+          <Link className="btn btn--outline" to="/how-it-works">
+            Full details
+          </Link>
+        </div>
+        <ol className="home-process__steps">
+          {ORDER_STEPS.map((step, index) => (
+            <li key={step.id}>
+              <span aria-hidden="true">{String(index + 1).padStart(2, '0')}</span>
+              <strong>{step.title}</strong>
+              <em>{step.summary}</em>
+            </li>
+          ))}
+        </ol>
       </section>
 
       <section className="home-featured page-pad">

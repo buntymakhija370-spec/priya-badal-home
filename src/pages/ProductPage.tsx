@@ -113,6 +113,9 @@ export function ProductPage() {
           >
             Visualise in my room (AI)
           </Link>
+          <Link className="product-page__how" to="/how-it-works">
+            How your custom order works
+          </Link>
 
           <p className="product-page__sku">Sku: {presentation.sku}</p>
         </div>

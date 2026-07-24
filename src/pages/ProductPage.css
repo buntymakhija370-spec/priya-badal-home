@@ -136,9 +136,19 @@
 
 .product-page__visualise {
   width: 100%;
-  margin-bottom: 0.85rem;
+  margin-bottom: 0.55rem;
   min-height: 2.6rem;
   font-size: 0.84rem;
+}
+
+.product-page__how {
+  display: inline-block;
+  margin-bottom: 0.85rem;
+  font-size: 0.88rem;
+  font-weight: 500;
+  color: var(--moss);
+  text-decoration: underline;
+  text-underline-offset: 0.14em;
 }
 
 .product-page__actions .btn--customise {

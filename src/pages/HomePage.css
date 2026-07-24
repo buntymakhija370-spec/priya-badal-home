@@ -452,6 +452,114 @@
   }
 }
 
+.home-materials {
+  display: grid;
+  background: #1f2a23;
+  color: #f4f8f5;
+}
+
+.home-materials__media {
+  position: relative;
+  min-height: clamp(16rem, 48vw, 28rem);
+  overflow: hidden;
+}
+
+.home-materials__media img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  object-position: center;
+}
+
+.home-materials__wash {
+  position: absolute;
+  inset: 0;
+  background:
+    linear-gradient(
+      180deg,
+      rgba(31, 42, 35, 0.12) 0%,
+      rgba(31, 42, 35, 0.55) 100%
+    );
+}
+
+.home-materials__content {
+  padding: clamp(2rem, 5vw, 3.5rem) clamp(1.25rem, 4vw, 3rem);
+}
+
+.home-materials__content .eyebrow {
+  color: #c4a574;
+}
+
+.home-materials__content h2 {
+  margin: 0 0 0.85rem;
+  font-family: var(--font-display);
+  font-size: clamp(2rem, 5vw, 2.9rem);
+  letter-spacing: -0.035em;
+  line-height: 1.08;
+}
+
+.home-materials__lede {
+  margin: 0 0 1.5rem;
+  max-width: 38ch;
+  font-size: 1.05rem;
+  font-weight: 300;
+  line-height: 1.6;
+  color: rgba(244, 248, 245, 0.86);
+}
+
+.home-materials__list {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: grid;
+  gap: 1rem;
+  max-width: 36rem;
+}
+
+.home-materials__list li {
+  display: grid;
+  gap: 0.25rem;
+  padding-top: 0.9rem;
+  border-top: 1px solid rgba(244, 248, 245, 0.16);
+}
+
+.home-materials__list strong {
+  font-size: 0.98rem;
+  font-weight: 600;
+}
+
+.home-materials__list span {
+  font-size: 0.9rem;
+  line-height: 1.5;
+  color: rgba(244, 248, 245, 0.74);
+  font-weight: 300;
+}
+
+@media (min-width: 900px) {
+  .home-materials {
+    grid-template-columns: minmax(0, 1.05fr) minmax(0, 1fr);
+    min-height: 34rem;
+  }
+
+  .home-materials__media {
+    min-height: 100%;
+  }
+
+  .home-materials__wash {
+    background: linear-gradient(
+      90deg,
+      rgba(31, 42, 35, 0.05) 0%,
+      rgba(31, 42, 35, 0.55) 100%
+    );
+  }
+
+  .home-materials__content {
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+  }
+}
+
 .home-cta {
   padding: 5rem clamp(1.25rem, 4vw, 3rem);
   background: linear-gradient(160deg, #1c2a22, #31483b);

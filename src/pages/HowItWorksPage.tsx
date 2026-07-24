@@ -1,4 +1,9 @@
 import { Link } from 'react-router-dom'
+import {
+  MATERIAL_POINTS,
+  MATERIALS_HEADLINE,
+  MATERIALS_LEDE,
+} from '../data/materials'
 import { ORDER_NOTES, ORDER_STEPS } from '../data/orderProcess'
 import { WHATSAPP_CHAT_URL, WHATSAPP_DISPLAY } from '../lib/whatsapp'
 import './HowItWorksPage.css'
@@ -43,6 +48,22 @@ export function HowItWorksPage() {
           </li>
         ))}
       </ol>
+
+      <section className="how__materials" aria-labelledby="how-materials-title">
+        <p className="eyebrow">Materials</p>
+        <h2 id="how-materials-title">
+          {MATERIALS_HEADLINE.replace('\n', ' ')}
+        </h2>
+        <p className="how__materials-lede">{MATERIALS_LEDE}</p>
+        <ul className="how__materials-list">
+          {MATERIAL_POINTS.map((point) => (
+            <li key={point.id}>
+              <strong>{point.title}</strong>
+              <span>{point.body}</span>
+            </li>
+          ))}
+        </ul>
+      </section>
 
       <section className="how__notes" aria-labelledby="how-notes-title">
         <h2 id="how-notes-title">Good to know</h2>

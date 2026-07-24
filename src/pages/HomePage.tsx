@@ -1,6 +1,7 @@
 import { Link } from 'react-router-dom'
 import { useEffect, useMemo, useRef, useState } from 'react'
 import { categories, type Category } from '../data/catalog'
+import { MATERIAL_POINTS, MATERIALS_LEDE } from '../data/materials'
 import { ORDER_STEPS } from '../data/orderProcess'
 import { getAllProducts } from '../lib/products'
 import { ProductCard } from '../components/ProductCard'
@@ -254,6 +255,34 @@ export function HomePage() {
             </li>
           ))}
         </ol>
+      </section>
+
+      <section className="home-materials" aria-labelledby="home-materials-title">
+        <div className="home-materials__media" aria-hidden="true">
+          <img
+            src="/products/categories/wardrobe.jpg"
+            alt=""
+            loading="lazy"
+          />
+          <div className="home-materials__wash" />
+        </div>
+        <div className="home-materials__content">
+          <p className="eyebrow">Materials</p>
+          <h2 id="home-materials-title">
+            Premium Materials,
+            <br />
+            Zero Compromise
+          </h2>
+          <p className="home-materials__lede">{MATERIALS_LEDE}</p>
+          <ul className="home-materials__list">
+            {MATERIAL_POINTS.map((point) => (
+              <li key={point.id}>
+                <strong>{point.title}</strong>
+                <span>{point.body}</span>
+              </li>
+            ))}
+          </ul>
+        </div>
       </section>
 
       <section className="home-featured page-pad">

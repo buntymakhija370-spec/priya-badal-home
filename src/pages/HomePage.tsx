@@ -232,7 +232,7 @@ export function HomePage() {
         </ul>
       </section>
 
-      <section className="home-process page-pad" aria-labelledby="home-process-title">
+      <section className="home-process" aria-labelledby="home-process-title">
         <div className="home-process__head">
           <div>
             <p className="eyebrow">Custom orders</p>
@@ -285,7 +285,7 @@ export function HomePage() {
         </div>
       </section>
 
-      <section className="home-featured page-pad">
+      <section className="home-featured">
         <div className="home-featured__head">
           <div>
             <p className="eyebrow">Featured</p>

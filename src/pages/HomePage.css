@@ -131,23 +131,55 @@
   letter-spacing: -0.03em;
 }
 
-/* Full-bleed cinema categories — one large video fills the screen */
+/* Horizontal category rail — large video + clear peek of the next */
 .home-cats {
   position: relative;
-  padding: 0;
-  background: var(--paper);
-  color: #f7faf8;
+  padding: 1.75rem 0 1.5rem;
+  background:
+    linear-gradient(180deg, #eef3f0 0%, #f7faf8 42%, #f1f5f2 100%);
+  color: var(--ink);
+}
+
+.home-cats__head {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: end;
+  justify-content: space-between;
+  gap: 0.65rem 1rem;
+  padding: 0 clamp(1.25rem, 4vw, 3rem) 1rem;
+}
+
+.home-cats__head h2 {
+  margin: 0.15rem 0 0;
+  font-family: var(--font-display);
+  font-size: clamp(1.65rem, 4vw, 2.25rem);
+  letter-spacing: -0.03em;
+}
+
+.home-cats__hint {
+  margin: 0;
+  font-size: 0.9rem;
+  color: var(--ink-soft);
+  font-weight: 500;
+}
+
+.home-cats__rail {
+  position: relative;
 }
 
 .home-cats__track {
-  height: 100svh;
-  overflow-y: auto;
-  overflow-x: hidden;
-  scroll-snap-type: y mandatory;
+  display: flex;
+  gap: 0.75rem;
+  overflow-x: auto;
+  overflow-y: hidden;
+  scroll-snap-type: x mandatory;
   scroll-behavior: smooth;
-  overscroll-behavior-y: contain;
+  overscroll-behavior-x: contain;
   -webkit-overflow-scrolling: touch;
   scrollbar-width: none;
+  padding: 0.15rem 0 0.35rem;
+  padding-inline: clamp(1.25rem, 4vw, 3rem);
+  scroll-padding-inline: clamp(1.25rem, 4vw, 3rem);
 }
 
 .home-cats__track::-webkit-scrollbar {
@@ -156,8 +188,7 @@
 
 .home-cat {
   position: relative;
-  height: 100%;
-  min-height: 100%;
+  flex: 0 0 min(78vw, 22.5rem);
   scroll-snap-align: start;
   scroll-snap-stop: always;
 }
@@ -166,11 +197,10 @@
   position: relative;
   display: block;
   width: 100%;
-  height: 100%;
+  aspect-ratio: 3 / 4;
   overflow: hidden;
   color: #fff;
-  background:
-    linear-gradient(160deg, #e7eee9 0%, #d5dfd8 45%, #c9d4cc 100%);
+  background: linear-gradient(160deg, #d8e2db, #c5d1c9);
 }
 
 .home-cat img,
@@ -181,13 +211,21 @@
   height: 100%;
   object-fit: cover;
   object-position: center;
-  transform: scale(1.02);
-  transition: transform 1.2s var(--ease-out);
+  transform: scale(1.01);
+  transition:
+    transform 0.9s var(--ease-out),
+    filter 0.45s var(--ease-out);
+  filter: saturate(0.92) brightness(0.96);
 }
 
 .home-cat.is-active img,
 .home-cat.is-active .home-cat__video {
-  transform: scale(1.06);
+  transform: scale(1.04);
+  filter: none;
+}
+
+.home-cat:not(.is-active) .home-cat__media {
+  opacity: 0.88;
 }
 
 .home-cat__video {
@@ -198,13 +236,12 @@
   position: absolute;
   inset: 0;
   pointer-events: none;
-  background:
-    linear-gradient(
-      180deg,
-      rgba(21, 32, 25, 0.18) 0%,
-      rgba(21, 32, 25, 0.05) 38%,
-      rgba(21, 32, 25, 0.55) 100%
-    );
+  background: linear-gradient(
+    180deg,
+    rgba(21, 32, 25, 0.1) 0%,
+    rgba(21, 32, 25, 0.08) 45%,
+    rgba(21, 32, 25, 0.62) 100%
+  );
 }
 
 .home-cat__copy {
@@ -215,75 +252,124 @@
   z-index: 1;
   display: grid;
   justify-items: start;
-  gap: 0.45rem;
-  padding:
-    1.5rem
-    clamp(1.25rem, 4vw, 3rem)
-    calc(2.75rem + env(safe-area-inset-bottom, 0px));
-  max-width: 34rem;
+  gap: 0.3rem;
+  padding: 1.15rem 1rem 1.1rem;
 }
 
-.home-cat__kicker {
+.home-cat__count {
   margin: 0;
-  font-size: 0.72rem;
+  font-size: 0.7rem;
   font-weight: 600;
-  letter-spacing: 0.16em;
+  letter-spacing: 0.14em;
   text-transform: uppercase;
-  color: rgba(247, 250, 248, 0.82);
+  color: rgba(247, 250, 248, 0.78);
 }
 
 .home-cat__label {
   margin: 0;
   font-family: var(--font-display);
-  font-size: clamp(2.2rem, 8vw, 3.4rem);
+  font-size: clamp(1.55rem, 5vw, 2rem);
   font-weight: 500;
-  letter-spacing: -0.035em;
-  line-height: 1.02;
-  text-shadow: 0 2px 24px rgba(0, 0, 0, 0.25);
+  letter-spacing: -0.03em;
+  line-height: 1.05;
 }
 
 .home-cat__cta {
-  margin-top: 0.55rem;
-  display: inline-flex;
-  align-items: center;
-  min-height: 2.6rem;
-  padding: 0.55rem 1.1rem;
-  border: 1px solid rgba(255, 255, 255, 0.72);
-  background: rgba(255, 255, 255, 0.12);
-  backdrop-filter: blur(8px);
-  font-size: 0.92rem;
+  margin-top: 0.4rem;
+  font-size: 0.86rem;
   font-weight: 600;
-  letter-spacing: 0.02em;
+  text-decoration: underline;
+  text-underline-offset: 0.16em;
 }
 
 .home-cat__media:focus-visible {
-  outline: 2px solid #fff;
-  outline-offset: -3px;
+  outline: 2px solid var(--ink);
+  outline-offset: 3px;
 }
 
-.home-cats__progress {
-  position: absolute;
-  left: clamp(1.25rem, 4vw, 3rem);
-  right: clamp(1.25rem, 4vw, 3rem);
-  bottom: calc(0.85rem + env(safe-area-inset-bottom, 0px));
-  z-index: 2;
+.home-cats__footer {
+  display: grid;
+  gap: 0.85rem;
+  padding: 1rem clamp(1.25rem, 4vw, 3rem) 0;
+}
+
+.home-cats__dots {
   display: flex;
-  gap: 0.35rem;
-  pointer-events: none;
+  flex-wrap: wrap;
+  gap: 0.45rem;
 }
 
-.home-cats__progress .home-cats__bar {
-  flex: 1 1 0;
+.home-cats__dot {
+  width: 0.45rem;
+  height: 0.45rem;
+  padding: 0;
+  border: 0;
+  border-radius: 999px;
+  background: rgba(21, 32, 25, 0.2);
+  cursor: pointer;
 }
 
-.home-cats__bar {
-  height: 2px;
-  background: rgba(255, 255, 255, 0.28);
-  transform-origin: left center;
+.home-cats__dot.is-active {
+  background: var(--honey-deep);
+  transform: scale(1.25);
 }
 
-.home-cats__bar.is-active {
+.home-cats__next {
+  display: grid;
+  grid-template-columns: 1fr auto;
+  grid-template-rows: auto auto;
+  column-gap: 0.85rem;
+  align-items: center;
+  width: 100%;
+  padding: 0.75rem 0.85rem;
+  border: 1px solid rgba(21, 32, 25, 0.12);
   background: #fff;
+  color: var(--ink);
+  text-align: left;
+  cursor: pointer;
+  font: inherit;
+}
+
+.home-cats__next--done {
+  grid-template-columns: 1fr;
+}
+
+.home-cats__next-label {
+  grid-column: 1;
+  font-size: 0.72rem;
+  font-weight: 600;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: var(--honey-deep);
+}
+
+.home-cats__next strong {
+  grid-column: 1;
+  font-family: var(--font-display);
+  font-size: 1.15rem;
+  font-weight: 500;
+  letter-spacing: -0.02em;
+}
+
+.home-cats__next-thumb {
+  grid-column: 2;
+  grid-row: 1 / span 2;
+  width: 3.4rem;
+  aspect-ratio: 3 / 4;
+  overflow: hidden;
+  background: var(--mist);
+}
+
+.home-cats__next-thumb img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+@media (min-width: 900px) {
+  .home-cat {
+    flex-basis: min(42vw, 24rem);
+  }
 }
 
 @media (max-width: 860px) {

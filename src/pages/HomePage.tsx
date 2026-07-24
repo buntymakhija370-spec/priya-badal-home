@@ -10,9 +10,13 @@ const CATEGORY_CLIP_SECONDS = 10
 function CategorySlide({
   cat,
   active,
+  index,
+  total,
 }: {
   cat: Category
   active: boolean
+  index: number
+  total: number
 }) {
   const videoRef = useRef<HTMLVideoElement>(null)
 
@@ -54,9 +58,11 @@ function CategorySlide({
         )}
         <div className="home-cat__wash" aria-hidden="true" />
         <div className="home-cat__copy">
-          <p className="home-cat__kicker">Priyabadal Homes</p>
+          <p className="home-cat__count">
+            {String(index + 1).padStart(2, '0')} / {String(total).padStart(2, '0')}
+          </p>
           <h3 className="home-cat__label">{cat.name}</h3>
-          <span className="home-cat__cta">Shop {cat.name}</span>
+          <span className="home-cat__cta">Shop collection</span>
         </div>
       </Link>
     </article>
@@ -67,6 +73,9 @@ export function HomePage() {
   const featured = useMemo(() => getAllProducts().slice(0, 4), [])
   const trackRef = useRef<HTMLDivElement>(null)
   const [activeIndex, setActiveIndex] = useState(0)
+
+  const nextCategory = categories[(activeIndex + 1) % categories.length]
+  const hasNext = activeIndex < categories.length - 1
 
   useEffect(() => {
     const root = trackRef.current
@@ -84,12 +93,18 @@ export function HomePage() {
         const idx = slides.indexOf(visible.target as HTMLElement)
         if (idx >= 0) setActiveIndex(idx)
       },
-      { root, threshold: [0.6, 0.85] },
+      { root, threshold: [0.55, 0.75], rootMargin: '0px -12% 0px -12%' },
     )
 
     slides.forEach((slide) => observer.observe(slide))
     return () => observer.disconnect()
   }, [])
+
+  const scrollToIndex = (index: number) => {
+    const root = trackRef.current
+    const slide = root?.querySelectorAll<HTMLElement>('.home-cat')[index]
+    slide?.scrollIntoView({ behavior: 'smooth', inline: 'start', block: 'nearest' })
+  }
 
   return (
     <main>
@@ -134,23 +149,63 @@ export function HomePage() {
       </section>
 
       <section className="home-cats" id="categories" aria-label="Shop categories">
-        <div ref={trackRef} className="home-cats__track">
-          {categories.map((cat, index) => (
-            <CategorySlide
-              key={cat.id}
-              cat={cat}
-              active={activeIndex === index}
-            />
-          ))}
+        <header className="home-cats__head">
+          <div>
+            <p className="eyebrow">Collections</p>
+            <h2>Swipe to explore</h2>
+          </div>
+          <p className="home-cats__hint">
+            {activeIndex + 1} of {categories.length}
+            {hasNext ? ` · Next: ${nextCategory?.name}` : ' · End of list'}
+          </p>
+        </header>
+
+        <div className="home-cats__rail">
+          <div ref={trackRef} className="home-cats__track">
+            {categories.map((cat, index) => (
+              <CategorySlide
+                key={cat.id}
+                cat={cat}
+                active={activeIndex === index}
+                index={index}
+                total={categories.length}
+              />
+            ))}
+          </div>
         </div>
 
-        <div className="home-cats__progress" aria-hidden="true">
-          {categories.map((cat, index) => (
-            <span
-              key={cat.id}
-              className={`home-cats__bar ${activeIndex === index ? 'is-active' : ''}`}
-            />
-          ))}
+        <div className="home-cats__footer">
+          <div className="home-cats__dots" role="tablist" aria-label="Category slides">
+            {categories.map((cat, index) => (
+              <button
+                key={cat.id}
+                type="button"
+                className={`home-cats__dot ${activeIndex === index ? 'is-active' : ''}`}
+                aria-label={`Show ${cat.name}`}
+                aria-current={activeIndex === index ? 'true' : undefined}
+                onClick={() => scrollToIndex(index)}
+              />
+            ))}
+          </div>
+
+          {hasNext && nextCategory ? (
+            <button
+              type="button"
+              className="home-cats__next"
+              onClick={() => scrollToIndex(activeIndex + 1)}
+            >
+              <span className="home-cats__next-label">Next</span>
+              <strong>{nextCategory.name}</strong>
+              <span className="home-cats__next-thumb" aria-hidden="true">
+                <img src={nextCategory.image} alt="" />
+              </span>
+            </button>
+          ) : (
+            <Link className="home-cats__next home-cats__next--done" to="/shop">
+              <span className="home-cats__next-label">Browse</span>
+              <strong>All products</strong>
+            </Link>
+          )}
         </div>
       </section>
 

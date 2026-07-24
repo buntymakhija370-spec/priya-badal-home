@@ -10,13 +10,9 @@ const CATEGORY_CLIP_SECONDS = 10
 function CategorySlide({
   cat,
   active,
-  index,
-  total,
 }: {
   cat: Category
   active: boolean
-  index: number
-  total: number
 }) {
   const videoRef = useRef<HTMLVideoElement>(null)
 
@@ -33,7 +29,7 @@ function CategorySlide({
 
   return (
     <article className={`home-cat ${active ? 'is-active' : ''}`}>
-      <Link className="home-cat__frame" to={`/shop/${cat.id}`}>
+      <Link className="home-cat__media" to={`/shop/${cat.id}`} aria-label={`Shop ${cat.name}`}>
         {cat.video ? (
           <video
             ref={videoRef}
@@ -56,14 +52,11 @@ function CategorySlide({
         ) : (
           <img src={cat.image} alt="" loading="lazy" />
         )}
-        <div className="home-cat__shade" aria-hidden="true" />
+        <div className="home-cat__wash" aria-hidden="true" />
         <div className="home-cat__copy">
-          <p className="home-cat__count">
-            {String(index + 1).padStart(2, '0')} / {String(total).padStart(2, '0')}
-          </p>
+          <p className="home-cat__kicker">Priyabadal Homes</p>
           <h3 className="home-cat__label">{cat.name}</h3>
-          <p className="home-cat__desc">{cat.description}</p>
-          <span className="home-cat__cta">Explore collection</span>
+          <span className="home-cat__cta">Shop {cat.name}</span>
         </div>
       </Link>
     </article>
@@ -91,7 +84,7 @@ export function HomePage() {
         const idx = slides.indexOf(visible.target as HTMLElement)
         if (idx >= 0) setActiveIndex(idx)
       },
-      { root, threshold: [0.55, 0.75] },
+      { root, threshold: [0.6, 0.85] },
     )
 
     slides.forEach((slide) => observer.observe(slide))
@@ -134,42 +127,30 @@ export function HomePage() {
               Shop now
             </Link>
             <a className="btn btn--ghost" href="#categories">
-              Browse categories
+              Watch collections
             </a>
           </div>
         </div>
       </section>
 
       <section className="home-cats" id="categories" aria-label="Shop categories">
-        <header className="home-cats__head">
-          <div>
-            <p className="eyebrow">Collections</p>
-            <h2>One category at a time</h2>
-          </div>
-          <p className="home-cats__hint">Swipe up to watch the next video</p>
-        </header>
+        <div ref={trackRef} className="home-cats__track">
+          {categories.map((cat, index) => (
+            <CategorySlide
+              key={cat.id}
+              cat={cat}
+              active={activeIndex === index}
+            />
+          ))}
+        </div>
 
-        <div className="home-cats__stage">
-          <div ref={trackRef} className="home-cats__track">
-            {categories.map((cat, index) => (
-              <CategorySlide
-                key={cat.id}
-                cat={cat}
-                active={activeIndex === index}
-                index={index}
-                total={categories.length}
-              />
-            ))}
-          </div>
-
-          <div className="home-cats__dots" aria-hidden="true">
-            {categories.map((cat, index) => (
-              <span
-                key={cat.id}
-                className={`home-cats__dot ${activeIndex === index ? 'is-active' : ''}`}
-              />
-            ))}
-          </div>
+        <div className="home-cats__progress" aria-hidden="true">
+          {categories.map((cat, index) => (
+            <span
+              key={cat.id}
+              className={`home-cats__bar ${activeIndex === index ? 'is-active' : ''}`}
+            />
+          ))}
         </div>
       </section>
 

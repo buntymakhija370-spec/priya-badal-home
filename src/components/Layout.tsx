@@ -3,10 +3,17 @@ import { useEffect, useState } from 'react'
 import { categories } from '../data/catalog'
 import { shopPath } from '../lib/links'
 import { useCartCount } from '../hooks/useCart'
+import {
+  WHATSAPP_CHAT_URL,
+  WHATSAPP_DISPLAY,
+} from '../lib/whatsapp'
+import { CurrencySelect } from './CurrencySelect'
 import './Layout.css'
 
 const utilityLinks = [
   { to: '/shop', label: 'All products' },
+  { to: '/how-it-works', label: 'How it works' },
+  { to: '/visualise', label: 'Visualise AI' },
   { to: '/favorites', label: 'Favorites' },
   { to: '/chat', label: 'AI Guide' },
   { to: '/add-product', label: 'Add Product' },
@@ -37,11 +44,30 @@ export function Layout() {
     <div className="site">
       <div className="grain" aria-hidden="true" />
       <header className={`nav ${scrolled ? 'nav--scrolled' : ''} ${menuOpen ? 'nav--open' : ''}`}>
-        <NavLink className="nav__brand" to="/" onClick={close}>
-          Priya Badal
+        <NavLink className="nav__brand" to="/" onClick={close} aria-label="Priyabadal Homes home">
+          <img
+            className="nav__logo"
+            src="/brand/priyabadal-homes-logo.svg"
+            alt="Priyabadal Homes"
+          />
         </NavLink>
 
+        <nav className="nav__desktop" aria-label="Shop categories">
+          {categories.slice(0, 4).map((cat) => (
+            <NavLink key={cat.id} to={shopPath(cat.id)} onClick={close}>
+              {cat.name}
+            </NavLink>
+          ))}
+          <NavLink to="/visualise" onClick={close}>
+            Visualise
+          </NavLink>
+          <NavLink to="/shop" onClick={close}>
+            All
+          </NavLink>
+        </nav>
+
         <div className="nav__end">
+          <CurrencySelect compact className="nav__currency" />
           <NavLink className="nav__cart" to="/cart" onClick={close}>
             Cart
             {cartCount > 0 && <span className="nav__cart-count">{cartCount}</span>}
@@ -88,9 +114,65 @@ export function Layout() {
       <Outlet />
 
       <footer className="footer">
-        <p className="footer__brand">Priya Badal Home</p>
-        <p className="footer__meta">Interiors · Products · AI Guide</p>
+        <div className="footer__brand-block">
+          <img
+            className="footer__logo"
+            src="/brand/priyabadal-homes-logo.svg"
+            alt="Priyabadal Homes — Shutters, Doors, Wall Panels"
+          />
+          <p className="footer__tag">
+            Shutters · Doors · Wall Panels · Silai Bunai · Made-to-measure interiors
+          </p>
+        </div>
+
+        <div className="footer__cols">
+          <div>
+            <p className="footer__heading">Shop</p>
+            <ul>
+              {categories.map((cat) => (
+                <li key={cat.id}>
+                  <NavLink to={shopPath(cat.id)}>{cat.name}</NavLink>
+                </li>
+              ))}
+            </ul>
+          </div>
+          <div>
+            <p className="footer__heading">Help</p>
+            <ul>
+              <li>
+                <NavLink to="/how-it-works">How your order works</NavLink>
+              </li>
+              <li>
+                <NavLink to="/cart">Cart</NavLink>
+              </li>
+              <li>
+                <NavLink to="/favorites">Favorites</NavLink>
+              </li>
+              <li>
+                <NavLink to="/visualise">Visualise AI</NavLink>
+              </li>
+              <li>
+                <NavLink to="/chat">AI Guide</NavLink>
+              </li>
+              <li>
+                <a href={WHATSAPP_CHAT_URL} target="_blank" rel="noopener noreferrer">
+                  WhatsApp {WHATSAPP_DISPLAY}
+                </a>
+              </li>
+            </ul>
+          </div>
+        </div>
       </footer>
+
+      <a
+        className="wa-fab"
+        href={WHATSAPP_CHAT_URL}
+        target="_blank"
+        rel="noopener noreferrer"
+        aria-label="Chat on WhatsApp"
+      >
+        WhatsApp
+      </a>
     </div>
   )
 }

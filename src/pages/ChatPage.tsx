@@ -6,6 +6,7 @@ import {
   type ChatMessage,
 } from '../lib/interiorAI'
 import { formatPrice } from '../data/catalog'
+import { useCurrency } from '../hooks/useCurrency'
 import './ChatPage.css'
 
 const SUGGESTIONS = [
@@ -16,6 +17,7 @@ const SUGGESTIONS = [
 ]
 
 export function ChatPage() {
+  useCurrency()
   const [messages, setMessages] = useState<ChatMessage[]>([createWelcomeMessage()])
   const [input, setInput] = useState('')
   const endRef = useRef<HTMLDivElement>(null)

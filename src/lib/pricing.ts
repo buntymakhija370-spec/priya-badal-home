@@ -30,6 +30,60 @@ export type SizeLimits = {
   usesDepth: boolean
 }
 
+/** Shutter front only, or shutter + carcass (cabinet box) */
+export type BuildScopeId = 'shutter' | 'with-carcass'
+
+export type BuildScopeOption = {
+  id: BuildScopeId
+  name: string
+  shortName: string
+  description: string
+  /** Applied on top of catalog base (catalog = shutter rate) */
+  multiplier: number
+}
+
+export const BUILD_SCOPES: BuildScopeOption[] = [
+  {
+    id: 'shutter',
+    name: 'Shutter only',
+    shortName: 'Shutter',
+    description: 'Front shutters / doors only — carcass not included.',
+    multiplier: 1,
+  },
+  {
+    id: 'with-carcass',
+    name: 'With carcass',
+    shortName: 'Carcass',
+    description: 'Shutters plus carcass (cabinet box / body).',
+    multiplier: 1.7,
+  },
+]
+
+const BUILD_SCOPE_LOOKUP: Record<BuildScopeId, BuildScopeOption> = {
+  shutter: BUILD_SCOPES[0]!,
+  'with-carcass': BUILD_SCOPES[1]!,
+}
+
+/** Kitchen, wardrobe, temple & shutters use shutter vs carcass pricing */
+const BUILD_SCOPE_CATEGORIES = new Set([
+  'kitchen',
+  'wardrobe',
+  'temple',
+  'sculpted-furniture',
+])
+
+export function supportsBuildScope(categoryId: string): boolean {
+  return BUILD_SCOPE_CATEGORIES.has(categoryId)
+}
+
+export function getBuildScope(id: string): BuildScopeOption {
+  return BUILD_SCOPE_LOOKUP[id as BuildScopeId] ?? BUILD_SCOPE_LOOKUP.shutter
+}
+
+export function getBuildScopeOptions(categoryId: string): BuildScopeOption[] {
+  return supportsBuildScope(categoryId) ? BUILD_SCOPES : []
+}
+
 export type PriceConfig = {
   finishId: string
   thicknessId: string
@@ -39,6 +93,8 @@ export type PriceConfig = {
   height: number
   /** feet */
   depth: number
+  /** shutter only vs with carcass — required for cabinetry categories */
+  buildScope?: BuildScopeId
 }
 
 const FINISH_LOOKUP: Record<string, FinishOption> = {
@@ -191,6 +247,7 @@ export function defaultConfig(
     width: size.defaultWidth,
     height: size.defaultHeight,
     depth: size.defaultDepth,
+    buildScope: 'shutter',
   }
 }
 
@@ -205,12 +262,16 @@ function roundFt(value: number) {
 
 export function normalizeConfig(categoryId: string, config: PriceConfig): PriceConfig {
   const size = getSizeLimits(categoryId)
+  const buildScope = supportsBuildScope(categoryId)
+    ? getBuildScope(config.buildScope ?? 'shutter').id
+    : 'shutter'
   return {
     finishId: getFinish(config.finishId).id,
     thicknessId: getThickness(config.thicknessId).id,
     width: clamp(roundFt(config.width), size.minWidth, size.maxWidth),
     height: clamp(roundFt(config.height), size.minHeight, size.maxHeight),
     depth: clamp(roundFt(config.depth), size.minDepth, size.maxDepth),
+    buildScope,
   }
 }
 
@@ -231,14 +292,24 @@ export function calculatePrice(
 
   const finishMult = finish.multiplier / baseFinish.multiplier
   const thicknessMult = thickness.multiplier / baseThickness.multiplier
+  const buildScope = getBuildScope(normalized.buildScope)
+  const scopeMult = supportsBuildScope(product.categoryId)
+    ? buildScope.multiplier
+    : 1
 
   let unitPrice: number
   let sizeFactor = 1
 
-  if (product.pricingMode === 'per-sqft') {
+  if (product.categoryId === 'commercials') {
+    // Bulk packs are quoted per fixed package — not resized on the calculator
+    sizeFactor = 1
+    unitPrice = Math.round(product.price * finishMult * thicknessMult)
+  } else if (product.pricingMode === 'per-sqft') {
     const sqft = normalized.width * normalized.height
     sizeFactor = sqft
-    unitPrice = Math.round(product.price * sqft * finishMult * thicknessMult)
+    unitPrice = Math.round(
+      product.price * sqft * finishMult * thicknessMult * scopeMult,
+    )
   } else {
     const baseArea = size.baseWidth * size.baseHeight
     const customArea = normalized.width * normalized.height
@@ -252,7 +323,7 @@ export function calculatePrice(
 
     sizeFactor = clamp(sizeFactor, 0.45, 3.5)
     unitPrice = Math.round(
-      product.price * finishMult * thicknessMult * sizeFactor,
+      product.price * finishMult * thicknessMult * sizeFactor * scopeMult,
     )
   }
 
@@ -260,6 +331,7 @@ export function calculatePrice(
     unitPrice: Math.max(499, unitPrice),
     finish,
     thickness,
+    buildScope,
     size,
     config: normalized,
     sizeFactor,
@@ -273,12 +345,17 @@ export function configKey(config: PriceConfig) {
     config.width,
     config.height,
     config.depth,
+    config.buildScope ?? 'shutter',
   ].join('|')
 }
 
-export function describeConfig(_categoryId: string, config: PriceConfig) {
+export function describeConfig(categoryId: string, config: PriceConfig) {
   const finish = getFinish(config.finishId)
   const thickness = getThickness(config.thicknessId)
   const dims = `${config.width} × ${config.height} ft`
-  return `${finish.name} · ${thickness.label} · ${dims}`
+  const parts = [`${finish.name} · ${thickness.label} · ${dims}`]
+  if (supportsBuildScope(categoryId)) {
+    parts.unshift(getBuildScope(config.buildScope ?? 'shutter').name)
+  }
+  return parts.join(' · ')
 }

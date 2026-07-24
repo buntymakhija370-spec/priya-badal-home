@@ -29,7 +29,7 @@ export function ShareProductLink({ product }: Props) {
   const share = async () => {
     const payload = {
       title: product.name,
-      text: `${product.name} — from Priya Badal`,
+      text: `${product.name} — from Priyabadal Homes`,
       url,
     }
     if (navigator.share) {

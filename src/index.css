@@ -13,7 +13,7 @@
   --font-body: 'Outfit', system-ui, sans-serif;
 
   --ease-out: cubic-bezier(0.22, 1, 0.36, 1);
-  --nav-h: 4.25rem;
+  --nav-h: 4.75rem;
 
   color: var(--ink);
   background: var(--paper);

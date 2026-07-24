@@ -1,0 +1,213 @@
+.how__hero {
+  max-width: 40rem;
+  margin-bottom: 2.5rem;
+}
+
+.how__hero h1 {
+  margin: 0 0 0.75rem;
+  font-family: var(--font-display);
+  font-size: clamp(2rem, 5vw, 2.85rem);
+  letter-spacing: -0.035em;
+  line-height: 1.1;
+}
+
+.how__hero > p {
+  margin: 0 0 1.35rem;
+  color: var(--ink-soft);
+  line-height: 1.65;
+  font-weight: 300;
+  max-width: 38ch;
+}
+
+.how__hero-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.75rem;
+}
+
+.how__stats {
+  list-style: none;
+  margin: 0 0 1.5rem;
+  padding: 0;
+  display: grid;
+  gap: 0.85rem 1.25rem;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  max-width: 34rem;
+}
+
+.how__stats li {
+  display: grid;
+  gap: 0.2rem;
+}
+
+.how__stats strong {
+  font-family: var(--font-display);
+  font-size: clamp(1.35rem, 3vw, 1.7rem);
+  letter-spacing: -0.03em;
+  color: var(--honey-deep);
+}
+
+.how__stats span {
+  font-size: 0.78rem;
+  line-height: 1.35;
+  color: var(--ink-soft);
+}
+
+@media (max-width: 520px) {
+  .how__stats {
+    grid-template-columns: 1fr;
+  }
+}
+
+.how__steps {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: grid;
+  gap: 0;
+  border-top: 1px solid rgba(21, 32, 25, 0.12);
+}
+
+.how__step {
+  display: grid;
+  grid-template-columns: 3.5rem 1fr;
+  gap: 0.85rem 1.25rem;
+  padding: 1.5rem 0;
+  border-bottom: 1px solid rgba(21, 32, 25, 0.12);
+}
+
+.how__num {
+  font-family: var(--font-display);
+  font-size: 1.35rem;
+  letter-spacing: -0.02em;
+  color: var(--honey-deep);
+  padding-top: 0.15rem;
+}
+
+.how__step h2 {
+  margin: 0 0 0.35rem;
+  font-family: var(--font-display);
+  font-size: clamp(1.25rem, 3vw, 1.55rem);
+  letter-spacing: -0.025em;
+}
+
+.how__summary {
+  margin: 0 0 0.45rem;
+  font-weight: 500;
+  color: var(--ink);
+  line-height: 1.45;
+}
+
+.how__detail {
+  margin: 0;
+  color: var(--ink-soft);
+  line-height: 1.6;
+  font-weight: 300;
+  max-width: 48ch;
+}
+
+.how__materials {
+  margin-top: 3rem;
+  padding-top: 0.5rem;
+  max-width: 44rem;
+}
+
+.how__materials h2 {
+  margin: 0 0 0.65rem;
+  font-family: var(--font-display);
+  font-size: clamp(1.7rem, 4vw, 2.3rem);
+  letter-spacing: -0.03em;
+  line-height: 1.15;
+}
+
+.how__materials-lede {
+  margin: 0 0 1.35rem;
+  color: var(--ink-soft);
+  line-height: 1.6;
+  font-weight: 300;
+  max-width: 42ch;
+}
+
+.how__materials-list {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: grid;
+  gap: 0;
+  border-top: 1px solid rgba(21, 32, 25, 0.12);
+}
+
+.how__materials-list li {
+  display: grid;
+  gap: 0.25rem;
+  padding: 1rem 0;
+  border-bottom: 1px solid rgba(21, 32, 25, 0.12);
+}
+
+.how__materials-list strong {
+  font-size: 1rem;
+}
+
+.how__materials-list span {
+  color: var(--ink-soft);
+  line-height: 1.55;
+  font-weight: 300;
+  max-width: 46ch;
+}
+
+.how__notes {
+  margin-top: 3rem;
+  padding: 2rem clamp(1.25rem, 3vw, 2rem);
+  background:
+    linear-gradient(160deg, #e8f0eb 0%, #f4f8f5 55%, #eef3f0 100%);
+}
+
+.how__notes h2 {
+  margin: 0 0 1.25rem;
+  font-family: var(--font-display);
+  font-size: clamp(1.45rem, 3vw, 1.85rem);
+  letter-spacing: -0.03em;
+}
+
+.how__notes-grid {
+  display: grid;
+  gap: 1.25rem 2rem;
+}
+
+.how__notes-grid h3 {
+  margin: 0 0 0.35rem;
+  font-size: 1rem;
+  font-weight: 600;
+}
+
+.how__notes-grid p {
+  margin: 0;
+  color: var(--ink-soft);
+  line-height: 1.55;
+  font-weight: 300;
+  max-width: 36ch;
+}
+
+.how__cta {
+  margin-top: 3rem;
+  padding-top: 0.5rem;
+}
+
+.how__cta h2 {
+  margin: 0 0 0.45rem;
+  font-family: var(--font-display);
+  font-size: clamp(1.55rem, 3.5vw, 2rem);
+  letter-spacing: -0.03em;
+}
+
+.how__cta > p {
+  margin: 0 0 1.25rem;
+  color: var(--ink-soft);
+  line-height: 1.55;
+}
+
+@media (min-width: 800px) {
+  .how__notes-grid {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+  }
+}

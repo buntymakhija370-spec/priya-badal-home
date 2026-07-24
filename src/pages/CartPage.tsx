@@ -1,30 +1,47 @@
 import { Link } from 'react-router-dom'
+import { useMemo, useState } from 'react'
 import { formatPrice } from '../data/catalog'
 import { getAllProducts } from '../lib/products'
 import { useCartActions, useCartItems } from '../hooks/useCart'
 import { clearCart } from '../lib/cart'
 import { describeConfig } from '../lib/pricing'
+import {
+  buildWhatsAppCartUrl,
+  WHATSAPP_DISPLAY,
+} from '../lib/whatsapp'
+import { useCurrency } from '../hooks/useCurrency'
+import { isApproxDisplayCurrency } from '../lib/currency'
 import './CartPage.css'
 
 export function CartPage() {
   const items = useCartItems()
   const { setCartQuantity, removeFromCart } = useCartActions()
   const products = getAllProducts()
+  const { currency } = useCurrency()
+  const [note, setNote] = useState('')
 
-  const rows = items
-    .map((item) => {
-      const product = products.find((p) => p.id === item.productId)
-      if (!product) return null
-      return {
-        item,
-        product,
-        lineTotal: item.unitPrice * item.quantity,
-        summary: describeConfig(product.categoryId, item.config),
-      }
-    })
-    .filter((row): row is NonNullable<typeof row> => Boolean(row))
+  const rows = useMemo(
+    () =>
+      items
+        .map((item) => {
+          const product = products.find((p) => p.id === item.productId)
+          if (!product) return null
+          return {
+            item,
+            product,
+            lineTotal: item.unitPrice * item.quantity,
+            summary: describeConfig(product.categoryId, item.config),
+          }
+        })
+        .filter((row): row is NonNullable<typeof row> => Boolean(row)),
+    [items, products],
+  )
 
   const total = rows.reduce((sum, row) => sum + row.lineTotal, 0)
+  const whatsappHref = buildWhatsAppCartUrl(
+    rows.map(({ item, product }) => ({ item, product })),
+    note.trim(),
+  )
 
   return (
     <main className="cart page-pad">
@@ -34,7 +51,7 @@ export function CartPage() {
         <p>
           {rows.length === 0
             ? 'Your cart is empty — browse the shop to add pieces.'
-            : `${rows.length} configured item${rows.length === 1 ? '' : 's'}.`}
+            : `${rows.length} configured item${rows.length === 1 ? '' : 's'}. Request a WhatsApp quote to confirm.`}
         </p>
       </header>
 
@@ -87,18 +104,43 @@ export function CartPage() {
             ))}
           </ul>
 
-          <div className="cart__summary">
-            <div>
-              <p className="cart__total-label">Total</p>
-              <p className="cart__total">{formatPrice(total)}</p>
-            </div>
-            <div className="cart__summary-actions">
-              <button type="button" className="btn btn--outline" onClick={() => clearCart()}>
-                Clear cart
-              </button>
-              <Link className="btn btn--dark" to="/chat">
-                Ask AI about my picks
-              </Link>
+          <div className="cart__checkout">
+            <label className="cart__note">
+              Order note (optional)
+              <textarea
+                rows={3}
+                value={note}
+                onChange={(e) => setNote(e.target.value)}
+                placeholder="City, preferred visit time, wall size, or other details…"
+              />
+            </label>
+
+            <div className="cart__summary">
+              <div>
+                <p className="cart__total-label">Estimated total</p>
+                <p className="cart__total">{formatPrice(total)}</p>
+                <p className="cart__hint">
+                  {isApproxDisplayCurrency(currency)
+                    ? `Approx. in ${currency} · WhatsApp quote sent in ₹ INR · ${WHATSAPP_DISPLAY}`
+                    : `Final price confirmed on WhatsApp · ${WHATSAPP_DISPLAY}`}
+                </p>
+              </div>
+              <div className="cart__summary-actions">
+                <button type="button" className="btn btn--outline" onClick={() => clearCart()}>
+                  Clear cart
+                </button>
+                <a
+                  className="btn btn--dark cart__wa"
+                  href={whatsappHref}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                >
+                  Request quote on WhatsApp
+                </a>
+                <Link className="btn btn--outline" to="/chat">
+                  Ask AI about my picks
+                </Link>
+              </div>
             </div>
           </div>
         </>

@@ -1,14 +1,15 @@
 import { useEffect, useRef, useState } from 'react'
+import type { MediaItem } from '../lib/media'
 import './ProductImageScroller.css'
 
 type Props = {
-  images: string[]
+  media: MediaItem[]
   alt: string
   className?: string
 }
 
-export function ProductImageScroller({ images, alt, className = '' }: Props) {
-  const gallery = images.length > 0 ? images : []
+export function ProductImageScroller({ media, alt, className = '' }: Props) {
+  const gallery = media.length > 0 ? media : []
   const scrollerRef = useRef<HTMLDivElement>(null)
   const [active, setActive] = useState(0)
   const touchRef = useRef<{ x: number; y: number; locked: 'x' | 'y' | null }>({
@@ -53,7 +54,6 @@ export function ProductImageScroller({ images, alt, className = '' }: Props) {
         touchRef.current.locked = dx > dy ? 'x' : 'y'
       }
 
-      // Vertical intent: let the page scroll; disable horizontal capture
       if (touchRef.current.locked === 'y') {
         el.style.overflowX = 'hidden'
       }
@@ -93,29 +93,50 @@ export function ProductImageScroller({ images, alt, className = '' }: Props) {
         tabIndex={0}
         role="region"
         aria-roledescription="carousel"
-        aria-label={`${alt} photos`}
+        aria-label={`${alt} media`}
       >
-        {gallery.map((src, index) => (
-          <figure key={`${src}-${index}`} className="img-scroller__slide">
-            <img
-              src={src}
-              alt={index === 0 ? alt : `${alt} — photo ${index + 1}`}
-              loading={index === 0 ? 'eager' : 'lazy'}
-              draggable={false}
-            />
+        {gallery.map((item, index) => (
+          <figure key={`${item.src}-${index}`} className="img-scroller__slide">
+            {item.type === 'video' ? (
+              <>
+                <video
+                  className="img-scroller__video"
+                  src={item.src}
+                  poster={item.poster}
+                  muted
+                  loop
+                  playsInline
+                  autoPlay
+                  preload="metadata"
+                  aria-label={`${alt} video`}
+                />
+                <span className="img-scroller__video-badge" aria-hidden="true">
+                  Video
+                </span>
+              </>
+            ) : (
+              <img
+                src={item.src}
+                alt={index === 0 ? alt : `${alt} — photo ${index + 1}`}
+                loading={index === 0 ? 'eager' : 'lazy'}
+                draggable={false}
+              />
+            )}
           </figure>
         ))}
       </div>
 
       {gallery.length > 1 && (
-        <div className="img-scroller__dots" role="tablist" aria-label="Photo position">
-          {gallery.map((_, index) => (
+        <div className="img-scroller__dots" role="tablist" aria-label="Media position">
+          {gallery.map((item, index) => (
             <button
               key={index}
               type="button"
               role="tab"
               aria-selected={index === active}
-              aria-label={`Photo ${index + 1}`}
+              aria-label={
+                item.type === 'video' ? `Video ${index + 1}` : `Photo ${index + 1}`
+              }
               className={
                 index === active ? 'img-scroller__dot is-active' : 'img-scroller__dot'
               }

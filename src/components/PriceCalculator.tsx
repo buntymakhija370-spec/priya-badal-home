@@ -1,35 +1,47 @@
 import { useEffect, useId, useMemo, useState } from 'react'
 import { createPortal } from 'react-dom'
-import { formatPrice, type Product } from '../data/catalog'
+import { formatPrice, getMinOrderQuantity, type Product } from '../data/catalog'
 import {
   calculatePrice,
   defaultConfig,
   describeConfig,
+  getBuildScopeOptions,
   getFinishOptionsForProduct,
   getSizeLimits,
   getThicknessOptionsForProduct,
+  supportsBuildScope,
+  type BuildScopeId,
   type PriceConfig,
 } from '../lib/pricing'
+import { addConfiguredToCart } from '../lib/cart'
 import { buildWhatsAppQuoteUrl } from '../lib/whatsapp'
+import { useCurrency } from '../hooks/useCurrency'
 import './PriceCalculator.css'
 
 type Props = {
   product: Product
+  className?: string
 }
 
-export function CustomizeButton({ product }: Props) {
+export function CustomizeButton({ product, className = '' }: Props) {
   const [open, setOpen] = useState(false)
+  const minQty = getMinOrderQuantity(product)
+  const label = minQty > 1 ? 'Bulk quote & cart' : 'Customise & Price'
 
   return (
     <>
       <button
         type="button"
-        className="btn btn--customise"
+        className={`btn btn--customise ${className}`.trim()}
         aria-haspopup="dialog"
         aria-expanded={open}
-        onClick={() => setOpen(true)}
+        onClick={(e) => {
+          e.preventDefault()
+          e.stopPropagation()
+          setOpen(true)
+        }}
       >
-        Customise &amp; Price
+        {label}
       </button>
       {open && (
         <CalculatorOverlay product={product} onClose={() => setOpen(false)} />
@@ -44,18 +56,34 @@ type OverlayProps = {
 }
 
 function CalculatorOverlay({ product, onClose }: OverlayProps) {
+  useCurrency()
   const titleId = useId()
+  const minQty = getMinOrderQuantity(product)
   const [config, setConfig] = useState<PriceConfig>(() =>
     defaultConfig(product.categoryId, product),
   )
+  const [added, setAdded] = useState(false)
   const size = getSizeLimits(product.categoryId)
   const finishOptions = getFinishOptionsForProduct(product)
   const thicknessOptions = getThicknessOptionsForProduct(product)
+  const buildScopes = getBuildScopeOptions(product.categoryId)
+  const showBuildScope = supportsBuildScope(product.categoryId)
 
   const quote = useMemo(
     () => calculatePrice(product, config),
     [product, config],
   )
+
+  const scopeQuotes = useMemo(() => {
+    if (!showBuildScope) return []
+    return buildScopes.map((scope) => ({
+      scope,
+      unitPrice: calculatePrice(product, {
+        ...config,
+        buildScope: scope.id,
+      }).unitPrice,
+    }))
+  }, [showBuildScope, buildScopes, product, config])
 
   useEffect(() => {
     const y = window.scrollY
@@ -112,7 +140,9 @@ function CalculatorOverlay({ product, onClose }: OverlayProps) {
         <div className="calc-sheet__handle" aria-hidden="true" />
         <div className="calc-sheet__top">
           <div>
-            <p className="calc-sheet__eyebrow">Customise &amp; Price</p>
+            <p className="calc-sheet__eyebrow">
+              {minQty > 1 ? 'Bulk commercial' : 'Customise & Price'}
+            </p>
             <h2 id={titleId}>{product.name}</h2>
           </div>
           <button
@@ -124,6 +154,41 @@ function CalculatorOverlay({ product, onClose }: OverlayProps) {
             ×
           </button>
         </div>
+
+        {minQty > 1 ? (
+          <p className="calc-sheet__bulk-note">
+            Lowest commercial rate — we accept orders only for a minimum of{' '}
+            <strong>{minQty} identical packs</strong> (bulk manufacture).
+          </p>
+        ) : null}
+
+        {showBuildScope ? (
+          <fieldset className="calc-sheet__scopes">
+            <legend>Price category</legend>
+            <p className="calc-sheet__scopes-hint">
+              Choose shutter only, or shutter with carcass.
+            </p>
+            <div className="calc-sheet__scope-grid" role="radiogroup" aria-label="Price category">
+              {scopeQuotes.map(({ scope, unitPrice }) => {
+                const selected = config.buildScope === scope.id
+                return (
+                  <button
+                    key={scope.id}
+                    type="button"
+                    role="radio"
+                    aria-checked={selected}
+                    className={`calc-sheet__scope${selected ? ' is-selected' : ''}`}
+                    onClick={() => update({ buildScope: scope.id as BuildScopeId })}
+                  >
+                    <span className="calc-sheet__scope-name">{scope.name}</span>
+                    <span className="calc-sheet__scope-desc">{scope.description}</span>
+                    <span className="calc-sheet__scope-price">{formatPrice(unitPrice)}</span>
+                  </button>
+                )
+              })}
+            </div>
+          </fieldset>
+        ) : null}
 
         <div className="calc-sheet__grid">
           {finishOptions.length > 0 && (
@@ -140,29 +205,38 @@ function CalculatorOverlay({ product, onClose }: OverlayProps) {
             </div>
           )}
 
-          <label className="calc-sheet__field">
-            Width (ft)
-            <input
-              type="number"
-              min={size.minWidth}
-              max={size.maxWidth}
-              step={0.1}
-              value={config.width}
-              onChange={(e) => update({ width: Number(e.target.value) })}
-            />
-          </label>
+          {minQty <= 1 ? (
+            <>
+              <label className="calc-sheet__field">
+                Width (ft)
+                <input
+                  type="number"
+                  min={size.minWidth}
+                  max={size.maxWidth}
+                  step={0.1}
+                  value={config.width}
+                  onChange={(e) => update({ width: Number(e.target.value) })}
+                />
+              </label>
 
-          <label className="calc-sheet__field">
-            Height (ft)
-            <input
-              type="number"
-              min={size.minHeight}
-              max={size.maxHeight}
-              step={0.1}
-              value={config.height}
-              onChange={(e) => update({ height: Number(e.target.value) })}
-            />
-          </label>
+              <label className="calc-sheet__field">
+                Height (ft)
+                <input
+                  type="number"
+                  min={size.minHeight}
+                  max={size.maxHeight}
+                  step={0.1}
+                  value={config.height}
+                  onChange={(e) => update({ height: Number(e.target.value) })}
+                />
+              </label>
+            </>
+          ) : (
+            <div className="calc-sheet__field">
+              <span>Order quantity</span>
+              <p className="calc-sheet__locked">Minimum {minQty} identical packs</p>
+            </div>
+          )}
         </div>
 
         <div className="calc-sheet__footer">
@@ -175,16 +249,39 @@ function CalculatorOverlay({ product, onClose }: OverlayProps) {
               {product.pricingMode === 'per-sqft'
                 ? ` · ${formatPrice(product.price)}/sq ft`
                 : ''}
+              {minQty > 1 ? ` · min ${minQty} packs` : ''}
             </p>
           </div>
-          <a
-            className="whatsapp-quote-btn"
-            href={whatsappHref}
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            WhatsApp Quote
-          </a>
+          <div className="calc-sheet__cta">
+            <button
+              type="button"
+              className="btn btn--dark calc-sheet__add"
+              onClick={() => {
+                addConfiguredToCart({
+                  productId: product.id,
+                  quantity: minQty,
+                  config: quote.config,
+                  unitPrice: quote.unitPrice,
+                })
+                setAdded(true)
+                window.setTimeout(() => setAdded(false), 1400)
+              }}
+            >
+              {added
+                ? `Added ${minQty}+ to cart`
+                : minQty > 1
+                  ? `Add ${minQty} packs to cart`
+                  : 'Add to cart'}
+            </button>
+            <a
+              className="whatsapp-quote-btn"
+              href={whatsappHref}
+              target="_blank"
+              rel="noopener noreferrer"
+            >
+              WhatsApp Quote
+            </a>
+          </div>
         </div>
       </div>
     </div>,

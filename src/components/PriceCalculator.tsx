@@ -5,9 +5,12 @@ import {
   calculatePrice,
   defaultConfig,
   describeConfig,
+  getBuildScopeOptions,
   getFinishOptionsForProduct,
   getSizeLimits,
   getThicknessOptionsForProduct,
+  supportsBuildScope,
+  type BuildScopeId,
   type PriceConfig,
 } from '../lib/pricing'
 import { addConfiguredToCart } from '../lib/cart'
@@ -63,11 +66,24 @@ function CalculatorOverlay({ product, onClose }: OverlayProps) {
   const size = getSizeLimits(product.categoryId)
   const finishOptions = getFinishOptionsForProduct(product)
   const thicknessOptions = getThicknessOptionsForProduct(product)
+  const buildScopes = getBuildScopeOptions(product.categoryId)
+  const showBuildScope = supportsBuildScope(product.categoryId)
 
   const quote = useMemo(
     () => calculatePrice(product, config),
     [product, config],
   )
+
+  const scopeQuotes = useMemo(() => {
+    if (!showBuildScope) return []
+    return buildScopes.map((scope) => ({
+      scope,
+      unitPrice: calculatePrice(product, {
+        ...config,
+        buildScope: scope.id,
+      }).unitPrice,
+    }))
+  }, [showBuildScope, buildScopes, product, config])
 
   useEffect(() => {
     const y = window.scrollY
@@ -144,6 +160,34 @@ function CalculatorOverlay({ product, onClose }: OverlayProps) {
             Lowest commercial rate — we accept orders only for a minimum of{' '}
             <strong>{minQty} identical packs</strong> (bulk manufacture).
           </p>
+        ) : null}
+
+        {showBuildScope ? (
+          <fieldset className="calc-sheet__scopes">
+            <legend>Price category</legend>
+            <p className="calc-sheet__scopes-hint">
+              Choose shutter only, or shutter with carcass.
+            </p>
+            <div className="calc-sheet__scope-grid" role="radiogroup" aria-label="Price category">
+              {scopeQuotes.map(({ scope, unitPrice }) => {
+                const selected = config.buildScope === scope.id
+                return (
+                  <button
+                    key={scope.id}
+                    type="button"
+                    role="radio"
+                    aria-checked={selected}
+                    className={`calc-sheet__scope${selected ? ' is-selected' : ''}`}
+                    onClick={() => update({ buildScope: scope.id as BuildScopeId })}
+                  >
+                    <span className="calc-sheet__scope-name">{scope.name}</span>
+                    <span className="calc-sheet__scope-desc">{scope.description}</span>
+                    <span className="calc-sheet__scope-price">{formatPrice(unitPrice)}</span>
+                  </button>
+                )
+              })}
+            </div>
+          </fieldset>
         ) : null}
 
         <div className="calc-sheet__grid">

@@ -1,49 +1,102 @@
 import { Link } from 'react-router-dom'
-import { useMemo, useRef } from 'react'
-import { categories } from '../data/catalog'
+import { useEffect, useMemo, useRef, useState } from 'react'
+import { categories, type Category } from '../data/catalog'
 import { getAllProducts } from '../lib/products'
 import { ProductCard } from '../components/ProductCard'
 import './HomePage.css'
 
 const CATEGORY_CLIP_SECONDS = 10
 
-function CategoryVideo({
-  src,
-  poster,
+function CategorySlide({
+  cat,
+  active,
+  index,
+  total,
 }: {
-  src: string
-  poster: string
+  cat: Category
+  active: boolean
+  index: number
+  total: number
 }) {
-  const ref = useRef<HTMLVideoElement>(null)
+  const videoRef = useRef<HTMLVideoElement>(null)
+
+  useEffect(() => {
+    const el = videoRef.current
+    if (!el) return
+    if (active) {
+      void el.play().catch(() => undefined)
+    } else {
+      el.pause()
+      el.currentTime = 0
+    }
+  }, [active])
 
   return (
-    <video
-      ref={ref}
-      className="home-cat__video"
-      src={src}
-      poster={poster}
-      muted
-      playsInline
-      autoPlay
-      loop
-      preload="metadata"
-      onTimeUpdate={() => {
-        const el = ref.current
-        if (!el) return
-        if (el.currentTime >= CATEGORY_CLIP_SECONDS) {
-          el.currentTime = 0
-          void el.play().catch(() => undefined)
-        }
-      }}
-      onLoadedMetadata={() => {
-        void ref.current?.play().catch(() => undefined)
-      }}
-    />
+    <article className={`home-cat ${active ? 'is-active' : ''}`}>
+      <Link className="home-cat__frame" to={`/shop/${cat.id}`}>
+        {cat.video ? (
+          <video
+            ref={videoRef}
+            className="home-cat__video"
+            src={cat.video}
+            poster={cat.image}
+            muted
+            playsInline
+            loop
+            preload={active ? 'auto' : 'metadata'}
+            onTimeUpdate={() => {
+              const el = videoRef.current
+              if (!el || !active) return
+              if (el.currentTime >= CATEGORY_CLIP_SECONDS) {
+                el.currentTime = 0
+                void el.play().catch(() => undefined)
+              }
+            }}
+          />
+        ) : (
+          <img src={cat.image} alt="" loading="lazy" />
+        )}
+        <div className="home-cat__shade" aria-hidden="true" />
+        <div className="home-cat__copy">
+          <p className="home-cat__count">
+            {String(index + 1).padStart(2, '0')} / {String(total).padStart(2, '0')}
+          </p>
+          <h3 className="home-cat__label">{cat.name}</h3>
+          <p className="home-cat__desc">{cat.description}</p>
+          <span className="home-cat__cta">Explore collection</span>
+        </div>
+      </Link>
+    </article>
   )
 }
 
 export function HomePage() {
   const featured = useMemo(() => getAllProducts().slice(0, 4), [])
+  const trackRef = useRef<HTMLDivElement>(null)
+  const [activeIndex, setActiveIndex] = useState(0)
+
+  useEffect(() => {
+    const root = trackRef.current
+    if (!root) return
+
+    const slides = Array.from(root.querySelectorAll<HTMLElement>('.home-cat'))
+    if (slides.length === 0) return
+
+    const observer = new IntersectionObserver(
+      (entries) => {
+        const visible = entries
+          .filter((entry) => entry.isIntersecting)
+          .sort((a, b) => b.intersectionRatio - a.intersectionRatio)[0]
+        if (!visible?.target) return
+        const idx = slides.indexOf(visible.target as HTMLElement)
+        if (idx >= 0) setActiveIndex(idx)
+      },
+      { root, threshold: [0.55, 0.75] },
+    )
+
+    slides.forEach((slide) => observer.observe(slide))
+    return () => observer.disconnect()
+  }, [])
 
   return (
     <main>
@@ -80,9 +133,42 @@ export function HomePage() {
             <Link className="btn btn--primary" to="/shop">
               Shop now
             </Link>
-            <Link className="btn btn--ghost" to="/product/geometric-pu-wardrobe">
-              View wardrobe
-            </Link>
+            <a className="btn btn--ghost" href="#categories">
+              Browse categories
+            </a>
+          </div>
+        </div>
+      </section>
+
+      <section className="home-cats" id="categories" aria-label="Shop categories">
+        <header className="home-cats__head">
+          <div>
+            <p className="eyebrow">Collections</p>
+            <h2>One category at a time</h2>
+          </div>
+          <p className="home-cats__hint">Swipe up to watch the next video</p>
+        </header>
+
+        <div className="home-cats__stage">
+          <div ref={trackRef} className="home-cats__track">
+            {categories.map((cat, index) => (
+              <CategorySlide
+                key={cat.id}
+                cat={cat}
+                active={activeIndex === index}
+                index={index}
+                total={categories.length}
+              />
+            ))}
+          </div>
+
+          <div className="home-cats__dots" aria-hidden="true">
+            {categories.map((cat, index) => (
+              <span
+                key={cat.id}
+                className={`home-cats__dot ${activeIndex === index ? 'is-active' : ''}`}
+              />
+            ))}
           </div>
         </div>
       </section>
@@ -106,21 +192,6 @@ export function HomePage() {
             <span>Confirm orders on chat</span>
           </li>
         </ul>
-      </section>
-
-      <section className="home-cats" aria-label="Shop categories">
-        <div className="home-cats__stack">
-          {categories.map((cat) => (
-            <Link key={cat.id} className="home-cat" to={`/shop/${cat.id}`}>
-              {cat.video ? (
-                <CategoryVideo src={cat.video} poster={cat.image} />
-              ) : (
-                <img src={cat.image} alt="" loading="lazy" />
-              )}
-              <span className="home-cat__label">{cat.name}</span>
-            </Link>
-          ))}
-        </div>
       </section>
 
       <section className="home-featured page-pad">

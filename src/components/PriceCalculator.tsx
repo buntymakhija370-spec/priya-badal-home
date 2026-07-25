@@ -212,7 +212,23 @@ function CalculatorOverlay({ product, onClose }: OverlayProps) {
   }, [])
 
   const update = (patch: Partial<PriceConfig>) => {
-    setConfig((prev) => ({ ...prev, ...patch }))
+    setConfig((prev) => {
+      const next = { ...prev, ...patch }
+      // Keep typed size in-bounds so inputs always match the priced estimate
+      if (patch.width != null) {
+        next.width = Math.min(
+          size.maxWidth,
+          Math.max(size.minWidth, Number(patch.width) || size.minWidth),
+        )
+      }
+      if (patch.height != null) {
+        next.height = Math.min(
+          size.maxHeight,
+          Math.max(size.minHeight, Number(patch.height) || size.minHeight),
+        )
+      }
+      return next
+    })
   }
 
   const whatsappHref = buildWhatsAppQuoteUrl(
@@ -386,7 +402,7 @@ function CalculatorOverlay({ product, onClose }: OverlayProps) {
                 min={size.minWidth}
                 max={size.maxWidth}
                 step={0.1}
-                value={config.width}
+                value={quote.config.width}
                 onChange={(e) => update({ width: Number(e.target.value) })}
               />
             </label>
@@ -397,7 +413,7 @@ function CalculatorOverlay({ product, onClose }: OverlayProps) {
                 min={size.minHeight}
                 max={size.maxHeight}
                 step={0.1}
-                value={config.height}
+                value={quote.config.height}
                 onChange={(e) => update({ height: Number(e.target.value) })}
               />
             </label>

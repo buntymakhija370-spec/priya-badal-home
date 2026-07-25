@@ -271,8 +271,10 @@ const SIZE_BY_CATEGORY: Record<string, Partial<SizeLimits>> = {
     baseWidth: 3,
     baseHeight: 6,
     baseDepth: 1.5,
-    maxWidth: 6,
-    maxHeight: 8,
+    minWidth: 1,
+    maxWidth: 14,
+    minHeight: 1,
+    maxHeight: 12,
     maxDepth: 2.5,
   },
   doors: {

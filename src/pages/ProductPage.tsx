@@ -129,15 +129,6 @@ export function ProductPage() {
               </span>
             </p>
           ) : null}
-          {product.tags?.length ? (
-            <div className="product-page__tags">
-              {product.tags.map((tag) => (
-                <span key={tag} className="product-page__tag">
-                  {tag}
-                </span>
-              ))}
-            </div>
-          ) : null}
           {isApproxDisplayCurrency(currency) ? (
             <p className="product-page__fx-note">
               Approx. in {currency} · WhatsApp quotes confirmed in ₹ INR

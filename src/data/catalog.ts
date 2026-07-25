@@ -1522,7 +1522,7 @@ export const baseProducts: Product[] = [
     collection: 'Temple',
     sku: 'PBH-TMP-01',
     description:
-      'Arched ivory mandir with raised floral relief and sculpted pink lotus handles. Shutter ₹1,800 / sq ft · Carcass ₹2,500 / sq ft in BWP plywood · Ceramic or oxidised finish · CNC-Carve HD Board ₹500 / sq ft (16 mm).',
+      'Arched ivory mandir with raised floral relief and sculpted pink lotus handles — a soft, modern puja centrepiece for niche installs.',
     style: ['modern', 'luxe', 'carved'],
     rooms: ['puja', 'temple', 'living room'],
     image: '/products/temple/temple-01-02.jpg',
@@ -1531,7 +1531,6 @@ export const baseProducts: Product[] = [
       '/products/temple/temple-01-03.jpg',
       '/products/temple/temple-01-01.png',
     ],
-    tags: ['Handle back laminated', 'BWP carcass'],
     highlights: [
       'Shutter ₹1,800 / sq ft',
       'Carcass ₹2,500 / sq ft — BWP plywood · precise fitting',
@@ -1539,6 +1538,37 @@ export const baseProducts: Product[] = [
       '28 mm / 25 mm shutter thickness',
       'Pink lotus handle pair ₹13,500 · back laminated',
       'CNC-Carve HD Board 16 mm · ₹500 / sq ft',
+    ],
+    details: [
+      { label: 'Brand', value: 'Priyabadal Homes' },
+      { label: 'Collection', value: 'Temple' },
+      { label: 'Sku', value: 'PBH-TMP-01' },
+      { label: 'Assembly', value: 'Carpenter Assembly (on-site)' },
+      { label: 'Dimensions', value: 'Made to measure (custom width × height)' },
+      { label: 'Room Type', value: 'Puja, Temple, Living room' },
+      { label: 'Warranty', value: "12 Months' warranty on manufacturing defects" },
+    ],
+    specifications: [
+      { label: 'Shutter rate', value: '₹1,800 / sq ft' },
+      { label: 'Carcass rate', value: '₹2,500 / sq ft — fully BWP plywood with precise fitting technology' },
+      {
+        label: 'Colour / Finish',
+        value: 'Ceramic coating (base) · Oxidised finish available (+30% on base)',
+      },
+      { label: 'Board Thickness', value: '28 mm or 25 mm' },
+      {
+        label: 'Handle',
+        value: 'Pink lotus handle pair ₹13,500 · back side laminated',
+      },
+      {
+        label: 'CNC-Carve HD Board',
+        value: '16 mm · ₹500 / sq ft · no paint / no finishing (white canvas)',
+      },
+      { label: 'Pricing', value: 'Per sq ft — shutter only or with carcass (shutter + carcass)' },
+      { label: 'Category', value: 'Temple' },
+      { label: 'Subcategory', value: 'Carved' },
+      { label: 'Country of Origin', value: 'India' },
+      { label: 'Care', value: 'Wipe with a soft dry cloth; avoid harsh cleaners' },
     ],
     orderNotes: [
       'Shutter: ceramic finish (base) or oxidised (+30%) · 28 mm / 25 mm',

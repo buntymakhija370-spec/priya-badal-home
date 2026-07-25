@@ -42,15 +42,6 @@ export function ProductCard({ product }: Props) {
         {minQty > 1 ? (
           <span className="product-card__bulk">Min. {minQty} packs</span>
         ) : null}
-        {product.tags?.length ? (
-          <div className="product-card__tags">
-            {product.tags.map((tag) => (
-              <span key={tag} className="product-card__tag">
-                {tag}
-              </span>
-            ))}
-          </div>
-        ) : null}
       </div>
       <div className="product-card__body">
         {category && <p className="product-card__cat">{category.name}</p>}

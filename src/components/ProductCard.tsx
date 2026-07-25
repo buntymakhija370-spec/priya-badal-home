@@ -85,6 +85,12 @@ export function ProductCard({ product }: Props) {
           </p>
         ) : null}
         <p className="product-card__desc">{product.description}</p>
+        {!customizable && product.categoryId === 'live-edge-furniture' ? (
+          <p className="product-card__note">
+            Indonesian imported teak · unique natural piece · confirm size on
+            WhatsApp
+          </p>
+        ) : null}
         {customizable ? (
           <CustomizeButton product={product} className="product-card__customise" />
         ) : (

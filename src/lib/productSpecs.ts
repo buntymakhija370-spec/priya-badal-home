@@ -10,6 +10,11 @@ const FINISH_LABELS: Record<string, string> = {
   laminate: 'Laminate finish',
   veneer: 'Veneer finish',
   acrylic: 'Acrylic finish',
+  matte: 'Matte laminate',
+  'natural-oak': 'Natural oak',
+  walnut: 'Walnut veneer',
+  gloss: 'High gloss lacquer',
+  textured: 'Textured finish',
 }
 
 function finishLabel(product: Product) {
@@ -34,8 +39,122 @@ function skuFor(product: Product) {
   return `PBH-${product.id.replace(/-/g, '').slice(0, 12).toUpperCase()}`
 }
 
+function mergeUniqueHighlights(base: string[], extra: string[]) {
+  const seen = new Set(base.map((h) => h.toLowerCase()))
+  const merged = [...base]
+  for (const item of extra) {
+    const key = item.toLowerCase()
+    if (seen.has(key)) continue
+    seen.add(key)
+    merged.push(item)
+  }
+  return merged
+}
+
+function liveEdgePresentation(product: Product) {
+  const category = getCategory(product.categoryId)
+  const subcategory = getSubcategory(product.categoryId, product.subcategoryId)
+  const brand = product.brand ?? 'Priyabadal Homes'
+  const collection = product.collection ?? subcategory?.name ?? 'Live Edge'
+
+  const coreHighlights = [
+    'Indonesian imported teak wood',
+    'Solid teak · natural live edge',
+    'One-of-a-kind — not repeatable',
+    'Confirm size on WhatsApp',
+  ]
+
+  const highlights = mergeUniqueHighlights(
+    coreHighlights,
+    product.highlights ?? [],
+  )
+
+  const details: SpecRow[] = [
+    { label: 'Brand', value: brand },
+    { label: 'Collection', value: collection },
+    { label: 'Origin', value: 'Indonesian imported furniture' },
+    { label: 'Primary Material', value: 'Solid teak wood (natural live edge)' },
+    {
+      label: 'Uniqueness',
+      value:
+        'Natural product — each piece is unique; the same product is not repeatable',
+    },
+    {
+      label: 'Dimensions / Size',
+      value:
+        'Natural size as shown — ask and confirm exact measurements on WhatsApp before ordering',
+    },
+    {
+      label: 'Dimensions (reference)',
+      value:
+        'Because this is natural teak, size and form vary piece to piece. WhatsApp our team to confirm the exact piece.',
+    },
+    { label: 'Assembly', value: 'Ready piece / light on-site placement' },
+    { label: 'Room Type', value: roomType(product) || 'Home' },
+    { label: 'Warranty', value: "12 Months' warranty on manufacturing defects" },
+    { label: 'Weight', value: 'Shared on WhatsApp confirmation for the selected piece' },
+    { label: 'Sku', value: skuFor(product) },
+  ]
+
+  const specifications: SpecRow[] = [
+    { label: 'Wood', value: 'Teak wood (solid)' },
+    { label: 'Finish', value: 'Natural teak polish / oil finish (as shown)' },
+    { label: 'Category', value: category?.name ?? 'Live Edge Furniture' },
+    { label: 'Subcategory', value: subcategory?.name ?? '—' },
+    { label: 'Country of Origin', value: 'Indonesia (imported)' },
+    { label: 'Pricing', value: 'Per piece (as shown)' },
+    {
+      label: 'Availability',
+      value: 'Subject to the exact natural piece in stock — confirm on WhatsApp',
+    },
+    { label: 'Style tags', value: product.style.join(', ') || 'natural, organic' },
+    {
+      label: 'Care',
+      value: 'Wipe with a soft dry cloth; avoid harsh cleaners and prolonged water on unfinished edges',
+    },
+  ]
+
+  const features = product.features ?? [
+    'Indonesian imported solid teak live-edge furniture',
+    '100% teak wood — natural grain, knots, and organic form',
+    'Each piece is unique; the same product cannot be repeated exactly',
+    'Ask size and confirm the exact piece on WhatsApp before ordering',
+    'Statement natural furniture for living, entry, and bathroom spaces',
+  ]
+
+  const disclaimer =
+    product.disclaimer ??
+    'Live Edge pieces are Indonesian imported solid teak. As natural products, grain, colour, voids, and size vary — no two pieces are identical and the same product is not repeatable. Confirm exact size and the available piece on WhatsApp before purchase. Accessories in photos are for representation only.'
+
+  const detailLabels = new Set((product.details ?? []).map((r) => r.label.toLowerCase()))
+  const specLabels = new Set(
+    (product.specifications ?? []).map((r) => r.label.toLowerCase()),
+  )
+
+  return {
+    brand,
+    collection,
+    sku: skuFor(product),
+    highlights,
+    details: [
+      ...(product.details ?? []),
+      ...details.filter((r) => !detailLabels.has(r.label.toLowerCase())),
+    ],
+    specifications: [
+      ...(product.specifications ?? []),
+      ...specifications.filter((r) => !specLabels.has(r.label.toLowerCase())),
+    ],
+    features,
+    disclaimer,
+  }
+}
+
 /** Merge product overrides with Pepperfry-style defaults so every PDP is complete. */
 export function resolveProductPresentation(product: Product) {
+  if (product.categoryId === 'live-edge-furniture') {
+    return liveEdgePresentation(product)
+  }
+
   const category = getCategory(product.categoryId)
   const subcategory = getSubcategory(product.categoryId, product.subcategoryId)
   const brand = product.brand ?? 'Priyabadal Homes'

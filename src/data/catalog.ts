@@ -163,7 +163,10 @@ export const categories: Category[] = [
     id: 'live-edge-furniture',
     name: 'Live Edge Furniture',
     description:
-      'Natural live-edge wood pieces — seaters, consoles, tables, stools, and basins.',
+      'Indonesian imported solid teak live-edge furniture — each piece is natural and one-of-a-kind.',
+    caption: 'Indonesian teak · Natural · Unique piece',
+    conceptNote:
+      'Live Edge Furniture is imported Indonesian solid teak. Every piece is a natural product — grain, shape, and size are unique, so the same piece is not repeatable. For exact size and availability, ask and confirm on WhatsApp before you order.',
     image: '/products/categories/live-edge-furniture.jpg',
     video: '/products/categories/live-edge-furniture.mp4',
     customizable: false,

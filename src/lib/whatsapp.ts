@@ -49,14 +49,28 @@ export function buildWhatsAppQuoteUrl(
 
 /** Fixed catalog pieces (e.g. Live Edge) — no size/finish customisation */
 export function buildWhatsAppProductUrl(product: Product) {
-  const lines = [
-    'Hi Priyabadal Homes, I am interested in this product:',
-    '',
-    `Product: ${product.name}`,
-    `Price: ${formatPrice(product.price, 'INR')}`,
-    '',
-    'Please share availability and next steps. Thank you.',
-  ]
+  const isLiveEdge = product.categoryId === 'live-edge-furniture'
+  const lines = isLiveEdge
+    ? [
+        'Hi Priyabadal Homes, I am interested in this Live Edge piece:',
+        '',
+        `Product: ${product.name}`,
+        `Price: ${formatPrice(product.price, 'INR')}`,
+        '',
+        'Please confirm:',
+        '- Exact size of this piece',
+        '- Current availability (natural teak — unique / not repeatable)',
+        '',
+        'Thank you.',
+      ]
+    : [
+        'Hi Priyabadal Homes, I am interested in this product:',
+        '',
+        `Product: ${product.name}`,
+        `Price: ${formatPrice(product.price, 'INR')}`,
+        '',
+        'Please share availability and next steps. Thank you.',
+      ]
   const text = lines.join('\n')
   return `https://wa.me/${WHATSAPP_QUOTE_NUMBER}?text=${encodeURIComponent(text)}`
 }

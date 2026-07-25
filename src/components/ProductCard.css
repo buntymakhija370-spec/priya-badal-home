@@ -83,6 +83,14 @@
   line-height: 1.35;
 }
 
+.product-card__note {
+  margin: 0;
+  font-size: 0.78rem;
+  line-height: 1.4;
+  color: var(--ink-soft);
+  font-weight: 500;
+}
+
 .product-card__media-link {
   display: block;
   width: 100%;

@@ -159,9 +159,9 @@ export function ProductPage() {
               </>
             ) : (
               <>
-                <li>12-month warranty</li>
-                <li>One-of-a-kind piece</li>
-                <li>As shown · ready to order</li>
+                <li>Indonesian imported teak</li>
+                <li>One-of-a-kind natural piece</li>
+                <li>Confirm size on WhatsApp</li>
               </>
             )}
           </ul>

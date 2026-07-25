@@ -65,7 +65,8 @@ export function ShopPage() {
         <h1>
           {subcategory?.name ?? (category ? category.name : 'All products')}
         </h1>
-        {category?.caption && category.id === 'commercials' ? (
+        {category?.caption &&
+        (category.id === 'commercials' || category.id === 'live-edge-furniture') ? (
           <p className="shop__caption">{category.caption}</p>
         ) : null}
         <p className="shop__lede">{lede}</p>
@@ -85,6 +86,19 @@ export function ShopPage() {
             <li>Minimum order: {category.minOrderQuantity ?? 10} identical packs</li>
             <li>Choose 1BHK, 2BHK, or 3BHK package type</li>
             <li>WhatsApp quote with your project quantity (10+)</li>
+          </ul>
+        </aside>
+      ) : null}
+
+      {category?.id === 'live-edge-furniture' && category.conceptNote ? (
+        <aside className="shop__concept" aria-label="Live Edge Furniture information">
+          <p className="shop__concept-kicker">About Live Edge Furniture</p>
+          <p>{category.conceptNote}</p>
+          <ul>
+            <li>Indonesian imported solid teak wood</li>
+            <li>Natural product — each piece is unique and not repeatable</li>
+            <li>Ask size and confirm the exact piece on WhatsApp</li>
+            <li>Seaters, consoles, centre tables, ball stools &amp; basins</li>
           </ul>
         </aside>
       ) : null}

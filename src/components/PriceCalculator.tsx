@@ -259,16 +259,22 @@ function CalculatorOverlay({ product, onClose }: OverlayProps) {
         ) : null}
 
         {!cncMode && (finishOptions.length > 0 || thicknessOptions.length > 0) ? (
-          <div className="calc-sheet__meta-bar" aria-label="Finish details">
+          <div className="calc-sheet__finish-row">
             {finishOptions.length > 0 ? (
-              <span>
-                Finish <strong>{finishOptions[0]!.name}</strong>
-              </span>
+              <div className="calc-sheet__field">
+                <span>Finish</span>
+                <p className="calc-sheet__locked calc-sheet__locked--strong">
+                  {finishOptions[0]!.name}
+                </p>
+              </div>
             ) : null}
             {thicknessOptions.length > 0 ? (
-              <span>
-                Thickness <strong>{thicknessOptions[0]!.label}</strong>
-              </span>
+              <div className="calc-sheet__field">
+                <span>Thickness</span>
+                <p className="calc-sheet__locked calc-sheet__locked--strong">
+                  {thicknessOptions[0]!.label}
+                </p>
+              </div>
             ) : null}
           </div>
         ) : null}

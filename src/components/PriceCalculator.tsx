@@ -92,41 +92,66 @@ function CalculatorOverlay({ product, onClose }: OverlayProps) {
 
   const priceCategories = useMemo((): PriceCategoryOption[] => {
     const options: PriceCategoryOption[] = []
-
-    const withHandles = product.handlePairPrice != null
+    const leavingCnc = isCncCarveHd(config)
+    const finishedRestore: Partial<PriceConfig> = leavingCnc
+      ? {
+          ...(product.defaultThicknessId
+            ? { thicknessId: product.defaultThicknessId }
+            : {}),
+          ...(product.defaultFinishId
+            ? { finishId: product.defaultFinishId }
+            : {}),
+          includeHandlePair: product.handlePairPrice != null,
+        }
+      : {
+          includeHandlePair: Boolean(config.includeHandlePair),
+        }
 
     if (hasBuildScope) {
       const shutterPatch: Partial<PriceConfig> = {
         boardSupply: 'finished',
         buildScope: 'shutter',
-        includeHandlePair: withHandles ? config.includeHandlePair : false,
+        ...finishedRestore,
       }
       const carcassPatch: Partial<PriceConfig> = {
         boardSupply: 'finished',
         buildScope: 'with-carcass',
-        includeHandlePair: withHandles ? config.includeHandlePair : false,
+        ...finishedRestore,
       }
+      // Row prices are board-only (no handle) so rates stay clear
       options.push({
         id: 'shutter',
         label: 'Shutter only',
-        unitPrice: calculatePrice(product, { ...config, ...shutterPatch }).unitPrice,
+        unitPrice: calculatePrice(product, {
+          ...config,
+          ...shutterPatch,
+          includeHandlePair: false,
+        }).boardPrice,
         patch: shutterPatch,
       })
       options.push({
         id: 'with-carcass',
         label: 'With carcass',
-        unitPrice: calculatePrice(product, { ...config, ...carcassPatch }).unitPrice,
+        unitPrice: calculatePrice(product, {
+          ...config,
+          ...carcassPatch,
+          includeHandlePair: false,
+        }).boardPrice,
         patch: carcassPatch,
       })
     } else if (hasCnc) {
       const finishedPatch: Partial<PriceConfig> = {
         boardSupply: 'finished',
-        includeHandlePair: withHandles ? config.includeHandlePair : false,
+        ...finishedRestore,
       }
       options.push({
         id: 'finished',
         label: 'Finished',
-        unitPrice: calculatePrice(product, { ...config, ...finishedPatch }).unitPrice,
+        unitPrice: calculatePrice(product, {
+          ...config,
+          ...finishedPatch,
+          includeHandlePair: false,
+        }).boardPrice,
         patch: finishedPatch,
       })
     }
@@ -142,7 +167,7 @@ function CalculatorOverlay({ product, onClose }: OverlayProps) {
       options.push({
         id: 'cnc-carve-hd',
         label: 'CNC-Carve HD',
-        unitPrice: calculatePrice(product, { ...config, ...cncPatch }).unitPrice,
+        unitPrice: calculatePrice(product, { ...config, ...cncPatch }).boardPrice,
         patch: cncPatch,
       })
     }
@@ -198,7 +223,7 @@ function CalculatorOverlay({ product, onClose }: OverlayProps) {
 
   const sqft =
     cncMode || product.pricingMode === 'per-sqft'
-      ? Math.round(quote.config.width * quote.config.height * 10) / 10
+      ? Math.round(quote.sqft * 10) / 10
       : null
   const cncRate = getCncCarveHdRate(product)
   const cncThickness = product.cncThicknessId
@@ -207,6 +232,13 @@ function CalculatorOverlay({ product, onClose }: OverlayProps) {
   const orderNotes = product.orderNotes ?? []
   const showHandleToggle =
     !cncMode && product.handlePairPrice != null && product.handlePairPrice > 0
+  const carcassBreakdown =
+    !cncMode &&
+    config.buildScope === 'with-carcass' &&
+    product.carcassPrice != null &&
+    product.pricingMode === 'per-sqft'
+      ? `${formatPrice(product.price)} + ${formatPrice(product.carcassPrice)} carcass`
+      : null
 
   return createPortal(
     <div className="calc-overlay" role="presentation">
@@ -406,6 +438,14 @@ function CalculatorOverlay({ product, onClose }: OverlayProps) {
           <div className="calc-sheet__estimate">
             <p className="calc-sheet__estimate-label">Estimated price</p>
             <p className="calc-sheet__price">{formatPrice(quote.unitPrice)}</p>
+            {quote.handleAddOn > 0 ? (
+              <p className="calc-sheet__breakdown">
+                {formatPrice(quote.boardPrice)}
+                {cncMode ? ' board' : ' material'}
+                {' + '}
+                {formatPrice(quote.handleAddOn)} handle pair
+              </p>
+            ) : null}
             <p className="calc-sheet__meta">
               {describeConfig(product.categoryId, quote.config)}
               {sqft != null ? ` · ${sqft} sq ft` : ''}
@@ -414,9 +454,7 @@ function CalculatorOverlay({ product, onClose }: OverlayProps) {
                 : product.pricingMode === 'per-sqft'
                   ? ` · ${formatPrice(quote.baseRate)}/sq ft`
                   : ''}
-              {quote.handleAddOn > 0
-                ? ` · +${formatPrice(quote.handleAddOn)} handles`
-                : ''}
+              {carcassBreakdown ? ` · (${carcassBreakdown})` : ''}
               {minQty > 1 ? ` · min ${minQty} packs` : ''}
             </p>
           </div>

@@ -435,21 +435,22 @@ export function calculatePrice(
   const boardSupply = getBoardSupply(normalized.boardSupply ?? 'finished')
   const buildScope = getBuildScope(normalized.buildScope ?? 'shutter')
 
-  let unitPrice: number
+  let boardPrice: number
   let sizeFactor = 1
   let baseRate: number
   let handleAddOn = 0
+  const sqft = normalized.width * normalized.height
 
   if (isCncCarveHd(normalized)) {
-    // Unfinished CNC-Carve HD Board — flat ₹/sq ft, no paint / finishing
-    const sqft = normalized.width * normalized.height
+    // Unfinished CNC-Carve HD Board — flat ₹/sq ft, no paint / finishing / no handles
     sizeFactor = sqft
     baseRate = getCncCarveHdRate(product)
-    unitPrice = Math.round(baseRate * sqft)
+    boardPrice = Math.round(baseRate * sqft)
   } else {
     const baseFinish = getFinish(product.defaultFinishId ?? normalized.finishId)
     const baseThickness = getThickness(product.defaultThicknessId ?? normalized.thicknessId)
     const finishMult = finish.multiplier / baseFinish.multiplier
+    // Thickness choices on the same product are rate-neutral unless multipliers differ
     const thicknessMult = thickness.multiplier / baseThickness.multiplier
     const usesScope = supportsBuildScope(product.categoryId)
     baseRate = usesScope
@@ -459,11 +460,10 @@ export function calculatePrice(
     if (product.categoryId === 'commercials') {
       // Bulk packs are quoted per fixed package — not resized on the calculator
       sizeFactor = 1
-      unitPrice = Math.round(baseRate * finishMult * thicknessMult)
+      boardPrice = Math.round(baseRate * finishMult * thicknessMult)
     } else if (product.pricingMode === 'per-sqft') {
-      const sqft = normalized.width * normalized.height
       sizeFactor = sqft
-      unitPrice = Math.round(baseRate * sqft * finishMult * thicknessMult)
+      boardPrice = Math.round(baseRate * sqft * finishMult * thicknessMult)
     } else {
       const baseArea = size.baseWidth * size.baseHeight
       const customArea = normalized.width * normalized.height
@@ -476,17 +476,21 @@ export function calculatePrice(
       }
 
       sizeFactor = clamp(sizeFactor, 0.45, 3.5)
-      unitPrice = Math.round(baseRate * finishMult * thicknessMult * sizeFactor)
+      boardPrice = Math.round(baseRate * finishMult * thicknessMult * sizeFactor)
     }
 
     if (normalized.includeHandlePair && product.handlePairPrice != null) {
       handleAddOn = product.handlePairPrice
-      unitPrice += handleAddOn
     }
   }
 
+  boardPrice = Math.max(499, boardPrice)
+
   return {
-    unitPrice: Math.max(499, unitPrice),
+    /** Material / shutter-carcass / CNC total before handle add-on */
+    boardPrice,
+    /** Final quote total (board + optional handle pair) */
+    unitPrice: boardPrice + handleAddOn,
     finish,
     thickness,
     buildScope,
@@ -496,6 +500,7 @@ export function calculatePrice(
     sizeFactor,
     baseRate,
     handleAddOn,
+    sqft,
   }
 }
 

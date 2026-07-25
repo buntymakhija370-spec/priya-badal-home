@@ -213,6 +213,12 @@ const FINISH_LOOKUP: Record<string, FinishOption> = {
   gloss: { id: 'gloss', name: 'High gloss lacquer', multiplier: 1.2 },
   textured: { id: 'textured', name: 'Textured finish', multiplier: 1.08 },
   ceramic: { id: 'ceramic', name: 'Ceramic coating', multiplier: 1 },
+  /** 20% above product base finish (e.g. PU) */
+  'ceramic-20': {
+    id: 'ceramic-20',
+    name: 'Ceramic coating (+20%)',
+    multiplier: 1.2,
+  },
   /** 30% above ceramic / product base finish */
   oxidised: { id: 'oxidised', name: 'Oxidised finish (+30%)', multiplier: 1.3 },
   'iron-metallic': {

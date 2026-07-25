@@ -19,6 +19,7 @@ const FINISH_LABELS: Record<string, string> = {
   textured: 'Textured finish',
   ceramic: 'Ceramic coating',
   'ceramic-20': 'Ceramic coating (+20%)',
+  'ceramic-ss': 'Ceramic + stainless steel',
   oxidised: 'Oxidised finish',
   'iron-metallic': 'Iron metallic coating',
   metallic: 'Metallic finish',

@@ -225,6 +225,19 @@ const SIZE_BY_CATEGORY: Record<string, Partial<SizeLimits>> = {
     maxWidth: 10,
     maxDepth: 4,
   },
+  'live-edge-furniture': {
+    defaultWidth: 5,
+    defaultHeight: 2.5,
+    defaultDepth: 2.5,
+    baseWidth: 5,
+    baseHeight: 2.5,
+    baseDepth: 2.5,
+    minWidth: 1,
+    maxWidth: 12,
+    minHeight: 1,
+    maxHeight: 4,
+    maxDepth: 4,
+  },
 }
 
 export function getSizeLimits(categoryId: string): SizeLimits {

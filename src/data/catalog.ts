@@ -5,6 +5,7 @@ export type CategoryId =
   | 'temple'
   | 'doors'
   | 'sculpted-furniture'
+  | 'live-edge-furniture'
   | 'silaibunai'
   | 'commercials'
 
@@ -151,6 +152,21 @@ export const categories: Category[] = [
       { id: 'sofa', name: 'Sofa' },
       { id: 'console', name: 'Console' },
       { id: 'centre-table', name: 'Centre Table' },
+    ],
+  },
+  {
+    id: 'live-edge-furniture',
+    name: 'Live Edge Furniture',
+    description:
+      'Natural live-edge wood pieces — seaters, consoles, tables, stools, and basins.',
+    image: '/products/categories/live-edge-furniture.jpg',
+    video: '/products/categories/live-edge-furniture.mp4',
+    subcategories: [
+      { id: 'seaters', name: 'Seaters' },
+      { id: 'consoles', name: 'Consoles' },
+      { id: 'centre-tables', name: 'Centre Tables' },
+      { id: 'ball-stools', name: 'Ball Stools' },
+      { id: 'basins', name: 'Basins' },
     ],
   },
   {
@@ -883,6 +899,121 @@ export const baseProducts: Product[] = [
     rooms: ['living room', 'sculpted furniture'],
     image:
       'https://images.unsplash.com/photo-1611269154421-4e27233ac5c7?auto=format&fit=crop&w=1200&q=80',
+  },
+  {
+    id: 'live-edge-seater-bench',
+    name: 'Live Edge Seater Bench',
+    categoryId: 'live-edge-furniture',
+    subcategoryId: 'seaters',
+    price: 45999,
+    currency: 'INR',
+    brand: 'Priyabadal Homes',
+    collection: 'Live Edge',
+    sku: 'PBH-LE-SEAT',
+    description:
+      'Natural live-edge wood seater bench — organic slab profile with custom length and finish.',
+    style: ['natural', 'organic', 'warm'],
+    rooms: ['living room', 'hallway', 'outdoor'],
+    image:
+      'https://images.unsplash.com/photo-1555041469-a586c61ea9bc?auto=format&fit=crop&w=1200&q=80',
+    highlights: [
+      'Natural live edge',
+      'Custom length',
+      'Solid wood slab',
+      'Made to order',
+    ],
+  },
+  {
+    id: 'live-edge-console',
+    name: 'Live Edge Console',
+    categoryId: 'live-edge-furniture',
+    subcategoryId: 'consoles',
+    price: 38999,
+    currency: 'INR',
+    brand: 'Priyabadal Homes',
+    collection: 'Live Edge',
+    sku: 'PBH-LE-CONS',
+    description:
+      'Live-edge console for entry or living — natural slab top with sturdy custom base.',
+    style: ['natural', 'organic', 'modern'],
+    rooms: ['living room', 'hallway'],
+    image:
+      'https://images.unsplash.com/photo-1592078615290-033ee584e267?auto=format&fit=crop&w=1200&q=80',
+    highlights: [
+      'Live-edge slab top',
+      'Custom base options',
+      'Entry / living statement',
+      'Made to order',
+    ],
+  },
+  {
+    id: 'live-edge-centre-table',
+    name: 'Live Edge Centre Table',
+    categoryId: 'live-edge-furniture',
+    subcategoryId: 'centre-tables',
+    price: 42999,
+    currency: 'INR',
+    brand: 'Priyabadal Homes',
+    collection: 'Live Edge',
+    sku: 'PBH-LE-CTR',
+    description:
+      'Live-edge centre table — thick natural slab with organic outline for the living room.',
+    style: ['natural', 'organic', 'luxe'],
+    rooms: ['living room'],
+    image:
+      'https://images.unsplash.com/photo-1611269154421-4e27233ac5c7?auto=format&fit=crop&w=1200&q=80',
+    highlights: [
+      'Thick live-edge slab',
+      'Custom size',
+      'Natural grain showcase',
+      'Made to order',
+    ],
+  },
+  {
+    id: 'live-edge-ball-stool',
+    name: 'Live Edge Ball Stool',
+    categoryId: 'live-edge-furniture',
+    subcategoryId: 'ball-stools',
+    price: 14999,
+    currency: 'INR',
+    brand: 'Priyabadal Homes',
+    collection: 'Live Edge',
+    sku: 'PBH-LE-BALL',
+    description:
+      'Sculptural ball stool in solid wood — compact seating with a bold rounded form.',
+    style: ['sculptural', 'natural', 'playful'],
+    rooms: ['living room', 'bedroom', 'lounge'],
+    image:
+      'https://images.unsplash.com/photo-1503602642458-232111445657?auto=format&fit=crop&w=1200&q=80',
+    highlights: [
+      'Ball / rounded form',
+      'Solid wood',
+      'Compact accent seating',
+      'Made to order',
+    ],
+  },
+  {
+    id: 'live-edge-basin',
+    name: 'Live Edge Wood Basin',
+    categoryId: 'live-edge-furniture',
+    subcategoryId: 'basins',
+    price: 24999,
+    currency: 'INR',
+    brand: 'Priyabadal Homes',
+    collection: 'Live Edge',
+    sku: 'PBH-LE-BASIN',
+    description:
+      'Live-edge wooden basin / washbasin top — natural slab with custom cut-out and sealed finish.',
+    style: ['natural', 'organic', 'spa'],
+    rooms: ['bathroom', 'powder room'],
+    image:
+      'https://images.unsplash.com/photo-1584622650111-993a426fbf0a?auto=format&fit=crop&w=1200&q=80',
+    highlights: [
+      'Live-edge slab basin',
+      'Sealed waterproof finish',
+      'Custom cut-out',
+      'Made to order',
+    ],
   },
   {
     id: 'silaibunai-sofa-refresh',

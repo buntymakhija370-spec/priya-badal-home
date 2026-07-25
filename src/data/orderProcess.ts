@@ -18,7 +18,7 @@ export const ORDER_STEPS: OrderStep[] = [
     title: 'Customise size & finish',
     summary: 'Set width, height, thickness, and finish for your space.',
     detail:
-      'Use the customise sheet to enter wall size in feet, choose PU/laminate or other finishes, and see an estimated price before you enquire.',
+      'Use the customise sheet to set size in feet, choose Finished product or unfinished CNC-Carve HD Board (white canvas — no paint), and see an estimated price before you enquire.',
   },
   {
     id: 'quote',

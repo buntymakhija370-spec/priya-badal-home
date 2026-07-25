@@ -3,13 +3,18 @@ import { createPortal } from 'react-dom'
 import { formatPrice, getMinOrderQuantity, type Product } from '../data/catalog'
 import {
   calculatePrice,
+  CNC_CARVE_HD_RATE_PER_SQFT,
   defaultConfig,
   describeConfig,
+  getBoardSupplyOptions,
   getBuildScopeOptions,
   getFinishOptionsForProduct,
   getSizeLimits,
   getThicknessOptionsForProduct,
+  isCncCarveHd,
+  supportsBoardSupply,
   supportsBuildScope,
+  type BoardSupplyId,
   type BuildScopeId,
   type PriceConfig,
 } from '../lib/pricing'
@@ -67,7 +72,10 @@ function CalculatorOverlay({ product, onClose }: OverlayProps) {
   const finishOptions = getFinishOptionsForProduct(product)
   const thicknessOptions = getThicknessOptionsForProduct(product)
   const buildScopes = getBuildScopeOptions(product.categoryId)
-  const showBuildScope = supportsBuildScope(product.categoryId)
+  const boardSupplies = getBoardSupplyOptions(product.categoryId)
+  const showBoardSupply = supportsBoardSupply(product.categoryId)
+  const cncMode = isCncCarveHd(config)
+  const showBuildScope = supportsBuildScope(product.categoryId) && !cncMode
 
   const quote = useMemo(
     () => calculatePrice(product, config),
@@ -84,6 +92,17 @@ function CalculatorOverlay({ product, onClose }: OverlayProps) {
       }).unitPrice,
     }))
   }, [showBuildScope, buildScopes, product, config])
+
+  const boardQuotes = useMemo(() => {
+    if (!showBoardSupply) return []
+    return boardSupplies.map((supply) => ({
+      supply,
+      unitPrice: calculatePrice(product, {
+        ...config,
+        boardSupply: supply.id,
+      }).unitPrice,
+    }))
+  }, [showBoardSupply, boardSupplies, product, config])
 
   useEffect(() => {
     const y = window.scrollY
@@ -119,7 +138,7 @@ function CalculatorOverlay({ product, onClose }: OverlayProps) {
   )
 
   const sqft =
-    product.pricingMode === 'per-sqft'
+    cncMode || product.pricingMode === 'per-sqft'
       ? Math.round(quote.config.width * quote.config.height * 10) / 10
       : null
 
@@ -162,6 +181,53 @@ function CalculatorOverlay({ product, onClose }: OverlayProps) {
           </p>
         ) : null}
 
+        {showBoardSupply ? (
+          <fieldset className="calc-sheet__scopes">
+            <legend>Board supply</legend>
+            <p className="calc-sheet__scopes-hint">
+              Finished product as catalogued, or unfinished CNC-Carve HD Board
+              (white canvas — you paint and finish).
+            </p>
+            <div
+              className="calc-sheet__scope-grid"
+              role="radiogroup"
+              aria-label="Board supply"
+            >
+              {boardQuotes.map(({ supply, unitPrice }) => {
+                const selected = (config.boardSupply ?? 'finished') === supply.id
+                return (
+                  <button
+                    key={supply.id}
+                    type="button"
+                    role="radio"
+                    aria-checked={selected}
+                    className={`calc-sheet__scope${selected ? ' is-selected' : ''}`}
+                    onClick={() =>
+                      update({ boardSupply: supply.id as BoardSupplyId })
+                    }
+                  >
+                    <span className="calc-sheet__scope-name">{supply.name}</span>
+                    <span className="calc-sheet__scope-desc">
+                      {supply.description}
+                    </span>
+                    <span className="calc-sheet__scope-price">
+                      {formatPrice(unitPrice)}
+                    </span>
+                  </button>
+                )
+              })}
+            </div>
+          </fieldset>
+        ) : null}
+
+        {cncMode ? (
+          <p className="calc-sheet__cnc-note">
+            <strong>CNC-Carve HD Board</strong> — carved HD board only. No paint,
+            no finishing. Feel free to finish it however you like.
+            Rate {formatPrice(CNC_CARVE_HD_RATE_PER_SQFT)} / sq ft.
+          </p>
+        ) : null}
+
         {showBuildScope ? (
           <fieldset className="calc-sheet__scopes">
             <legend>Price category</legend>
@@ -191,18 +257,32 @@ function CalculatorOverlay({ product, onClose }: OverlayProps) {
         ) : null}
 
         <div className="calc-sheet__grid">
-          {finishOptions.length > 0 && (
+          {cncMode ? (
             <div className="calc-sheet__field">
               <span>Finish</span>
-              <p className="calc-sheet__locked">{finishOptions[0]!.name}</p>
+              <p className="calc-sheet__locked">No paint · No finishing</p>
             </div>
+          ) : (
+            finishOptions.length > 0 && (
+              <div className="calc-sheet__field">
+                <span>Finish</span>
+                <p className="calc-sheet__locked">{finishOptions[0]!.name}</p>
+              </div>
+            )
           )}
 
-          {thicknessOptions.length > 0 && (
+          {cncMode ? (
             <div className="calc-sheet__field">
-              <span>Thickness</span>
-              <p className="calc-sheet__locked">{thicknessOptions[0]!.label}</p>
+              <span>Board</span>
+              <p className="calc-sheet__locked">HD board · CNC carve</p>
             </div>
+          ) : (
+            thicknessOptions.length > 0 && (
+              <div className="calc-sheet__field">
+                <span>Thickness</span>
+                <p className="calc-sheet__locked">{thicknessOptions[0]!.label}</p>
+              </div>
+            )
           )}
 
           {minQty <= 1 ? (
@@ -246,9 +326,11 @@ function CalculatorOverlay({ product, onClose }: OverlayProps) {
             <p className="calc-sheet__meta">
               {describeConfig(product.categoryId, quote.config)}
               {sqft != null ? ` · ${sqft} sq ft` : ''}
-              {product.pricingMode === 'per-sqft'
-                ? ` · ${formatPrice(quote.baseRate)}/sq ft`
-                : ''}
+              {cncMode
+                ? ` · ${formatPrice(CNC_CARVE_HD_RATE_PER_SQFT)}/sq ft`
+                : product.pricingMode === 'per-sqft'
+                  ? ` · ${formatPrice(quote.baseRate)}/sq ft`
+                  : ''}
               {minQty > 1 ? ` · min ${minQty} packs` : ''}
             </p>
           </div>

@@ -61,6 +61,20 @@
   color: var(--honey-deep);
 }
 
+.calc-sheet__cnc-note {
+  margin: 0 0 1rem;
+  padding: 0.7rem 0.8rem;
+  border: 1px solid rgba(45, 90, 70, 0.22);
+  background: #f0f7f3;
+  font-size: 0.86rem;
+  line-height: 1.45;
+  color: var(--ink-soft);
+}
+
+.calc-sheet__cnc-note strong {
+  color: var(--moss);
+}
+
 .calc-sheet__eyebrow {
   font-size: 0.72rem;
   letter-spacing: 0.14em;

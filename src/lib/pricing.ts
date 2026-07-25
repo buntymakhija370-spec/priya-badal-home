@@ -103,6 +103,59 @@ export function getBuildScopeRate(
   return product.price
 }
 
+/**
+ * Finished product (paint/laminate/PU as catalogued) vs unfinished CNC-Carve HD Board.
+ * CNC board is a white-canvas carve — no paint, no finishing — clients finish it themselves.
+ * Available on every customisable product (not Live Edge / non-customisable).
+ */
+export type BoardSupplyId = 'finished' | 'cnc-carve-hd'
+
+export type BoardSupplyOption = {
+  id: BoardSupplyId
+  name: string
+  shortName: string
+  description: string
+}
+
+/** Unfinished CNC-Carve HD Board rate (₹ / sq ft) — no paint, no finishing */
+export const CNC_CARVE_HD_RATE_PER_SQFT = 400
+
+export const BOARD_SUPPLIES: BoardSupplyOption[] = [
+  {
+    id: 'finished',
+    name: 'Finished product',
+    shortName: 'Finished',
+    description: 'Catalogued finish as shown — paint, laminate, PU, or coating included.',
+  },
+  {
+    id: 'cnc-carve-hd',
+    name: 'CNC-Carve HD Board',
+    shortName: 'CNC HD',
+    description:
+      'Unfinished HD board carve only — no paint, no finishing. White canvas for you to finish as you like.',
+  },
+]
+
+const BOARD_SUPPLY_LOOKUP: Record<BoardSupplyId, BoardSupplyOption> = {
+  finished: BOARD_SUPPLIES[0]!,
+  'cnc-carve-hd': BOARD_SUPPLIES[1]!,
+}
+
+/** Categories that do not offer CNC-Carve HD Board (unique / bulk packs) */
+const CNC_BOARD_EXCLUDED = new Set(['live-edge-furniture', 'commercials', 'silaibunai'])
+
+export function supportsBoardSupply(categoryId: string): boolean {
+  return !CNC_BOARD_EXCLUDED.has(categoryId)
+}
+
+export function getBoardSupply(id: string): BoardSupplyOption {
+  return BOARD_SUPPLY_LOOKUP[id as BoardSupplyId] ?? BOARD_SUPPLY_LOOKUP.finished
+}
+
+export function getBoardSupplyOptions(categoryId: string): BoardSupplyOption[] {
+  return supportsBoardSupply(categoryId) ? BOARD_SUPPLIES : []
+}
+
 export type PriceConfig = {
   finishId: string
   thicknessId: string
@@ -114,6 +167,12 @@ export type PriceConfig = {
   depth: number
   /** shutter only vs with carcass — required for cabinetry categories */
   buildScope?: BuildScopeId
+  /** Finished catalog product vs unfinished CNC-Carve HD Board */
+  boardSupply?: BoardSupplyId
+}
+
+export function isCncCarveHd(config: Pick<PriceConfig, 'boardSupply'>): boolean {
+  return config.boardSupply === 'cnc-carve-hd'
 }
 
 const FINISH_LOOKUP: Record<string, FinishOption> = {
@@ -282,6 +341,7 @@ export function defaultConfig(
     height: size.defaultHeight,
     depth: size.defaultDepth,
     buildScope: 'shutter',
+    boardSupply: 'finished',
   }
 }
 
@@ -296,6 +356,9 @@ function roundFt(value: number) {
 
 export function normalizeConfig(categoryId: string, config: PriceConfig): PriceConfig {
   const size = getSizeLimits(categoryId)
+  const boardSupply = supportsBoardSupply(categoryId)
+    ? getBoardSupply(config.boardSupply ?? 'finished').id
+    : 'finished'
   const buildScope = supportsBuildScope(categoryId)
     ? getBuildScope(config.buildScope ?? 'shutter').id
     : 'shutter'
@@ -306,6 +369,7 @@ export function normalizeConfig(categoryId: string, config: PriceConfig): PriceC
     height: clamp(roundFt(config.height), size.minHeight, size.maxHeight),
     depth: clamp(roundFt(config.depth), size.minDepth, size.maxDepth),
     buildScope,
+    boardSupply,
   }
 }
 
@@ -326,41 +390,51 @@ export function calculatePrice(
   const normalized = normalizeConfig(product.categoryId, config)
   const finish = getFinish(normalized.finishId)
   const thickness = getThickness(normalized.thicknessId)
-  const baseFinish = getFinish(product.defaultFinishId ?? normalized.finishId)
-  const baseThickness = getThickness(product.defaultThicknessId ?? normalized.thicknessId)
-
-  const finishMult = finish.multiplier / baseFinish.multiplier
-  const thicknessMult = thickness.multiplier / baseThickness.multiplier
+  const boardSupply = getBoardSupply(normalized.boardSupply ?? 'finished')
   const buildScope = getBuildScope(normalized.buildScope ?? 'shutter')
-  const usesScope = supportsBuildScope(product.categoryId)
-  const baseRate = usesScope
-    ? getBuildScopeRate(product, buildScope.id)
-    : product.price
 
   let unitPrice: number
   let sizeFactor = 1
+  let baseRate: number
 
-  if (product.categoryId === 'commercials') {
-    // Bulk packs are quoted per fixed package — not resized on the calculator
-    sizeFactor = 1
-    unitPrice = Math.round(baseRate * finishMult * thicknessMult)
-  } else if (product.pricingMode === 'per-sqft') {
+  if (isCncCarveHd(normalized)) {
+    // Unfinished CNC-Carve HD Board — flat ₹/sq ft, no paint / finishing
     const sqft = normalized.width * normalized.height
     sizeFactor = sqft
-    unitPrice = Math.round(baseRate * sqft * finishMult * thicknessMult)
+    baseRate = CNC_CARVE_HD_RATE_PER_SQFT
+    unitPrice = Math.round(baseRate * sqft)
   } else {
-    const baseArea = size.baseWidth * size.baseHeight
-    const customArea = normalized.width * normalized.height
-    sizeFactor = customArea / baseArea
+    const baseFinish = getFinish(product.defaultFinishId ?? normalized.finishId)
+    const baseThickness = getThickness(product.defaultThicknessId ?? normalized.thicknessId)
+    const finishMult = finish.multiplier / baseFinish.multiplier
+    const thicknessMult = thickness.multiplier / baseThickness.multiplier
+    const usesScope = supportsBuildScope(product.categoryId)
+    baseRate = usesScope
+      ? getBuildScopeRate(product, buildScope.id)
+      : product.price
 
-    if (size.usesDepth) {
-      const baseVol = size.baseWidth * size.baseHeight * size.baseDepth
-      const customVol = normalized.width * normalized.height * normalized.depth
-      sizeFactor = customVol / baseVol
+    if (product.categoryId === 'commercials') {
+      // Bulk packs are quoted per fixed package — not resized on the calculator
+      sizeFactor = 1
+      unitPrice = Math.round(baseRate * finishMult * thicknessMult)
+    } else if (product.pricingMode === 'per-sqft') {
+      const sqft = normalized.width * normalized.height
+      sizeFactor = sqft
+      unitPrice = Math.round(baseRate * sqft * finishMult * thicknessMult)
+    } else {
+      const baseArea = size.baseWidth * size.baseHeight
+      const customArea = normalized.width * normalized.height
+      sizeFactor = customArea / baseArea
+
+      if (size.usesDepth) {
+        const baseVol = size.baseWidth * size.baseHeight * size.baseDepth
+        const customVol = normalized.width * normalized.height * normalized.depth
+        sizeFactor = customVol / baseVol
+      }
+
+      sizeFactor = clamp(sizeFactor, 0.45, 3.5)
+      unitPrice = Math.round(baseRate * finishMult * thicknessMult * sizeFactor)
     }
-
-    sizeFactor = clamp(sizeFactor, 0.45, 3.5)
-    unitPrice = Math.round(baseRate * finishMult * thicknessMult * sizeFactor)
   }
 
   return {
@@ -368,6 +442,7 @@ export function calculatePrice(
     finish,
     thickness,
     buildScope,
+    boardSupply,
     size,
     config: normalized,
     sizeFactor,
@@ -383,13 +458,21 @@ export function configKey(config: PriceConfig) {
     config.height,
     config.depth,
     config.buildScope ?? 'shutter',
+    config.boardSupply ?? 'finished',
   ].join('|')
 }
 
 export function describeConfig(categoryId: string, config: PriceConfig) {
+  const dims = `${config.width} × ${config.height} ft`
+  if (isCncCarveHd(config)) {
+    return [
+      'CNC-Carve HD Board',
+      'No paint · No finishing',
+      dims,
+    ].join(' · ')
+  }
   const finish = getFinish(config.finishId)
   const thickness = getThickness(config.thicknessId)
-  const dims = `${config.width} × ${config.height} ft`
   const parts = [`${finish.name} · ${thickness.label} · ${dims}`]
   if (supportsBuildScope(categoryId)) {
     parts.unshift(getBuildScope(config.buildScope ?? 'shutter').name)

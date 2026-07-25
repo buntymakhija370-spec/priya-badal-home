@@ -247,6 +247,7 @@ const THICKNESS_LOOKUP: Record<string, ThicknessOption> = {
   '22': { id: '22', label: '22 mm', mm: 22, multiplier: 1 },
   '25': { id: '25', label: '25 mm', mm: 25, multiplier: 1 },
   '28': { id: '28', label: '28 mm', mm: 28, multiplier: 1 },
+  '30': { id: '30', label: '30 mm', mm: 30, multiplier: 1 },
   '32': { id: '32', label: '32 mm', mm: 32, multiplier: 1.18 },
 }
 

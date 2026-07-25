@@ -71,6 +71,11 @@ export type Product = {
   cncThicknessId?: string
   /** Optional sculpted handle pair add-on (INR for the pair) */
   handlePairPrice?: number
+  /**
+   * When handlePairPrice is set, whether the handle checkbox starts checked.
+   * Default true. Set false for handle-less products with optional handles.
+   */
+  handlePairDefault?: boolean
   /** Order-planning notes shown in calculator + WhatsApp quote */
   orderNotes?: string[]
   description: string
@@ -1606,15 +1611,23 @@ export const baseProducts: Product[] = [
     name: 'Lotus Branch Bifold Mandir',
     categoryId: 'temple',
     subcategoryId: 'floor',
-    price: 69999,
+    price: 1400,
+    carcassPrice: 2500,
     currency: 'INR',
-    pricingMode: 'unit',
+    pricingMode: 'per-sqft',
     defaultFinishId: 'pu',
+    defaultThicknessId: '25',
+    finishOptionIds: ['pu'],
+    thicknessOptionIds: ['25'],
+    cncCarveHdRate: 500,
+    cncThicknessId: '25',
+    handlePairPrice: 13500,
+    handlePairDefault: false,
     brand: 'Priyabadal Homes',
     collection: 'Temple',
     sku: 'PBH-TMP-02',
     description:
-      'Tall white bifold mandir with etched lotus-and-branch door pattern, geometric jali crown, and warm lit puja interior.',
+      'Tall white bifold mandir with etched lotus-and-branch door pattern, geometric jali crown, and warm lit puja interior. HDHMR shutters in PU — handle-less by default.',
     style: ['modern', 'minimal', 'luxe'],
     rooms: ['puja', 'temple', 'hallway'],
     image: '/products/temple/temple-02-01.jpg',
@@ -1623,13 +1636,64 @@ export const baseProducts: Product[] = [
       '/products/temple/temple-02-02.jpg',
     ],
     highlights: [
-      'Bifold etched doors',
-      'Lotus branch motif',
-      'Warm recessed lighting',
-      'Space-saving niche unit',
-      'Customise size & finish',
-      'WhatsApp quote available',
+      'Shutter ₹1,400 / sq ft · HDHMR',
+      'Carcass ₹2,500 / sq ft — BWP plywood · precise fitting',
+      'PU finish · 25 mm',
+      'Handle-less shutters — no future handle maintenance',
+      'Optional handle pair ₹13,500 · back laminated',
+      'CNC-Carve HD Board 25 mm · ₹500 / sq ft',
     ],
+    details: [
+      { label: 'Brand', value: 'Priyabadal Homes' },
+      { label: 'Collection', value: 'Temple' },
+      { label: 'Sku', value: 'PBH-TMP-02' },
+      { label: 'Assembly', value: 'Carpenter Assembly (on-site)' },
+      { label: 'Dimensions', value: 'Made to measure (custom width × height)' },
+      { label: 'Room Type', value: 'Puja, Temple, Hallway' },
+      { label: 'Warranty', value: "12 Months' warranty on manufacturing defects" },
+    ],
+    specifications: [
+      { label: 'Shutter rate', value: '₹1,400 / sq ft' },
+      { label: 'Shutter material', value: 'HDHMR' },
+      {
+        label: 'Carcass rate',
+        value: '₹2,500 / sq ft — fully BWP plywood with precise fitting technology',
+      },
+      { label: 'Colour / Finish', value: 'PU' },
+      { label: 'Board Thickness', value: '25 mm' },
+      {
+        label: 'Handles',
+        value:
+          'Handle-less shutters (standard) — no future handle maintenance · optional handle pair ₹13,500 · back side laminated',
+      },
+      {
+        label: 'CNC-Carve HD Board',
+        value: '25 mm · ₹500 / sq ft · no paint / no finishing (white canvas)',
+      },
+      {
+        label: 'Pricing',
+        value: 'Per sq ft — shutter only or with carcass (shutter + carcass)',
+      },
+      { label: 'Category', value: 'Temple' },
+      { label: 'Subcategory', value: 'Floor' },
+      { label: 'Country of Origin', value: 'India' },
+      { label: 'Care', value: 'Wipe with a soft dry cloth; avoid harsh cleaners' },
+    ],
+    orderNotes: [
+      'Shutter: HDHMR · PU finish · 25 mm · handle-less (no future handle maintenance)',
+      'Optional handle pair ₹13,500 — back side laminated',
+      'Carcass: fully BWP plywood with precise fitting technology · ₹2,500 / sq ft',
+      'CNC-Carve HD Board: 25 mm · ₹500 / sq ft · no paint / no finishing',
+    ],
+    features: [
+      'Handle-less shutters — clean look, no future handle maintenance',
+      'Optional handle pair available · back side laminated',
+      'Shutter material HDHMR with PU finish',
+      'Carcass fully made in BWP plywood with precise fitting technology',
+      'Unfinished CNC-Carve HD Board option for client finishing',
+    ],
+    disclaimer:
+      'Accessories and room settings in images are for representation only. Final colour, finish, size, handle, and carcass scope are confirmed on WhatsApp before production.',
   },
   {
     id: 'bird-vine-jali-temple-doors',

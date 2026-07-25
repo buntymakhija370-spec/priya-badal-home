@@ -108,7 +108,9 @@ function CalculatorOverlay({ product, onClose }: OverlayProps) {
           ...(product.defaultFinishId
             ? { finishId: product.defaultFinishId }
             : {}),
-          includeHandlePair: product.handlePairPrice != null,
+          includeHandlePair:
+            product.handlePairPrice != null &&
+            product.handlePairDefault !== false,
         }
       : {
           includeHandlePair: Boolean(config.includeHandlePair),

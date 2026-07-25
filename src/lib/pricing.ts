@@ -376,6 +376,7 @@ export function defaultConfig(
     | 'defaultFinishId'
     | 'defaultThicknessId'
     | 'handlePairPrice'
+    | 'handlePairDefault'
     | 'cncThicknessId'
   >,
 ): PriceConfig {
@@ -388,7 +389,8 @@ export function defaultConfig(
     depth: size.defaultDepth,
     buildScope: 'shutter',
     boardSupply: 'finished',
-    includeHandlePair: product?.handlePairPrice != null,
+    includeHandlePair:
+      product?.handlePairPrice != null && product.handlePairDefault !== false,
   }
 }
 

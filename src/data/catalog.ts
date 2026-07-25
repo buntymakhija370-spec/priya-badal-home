@@ -1621,13 +1621,11 @@ export const baseProducts: Product[] = [
     thicknessOptionIds: ['25'],
     cncCarveHdRate: 500,
     cncThicknessId: '25',
-    handlePairPrice: 13500,
-    handlePairDefault: false,
     brand: 'Priyabadal Homes',
     collection: 'Temple',
     sku: 'PBH-TMP-02',
     description:
-      'Tall white bifold mandir with etched lotus-and-branch door pattern, geometric jali crown, and warm lit puja interior. HDHMR shutters in PU — handle-less by default.',
+      'Tall white bifold mandir with etched lotus-and-branch door pattern, geometric jali crown, and warm lit puja interior. HDHMR shutters in PU — handle-less (no handles).',
     style: ['modern', 'minimal', 'luxe'],
     rooms: ['puja', 'temple', 'hallway'],
     image: '/products/temple/temple-02-01.jpg',
@@ -1639,8 +1637,7 @@ export const baseProducts: Product[] = [
       'Shutter ₹1,400 / sq ft · HDHMR',
       'Carcass ₹2,500 / sq ft — BWP plywood · precise fitting',
       'PU finish · 25 mm',
-      'Handle-less shutters — no future handle maintenance',
-      'Optional handle pair ₹13,500 · back laminated',
+      'Handle-less shutters — no handles',
       'CNC-Carve HD Board 25 mm · ₹500 / sq ft',
     ],
     details: [
@@ -1663,8 +1660,7 @@ export const baseProducts: Product[] = [
       { label: 'Board Thickness', value: '25 mm' },
       {
         label: 'Handles',
-        value:
-          'Handle-less shutters (standard) — no future handle maintenance · optional handle pair ₹13,500 · back side laminated',
+        value: 'No handles — handle-less shutters (no future handle maintenance)',
       },
       {
         label: 'CNC-Carve HD Board',
@@ -1680,20 +1676,18 @@ export const baseProducts: Product[] = [
       { label: 'Care', value: 'Wipe with a soft dry cloth; avoid harsh cleaners' },
     ],
     orderNotes: [
-      'Shutter: HDHMR · PU finish · 25 mm · handle-less (no future handle maintenance)',
-      'Optional handle pair ₹13,500 — back side laminated',
+      'Shutter: HDHMR · PU finish · 25 mm · handle-less (no handles)',
       'Carcass: fully BWP plywood with precise fitting technology · ₹2,500 / sq ft',
       'CNC-Carve HD Board: 25 mm · ₹500 / sq ft · no paint / no finishing',
     ],
     features: [
-      'Handle-less shutters — clean look, no future handle maintenance',
-      'Optional handle pair available · back side laminated',
+      'Handle-less shutters — no handles, no future handle maintenance',
       'Shutter material HDHMR with PU finish',
       'Carcass fully made in BWP plywood with precise fitting technology',
       'Unfinished CNC-Carve HD Board option for client finishing',
     ],
     disclaimer:
-      'Accessories and room settings in images are for representation only. Final colour, finish, size, handle, and carcass scope are confirmed on WhatsApp before production.',
+      'Accessories and room settings in images are for representation only. Final colour, finish, size, and carcass scope are confirmed on WhatsApp before production.',
   },
   {
     id: 'bird-vine-jali-temple-doors',

@@ -207,6 +207,11 @@ export function getCncCarveHdRate(
 const FINISH_LOOKUP: Record<string, FinishOption> = {
   pu: { id: 'pu', name: 'PU', multiplier: 1 },
   laminated: { id: 'laminated', name: 'Laminated', multiplier: 1 },
+  'laminate-solid-wood': {
+    id: 'laminate-solid-wood',
+    name: 'Laminate + solid wood',
+    multiplier: 1,
+  },
   matte: { id: 'matte', name: 'Matte laminate', multiplier: 0.92 },
   'natural-oak': { id: 'natural-oak', name: 'Natural oak', multiplier: 1.18 },
   walnut: { id: 'walnut', name: 'Walnut veneer', multiplier: 1.32 },

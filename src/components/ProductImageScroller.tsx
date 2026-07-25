@@ -1,4 +1,5 @@
 import { useEffect, useRef, useState } from 'react'
+import { Link } from 'react-router-dom'
 import type { MediaItem } from '../lib/media'
 import './ProductImageScroller.css'
 
@@ -6,9 +7,16 @@ type Props = {
   media: MediaItem[]
   alt: string
   className?: string
+  /** When set, tapping a photo/video opens this product route */
+  to?: string
 }
 
-export function ProductImageScroller({ media, alt, className = '' }: Props) {
+export function ProductImageScroller({
+  media,
+  alt,
+  className = '',
+  to,
+}: Props) {
   const gallery = media.length > 0 ? media : []
   const scrollerRef = useRef<HTMLDivElement>(null)
   const [active, setActive] = useState(0)
@@ -95,9 +103,9 @@ export function ProductImageScroller({ media, alt, className = '' }: Props) {
         aria-roledescription="carousel"
         aria-label={`${alt} media`}
       >
-        {gallery.map((item, index) => (
-          <figure key={`${item.src}-${index}`} className="img-scroller__slide">
-            {item.type === 'video' ? (
+        {gallery.map((item, index) => {
+          const slide =
+            item.type === 'video' ? (
               <>
                 <video
                   className="img-scroller__video"
@@ -121,9 +129,25 @@ export function ProductImageScroller({ media, alt, className = '' }: Props) {
                 loading={index === 0 ? 'eager' : 'lazy'}
                 draggable={false}
               />
-            )}
-          </figure>
-        ))}
+            )
+
+          return (
+            <figure key={`${item.src}-${index}`} className="img-scroller__slide">
+              {to ? (
+                <Link
+                  to={to}
+                  className="img-scroller__link"
+                  aria-label={`View ${alt}`}
+                  tabIndex={index === 0 ? 0 : -1}
+                >
+                  {slide}
+                </Link>
+              ) : (
+                slide
+              )}
+            </figure>
+          )
+        })}
       </div>
 
       {gallery.length > 1 && (

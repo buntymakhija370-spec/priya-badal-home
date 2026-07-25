@@ -34,7 +34,7 @@ export function ProductCard({ product }: Props) {
   return (
     <article className="product-card">
       <div className="product-card__media">
-        <ProductImageScroller media={media} alt={product.name} />
+        <ProductImageScroller media={media} alt={product.name} to={href} />
         <FavoriteButton
           productId={product.id}
           className="fav-btn--icon fav-btn--on-media product-card__fav"

@@ -77,8 +77,15 @@ function CalculatorOverlay({ product, onClose }: OverlayProps) {
   const [config, setConfig] = useState<PriceConfig>(() =>
     defaultConfig(product.categoryId, product),
   )
-  const [added, setAdded] = useState(false)
   const size = getSizeLimits(product.categoryId)
+  // Draft text so backspace can clear the field while typing
+  const [widthText, setWidthText] = useState(() =>
+    String(defaultConfig(product.categoryId, product).width),
+  )
+  const [heightText, setHeightText] = useState(() =>
+    String(defaultConfig(product.categoryId, product).height),
+  )
+  const [added, setAdded] = useState(false)
   const finishOptions = getFinishOptionsForProduct(product)
   const thicknessOptions = getThicknessOptionsForProduct(product)
   const hasBuildScope = supportsBuildScope(product.categoryId)
@@ -212,23 +219,35 @@ function CalculatorOverlay({ product, onClose }: OverlayProps) {
   }, [])
 
   const update = (patch: Partial<PriceConfig>) => {
-    setConfig((prev) => {
-      const next = { ...prev, ...patch }
-      // Keep typed size in-bounds so inputs always match the priced estimate
-      if (patch.width != null) {
-        next.width = Math.min(
-          size.maxWidth,
-          Math.max(size.minWidth, Number(patch.width) || size.minWidth),
-        )
-      }
-      if (patch.height != null) {
-        next.height = Math.min(
-          size.maxHeight,
-          Math.max(size.minHeight, Number(patch.height) || size.minHeight),
-        )
-      }
-      return next
-    })
+    setConfig((prev) => ({ ...prev, ...patch }))
+  }
+
+  const onSizeChange = (axis: 'width' | 'height', raw: string) => {
+    if (axis === 'width') setWidthText(raw)
+    else setHeightText(raw)
+
+    // Allow empty / partial input while typing — don't force min (blocks backspace)
+    if (raw.trim() === '' || raw === '.' || raw === '-') return
+    const n = Number(raw)
+    if (!Number.isFinite(n)) return
+    const min = axis === 'width' ? size.minWidth : size.minHeight
+    const max = axis === 'width' ? size.maxWidth : size.maxHeight
+    if (n >= min && n <= max) {
+      update({ [axis]: Math.round(n * 10) / 10 })
+    }
+  }
+
+  const onSizeBlur = (axis: 'width' | 'height', raw: string) => {
+    const min = axis === 'width' ? size.minWidth : size.minHeight
+    const max = axis === 'width' ? size.maxWidth : size.maxHeight
+    const n = Number(raw)
+    const clamped =
+      Number.isFinite(n) && raw.trim() !== ''
+        ? Math.min(max, Math.max(min, Math.round(n * 10) / 10))
+        : min
+    update({ [axis]: clamped })
+    if (axis === 'width') setWidthText(String(clamped))
+    else setHeightText(String(clamped))
   }
 
   const whatsappHref = buildWhatsAppQuoteUrl(
@@ -399,22 +418,26 @@ function CalculatorOverlay({ product, onClose }: OverlayProps) {
               Width (ft)
               <input
                 type="number"
+                inputMode="decimal"
                 min={size.minWidth}
                 max={size.maxWidth}
                 step={0.1}
-                value={quote.config.width}
-                onChange={(e) => update({ width: Number(e.target.value) })}
+                value={widthText}
+                onChange={(e) => onSizeChange('width', e.target.value)}
+                onBlur={(e) => onSizeBlur('width', e.target.value)}
               />
             </label>
             <label className="calc-sheet__field">
               Height (ft)
               <input
                 type="number"
+                inputMode="decimal"
                 min={size.minHeight}
                 max={size.maxHeight}
                 step={0.1}
-                value={quote.config.height}
-                onChange={(e) => update({ height: Number(e.target.value) })}
+                value={heightText}
+                onChange={(e) => onSizeChange('height', e.target.value)}
+                onBlur={(e) => onSizeBlur('height', e.target.value)}
               />
             </label>
           </div>

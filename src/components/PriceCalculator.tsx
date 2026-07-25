@@ -258,54 +258,52 @@ function CalculatorOverlay({ product, onClose }: OverlayProps) {
           </fieldset>
         ) : null}
 
-        <div className="calc-sheet__grid">
-          {!cncMode && finishOptions.length > 0 ? (
-            <div className="calc-sheet__field">
-              <span>Finish</span>
-              <p className="calc-sheet__locked">{finishOptions[0]!.name}</p>
-            </div>
-          ) : null}
+        {!cncMode && (finishOptions.length > 0 || thicknessOptions.length > 0) ? (
+          <div className="calc-sheet__meta-bar" aria-label="Finish details">
+            {finishOptions.length > 0 ? (
+              <span>
+                Finish <strong>{finishOptions[0]!.name}</strong>
+              </span>
+            ) : null}
+            {thicknessOptions.length > 0 ? (
+              <span>
+                Thickness <strong>{thicknessOptions[0]!.label}</strong>
+              </span>
+            ) : null}
+          </div>
+        ) : null}
 
-          {!cncMode && thicknessOptions.length > 0 ? (
-            <div className="calc-sheet__field">
-              <span>Thickness</span>
-              <p className="calc-sheet__locked">{thicknessOptions[0]!.label}</p>
-            </div>
-          ) : null}
-
-          {minQty <= 1 ? (
-            <>
-              <label className="calc-sheet__field">
-                Width (ft)
-                <input
-                  type="number"
-                  min={size.minWidth}
-                  max={size.maxWidth}
-                  step={0.1}
-                  value={config.width}
-                  onChange={(e) => update({ width: Number(e.target.value) })}
-                />
-              </label>
-
-              <label className="calc-sheet__field">
-                Height (ft)
-                <input
-                  type="number"
-                  min={size.minHeight}
-                  max={size.maxHeight}
-                  step={0.1}
-                  value={config.height}
-                  onChange={(e) => update({ height: Number(e.target.value) })}
-                />
-              </label>
-            </>
-          ) : (
-            <div className="calc-sheet__field">
-              <span>Order quantity</span>
-              <p className="calc-sheet__locked">Minimum {minQty} identical packs</p>
-            </div>
-          )}
-        </div>
+        {minQty <= 1 ? (
+          <div className="calc-sheet__size-row">
+            <label className="calc-sheet__field">
+              Width (ft)
+              <input
+                type="number"
+                min={size.minWidth}
+                max={size.maxWidth}
+                step={0.1}
+                value={config.width}
+                onChange={(e) => update({ width: Number(e.target.value) })}
+              />
+            </label>
+            <label className="calc-sheet__field">
+              Height (ft)
+              <input
+                type="number"
+                min={size.minHeight}
+                max={size.maxHeight}
+                step={0.1}
+                value={config.height}
+                onChange={(e) => update({ height: Number(e.target.value) })}
+              />
+            </label>
+          </div>
+        ) : (
+          <div className="calc-sheet__field calc-sheet__field--full">
+            <span>Order quantity</span>
+            <p className="calc-sheet__locked">Minimum {minQty} identical packs</p>
+          </div>
+        )}
 
         <div className="calc-sheet__footer">
           <div className="calc-sheet__estimate">

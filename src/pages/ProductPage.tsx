@@ -18,7 +18,6 @@ import { ProductGallery } from '../components/ProductGallery'
 import { ProductCard } from '../components/ProductCard'
 import { CustomizeButton } from '../components/PriceCalculator'
 import { FavoriteButton } from '../components/FavoriteButton'
-import { ShareProductLink } from '../components/ShareProductLink'
 import { useProductSeo } from '../hooks/useProductSeo'
 import { useCurrency } from '../hooks/useCurrency'
 import { shopPath } from '../lib/links'
@@ -274,8 +273,6 @@ export function ProductPage() {
           <strong>Disclaimer:</strong> {presentation.disclaimer}
         </p>
       </section>
-
-      <ShareProductLink product={product} />
 
       {related.length > 0 && (
         <section className="product-page__related">

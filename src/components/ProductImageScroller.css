@@ -13,11 +13,21 @@
   overflow-x: auto;
   overflow-y: hidden;
   scroll-snap-type: x mandatory;
-  scroll-behavior: smooth;
   -webkit-overflow-scrolling: touch;
   overscroll-behavior-x: contain;
+  overscroll-behavior-y: none;
   scrollbar-width: none;
-  touch-action: pan-x pan-y;
+  /* Prefer vertical page scroll; horizontal only when swiping the carousel */
+  touch-action: pan-y pinch-zoom;
+}
+
+.img-scroller__track:not(.img-scroller__track--single) {
+  touch-action: pan-x pan-y pinch-zoom;
+}
+
+.img-scroller__track--single {
+  overflow-x: hidden;
+  scroll-snap-type: none;
 }
 
 .img-scroller__track::-webkit-scrollbar {
@@ -32,15 +42,6 @@
   margin: 0;
   scroll-snap-align: start;
   scroll-snap-stop: always;
-}
-
-.img-scroller__link {
-  display: block;
-  width: 100%;
-  height: 100%;
-  color: inherit;
-  text-decoration: none;
-  cursor: pointer;
 }
 
 .img-scroller__slide img,

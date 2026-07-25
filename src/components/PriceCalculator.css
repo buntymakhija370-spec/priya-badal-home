@@ -6,6 +6,7 @@
   align-items: flex-end;
   justify-content: center;
   padding: 0;
+  overscroll-behavior: none;
 }
 
 .calc-overlay__scrim {

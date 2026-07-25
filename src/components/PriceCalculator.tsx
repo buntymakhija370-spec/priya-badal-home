@@ -1,4 +1,4 @@
-import { useEffect, useId, useMemo, useState } from 'react'
+import { useCallback, useEffect, useId, useMemo, useRef, useState } from 'react'
 import { createPortal } from 'react-dom'
 import { formatPrice, getMinOrderQuantity, type Product } from '../data/catalog'
 import {
@@ -37,6 +37,12 @@ export function CustomizeButton({ product, className = '' }: Props) {
   const [open, setOpen] = useState(false)
   const minQty = getMinOrderQuantity(product)
   const label = minQty > 1 ? 'Bulk quote & cart' : 'Customise & Price'
+  const close = useCallback(() => {
+    // Blur so the browser does not scroll the trigger button into view on close
+    const active = document.activeElement
+    if (active instanceof HTMLElement) active.blur()
+    setOpen(false)
+  }, [])
 
   return (
     <>
@@ -53,9 +59,7 @@ export function CustomizeButton({ product, className = '' }: Props) {
       >
         {label}
       </button>
-      {open && (
-        <CalculatorOverlay product={product} onClose={() => setOpen(false)} />
-      )}
+      {open && <CalculatorOverlay product={product} onClose={close} />}
     </>
   )
 }
@@ -142,28 +146,33 @@ function CalculatorOverlay({ product, onClose }: OverlayProps) {
     return 'finished'
   }, [cncMode, hasBuildScope, config.buildScope])
 
+  const onCloseRef = useRef(onClose)
+  onCloseRef.current = onClose
+
   useEffect(() => {
-    const y = window.scrollY
-    const { overflow, position, top, width } = document.body.style
-    document.body.style.overflow = 'hidden'
-    document.body.style.position = 'fixed'
-    document.body.style.top = `-${y}px`
-    document.body.style.width = '100%'
+    // Overflow-only lock — avoid position:fixed + scrollTo restore (jumps page on close)
+    const html = document.documentElement
+    const body = document.body
+    const prevHtmlOverflow = html.style.overflow
+    const prevBodyOverflow = body.style.overflow
+    const prevBodyPaddingRight = body.style.paddingRight
+    const scrollbar = window.innerWidth - html.clientWidth
+    if (scrollbar > 0) body.style.paddingRight = `${scrollbar}px`
+    html.style.overflow = 'hidden'
+    body.style.overflow = 'hidden'
 
     const onKey = (e: KeyboardEvent) => {
-      if (e.key === 'Escape') onClose()
+      if (e.key === 'Escape') onCloseRef.current()
     }
     window.addEventListener('keydown', onKey)
 
     return () => {
-      document.body.style.overflow = overflow
-      document.body.style.position = position
-      document.body.style.top = top
-      document.body.style.width = width
-      window.scrollTo(0, y)
+      html.style.overflow = prevHtmlOverflow
+      body.style.overflow = prevBodyOverflow
+      body.style.paddingRight = prevBodyPaddingRight
       window.removeEventListener('keydown', onKey)
     }
-  }, [onClose])
+  }, [])
 
   const update = (patch: Partial<PriceConfig>) => {
     setConfig((prev) => ({ ...prev, ...patch }))

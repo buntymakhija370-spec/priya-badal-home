@@ -12,6 +12,7 @@ import {
   getThicknessOptionsForProduct,
   isCncCarveHd,
   supportsBoardSupply,
+  productHasCarcass,
   supportsBuildScope,
   type BoardSupplyId,
   type BuildScopeId,
@@ -89,6 +90,7 @@ function CalculatorOverlay({ product, onClose }: OverlayProps) {
   const finishOptions = getFinishOptionsForProduct(product)
   const thicknessOptions = getThicknessOptionsForProduct(product)
   const hasBuildScope = supportsBuildScope(product.categoryId)
+  const hasCarcass = productHasCarcass(product)
   const hasCnc = supportsBoardSupply(product.categoryId)
   const cncMode = isCncCarveHd(config)
 
@@ -122,15 +124,10 @@ function CalculatorOverlay({ product, onClose }: OverlayProps) {
         buildScope: 'shutter',
         ...finishedRestore,
       }
-      const carcassPatch: Partial<PriceConfig> = {
-        boardSupply: 'finished',
-        buildScope: 'with-carcass',
-        ...finishedRestore,
-      }
       // Row prices are board-only (no handle) so rates stay clear
       options.push({
         id: 'shutter',
-        label: 'Shutter only',
+        label: hasCarcass ? 'Shutter only' : 'Doors only',
         unitPrice: calculatePrice(product, {
           ...config,
           ...shutterPatch,
@@ -138,16 +135,23 @@ function CalculatorOverlay({ product, onClose }: OverlayProps) {
         }).boardPrice,
         patch: shutterPatch,
       })
-      options.push({
-        id: 'with-carcass',
-        label: 'With carcass',
-        unitPrice: calculatePrice(product, {
-          ...config,
-          ...carcassPatch,
-          includeHandlePair: false,
-        }).boardPrice,
-        patch: carcassPatch,
-      })
+      if (hasCarcass) {
+        const carcassPatch: Partial<PriceConfig> = {
+          boardSupply: 'finished',
+          buildScope: 'with-carcass',
+          ...finishedRestore,
+        }
+        options.push({
+          id: 'with-carcass',
+          label: 'With carcass',
+          unitPrice: calculatePrice(product, {
+            ...config,
+            ...carcassPatch,
+            includeHandlePair: false,
+          }).boardPrice,
+          patch: carcassPatch,
+        })
+      }
     } else if (hasCnc) {
       const finishedPatch: Partial<PriceConfig> = {
         boardSupply: 'finished',
@@ -182,7 +186,7 @@ function CalculatorOverlay({ product, onClose }: OverlayProps) {
     }
 
     return options
-  }, [hasBuildScope, hasCnc, product, config])
+  }, [hasBuildScope, hasCarcass, hasCnc, product, config])
 
   const selectedCategoryId = useMemo(() => {
     if (cncMode) return 'cnc-carve-hd'

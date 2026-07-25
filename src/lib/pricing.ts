@@ -77,6 +77,13 @@ export function supportsBuildScope(categoryId: string): boolean {
   return BUILD_SCOPE_CATEGORIES.has(categoryId)
 }
 
+/** With-carcass row only when the product defines a carcass rate */
+export function productHasCarcass(
+  product?: Pick<Product, 'carcassPrice'> | null,
+): boolean {
+  return product?.carcassPrice != null
+}
+
 export function getBuildScope(id: string): BuildScopeOption {
   return BUILD_SCOPE_LOOKUP[id as BuildScopeId] ?? BUILD_SCOPE_LOOKUP.shutter
 }
@@ -406,15 +413,19 @@ function roundFt(value: number) {
 export function normalizeConfig(
   categoryId: string,
   config: PriceConfig,
-  product?: Pick<Product, 'cncThicknessId' | 'handlePairPrice'>,
+  product?: Pick<
+    Product,
+    'cncThicknessId' | 'handlePairPrice' | 'carcassPrice'
+  >,
 ): PriceConfig {
   const size = getSizeLimits(categoryId)
   const boardSupply = supportsBoardSupply(categoryId)
     ? getBoardSupply(config.boardSupply ?? 'finished').id
     : 'finished'
-  const buildScope = supportsBuildScope(categoryId)
-    ? getBuildScope(config.buildScope ?? 'shutter').id
-    : 'shutter'
+  const buildScope =
+    supportsBuildScope(categoryId) && productHasCarcass(product)
+      ? getBuildScope(config.buildScope ?? 'shutter').id
+      : 'shutter'
   const cnc = boardSupply === 'cnc-carve-hd'
   const thicknessId = cnc && product?.cncThicknessId
     ? getThickness(product.cncThicknessId).id

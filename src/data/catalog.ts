@@ -60,6 +60,18 @@ export type Product = {
   pricingMode?: 'unit' | 'per-sqft'
   defaultFinishId?: string
   defaultThicknessId?: string
+  /** Selectable finishes in Customise & Price (defaults to [defaultFinishId]) */
+  finishOptionIds?: string[]
+  /** Selectable thicknesses in Customise & Price (defaults to [defaultThicknessId]) */
+  thicknessOptionIds?: string[]
+  /** CNC-Carve HD Board ₹ / sq ft (overrides global default when set) */
+  cncCarveHdRate?: number
+  /** Thickness id used for CNC-Carve HD Board quotes (e.g. '16') */
+  cncThicknessId?: string
+  /** Optional sculpted handle pair add-on (INR for the pair) */
+  handlePairPrice?: number
+  /** Order-planning notes shown in calculator + WhatsApp quote */
+  orderNotes?: string[]
   description: string
   style: string[]
   rooms: string[]
@@ -1495,15 +1507,22 @@ export const baseProducts: Product[] = [
     name: 'Pink Lotus Arched Mandir',
     categoryId: 'temple',
     subcategoryId: 'carved',
-    price: 79999,
+    price: 1800,
+    carcassPrice: 2500,
     currency: 'INR',
-    pricingMode: 'unit',
-    defaultFinishId: 'pu',
+    pricingMode: 'per-sqft',
+    defaultFinishId: 'ceramic',
+    defaultThicknessId: '28',
+    finishOptionIds: ['ceramic', 'oxidised'],
+    thicknessOptionIds: ['28', '25'],
+    cncCarveHdRate: 500,
+    cncThicknessId: '16',
+    handlePairPrice: 13500,
     brand: 'Priyabadal Homes',
     collection: 'Temple',
     sku: 'PBH-TMP-01',
     description:
-      'Arched ivory mandir with raised floral relief and sculpted pink lotus handles — a soft, modern puja centrepiece for niche installs.',
+      'Arched ivory mandir with raised floral relief and sculpted pink lotus handles. Shutter ₹1,800 / sq ft · Carcass ₹2,500 / sq ft in BWP plywood · Ceramic or oxidised finish · CNC-Carve HD Board ₹500 / sq ft (16 mm).',
     style: ['modern', 'luxe', 'carved'],
     rooms: ['puja', 'temple', 'living room'],
     image: '/products/temple/temple-01-02.jpg',
@@ -1512,14 +1531,30 @@ export const baseProducts: Product[] = [
       '/products/temple/temple-01-03.jpg',
       '/products/temple/temple-01-01.png',
     ],
+    tags: ['Handle back laminated', 'BWP carcass'],
     highlights: [
-      'Sculpted pink lotus handles',
-      'White floral relief doors',
-      'Arched niche fit',
-      'Warm interior lighting',
-      'Customise size & finish',
-      'WhatsApp quote available',
+      'Shutter ₹1,800 / sq ft',
+      'Carcass ₹2,500 / sq ft — BWP plywood · precise fitting',
+      'Ceramic finish · oxidised available (+30%)',
+      '28 mm / 25 mm shutter thickness',
+      'Pink lotus handle pair ₹13,500 · back laminated',
+      'CNC-Carve HD Board 16 mm · ₹500 / sq ft',
     ],
+    orderNotes: [
+      'Shutter: ceramic finish (base) or oxidised (+30%) · 28 mm / 25 mm',
+      'Handle pair ₹13,500 — back side laminated',
+      'Carcass: fully BWP plywood with precise fitting technology · ₹2,500 / sq ft',
+      'CNC-Carve HD Board: 16 mm · ₹500 / sq ft · no paint / no finishing',
+    ],
+    features: [
+      'Sculpted pink lotus handles — pair priced separately',
+      'Handle back side laminated',
+      'Carcass fully made in BWP plywood with precise fitting technology',
+      'Finished shutters in ceramic; oxidised finish at 30% above base',
+      'Unfinished CNC-Carve HD Board option for client finishing',
+    ],
+    disclaimer:
+      'Accessories and room settings in images are for representation only. Final colour, finish, size, handle, and carcass scope are confirmed on WhatsApp before production.',
   },
   {
     id: 'lotus-branch-bifold-mandir',

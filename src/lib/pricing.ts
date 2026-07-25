@@ -169,10 +169,18 @@ export type PriceConfig = {
   buildScope?: BuildScopeId
   /** Finished catalog product vs unfinished CNC-Carve HD Board */
   boardSupply?: BoardSupplyId
+  /** Include sculpted handle pair add-on when product has handlePairPrice */
+  includeHandlePair?: boolean
 }
 
 export function isCncCarveHd(config: Pick<PriceConfig, 'boardSupply'>): boolean {
   return config.boardSupply === 'cnc-carve-hd'
+}
+
+export function getCncCarveHdRate(
+  product?: Pick<Product, 'cncCarveHdRate'>,
+): number {
+  return product?.cncCarveHdRate ?? CNC_CARVE_HD_RATE_PER_SQFT
 }
 
 const FINISH_LOOKUP: Record<string, FinishOption> = {
@@ -183,13 +191,17 @@ const FINISH_LOOKUP: Record<string, FinishOption> = {
   gloss: { id: 'gloss', name: 'High gloss lacquer', multiplier: 1.2 },
   textured: { id: 'textured', name: 'Textured finish', multiplier: 1.08 },
   ceramic: { id: 'ceramic', name: 'Ceramic coating', multiplier: 1 },
+  /** 30% above ceramic / product base finish */
+  oxidised: { id: 'oxidised', name: 'Oxidised finish (+30%)', multiplier: 1.3 },
 }
 
 const THICKNESS_LOOKUP: Record<string, ThicknessOption> = {
   '6': { id: '6', label: '6 mm', mm: 6, multiplier: 1 },
   '12': { id: '12', label: '12 mm', mm: 12, multiplier: 0.82 },
+  '16': { id: '16', label: '16 mm', mm: 16, multiplier: 1 },
   '18': { id: '18', label: '18 mm', mm: 18, multiplier: 0.92 },
   '25': { id: '25', label: '25 mm', mm: 25, multiplier: 1 },
+  '28': { id: '28', label: '28 mm', mm: 28, multiplier: 1 },
   '32': { id: '32', label: '32 mm', mm: 32, multiplier: 1.18 },
 }
 
@@ -313,25 +325,39 @@ export function getThickness(id: string) {
   return THICKNESS_LOOKUP[id] ?? THICKNESS_LOOKUP['25']!
 }
 
-/** Only the finish stated on the product — never invent extra options */
+/** Finishes offered for this product (explicit list, or the single default) */
 export function getFinishOptionsForProduct(
-  product?: Pick<Product, 'defaultFinishId'>,
+  product?: Pick<Product, 'defaultFinishId' | 'finishOptionIds'>,
 ): FinishOption[] {
-  if (!product?.defaultFinishId) return []
-  return [getFinish(product.defaultFinishId)]
+  const ids = product?.finishOptionIds?.length
+    ? product.finishOptionIds
+    : product?.defaultFinishId
+      ? [product.defaultFinishId]
+      : []
+  return ids.map((id) => getFinish(id))
 }
 
-/** Only the thickness stated on the product */
+/** Thicknesses offered for finished product (CNC uses cncThicknessId separately) */
 export function getThicknessOptionsForProduct(
-  product?: Pick<Product, 'defaultThicknessId'>,
+  product?: Pick<Product, 'defaultThicknessId' | 'thicknessOptionIds'>,
 ): ThicknessOption[] {
-  if (!product?.defaultThicknessId) return []
-  return [getThickness(product.defaultThicknessId)]
+  const ids = product?.thicknessOptionIds?.length
+    ? product.thicknessOptionIds
+    : product?.defaultThicknessId
+      ? [product.defaultThicknessId]
+      : []
+  return ids.map((id) => getThickness(id))
 }
 
 export function defaultConfig(
   categoryId: string,
-  product?: Pick<Product, 'defaultFinishId' | 'defaultThicknessId'>,
+  product?: Pick<
+    Product,
+    | 'defaultFinishId'
+    | 'defaultThicknessId'
+    | 'handlePairPrice'
+    | 'cncThicknessId'
+  >,
 ): PriceConfig {
   const size = getSizeLimits(categoryId)
   return {
@@ -342,6 +368,7 @@ export function defaultConfig(
     depth: size.defaultDepth,
     buildScope: 'shutter',
     boardSupply: 'finished',
+    includeHandlePair: product?.handlePairPrice != null,
   }
 }
 
@@ -354,7 +381,11 @@ function roundFt(value: number) {
   return Math.round(value * 10) / 10
 }
 
-export function normalizeConfig(categoryId: string, config: PriceConfig): PriceConfig {
+export function normalizeConfig(
+  categoryId: string,
+  config: PriceConfig,
+  product?: Pick<Product, 'cncThicknessId' | 'handlePairPrice'>,
+): PriceConfig {
   const size = getSizeLimits(categoryId)
   const boardSupply = supportsBoardSupply(categoryId)
     ? getBoardSupply(config.boardSupply ?? 'finished').id
@@ -362,14 +393,22 @@ export function normalizeConfig(categoryId: string, config: PriceConfig): PriceC
   const buildScope = supportsBuildScope(categoryId)
     ? getBuildScope(config.buildScope ?? 'shutter').id
     : 'shutter'
+  const cnc = boardSupply === 'cnc-carve-hd'
+  const thicknessId = cnc && product?.cncThicknessId
+    ? getThickness(product.cncThicknessId).id
+    : getThickness(config.thicknessId).id
   return {
     finishId: getFinish(config.finishId).id,
-    thicknessId: getThickness(config.thicknessId).id,
+    thicknessId,
     width: clamp(roundFt(config.width), size.minWidth, size.maxWidth),
     height: clamp(roundFt(config.height), size.minHeight, size.maxHeight),
     depth: clamp(roundFt(config.depth), size.minDepth, size.maxDepth),
     buildScope,
     boardSupply,
+    includeHandlePair:
+      !cnc && product?.handlePairPrice != null
+        ? Boolean(config.includeHandlePair)
+        : false,
   }
 }
 
@@ -383,11 +422,14 @@ export function calculatePrice(
     | 'pricingMode'
     | 'defaultFinishId'
     | 'defaultThicknessId'
+    | 'cncCarveHdRate'
+    | 'cncThicknessId'
+    | 'handlePairPrice'
   >,
   config: PriceConfig,
 ) {
   const size = getSizeLimits(product.categoryId)
-  const normalized = normalizeConfig(product.categoryId, config)
+  const normalized = normalizeConfig(product.categoryId, config, product)
   const finish = getFinish(normalized.finishId)
   const thickness = getThickness(normalized.thicknessId)
   const boardSupply = getBoardSupply(normalized.boardSupply ?? 'finished')
@@ -396,12 +438,13 @@ export function calculatePrice(
   let unitPrice: number
   let sizeFactor = 1
   let baseRate: number
+  let handleAddOn = 0
 
   if (isCncCarveHd(normalized)) {
     // Unfinished CNC-Carve HD Board — flat ₹/sq ft, no paint / finishing
     const sqft = normalized.width * normalized.height
     sizeFactor = sqft
-    baseRate = CNC_CARVE_HD_RATE_PER_SQFT
+    baseRate = getCncCarveHdRate(product)
     unitPrice = Math.round(baseRate * sqft)
   } else {
     const baseFinish = getFinish(product.defaultFinishId ?? normalized.finishId)
@@ -435,6 +478,11 @@ export function calculatePrice(
       sizeFactor = clamp(sizeFactor, 0.45, 3.5)
       unitPrice = Math.round(baseRate * finishMult * thicknessMult * sizeFactor)
     }
+
+    if (normalized.includeHandlePair && product.handlePairPrice != null) {
+      handleAddOn = product.handlePairPrice
+      unitPrice += handleAddOn
+    }
   }
 
   return {
@@ -447,6 +495,7 @@ export function calculatePrice(
     config: normalized,
     sizeFactor,
     baseRate,
+    handleAddOn,
   }
 }
 
@@ -459,6 +508,7 @@ export function configKey(config: PriceConfig) {
     config.depth,
     config.buildScope ?? 'shutter',
     config.boardSupply ?? 'finished',
+    config.includeHandlePair ? 'handles' : 'no-handles',
   ].join('|')
 }
 
@@ -468,6 +518,7 @@ export function describeConfig(categoryId: string, config: PriceConfig) {
     return [
       'CNC-Carve HD Board',
       'No paint · No finishing',
+      getThickness(config.thicknessId).label,
       dims,
     ].join(' · ')
   }
@@ -476,6 +527,9 @@ export function describeConfig(categoryId: string, config: PriceConfig) {
   const parts = [`${finish.name} · ${thickness.label} · ${dims}`]
   if (supportsBuildScope(categoryId)) {
     parts.unshift(getBuildScope(config.buildScope ?? 'shutter').name)
+  }
+  if (config.includeHandlePair) {
+    parts.push('Handle pair')
   }
   return parts.join(' · ')
 }

@@ -3,11 +3,12 @@ import { createPortal } from 'react-dom'
 import { formatPrice, getMinOrderQuantity, type Product } from '../data/catalog'
 import {
   calculatePrice,
-  CNC_CARVE_HD_RATE_PER_SQFT,
   defaultConfig,
   describeConfig,
+  getCncCarveHdRate,
   getFinishOptionsForProduct,
   getSizeLimits,
+  getThickness,
   getThicknessOptionsForProduct,
   isCncCarveHd,
   supportsBoardSupply,
@@ -92,14 +93,18 @@ function CalculatorOverlay({ product, onClose }: OverlayProps) {
   const priceCategories = useMemo((): PriceCategoryOption[] => {
     const options: PriceCategoryOption[] = []
 
+    const withHandles = product.handlePairPrice != null
+
     if (hasBuildScope) {
       const shutterPatch: Partial<PriceConfig> = {
         boardSupply: 'finished',
         buildScope: 'shutter',
+        includeHandlePair: withHandles ? config.includeHandlePair : false,
       }
       const carcassPatch: Partial<PriceConfig> = {
         boardSupply: 'finished',
         buildScope: 'with-carcass',
+        includeHandlePair: withHandles ? config.includeHandlePair : false,
       }
       options.push({
         id: 'shutter',
@@ -114,7 +119,10 @@ function CalculatorOverlay({ product, onClose }: OverlayProps) {
         patch: carcassPatch,
       })
     } else if (hasCnc) {
-      const finishedPatch: Partial<PriceConfig> = { boardSupply: 'finished' }
+      const finishedPatch: Partial<PriceConfig> = {
+        boardSupply: 'finished',
+        includeHandlePair: withHandles ? config.includeHandlePair : false,
+      }
       options.push({
         id: 'finished',
         label: 'Finished',
@@ -126,6 +134,10 @@ function CalculatorOverlay({ product, onClose }: OverlayProps) {
     if (hasCnc) {
       const cncPatch: Partial<PriceConfig> = {
         boardSupply: 'cnc-carve-hd' as BoardSupplyId,
+        includeHandlePair: false,
+        ...(product.cncThicknessId
+          ? { thicknessId: product.cncThicknessId }
+          : {}),
       }
       options.push({
         id: 'cnc-carve-hd',
@@ -188,6 +200,13 @@ function CalculatorOverlay({ product, onClose }: OverlayProps) {
     cncMode || product.pricingMode === 'per-sqft'
       ? Math.round(quote.config.width * quote.config.height * 10) / 10
       : null
+  const cncRate = getCncCarveHdRate(product)
+  const cncThickness = product.cncThicknessId
+    ? getThickness(product.cncThicknessId)
+    : null
+  const orderNotes = product.orderNotes ?? []
+  const showHandleToggle =
+    !cncMode && product.handlePairPrice != null && product.handlePairPrice > 0
 
   return createPortal(
     <div className="calc-overlay" role="presentation">
@@ -258,23 +277,70 @@ function CalculatorOverlay({ product, onClose }: OverlayProps) {
           </fieldset>
         ) : null}
 
-        {!cncMode && (finishOptions.length > 0 || thicknessOptions.length > 0) ? (
+        {cncMode ? (
+          <div className="calc-sheet__finish-row">
+            <div className="calc-sheet__field">
+              <span>Finish</span>
+              <p className="calc-sheet__locked calc-sheet__locked--strong">
+                No paint · No finishing
+              </p>
+            </div>
+            <div className="calc-sheet__field">
+              <span>Board</span>
+              <p className="calc-sheet__locked calc-sheet__locked--strong">
+                CNC HD{cncThickness ? ` · ${cncThickness.label}` : ''}
+              </p>
+            </div>
+          </div>
+        ) : finishOptions.length > 0 || thicknessOptions.length > 0 ? (
           <div className="calc-sheet__finish-row">
             {finishOptions.length > 0 ? (
-              <div className="calc-sheet__field">
-                <span>Finish</span>
-                <p className="calc-sheet__locked calc-sheet__locked--strong">
-                  {finishOptions[0]!.name}
-                </p>
-              </div>
+              finishOptions.length === 1 ? (
+                <div className="calc-sheet__field">
+                  <span>Finish</span>
+                  <p className="calc-sheet__locked calc-sheet__locked--strong">
+                    {finishOptions[0]!.name}
+                  </p>
+                </div>
+              ) : (
+                <label className="calc-sheet__field">
+                  Finish
+                  <select
+                    value={config.finishId}
+                    onChange={(e) => update({ finishId: e.target.value })}
+                  >
+                    {finishOptions.map((finish) => (
+                      <option key={finish.id} value={finish.id}>
+                        {finish.name}
+                      </option>
+                    ))}
+                  </select>
+                </label>
+              )
             ) : null}
             {thicknessOptions.length > 0 ? (
-              <div className="calc-sheet__field">
-                <span>Thickness</span>
-                <p className="calc-sheet__locked calc-sheet__locked--strong">
-                  {thicknessOptions[0]!.label}
-                </p>
-              </div>
+              thicknessOptions.length === 1 ? (
+                <div className="calc-sheet__field">
+                  <span>Thickness</span>
+                  <p className="calc-sheet__locked calc-sheet__locked--strong">
+                    {thicknessOptions[0]!.label}
+                  </p>
+                </div>
+              ) : (
+                <label className="calc-sheet__field">
+                  Thickness
+                  <select
+                    value={config.thicknessId}
+                    onChange={(e) => update({ thicknessId: e.target.value })}
+                  >
+                    {thicknessOptions.map((thickness) => (
+                      <option key={thickness.id} value={thickness.id}>
+                        {thickness.label}
+                      </option>
+                    ))}
+                  </select>
+                </label>
+              )
             ) : null}
           </div>
         ) : null}
@@ -311,6 +377,31 @@ function CalculatorOverlay({ product, onClose }: OverlayProps) {
           </div>
         )}
 
+        {showHandleToggle ? (
+          <label className="calc-sheet__addon">
+            <input
+              type="checkbox"
+              checked={Boolean(config.includeHandlePair)}
+              onChange={(e) => update({ includeHandlePair: e.target.checked })}
+            />
+            <span>
+              Handle pair · {formatPrice(product.handlePairPrice!)}
+              <small>Back side laminated</small>
+            </span>
+          </label>
+        ) : null}
+
+        {orderNotes.length > 0 ? (
+          <div className="calc-sheet__notes">
+            <p className="calc-sheet__notes-title">Order notes</p>
+            <ul>
+              {orderNotes.map((note) => (
+                <li key={note}>{note}</li>
+              ))}
+            </ul>
+          </div>
+        ) : null}
+
         <div className="calc-sheet__footer">
           <div className="calc-sheet__estimate">
             <p className="calc-sheet__estimate-label">Estimated price</p>
@@ -319,10 +410,13 @@ function CalculatorOverlay({ product, onClose }: OverlayProps) {
               {describeConfig(product.categoryId, quote.config)}
               {sqft != null ? ` · ${sqft} sq ft` : ''}
               {cncMode
-                ? ` · ${formatPrice(CNC_CARVE_HD_RATE_PER_SQFT)}/sq ft`
+                ? ` · ${formatPrice(cncRate)}/sq ft`
                 : product.pricingMode === 'per-sqft'
                   ? ` · ${formatPrice(quote.baseRate)}/sq ft`
                   : ''}
+              {quote.handleAddOn > 0
+                ? ` · +${formatPrice(quote.handleAddOn)} handles`
+                : ''}
               {minQty > 1 ? ` · min ${minQty} packs` : ''}
             </p>
           </div>

@@ -16,6 +16,7 @@ const FINISH_LABELS: Record<string, string> = {
   gloss: 'High gloss lacquer',
   textured: 'Textured finish',
   ceramic: 'Ceramic coating',
+  oxidised: 'Oxidised finish',
 }
 
 function finishLabel(product: Product) {

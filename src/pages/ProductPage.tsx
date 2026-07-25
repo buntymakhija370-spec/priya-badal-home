@@ -5,11 +5,15 @@ import {
   getCategory,
   getMinOrderQuantity,
   getSubcategory,
+  isProductCustomizable,
   type SpecRow,
 } from '../data/catalog'
 import { getAllProducts, getProductById } from '../lib/products'
 import { getProductMedia } from '../lib/media'
 import { resolveProductPresentation } from '../lib/productSpecs'
+import { defaultConfig } from '../lib/pricing'
+import { addConfiguredToCart } from '../lib/cart'
+import { buildWhatsAppProductUrl } from '../lib/whatsapp'
 import { ProductGallery } from '../components/ProductGallery'
 import { ProductCard } from '../components/ProductCard'
 import { CustomizeButton } from '../components/PriceCalculator'
@@ -45,6 +49,7 @@ export function ProductPage() {
   useProductSeo(product)
   const { currency } = useCurrency()
   const [section, setSection] = useState<SectionId>('details')
+  const [added, setAdded] = useState(false)
 
   const related = useMemo(() => {
     if (!product) return []
@@ -68,6 +73,7 @@ export function ProductPage() {
   const presentation = resolveProductPresentation(product)
   const minQty = getMinOrderQuantity(product)
   const isCommercial = product.categoryId === 'commercials'
+  const customizable = isProductCustomizable(product)
 
   return (
     <main className="product-page page-pad">
@@ -99,7 +105,9 @@ export function ProductPage() {
           ) : null}
 
           <div className="product-page__price-block">
-            <span className="product-page__price-from">From</span>
+            {customizable ? (
+              <span className="product-page__price-from">From</span>
+            ) : null}
             <span className="product-page__price-value">{formatPrice(product.price)}</span>
             {product.pricingMode === 'per-sqft' && (
               <span className="product-page__price-unit">
@@ -143,11 +151,17 @@ export function ProductPage() {
                 <li>Lowest commercial rate</li>
                 <li>Project WhatsApp quote</li>
               </>
-            ) : (
+            ) : customizable ? (
               <>
                 <li>12-month warranty</li>
                 <li>On-site assembly</li>
                 <li>Made to measure</li>
+              </>
+            ) : (
+              <>
+                <li>12-month warranty</li>
+                <li>One-of-a-kind piece</li>
+                <li>As shown · ready to order</li>
               </>
             )}
           </ul>
@@ -161,7 +175,36 @@ export function ProductPage() {
           <p className="product-page__desc">{product.description}</p>
 
           <div className="product-page__actions">
-            <CustomizeButton product={product} />
+            {customizable ? (
+              <CustomizeButton product={product} />
+            ) : (
+              <div className="product-page__cta-stack">
+                <button
+                  type="button"
+                  className="btn btn--dark"
+                  onClick={() => {
+                    addConfiguredToCart({
+                      productId: product.id,
+                      quantity: 1,
+                      config: defaultConfig(product.categoryId, product),
+                      unitPrice: product.price,
+                    })
+                    setAdded(true)
+                    window.setTimeout(() => setAdded(false), 1400)
+                  }}
+                >
+                  {added ? 'Added to cart' : 'Add to cart'}
+                </button>
+                <a
+                  className="whatsapp-quote-btn"
+                  href={buildWhatsAppProductUrl(product)}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                >
+                  WhatsApp Quote
+                </a>
+              </div>
+            )}
             <FavoriteButton productId={product.id} className="product-page__fav" />
           </div>
           <Link
@@ -170,9 +213,11 @@ export function ProductPage() {
           >
             Visualise in my room (AI)
           </Link>
-          <Link className="product-page__how" to="/how-it-works">
-            How your custom order works
-          </Link>
+          {customizable ? (
+            <Link className="product-page__how" to="/how-it-works">
+              How your custom order works
+            </Link>
+          ) : null}
 
           <p className="product-page__sku">Sku: {presentation.sku}</p>
         </div>

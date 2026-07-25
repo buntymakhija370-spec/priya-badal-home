@@ -47,6 +47,20 @@ export function buildWhatsAppQuoteUrl(
   return `https://wa.me/${WHATSAPP_QUOTE_NUMBER}?text=${encodeURIComponent(text)}`
 }
 
+/** Fixed catalog pieces (e.g. Live Edge) — no size/finish customisation */
+export function buildWhatsAppProductUrl(product: Product) {
+  const lines = [
+    'Hi Priyabadal Homes, I am interested in this product:',
+    '',
+    `Product: ${product.name}`,
+    `Price: ${formatPrice(product.price, 'INR')}`,
+    '',
+    'Please share availability and next steps. Thank you.',
+  ]
+  const text = lines.join('\n')
+  return `https://wa.me/${WHATSAPP_QUOTE_NUMBER}?text=${encodeURIComponent(text)}`
+}
+
 export type CartQuoteLine = {
   item: CartItem
   product: Product

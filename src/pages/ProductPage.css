@@ -172,6 +172,18 @@
   margin-bottom: 0.55rem;
 }
 
+.product-page__cta-stack {
+  display: grid;
+  gap: 0.5rem;
+  min-width: 0;
+}
+
+.product-page__cta-stack .btn,
+.product-page__cta-stack .whatsapp-quote-btn {
+  width: 100%;
+  min-height: 2.85rem;
+}
+
 .product-page__visualise {
   width: 100%;
   margin-bottom: 0.55rem;

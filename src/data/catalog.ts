@@ -28,6 +28,11 @@ export type Category = {
   conceptNote?: string
   /** Default minimum order for this category (e.g. bulk commercials) */
   minOrderQuantity?: number
+  /**
+   * When false, products in this category are fixed pieces —
+   * no Customise & Price calculator. Defaults to true.
+   */
+  customizable?: boolean
   subcategories: Subcategory[]
 }
 
@@ -161,6 +166,7 @@ export const categories: Category[] = [
       'Natural live-edge wood pieces — seaters, consoles, tables, stools, and basins.',
     image: '/products/categories/live-edge-furniture.jpg',
     video: '/products/categories/live-edge-furniture.mp4',
+    customizable: false,
     subcategories: [
       { id: 'seaters', name: 'Seaters' },
       { id: 'consoles', name: 'Consoles' },
@@ -1919,6 +1925,12 @@ export function getMinOrderQuantity(product: Product): number {
   return category?.minOrderQuantity && category.minOrderQuantity > 1
     ? category.minOrderQuantity
     : 1
+}
+
+/** Live Edge and similar fixed pieces — no Customise & Price */
+export function isProductCustomizable(product: Pick<Product, 'categoryId'>): boolean {
+  const category = getCategory(product.categoryId)
+  return category?.customizable !== false
 }
 
 export { formatPrice } from '../lib/currency'

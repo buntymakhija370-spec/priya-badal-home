@@ -1,13 +1,18 @@
+import { useState } from 'react'
 import { Link } from 'react-router-dom'
 import {
   formatPrice,
   getCategory,
   getMinOrderQuantity,
+  isProductCustomizable,
   type Product,
 } from '../data/catalog'
 import { getProductMedia } from '../lib/media'
 import { productPath } from '../lib/links'
 import { useCurrency } from '../hooks/useCurrency'
+import { defaultConfig } from '../lib/pricing'
+import { addConfiguredToCart } from '../lib/cart'
+import { buildWhatsAppProductUrl } from '../lib/whatsapp'
 import { ProductImageScroller } from './ProductImageScroller'
 import { CustomizeButton } from './PriceCalculator'
 import { FavoriteButton } from './FavoriteButton'
@@ -23,6 +28,8 @@ export function ProductCard({ product }: Props) {
   const media = getProductMedia(product)
   const category = getCategory(product.categoryId)
   const minQty = getMinOrderQuantity(product)
+  const customizable = isProductCustomizable(product)
+  const [added, setAdded] = useState(false)
 
   return (
     <article className="product-card">
@@ -51,7 +58,9 @@ export function ProductCard({ product }: Props) {
           <Link to={href}>{product.name}</Link>
         </h3>
         <p className="product-card__price">
-          <span className="product-card__price-from">From</span>{' '}
+          {customizable ? (
+            <span className="product-card__price-from">From</span>
+          ) : null}{' '}
           {formatPrice(product.price)}
           {product.pricingMode === 'per-sqft' ? (
             <span className="product-card__price-unit"> /sq ft shutter</span>
@@ -76,7 +85,36 @@ export function ProductCard({ product }: Props) {
           </p>
         ) : null}
         <p className="product-card__desc">{product.description}</p>
-        <CustomizeButton product={product} className="product-card__customise" />
+        {customizable ? (
+          <CustomizeButton product={product} className="product-card__customise" />
+        ) : (
+          <div className="product-card__fixed-cta">
+            <button
+              type="button"
+              className="btn btn--dark product-card__customise"
+              onClick={() => {
+                addConfiguredToCart({
+                  productId: product.id,
+                  quantity: 1,
+                  config: defaultConfig(product.categoryId, product),
+                  unitPrice: product.price,
+                })
+                setAdded(true)
+                window.setTimeout(() => setAdded(false), 1400)
+              }}
+            >
+              {added ? 'Added to cart' : 'Add to cart'}
+            </button>
+            <a
+              className="product-card__wa"
+              href={buildWhatsAppProductUrl(product)}
+              target="_blank"
+              rel="noopener noreferrer"
+            >
+              WhatsApp
+            </a>
+          </div>
+        )}
       </div>
     </article>
   )

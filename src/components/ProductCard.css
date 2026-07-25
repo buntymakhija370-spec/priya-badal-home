@@ -159,3 +159,28 @@
   margin-top: auto;
   padding-top: 0.15rem;
 }
+
+.product-card__fixed-cta {
+  margin-top: auto;
+  padding-top: 0.15rem;
+  display: grid;
+  gap: 0.45rem;
+}
+
+.product-card__wa {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 2.6rem;
+  border-radius: 0.4rem;
+  background: #25d366;
+  color: #fff;
+  font-size: 0.84rem;
+  font-weight: 600;
+}
+
+.product-card__wa:hover,
+.product-card__wa:focus-visible {
+  background: #1ebe57;
+  color: #fff;
+}

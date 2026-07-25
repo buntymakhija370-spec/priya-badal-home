@@ -142,7 +142,12 @@ const BOARD_SUPPLY_LOOKUP: Record<BoardSupplyId, BoardSupplyOption> = {
 }
 
 /** Categories that do not offer CNC-Carve HD Board (unique / bulk packs) */
-const CNC_BOARD_EXCLUDED = new Set(['live-edge-furniture', 'commercials', 'silaibunai'])
+const CNC_BOARD_EXCLUDED = new Set([
+  'live-edge-furniture',
+  'commercials',
+  'silaibunai',
+  'handles',
+])
 
 export function supportsBoardSupply(categoryId: string): boolean {
   return !CNC_BOARD_EXCLUDED.has(categoryId)
@@ -289,6 +294,19 @@ const SIZE_BY_CATEGORY: Record<string, Partial<SizeLimits>> = {
     maxWidth: 4,
     minHeight: 6,
     maxHeight: 8,
+  },
+  handles: {
+    defaultWidth: 1,
+    defaultHeight: 1,
+    defaultDepth: 0.2,
+    baseWidth: 1,
+    baseHeight: 1,
+    baseDepth: 0.2,
+    usesDepth: false,
+    minWidth: 1,
+    maxWidth: 4,
+    minHeight: 1,
+    maxHeight: 4,
   },
   'sculpted-furniture': {
     defaultWidth: 6,

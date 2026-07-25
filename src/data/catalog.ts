@@ -4,6 +4,7 @@ export type CategoryId =
   | 'wardrobe'
   | 'temple'
   | 'doors'
+  | 'handles'
   | 'sculpted-furniture'
   | 'live-edge-furniture'
   | 'silaibunai'
@@ -160,6 +161,19 @@ export const categories: Category[] = [
       { id: 'main-door', name: 'Main Door' },
       { id: 'room-door', name: 'Room Door' },
       { id: 'flush', name: 'Flush Door' },
+    ],
+  },
+  {
+    id: 'handles',
+    name: 'Handles',
+    description:
+      'Designer shutter and door handles — sculpted, pull, and pair sets for wardrobes, temples, and doors.',
+    image: '/products/categories/handles.jpg',
+    subcategories: [
+      { id: 'sculpted', name: 'Sculpted' },
+      { id: 'pull', name: 'Pull Handles' },
+      { id: 'knob', name: 'Knobs' },
+      { id: 'pair-sets', name: 'Pair Sets' },
     ],
   },
   {

@@ -11,7 +11,7 @@ export const ORDER_STEPS: OrderStep[] = [
     title: 'Choose your piece',
     summary: 'Browse categories and pick the look you like.',
     detail:
-      'Explore wardrobes, kitchens, doors, wall panels, temples, sculpted furniture, or silai bunai. Open a product to see finishes, sizes, and details.',
+      'Explore wardrobes, kitchens, doors, handles, wall panels, temples, sculpted furniture, or silai bunai. Open a product to see finishes, sizes, and details.',
   },
   {
     id: 'customise',

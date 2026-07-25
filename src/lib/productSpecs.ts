@@ -15,6 +15,7 @@ const FINISH_LABELS: Record<string, string> = {
   walnut: 'Walnut veneer',
   gloss: 'High gloss lacquer',
   textured: 'Textured finish',
+  ceramic: 'Ceramic coating',
 }
 
 function finishLabel(product: Product) {

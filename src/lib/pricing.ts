@@ -123,9 +123,11 @@ const FINISH_LOOKUP: Record<string, FinishOption> = {
   walnut: { id: 'walnut', name: 'Walnut veneer', multiplier: 1.32 },
   gloss: { id: 'gloss', name: 'High gloss lacquer', multiplier: 1.2 },
   textured: { id: 'textured', name: 'Textured finish', multiplier: 1.08 },
+  ceramic: { id: 'ceramic', name: 'Ceramic coating', multiplier: 1 },
 }
 
 const THICKNESS_LOOKUP: Record<string, ThicknessOption> = {
+  '6': { id: '6', label: '6 mm', mm: 6, multiplier: 1 },
   '12': { id: '12', label: '12 mm', mm: 12, multiplier: 0.82 },
   '18': { id: '18', label: '18 mm', mm: 18, multiplier: 0.92 },
   '25': { id: '25', label: '25 mm', mm: 25, multiplier: 1 },
@@ -163,9 +165,9 @@ const SIZE_BY_CATEGORY: Record<string, Partial<SizeLimits>> = {
     baseDepth: 0.1,
     usesDepth: false,
     minWidth: 1,
-    maxWidth: 4,
-    minHeight: 2,
-    maxHeight: 10,
+    maxWidth: 14,
+    minHeight: 1,
+    maxHeight: 12,
   },
   kitchen: {
     defaultWidth: 8,

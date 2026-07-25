@@ -20,6 +20,7 @@ const FINISH_LABELS: Record<string, string> = {
   'ceramic-20': 'Ceramic coating (+20%)',
   oxidised: 'Oxidised finish',
   'iron-metallic': 'Iron metallic coating',
+  metallic: 'Metallic finish',
 }
 
 function finishLabel(product: Product) {

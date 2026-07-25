@@ -226,6 +226,7 @@ const FINISH_LOOKUP: Record<string, FinishOption> = {
     name: 'Iron metallic coating',
     multiplier: 1,
   },
+  metallic: { id: 'metallic', name: 'Metallic', multiplier: 1 },
 }
 
 const THICKNESS_LOOKUP: Record<string, ThicknessOption> = {

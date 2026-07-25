@@ -11,8 +11,8 @@ import {
   getThickness,
   getThicknessOptionsForProduct,
   isCncCarveHd,
-  supportsBoardSupply,
   productHasCarcass,
+  productSupportsCnc,
   supportsBuildScope,
   type BoardSupplyId,
   type BuildScopeId,
@@ -91,7 +91,7 @@ function CalculatorOverlay({ product, onClose }: OverlayProps) {
   const thicknessOptions = getThicknessOptionsForProduct(product)
   const hasBuildScope = supportsBuildScope(product.categoryId)
   const hasCarcass = productHasCarcass(product)
-  const hasCnc = supportsBoardSupply(product.categoryId)
+  const hasCnc = productSupportsCnc(product.categoryId, product)
   const cncMode = isCncCarveHd(config)
 
   const quote = useMemo(

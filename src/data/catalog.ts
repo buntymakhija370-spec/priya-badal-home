@@ -69,6 +69,8 @@ export type Product = {
   cncCarveHdRate?: number
   /** Thickness id used for CNC-Carve HD Board quotes (e.g. '16') */
   cncThicknessId?: string
+  /** Set false to hide CNC-Carve HD Board for this product */
+  cncAvailable?: boolean
   /** Optional sculpted handle pair add-on (INR for the pair) */
   handlePairPrice?: number
   /**
@@ -1767,15 +1769,19 @@ export const baseProducts: Product[] = [
     name: 'Lotus Circle Wood Niche Mandir',
     categoryId: 'temple',
     subcategoryId: 'wall-mounted',
-    price: 84999,
+    price: 1100,
     currency: 'INR',
-    pricingMode: 'unit',
-    defaultFinishId: 'pu',
+    pricingMode: 'per-sqft',
+    defaultFinishId: 'laminated',
+    defaultThicknessId: '22',
+    finishOptionIds: ['laminated'],
+    thicknessOptionIds: ['25', '22'],
+    cncAvailable: false,
     brand: 'Priyabadal Homes',
     collection: 'Temple',
     sku: 'PBH-TMP-04',
     description:
-      'Built-in arched wood mandir with glowing lotus circle shutters, cow-motif inlays, and a marble-look lit altar.',
+      'Built-in arched wood mandir with glowing lotus circle shutters, cow-motif inlays, and a marble-look lit altar. Doors only — BWP plywood, laminated finish.',
     style: ['modern', 'warm', 'traditional'],
     rooms: ['puja', 'temple', 'living room'],
     image: '/products/temple/temple-04-01.png',
@@ -1784,13 +1790,48 @@ export const baseProducts: Product[] = [
       '/products/temple/temple-04-02.png',
     ],
     highlights: [
+      'Doors ₹1,100 / sq ft · BWP plywood',
+      'Laminated finish · 22 mm / 25 mm',
+      'Doors only — no carcass',
       'Backlit lotus circle shutters',
-      'Natural wood grain finish',
       'Cow motif inlay tiles',
       'Arched niche halo lighting',
-      'Customise size & finish',
-      'WhatsApp quote available',
     ],
+    details: [
+      { label: 'Brand', value: 'Priyabadal Homes' },
+      { label: 'Collection', value: 'Temple' },
+      { label: 'Sku', value: 'PBH-TMP-04' },
+      { label: 'Assembly', value: 'Carpenter Assembly (on-site)' },
+      { label: 'Dimensions', value: 'Made to measure (custom width × height)' },
+      { label: 'Room Type', value: 'Puja, Temple, Living room' },
+      { label: 'Warranty', value: "12 Months' warranty on manufacturing defects" },
+    ],
+    specifications: [
+      { label: 'Door / shutter rate', value: '₹1,100 / sq ft' },
+      { label: 'Shutter material', value: 'BWP plywood' },
+      { label: 'Carcass', value: 'Not included — doors only' },
+      { label: 'Colour / Finish', value: 'Laminated' },
+      { label: 'Board Thickness', value: '25 mm or 22 mm' },
+      { label: 'CNC-Carve HD Board', value: 'Not available on this product' },
+      { label: 'Pricing', value: 'Per sq ft — doors only (no carcass option)' },
+      { label: 'Category', value: 'Temple' },
+      { label: 'Subcategory', value: 'Wall Mounted' },
+      { label: 'Country of Origin', value: 'India' },
+      { label: 'Care', value: 'Wipe with a soft dry cloth; avoid harsh cleaners' },
+    ],
+    orderNotes: [
+      'Doors only — no carcass',
+      'Shutter: BWP plywood · laminated finish · 25 mm / 22 mm · ₹1,100 / sq ft',
+      'CNC-Carve HD Board not available on this product',
+    ],
+    features: [
+      'Temple doors only — carcass not included',
+      'Shutter material BWP plywood with laminated finish',
+      'Backlit lotus circle shutters with cow-motif inlays',
+      'CNC-Carve HD Board not offered on this model',
+    ],
+    disclaimer:
+      'Accessories and room settings in images are for representation only. Final colour, finish, and size are confirmed on WhatsApp before production. This product is doors only — carcass is not included.',
   },
   {
     id: 'brushed-metal-scallop-mandir',

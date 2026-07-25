@@ -160,6 +160,15 @@ export function supportsBoardSupply(categoryId: string): boolean {
   return !CNC_BOARD_EXCLUDED.has(categoryId)
 }
 
+/** Category allows CNC, unless the product sets cncAvailable: false */
+export function productSupportsCnc(
+  categoryId: string,
+  product?: Pick<Product, 'cncAvailable'> | null,
+): boolean {
+  if (product?.cncAvailable === false) return false
+  return supportsBoardSupply(categoryId)
+}
+
 export function getBoardSupply(id: string): BoardSupplyOption {
   return BOARD_SUPPLY_LOOKUP[id as BoardSupplyId] ?? BOARD_SUPPLY_LOOKUP.finished
 }
@@ -197,6 +206,7 @@ export function getCncCarveHdRate(
 
 const FINISH_LOOKUP: Record<string, FinishOption> = {
   pu: { id: 'pu', name: 'PU', multiplier: 1 },
+  laminated: { id: 'laminated', name: 'Laminated', multiplier: 1 },
   matte: { id: 'matte', name: 'Matte laminate', multiplier: 0.92 },
   'natural-oak': { id: 'natural-oak', name: 'Natural oak', multiplier: 1.18 },
   walnut: { id: 'walnut', name: 'Walnut veneer', multiplier: 1.32 },
@@ -212,6 +222,7 @@ const THICKNESS_LOOKUP: Record<string, ThicknessOption> = {
   '12': { id: '12', label: '12 mm', mm: 12, multiplier: 0.82 },
   '16': { id: '16', label: '16 mm', mm: 16, multiplier: 1 },
   '18': { id: '18', label: '18 mm', mm: 18, multiplier: 0.92 },
+  '22': { id: '22', label: '22 mm', mm: 22, multiplier: 1 },
   '25': { id: '25', label: '25 mm', mm: 25, multiplier: 1 },
   '28': { id: '28', label: '28 mm', mm: 28, multiplier: 1 },
   '32': { id: '32', label: '32 mm', mm: 32, multiplier: 1.18 },
@@ -415,11 +426,11 @@ export function normalizeConfig(
   config: PriceConfig,
   product?: Pick<
     Product,
-    'cncThicknessId' | 'handlePairPrice' | 'carcassPrice'
+    'cncThicknessId' | 'handlePairPrice' | 'carcassPrice' | 'cncAvailable'
   >,
 ): PriceConfig {
   const size = getSizeLimits(categoryId)
-  const boardSupply = supportsBoardSupply(categoryId)
+  const boardSupply = productSupportsCnc(categoryId, product)
     ? getBoardSupply(config.boardSupply ?? 'finished').id
     : 'finished'
   const buildScope =

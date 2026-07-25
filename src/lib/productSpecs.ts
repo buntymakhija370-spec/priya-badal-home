@@ -7,6 +7,7 @@ import {
 
 const FINISH_LABELS: Record<string, string> = {
   pu: 'PU finish',
+  laminated: 'Laminated finish',
   laminate: 'Laminate finish',
   veneer: 'Veneer finish',
   acrylic: 'Acrylic finish',

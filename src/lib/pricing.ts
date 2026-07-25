@@ -215,6 +215,11 @@ const FINISH_LOOKUP: Record<string, FinishOption> = {
   ceramic: { id: 'ceramic', name: 'Ceramic coating', multiplier: 1 },
   /** 30% above ceramic / product base finish */
   oxidised: { id: 'oxidised', name: 'Oxidised finish (+30%)', multiplier: 1.3 },
+  'iron-metallic': {
+    id: 'iron-metallic',
+    name: 'Iron metallic coating',
+    multiplier: 1,
+  },
 }
 
 const THICKNESS_LOOKUP: Record<string, ThicknessOption> = {

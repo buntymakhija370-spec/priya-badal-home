@@ -90,7 +90,7 @@ export function ProductPage() {
 
       <div className="product-page__layout">
         <div className="product-page__gallery">
-          <ProductGallery media={media} alt={product.name} />
+          <ProductGallery key={product.id} media={media} alt={product.name} />
         </div>
 
         <div className="product-page__info">

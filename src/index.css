@@ -30,7 +30,8 @@
 }
 
 html {
-  scroll-behavior: smooth;
+  /* Keep auto — smooth on html makes route changes animate-scroll before open */
+  scroll-behavior: auto;
 }
 
 body {

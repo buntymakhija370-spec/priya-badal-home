@@ -21,7 +21,7 @@ export function ProductGallery({ media, alt }: Props) {
   useEffect(() => {
     setActive(0)
     const el = trackRef.current
-    if (el) el.scrollTo({ left: 0 })
+    if (el) el.scrollLeft = 0
   }, [media])
 
   useEffect(() => {

@@ -34,7 +34,8 @@ export function ProductImageScroller({
     y: number
     locked: 'x' | 'y' | null
     moved: boolean
-  }>({ x: 0, y: 0, locked: null, moved: false })
+    opened: boolean
+  }>({ x: 0, y: 0, locked: null, moved: false, opened: false })
 
   useEffect(() => {
     const el = scrollerRef.current
@@ -55,6 +56,18 @@ export function ProductImageScroller({
     const el = scrollerRef.current
     if (!el) return
 
+    const openIfTap = () => {
+      const g = gestureRef.current
+      if (!to || g.moved || g.locked === 'x' || g.opened) return false
+      // Freeze carousel so scroll-snap cannot animate before navigation
+      const width = el.clientWidth || 1
+      el.style.scrollSnapType = 'none'
+      el.scrollLeft = Math.round(el.scrollLeft / width) * width
+      g.opened = true
+      navigate(to)
+      return true
+    }
+
     const onTouchStart = (e: TouchEvent) => {
       const t = e.touches[0]
       if (!t) return
@@ -63,8 +76,10 @@ export function ProductImageScroller({
         y: t.clientY,
         locked: null,
         moved: false,
+        opened: false,
       }
       el.style.overflowX = gallery.length > 1 ? 'auto' : 'hidden'
+      el.style.scrollSnapType = ''
     }
 
     const onTouchMove = (e: TouchEvent) => {
@@ -81,7 +96,6 @@ export function ProductImageScroller({
         gestureRef.current.locked = dx > dy ? 'x' : 'y'
       }
 
-      // Vertical page scroll: lock out horizontal carousel jank
       if (gestureRef.current.locked === 'y') {
         el.style.overflowX = 'hidden'
       }
@@ -89,11 +103,13 @@ export function ProductImageScroller({
 
     const onTouchEnd = () => {
       el.style.overflowX = gallery.length > 1 ? 'auto' : 'hidden'
-      // Keep `moved` / `locked` until the synthetic click runs, then clear
+      openIfTap()
       window.setTimeout(() => {
         gestureRef.current.locked = null
         gestureRef.current.moved = false
-      }, 50)
+        gestureRef.current.opened = false
+        el.style.scrollSnapType = ''
+      }, 80)
     }
 
     el.addEventListener('touchstart', onTouchStart, { passive: true })
@@ -107,7 +123,7 @@ export function ProductImageScroller({
       el.removeEventListener('touchend', onTouchEnd)
       el.removeEventListener('touchcancel', onTouchEnd)
     }
-  }, [gallery.length])
+  }, [gallery.length, navigate, to])
 
   if (gallery.length === 0) return null
 
@@ -124,6 +140,7 @@ export function ProductImageScroller({
       y: e.clientY,
       locked: null,
       moved: false,
+      opened: false,
     }
   }
 
@@ -137,9 +154,12 @@ export function ProductImageScroller({
   }
 
   const onActivate = () => {
+    // Touch already navigates on touchend; this handles mouse / leftover click
     if (!to || gestureRef.current.moved || gestureRef.current.locked === 'x') {
       return
     }
+    if (gestureRef.current.opened) return
+    gestureRef.current.opened = true
     navigate(to)
   }
 

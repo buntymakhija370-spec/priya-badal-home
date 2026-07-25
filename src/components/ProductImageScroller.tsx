@@ -5,8 +5,9 @@ import {
   type KeyboardEvent,
   type PointerEvent,
 } from 'react'
-import { useNavigate } from 'react-router-dom'
+import { useLocation, useNavigate } from 'react-router-dom'
 import type { MediaItem } from '../lib/media'
+import { saveScrollMemory } from '../lib/scrollMemory'
 import './ProductImageScroller.css'
 
 type Props = {
@@ -26,6 +27,7 @@ export function ProductImageScroller({
   to,
 }: Props) {
   const navigate = useNavigate()
+  const location = useLocation()
   const gallery = media.length > 0 ? media : []
   const scrollerRef = useRef<HTMLDivElement>(null)
   const [active, setActive] = useState(0)
@@ -64,6 +66,7 @@ export function ProductImageScroller({
       el.style.scrollSnapType = 'none'
       el.scrollLeft = Math.round(el.scrollLeft / width) * width
       g.opened = true
+      saveScrollMemory(location.key, location.pathname)
       navigate(to)
       return true
     }
@@ -123,7 +126,7 @@ export function ProductImageScroller({
       el.removeEventListener('touchend', onTouchEnd)
       el.removeEventListener('touchcancel', onTouchEnd)
     }
-  }, [gallery.length, navigate, to])
+  }, [gallery.length, navigate, to, location.key, location.pathname])
 
   if (gallery.length === 0) return null
 
@@ -160,6 +163,7 @@ export function ProductImageScroller({
     }
     if (gestureRef.current.opened) return
     gestureRef.current.opened = true
+    saveScrollMemory(location.key, location.pathname)
     navigate(to)
   }
 

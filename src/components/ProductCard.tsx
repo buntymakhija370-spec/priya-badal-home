@@ -1,5 +1,5 @@
 import { useState } from 'react'
-import { Link } from 'react-router-dom'
+import { Link, useLocation } from 'react-router-dom'
 import {
   formatPrice,
   getCategory,
@@ -9,6 +9,7 @@ import {
 } from '../data/catalog'
 import { getProductMedia } from '../lib/media'
 import { productPath } from '../lib/links'
+import { saveScrollMemory } from '../lib/scrollMemory'
 import { useCurrency } from '../hooks/useCurrency'
 import { defaultConfig } from '../lib/pricing'
 import { addConfiguredToCart } from '../lib/cart'
@@ -24,7 +25,10 @@ type Props = {
 
 export function ProductCard({ product }: Props) {
   useCurrency()
+  const location = useLocation()
   const href = productPath(product.id)
+  const rememberScroll = () =>
+    saveScrollMemory(location.key, location.pathname)
   const media = getProductMedia(product)
   const category = getCategory(product.categoryId)
   const minQty = getMinOrderQuantity(product)
@@ -46,7 +50,9 @@ export function ProductCard({ product }: Props) {
       <div className="product-card__body">
         {category && <p className="product-card__cat">{category.name}</p>}
         <h3>
-          <Link to={href}>{product.name}</Link>
+          <Link to={href} onClick={rememberScroll}>
+            {product.name}
+          </Link>
         </h3>
         <p className="product-card__price">
           {customizable ? (

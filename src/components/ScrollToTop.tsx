@@ -1,32 +1,21 @@
-import { useEffect, useLayoutEffect, useRef } from 'react'
+import { useEffect, useLayoutEffect } from 'react'
 import { useLocation, useNavigationType } from 'react-router-dom'
-
-function forceScroll(y: number) {
-  const html = document.documentElement
-  const previous = html.style.scrollBehavior
-  html.style.scrollBehavior = 'auto'
-  window.scrollTo(0, y)
-  html.scrollTop = y
-  document.body.scrollTop = y
-  html.style.scrollBehavior = previous
-}
-
-function readScroll() {
-  return window.scrollY || window.pageYOffset || document.documentElement.scrollTop || 0
-}
+import {
+  forceWindowScroll,
+  restoreScrollMemory,
+  saveScrollMemory,
+} from '../lib/scrollMemory'
 
 /**
  * - New pages (PUSH / REPLACE): jump to top
- * - Back / forward (POP): restore the scroll position where you left
+ * - Back / forward (POP): restore where the customer left the list
  *
- * Important: save the leaving page's scroll in a layout cleanup *before*
- * the next page scrolls to top. A normal useEffect cleanup runs too late
- * and would overwrite the saved position with 0.
+ * Scroll is saved on every scroll AND in the click/touch capture phase
+ * before React Router navigates, so it cannot be overwritten with 0.
  */
 export function ScrollToTop() {
   const location = useLocation()
   const navigationType = useNavigationType()
-  const positions = useRef(new Map<string, number>())
 
   useEffect(() => {
     if ('scrollRestoration' in window.history) {
@@ -34,56 +23,62 @@ export function ScrollToTop() {
     }
   }, [])
 
-  // Keep updating the current entry while the user scrolls
+  // Continuously remember scroll for the active page
   useEffect(() => {
     const key = location.key
-    const save = () => {
-      positions.current.set(key, readScroll())
-    }
-    window.addEventListener('scroll', save, { passive: true })
-    return () => window.removeEventListener('scroll', save)
-  }, [location.key])
+    const path = location.pathname
+    const onScroll = () => saveScrollMemory(key, path)
+    window.addEventListener('scroll', onScroll, { passive: true })
+    return () => window.removeEventListener('scroll', onScroll)
+  }, [location.key, location.pathname])
 
-  // Save scroll for the page we are leaving — runs before the next page's jump-to-top
+  // Capture-phase: save BEFORE Link / navigate changes the page
+  useEffect(() => {
+    const key = location.key
+    const path = location.pathname
+
+    const saveNow = () => saveScrollMemory(key, path)
+
+    const onPointerDown = (event: Event) => {
+      const target = event.target
+      if (!(target instanceof Element)) return
+      // Any in-app navigation affordance
+      if (
+        target.closest('a[href]') ||
+        target.closest('[data-save-scroll]') ||
+        target.closest('.img-scroller__track') ||
+        target.closest('.product-card')
+      ) {
+        saveNow()
+      }
+    }
+
+    document.addEventListener('pointerdown', onPointerDown, true)
+    document.addEventListener('click', saveNow, true)
+    window.addEventListener('pagehide', saveNow)
+    return () => {
+      document.removeEventListener('pointerdown', onPointerDown, true)
+      document.removeEventListener('click', saveNow, true)
+      window.removeEventListener('pagehide', saveNow)
+    }
+  }, [location.key, location.pathname])
+
+  // Also save in layout cleanup (belt-and-suspenders)
   useLayoutEffect(() => {
     const key = location.key
+    const path = location.pathname
     return () => {
-      positions.current.set(key, readScroll())
-      try {
-        sessionStorage.setItem(`pbh:scroll:${key}`, String(readScroll()))
-      } catch {
-        /* private mode */
-      }
+      saveScrollMemory(key, path)
     }
-  }, [location.key])
+  }, [location.key, location.pathname])
 
-  // Restore on Back, or start at top on a new navigation
   useLayoutEffect(() => {
     if (navigationType === 'POP') {
-      let y = positions.current.get(location.key)
-      if (y == null) {
-        try {
-          const raw = sessionStorage.getItem(`pbh:scroll:${location.key}`)
-          if (raw != null) y = Number(raw) || 0
-        } catch {
-          y = 0
-        }
-      }
-      const top = y ?? 0
-      forceScroll(top)
-      // Re-apply after layout/images settle
-      requestAnimationFrame(() => forceScroll(top))
-      const t1 = window.setTimeout(() => forceScroll(top), 50)
-      const t2 = window.setTimeout(() => forceScroll(top), 200)
-      return () => {
-        window.clearTimeout(t1)
-        window.clearTimeout(t2)
-      }
+      return restoreScrollMemory(location.key, location.pathname)
     }
-
-    forceScroll(0)
+    forceWindowScroll(0)
     return undefined
-  }, [location.key, navigationType])
+  }, [location.key, location.pathname, navigationType])
 
   return null
 }

@@ -6,8 +6,6 @@ import {
   CNC_CARVE_HD_RATE_PER_SQFT,
   defaultConfig,
   describeConfig,
-  getBoardSupplyOptions,
-  getBuildScopeOptions,
   getFinishOptionsForProduct,
   getSizeLimits,
   getThicknessOptionsForProduct,
@@ -26,6 +24,13 @@ import './PriceCalculator.css'
 type Props = {
   product: Product
   className?: string
+}
+
+type PriceCategoryOption = {
+  id: string
+  label: string
+  unitPrice: number
+  patch: Partial<PriceConfig>
 }
 
 export function CustomizeButton({ product, className = '' }: Props) {
@@ -71,38 +76,71 @@ function CalculatorOverlay({ product, onClose }: OverlayProps) {
   const size = getSizeLimits(product.categoryId)
   const finishOptions = getFinishOptionsForProduct(product)
   const thicknessOptions = getThicknessOptionsForProduct(product)
-  const buildScopes = getBuildScopeOptions(product.categoryId)
-  const boardSupplies = getBoardSupplyOptions(product.categoryId)
-  const showBoardSupply = supportsBoardSupply(product.categoryId)
+  const hasBuildScope = supportsBuildScope(product.categoryId)
+  const hasCnc = supportsBoardSupply(product.categoryId)
   const cncMode = isCncCarveHd(config)
-  const showBuildScope = supportsBuildScope(product.categoryId) && !cncMode
 
   const quote = useMemo(
     () => calculatePrice(product, config),
     [product, config],
   )
 
-  const scopeQuotes = useMemo(() => {
-    if (!showBuildScope) return []
-    return buildScopes.map((scope) => ({
-      scope,
-      unitPrice: calculatePrice(product, {
-        ...config,
-        buildScope: scope.id,
-      }).unitPrice,
-    }))
-  }, [showBuildScope, buildScopes, product, config])
+  const priceCategories = useMemo((): PriceCategoryOption[] => {
+    const options: PriceCategoryOption[] = []
 
-  const boardQuotes = useMemo(() => {
-    if (!showBoardSupply) return []
-    return boardSupplies.map((supply) => ({
-      supply,
-      unitPrice: calculatePrice(product, {
-        ...config,
-        boardSupply: supply.id,
-      }).unitPrice,
-    }))
-  }, [showBoardSupply, boardSupplies, product, config])
+    if (hasBuildScope) {
+      const shutterPatch: Partial<PriceConfig> = {
+        boardSupply: 'finished',
+        buildScope: 'shutter',
+      }
+      const carcassPatch: Partial<PriceConfig> = {
+        boardSupply: 'finished',
+        buildScope: 'with-carcass',
+      }
+      options.push({
+        id: 'shutter',
+        label: 'Shutter only',
+        unitPrice: calculatePrice(product, { ...config, ...shutterPatch }).unitPrice,
+        patch: shutterPatch,
+      })
+      options.push({
+        id: 'with-carcass',
+        label: 'With carcass',
+        unitPrice: calculatePrice(product, { ...config, ...carcassPatch }).unitPrice,
+        patch: carcassPatch,
+      })
+    } else if (hasCnc) {
+      const finishedPatch: Partial<PriceConfig> = { boardSupply: 'finished' }
+      options.push({
+        id: 'finished',
+        label: 'Finished',
+        unitPrice: calculatePrice(product, { ...config, ...finishedPatch }).unitPrice,
+        patch: finishedPatch,
+      })
+    }
+
+    if (hasCnc) {
+      const cncPatch: Partial<PriceConfig> = {
+        boardSupply: 'cnc-carve-hd' as BoardSupplyId,
+      }
+      options.push({
+        id: 'cnc-carve-hd',
+        label: 'CNC-Carve HD',
+        unitPrice: calculatePrice(product, { ...config, ...cncPatch }).unitPrice,
+        patch: cncPatch,
+      })
+    }
+
+    return options
+  }, [hasBuildScope, hasCnc, product, config])
+
+  const selectedCategoryId = useMemo(() => {
+    if (cncMode) return 'cnc-carve-hd'
+    if (hasBuildScope) {
+      return (config.buildScope ?? 'shutter') as BuildScopeId
+    }
+    return 'finished'
+  }, [cncMode, hasBuildScope, config.buildScope])
 
   useEffect(() => {
     const y = window.scrollY
@@ -181,74 +219,29 @@ function CalculatorOverlay({ product, onClose }: OverlayProps) {
           </p>
         ) : null}
 
-        {showBoardSupply ? (
-          <fieldset className="calc-sheet__scopes">
-            <legend>Board supply</legend>
-            <p className="calc-sheet__scopes-hint">
-              Finished product as catalogued, or unfinished CNC-Carve HD Board
-              (white canvas — you paint and finish).
-            </p>
+        {priceCategories.length > 0 ? (
+          <fieldset className="calc-sheet__price-cats">
+            <legend>Price</legend>
             <div
-              className="calc-sheet__scope-grid"
+              className="calc-sheet__price-list"
               role="radiogroup"
-              aria-label="Board supply"
+              aria-label="Price category"
             >
-              {boardQuotes.map(({ supply, unitPrice }) => {
-                const selected = (config.boardSupply ?? 'finished') === supply.id
+              {priceCategories.map((option) => {
+                const selected = selectedCategoryId === option.id
                 return (
                   <button
-                    key={supply.id}
+                    key={option.id}
                     type="button"
                     role="radio"
                     aria-checked={selected}
-                    className={`calc-sheet__scope${selected ? ' is-selected' : ''}`}
-                    onClick={() =>
-                      update({ boardSupply: supply.id as BoardSupplyId })
-                    }
+                    className={`calc-sheet__price-row${selected ? ' is-selected' : ''}`}
+                    onClick={() => update(option.patch)}
                   >
-                    <span className="calc-sheet__scope-name">{supply.name}</span>
-                    <span className="calc-sheet__scope-desc">
-                      {supply.description}
+                    <span className="calc-sheet__price-row-label">{option.label}</span>
+                    <span className="calc-sheet__price-row-value">
+                      {formatPrice(option.unitPrice)}
                     </span>
-                    <span className="calc-sheet__scope-price">
-                      {formatPrice(unitPrice)}
-                    </span>
-                  </button>
-                )
-              })}
-            </div>
-          </fieldset>
-        ) : null}
-
-        {cncMode ? (
-          <p className="calc-sheet__cnc-note">
-            <strong>CNC-Carve HD Board</strong> — carved HD board only. No paint,
-            no finishing. Feel free to finish it however you like.
-            Rate {formatPrice(CNC_CARVE_HD_RATE_PER_SQFT)} / sq ft.
-          </p>
-        ) : null}
-
-        {showBuildScope ? (
-          <fieldset className="calc-sheet__scopes">
-            <legend>Price category</legend>
-            <p className="calc-sheet__scopes-hint">
-              Shutter only, or with carcass (shutter + carcass rates added).
-            </p>
-            <div className="calc-sheet__scope-grid" role="radiogroup" aria-label="Price category">
-              {scopeQuotes.map(({ scope, unitPrice }) => {
-                const selected = config.buildScope === scope.id
-                return (
-                  <button
-                    key={scope.id}
-                    type="button"
-                    role="radio"
-                    aria-checked={selected}
-                    className={`calc-sheet__scope${selected ? ' is-selected' : ''}`}
-                    onClick={() => update({ buildScope: scope.id as BuildScopeId })}
-                  >
-                    <span className="calc-sheet__scope-name">{scope.name}</span>
-                    <span className="calc-sheet__scope-desc">{scope.description}</span>
-                    <span className="calc-sheet__scope-price">{formatPrice(unitPrice)}</span>
                   </button>
                 )
               })}
@@ -257,33 +250,19 @@ function CalculatorOverlay({ product, onClose }: OverlayProps) {
         ) : null}
 
         <div className="calc-sheet__grid">
-          {cncMode ? (
+          {!cncMode && finishOptions.length > 0 ? (
             <div className="calc-sheet__field">
               <span>Finish</span>
-              <p className="calc-sheet__locked">No paint · No finishing</p>
+              <p className="calc-sheet__locked">{finishOptions[0]!.name}</p>
             </div>
-          ) : (
-            finishOptions.length > 0 && (
-              <div className="calc-sheet__field">
-                <span>Finish</span>
-                <p className="calc-sheet__locked">{finishOptions[0]!.name}</p>
-              </div>
-            )
-          )}
+          ) : null}
 
-          {cncMode ? (
+          {!cncMode && thicknessOptions.length > 0 ? (
             <div className="calc-sheet__field">
-              <span>Board</span>
-              <p className="calc-sheet__locked">HD board · CNC carve</p>
+              <span>Thickness</span>
+              <p className="calc-sheet__locked">{thicknessOptions[0]!.label}</p>
             </div>
-          ) : (
-            thicknessOptions.length > 0 && (
-              <div className="calc-sheet__field">
-                <span>Thickness</span>
-                <p className="calc-sheet__locked">{thicknessOptions[0]!.label}</p>
-              </div>
-            )
-          )}
+          ) : null}
 
           {minQty <= 1 ? (
             <>

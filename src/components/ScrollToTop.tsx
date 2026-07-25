@@ -1,25 +1,56 @@
-import { useLayoutEffect } from 'react'
-import { useLocation } from 'react-router-dom'
+import { useEffect, useLayoutEffect, useRef } from 'react'
+import { useLocation, useNavigationType } from 'react-router-dom'
 
-/** Reset window scroll instantly on every route change (no smooth animation). */
+function forceScroll(y: number) {
+  const html = document.documentElement
+  const previous = html.style.scrollBehavior
+  html.style.scrollBehavior = 'auto'
+  window.scrollTo(0, y)
+  html.scrollTop = y
+  document.body.scrollTop = y
+  html.style.scrollBehavior = previous
+}
+
+/**
+ * - New pages (PUSH / REPLACE): jump to top
+ * - Back / forward (POP): restore the scroll position where you left
+ */
 export function ScrollToTop() {
-  const { pathname, search } = useLocation()
+  const location = useLocation()
+  const navigationType = useNavigationType()
+  const positions = useRef(new Map<string, number>())
 
-  useLayoutEffect(() => {
+  useEffect(() => {
     if ('scrollRestoration' in window.history) {
       window.history.scrollRestoration = 'manual'
     }
+  }, [])
 
-    // CSS `html { scroll-behavior: smooth }` makes scrollTo(0,0) animate.
-    // Temporarily force instant so product pages open without scrolling first.
-    const html = document.documentElement
-    const previous = html.style.scrollBehavior
-    html.style.scrollBehavior = 'auto'
-    window.scrollTo(0, 0)
-    html.scrollTop = 0
-    document.body.scrollTop = 0
-    html.style.scrollBehavior = previous
-  }, [pathname, search])
+  // Remember scroll for this history entry while the user is on the page
+  useEffect(() => {
+    const key = location.key
+    const save = () => {
+      positions.current.set(key, window.scrollY || window.pageYOffset || 0)
+    }
+    save()
+    window.addEventListener('scroll', save, { passive: true })
+    return () => {
+      save()
+      window.removeEventListener('scroll', save)
+    }
+  }, [location.key])
+
+  useLayoutEffect(() => {
+    if (navigationType === 'POP') {
+      const y = positions.current.get(location.key) ?? 0
+      forceScroll(y)
+      // Images/layout can shift height; re-apply once after paint
+      requestAnimationFrame(() => forceScroll(y))
+      return
+    }
+
+    forceScroll(0)
+  }, [location.key, navigationType])
 
   return null
 }

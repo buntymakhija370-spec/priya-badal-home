@@ -1,4 +1,4 @@
-import { Link, useParams } from 'react-router-dom'
+import { Link, useNavigationType, useParams } from 'react-router-dom'
 import { useEffect, useMemo, useState } from 'react'
 import { categories, getCategory, getSubcategory } from '../data/catalog'
 import { getProductsByCategory, getAllProducts } from '../lib/products'
@@ -10,6 +10,7 @@ type SortId = 'featured' | 'price-asc' | 'price-desc' | 'name'
 
 export function ShopPage() {
   const { categoryId, subcategoryId } = useParams()
+  const navigationType = useNavigationType()
   const category = categoryId ? getCategory(categoryId) : undefined
   const subcategory =
     categoryId && subcategoryId
@@ -19,12 +20,15 @@ export function ShopPage() {
   const [query, setQuery] = useState('')
   const [sort, setSort] = useState<SortId>('featured')
 
-  // Same ShopPage instance is reused across categories — reset filters + scroll
+  // Same ShopPage instance is reused across categories — reset filters.
+  // On browser Back (POP), keep scroll where the user left off.
   useEffect(() => {
     setQuery('')
     setSort('featured')
-    window.scrollTo({ top: 0, left: 0, behavior: 'auto' })
-  }, [categoryId, subcategoryId])
+    if (navigationType !== 'POP') {
+      window.scrollTo({ top: 0, left: 0, behavior: 'auto' })
+    }
+  }, [categoryId, subcategoryId, navigationType])
 
   const baseProducts = useMemo(() => {
     if (!categoryId) return getAllProducts()

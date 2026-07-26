@@ -130,7 +130,7 @@ export function HomePage() {
             <img
               className="hero__logo"
               src="/brand/priyabadal-homes-logo.svg"
-              alt="Priyabadal Homes — Shutters, Doors, Wardrobes"
+              alt="Priyabadal Homes — Shutters, Doors, Wall Panels"
             />
           </div>
           <h1 className="hero__headline reveal reveal--2">

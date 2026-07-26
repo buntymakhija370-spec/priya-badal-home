@@ -1,4 +1,5 @@
 export type CategoryId =
+  | 'wall-panels'
   | 'kitchen'
   | 'wardrobe'
   | 'temple'
@@ -108,7 +109,20 @@ export type Product = {
 }
 
 export const categories: Category[] = [
-    {
+  {
+    id: 'wall-panels',
+    name: 'Wall Panels',
+    description:
+      'Feature walls — geometric cane, arched fluted, and diamond cane cladding made to measure.',
+    image: '/products/categories/wall-panels.jpg',
+    video: '/products/categories/wall-panels.mp4',
+    subcategories: [
+      { id: 'geometric-cane', name: 'Geometric Cane' },
+      { id: 'arch-fluted', name: 'Arch & Fluted' },
+      { id: 'diamond-cane', name: 'Diamond Cane' },
+    ],
+  },
+  {
     id: 'kitchen',
     name: 'Kitchen',
     description: 'Modular kitchens, cabinets, and counter finishes.',
@@ -710,7 +724,199 @@ export const baseProducts: Product[] = [
     disclaimer:
       'Accessories and room settings in images are for representation only. Final colour, finish, size, lighting, and carcass scope are confirmed on WhatsApp before production.',
   },
-{
+  {
+    id: 'powder-blue-geometric-cane-panel',
+    name: 'Powder Blue Geometric Cane Panel',
+    categoryId: 'wall-panels',
+    subcategoryId: 'geometric-cane',
+    price: 950,
+    currency: 'INR',
+    pricingMode: 'per-sqft',
+    defaultFinishId: 'pu',
+    defaultThicknessId: '18',
+    finishOptionIds: ['pu', 'laminated'],
+    thicknessOptionIds: ['18', '25'],
+    brand: 'Priyabadal Homes',
+    collection: 'Wall Panels',
+    sku: 'PBH-WP-GEO-CANE-01',
+    description:
+      'Floor-to-ceiling powder-blue feature wall with geometric cutouts lined in natural cane webbing — circles, teardrops, and soft squares in a rhythmic grid.',
+    style: ['modern', 'warm', 'feature'],
+    rooms: ['living room', 'bedroom', 'hallway', 'office', 'wall panels'],
+    image: '/products/wall-panels/geometric-cane/01.png',
+    images: [
+      '/products/wall-panels/geometric-cane/01.png',
+      '/products/wall-panels/geometric-cane/02.png',
+    ],
+    imageCaptions: [
+      'Powder-blue geometric cane feature wall.',
+      'Room setting — cane inlays with lounge seating.',
+    ],
+    highlights: [
+      'Natural cane webbing inlays',
+      'Geometric cutout grid',
+      'Powder-blue PU look',
+      'Made to measure',
+      'WhatsApp quote available',
+    ],
+    details: [
+      { label: 'Brand', value: 'Priyabadal Homes' },
+      { label: 'Collection', value: 'Wall Panels' },
+      { label: 'Sku', value: 'PBH-WP-GEO-CANE-01' },
+      { label: 'Assembly', value: 'Carpenter Assembly (on-site)' },
+      { label: 'Dimensions', value: 'Made to measure (custom width × height)' },
+      { label: 'Room Type', value: 'Living / Bedroom / Hallway' },
+      { label: 'Warranty', value: "10 Years' warranty on manufacturing defects" },
+    ],
+    specifications: [
+      { label: 'Type', value: 'Decorative feature wall panel' },
+      { label: 'Colour / Finish', value: 'Powder blue PU / laminate' },
+      { label: 'Inlay', value: 'Natural cane / rattan webbing' },
+      { label: 'Board Thickness', value: '18 mm (25 mm optional)' },
+      { label: 'Pricing', value: 'Per sq ft — confirm rate on WhatsApp' },
+      { label: 'Category', value: 'Wall Panels' },
+      { label: 'Subcategory', value: 'Geometric Cane' },
+      { label: 'Country of Origin', value: 'India' },
+      { label: 'Care', value: 'Dust gently; avoid harsh cleaners on cane' },
+    ],
+    features: [
+      'Geometric cutouts with natural cane webbing for texture and light play',
+      'Smooth powder-blue façade for a calm modern feature wall',
+      'Modular vertical runs sized to your wall height and width',
+      'Ideal for living rooms, lounges, and bedroom accents',
+    ],
+    disclaimer:
+      'Furniture and room settings in images are for representation only. Final colour, cane tone, size, and finish are confirmed on WhatsApp before production.',
+  },
+  {
+    id: 'arch-fluted-dual-tone-panel',
+    name: 'Arch Fluted Dual-Tone Panel',
+    categoryId: 'wall-panels',
+    subcategoryId: 'arch-fluted',
+    price: 1100,
+    currency: 'INR',
+    pricingMode: 'per-sqft',
+    defaultFinishId: 'laminate-solid-wood',
+    defaultThicknessId: '18',
+    finishOptionIds: ['laminate-solid-wood', 'walnut', 'pu'],
+    thicknessOptionIds: ['18', '25'],
+    brand: 'Priyabadal Homes',
+    collection: 'Wall Panels',
+    sku: 'PBH-WP-ARCH-FLT-01',
+    description:
+      'Architectural wall cladding with vertical fluted wood slats and soft arched beige insets — a dual-tone feature wall for offices and living spaces.',
+    style: ['modern', 'luxe', 'warm'],
+    rooms: ['living room', 'office', 'hallway', 'bedroom', 'wall panels'],
+    image: '/products/wall-panels/arch-fluted/01.png',
+    images: [
+      '/products/wall-panels/arch-fluted/01.png',
+      '/products/wall-panels/arch-fluted/02.png',
+    ],
+    imageCaptions: [
+      'Arch + fluted dual-tone wall in a home office.',
+      'Detail — fluted wood with arched cream inset.',
+    ],
+    highlights: [
+      'Fluted wood slats',
+      'Soft arched insets',
+      'Dual-tone façade',
+      'Made to measure',
+      'WhatsApp quote available',
+    ],
+    details: [
+      { label: 'Brand', value: 'Priyabadal Homes' },
+      { label: 'Collection', value: 'Wall Panels' },
+      { label: 'Sku', value: 'PBH-WP-ARCH-FLT-01' },
+      { label: 'Assembly', value: 'Carpenter Assembly (on-site)' },
+      { label: 'Dimensions', value: 'Made to measure (custom width × height)' },
+      { label: 'Room Type', value: 'Living / Office / Hallway' },
+      { label: 'Warranty', value: "10 Years' warranty on manufacturing defects" },
+    ],
+    specifications: [
+      { label: 'Type', value: 'Decorative feature wall panel' },
+      { label: 'Colour / Finish', value: 'Fluted wood look + cream / beige arch inset' },
+      { label: 'Board Thickness', value: '18 mm (25 mm optional)' },
+      { label: 'Pricing', value: 'Per sq ft — confirm rate on WhatsApp' },
+      { label: 'Category', value: 'Wall Panels' },
+      { label: 'Subcategory', value: 'Arch & Fluted' },
+      { label: 'Country of Origin', value: 'India' },
+      { label: 'Care', value: 'Wipe with a soft dry cloth; avoid harsh cleaners' },
+    ],
+    features: [
+      'Vertical fluted slats with rhythmic shadow depth',
+      'Soft arched inset panels for a calm architectural break',
+      'Dual-tone wood + cream look — finish customisable',
+      'Strong feature wall for studies, lounges, and corridors',
+    ],
+    disclaimer:
+      'Furniture and room settings in images are for representation only. Final wood tone, inset colour, size, and finish are confirmed on WhatsApp before production.',
+  },
+  {
+    id: 'diamond-cane-stone-panel',
+    name: 'Diamond Cane Stone Panel',
+    categoryId: 'wall-panels',
+    subcategoryId: 'diamond-cane',
+    price: 1050,
+    currency: 'INR',
+    pricingMode: 'per-sqft',
+    defaultFinishId: 'laminated',
+    defaultThicknessId: '18',
+    finishOptionIds: ['laminated', 'pu'],
+    thicknessOptionIds: ['18', '25'],
+    brand: 'Priyabadal Homes',
+    collection: 'Wall Panels',
+    sku: 'PBH-WP-DIA-CANE-01',
+    description:
+      'Stone-effect feature wall with recessed diamond cane inlays and slim metal accents — a luxe Indo-modern cladding for living rooms and corridors.',
+    style: ['luxe', 'modern', 'feature'],
+    rooms: ['living room', 'hallway', 'bedroom', 'office', 'wall panels'],
+    image: '/products/wall-panels/diamond-cane/01.png',
+    images: [
+      '/products/wall-panels/diamond-cane/01.png',
+      '/products/wall-panels/diamond-cane/02.png',
+    ],
+    imageCaptions: [
+      'Diamond cane stone-effect feature wall with metal accents.',
+      'Detail — recessed diamond cane inlays.',
+    ],
+    highlights: [
+      'Diamond cane inlays',
+      'Stone-effect façade',
+      'Metal accent trim',
+      'Made to measure',
+      'WhatsApp quote available',
+    ],
+    details: [
+      { label: 'Brand', value: 'Priyabadal Homes' },
+      { label: 'Collection', value: 'Wall Panels' },
+      { label: 'Sku', value: 'PBH-WP-DIA-CANE-01' },
+      { label: 'Assembly', value: 'Carpenter Assembly (on-site)' },
+      { label: 'Dimensions', value: 'Made to measure (custom width × height)' },
+      { label: 'Room Type', value: 'Living / Hallway / Bedroom' },
+      { label: 'Warranty', value: "10 Years' warranty on manufacturing defects" },
+    ],
+    specifications: [
+      { label: 'Type', value: 'Decorative feature wall panel' },
+      { label: 'Colour / Finish', value: 'Stone / plaster-effect laminate or PU' },
+      { label: 'Inlay', value: 'Natural cane / rattan webbing in diamond cutouts' },
+      { label: 'Accents', value: 'Slim metal trim (gold / silver tone options)' },
+      { label: 'Board Thickness', value: '18 mm (25 mm optional)' },
+      { label: 'Pricing', value: 'Per sq ft — confirm rate on WhatsApp' },
+      { label: 'Category', value: 'Wall Panels' },
+      { label: 'Subcategory', value: 'Diamond Cane' },
+      { label: 'Country of Origin', value: 'India' },
+      { label: 'Care', value: 'Dust gently; avoid harsh cleaners on cane and metal' },
+    ],
+    features: [
+      'Recessed diamond cane inlays for depth and warmth',
+      'Stone-effect façade with slim metal accent lines',
+      'Modular vertical columns sized to your wall',
+      'Suits living rooms, lobbies, and premium corridors',
+    ],
+    disclaimer:
+      'Furniture, sconces, and room settings in images are for representation only. Final colour, cane tone, metal finish, and size are confirmed on WhatsApp before production.',
+  },
+  {
     id: 'modular-kitchen-showcase',
     name: 'Modular Kitchen Showcase',
     categoryId: 'kitchen',

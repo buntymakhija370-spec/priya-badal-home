@@ -124,10 +124,10 @@ export function Layout() {
           <img
             className="footer__logo"
             src="/brand/priyabadal-homes-logo.svg"
-            alt="Priyabadal Homes — Shutters, Doors, Wardrobes"
+            alt="Priyabadal Homes — Shutters, Doors, Wall Panels"
           />
           <p className="footer__tag">
-            Shutters · Doors · Wardrobes · Silai Bunai · Made-to-measure interiors
+            Shutters · Doors · Wall Panels · Wardrobes · Made-to-measure interiors
           </p>
         </div>
 

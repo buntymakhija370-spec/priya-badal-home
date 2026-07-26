@@ -59,6 +59,91 @@
   flex: 0 0 auto;
 }
 
+.carcass__keybox {
+  display: grid;
+  gap: 0.65rem;
+  max-width: 36rem;
+  margin-bottom: 1.25rem;
+  padding: 1rem 1.1rem;
+  border: 1px solid rgba(154, 115, 64, 0.28);
+  border-radius: 0.45rem;
+  background: linear-gradient(180deg, #fff9f0 0%, #fff 100%);
+}
+
+.carcass__keybox h2 {
+  font-size: 1rem;
+  font-family: var(--font-display);
+  letter-spacing: -0.02em;
+}
+
+.carcass__keybox p {
+  font-size: 0.88rem;
+  color: var(--ink-soft);
+  line-height: 1.45;
+}
+
+.carcass__key-form {
+  display: grid;
+  grid-template-columns: 1fr auto;
+  gap: 0.55rem;
+}
+
+.carcass__key-form input {
+  width: 100%;
+  border: 1px solid rgba(21, 32, 25, 0.16);
+  border-radius: 0.35rem;
+  background: #fff;
+  padding: 0.55rem 0.7rem;
+}
+
+.carcass__key-ok,
+.carcass__ai-ready {
+  margin: 0 0 1rem;
+  color: var(--moss);
+  font-size: 0.88rem;
+  font-weight: 600;
+}
+
+.carcass__live-actions {
+  display: grid;
+  gap: 0.45rem;
+}
+
+.carcass__live-btn {
+  width: 100%;
+  min-height: 2.85rem;
+  font-size: 1rem;
+}
+
+.carcass__live-btn:disabled {
+  opacity: 0.55;
+  cursor: not-allowed;
+}
+
+.carcass__live-hint {
+  font-size: 0.84rem;
+  color: var(--ink-soft);
+  line-height: 1.4;
+}
+
+.carcass__live-msg {
+  font-size: 0.88rem;
+  color: var(--moss);
+  line-height: 1.4;
+}
+
+.carcass__busy {
+  position: absolute;
+  inset: 0;
+  display: grid;
+  place-items: center;
+  background: rgba(21, 32, 25, 0.45);
+  color: #fffaf2;
+  font-weight: 600;
+  border-radius: 0.45rem;
+  animation: carcass-in 280ms var(--ease-out);
+}
+
 .carcass__tabs {
   display: inline-flex;
   gap: 0.35rem;
@@ -105,12 +190,16 @@
   z-index: 2;
   top: 0.75rem;
   left: 0.75rem;
+  right: 0.75rem;
   display: inline-flex;
+  flex-wrap: wrap;
   gap: 0.25rem;
   padding: 0.2rem;
   border-radius: 0.35rem;
   background: rgba(21, 32, 25, 0.55);
   backdrop-filter: blur(6px);
+  width: max-content;
+  max-width: calc(100% - 1.5rem);
 }
 
 .carcass__view-toggle button {
@@ -515,6 +604,10 @@
   .carcass__tabs {
     display: grid;
     width: 100%;
+  }
+
+  .carcass__key-form {
+    grid-template-columns: 1fr;
   }
 
   .carcass__photo img {

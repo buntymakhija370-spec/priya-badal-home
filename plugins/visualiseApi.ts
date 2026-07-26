@@ -11,6 +11,19 @@ type VisualiseBody = {
   notes?: string
 }
 
+type CarcassLiveBody = {
+  carcassImageUrl: string
+  productName: string
+  category: 'wardrobe' | 'kitchen'
+  widthFt: number
+  heightFt: number
+  depthFt: number
+  baySummary: string
+  finishLabel?: string
+  thicknessLabel?: string
+  notes?: string
+}
+
 /** Runtime key so owner can paste FAL_KEY without restarting */
 let runtimeFalKey = process.env.FAL_KEY || process.env.VITE_FAL_KEY || ''
 
@@ -297,9 +310,154 @@ async function handleConfig(req: IncomingMessage, res: ServerResponse) {
   }
 }
 
+function aspectFromFeet(widthFt: number, heightFt: number): string {
+  const ratio = widthFt / Math.max(heightFt, 0.1)
+  if (ratio >= 1.7) return '16:9'
+  if (ratio >= 1.25) return '4:3'
+  if (ratio >= 0.95) return '1:1'
+  if (ratio >= 0.7) return '3:4'
+  return '9:16'
+}
+
+function buildCarcassLivePrompt(body: CarcassLiveBody) {
+  const kind = body.category === 'kitchen' ? 'kitchen carcass / cabinetry' : 'wardrobe carcass'
+  return [
+    'You are a professional furniture visualiser for Priyabadal Homes (India).',
+    'IMAGE 1 = exact open carcass / interior reference photo of the product.',
+    `Task: Create ONE photorealistic ${kind} image resized to the customer's LIVE made-to-measure size.`,
+    `LIVE SIZE (must look correct): width ${body.widthFt} ft × height ${body.heightFt} ft × depth ${body.depthFt} ft.`,
+    `Storage bay plan left-to-right: ${body.baySummary}.`,
+    body.finishLabel ? `Finish: ${body.finishLabel}.` : '',
+    body.thicknessLabel ? `Board thickness look: ${body.thicknessLabel}.` : '',
+    'Keep the same wood tone, LED lighting style, hardware language, and material quality as IMAGE 1.',
+    'Do NOT keep the old proportions if they conflict with the live size — stretch the wall run and bay widths to match the feet sizes.',
+    'Show a full open carcass elevation (doors open / no doors), floor-to-ceiling where height allows, realistic shelves, hanging rods, drawers as per the bay plan.',
+    'Include subtle room context (floor + wall edges) for scale. No text, logos, dimension arrows, or watermarks.',
+    'Output a single showroom-quality photograph for quotation.',
+    body.notes ? `Customer note: ${body.notes}` : '',
+  ]
+    .filter(Boolean)
+    .join(' ')
+}
+
+async function handleCarcassLive(req: IncomingMessage, res: ServerResponse) {
+  if (req.method === 'OPTIONS') {
+    res.statusCode = 204
+    res.setHeader('Access-Control-Allow-Origin', '*')
+    res.setHeader('Access-Control-Allow-Methods', 'POST, OPTIONS')
+    res.setHeader('Access-Control-Allow-Headers', 'Content-Type')
+    res.end()
+    return
+  }
+
+  if (req.method !== 'POST') {
+    sendJson(res, 405, { error: 'Method not allowed' })
+    return
+  }
+
+  const falKey = getFalKey()
+  if (!falKey) {
+    sendJson(res, 503, {
+      error: 'Professional AI is not connected yet',
+      code: 'MISSING_FAL_KEY',
+      hint: 'Paste your Fal.ai API key to generate live-size carcass renders.',
+    })
+    return
+  }
+
+  try {
+    const raw = await readBody(req)
+    const body = JSON.parse(raw) as CarcassLiveBody
+
+    if (
+      !body.carcassImageUrl ||
+      !body.productName ||
+      !body.widthFt ||
+      !body.heightFt ||
+      !body.baySummary
+    ) {
+      sendJson(res, 400, { error: 'Missing carcass image, size, or layout' })
+      return
+    }
+
+    const imageUrl = await resolveImageUrl(
+      falKey,
+      body.carcassImageUrl,
+      'carcass-ref.jpg',
+    )
+
+    const model =
+      process.env.FAL_CARCASS_MODEL ||
+      process.env.FAL_VISUALISE_MODEL ||
+      'fal-ai/nano-banana-pro/edit'
+
+    const falRes = await fetch(`https://fal.run/${model}`, {
+      method: 'POST',
+      headers: {
+        Authorization: `Key ${falKey}`,
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({
+        prompt: buildCarcassLivePrompt(body),
+        image_urls: [imageUrl],
+        num_images: 1,
+        aspect_ratio: aspectFromFeet(Number(body.widthFt), Number(body.heightFt)),
+        output_format: 'jpeg',
+        resolution: '1K',
+      }),
+    })
+
+    const falJson = (await falRes.json()) as {
+      images?: Array<{ url?: string }>
+      image?: { url?: string }
+      detail?: string
+      error?: string
+      message?: string
+    }
+
+    if (!falRes.ok) {
+      sendJson(res, 502, {
+        error:
+          falJson.detail ||
+          falJson.error ||
+          falJson.message ||
+          'Live-size carcass AI failed',
+        code: 'FAL_ERROR',
+      })
+      return
+    }
+
+    const outUrl = falJson.images?.[0]?.url || falJson.image?.url || null
+    if (!outUrl) {
+      sendJson(res, 502, { error: 'AI returned no image', code: 'EMPTY_RESULT' })
+      return
+    }
+
+    sendJson(res, 200, {
+      imageUrl: outUrl,
+      provider: 'fal',
+      model,
+      mode: 'live-size-carcass',
+      size: {
+        widthFt: body.widthFt,
+        heightFt: body.heightFt,
+        depthFt: body.depthFt,
+      },
+    })
+  } catch (err) {
+    sendJson(res, 500, {
+      error: err instanceof Error ? err.message : 'Carcass live AI failed',
+      code: 'SERVER_ERROR',
+    })
+  }
+}
+
 function attach(middlewares: Connect.Server) {
   middlewares.use('/api/visualise-config', (req, res, next) => {
     void handleConfig(req, res).catch(next)
+  })
+  middlewares.use('/api/carcass-live', (req, res, next) => {
+    void handleCarcassLive(req, res).catch(next)
   })
   middlewares.use('/api/visualise', (req, res, next) => {
     void handleVisualise(req, res).catch(next)

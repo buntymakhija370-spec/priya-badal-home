@@ -11,6 +11,7 @@ import { CurrencySelect } from './CurrencySelect'
 import './Layout.css'
 
 const utilityLinks = [
+  { to: '/design', label: 'Design my space' },
   { to: '/shop', label: 'All products' },
   { to: '/how-it-works', label: 'How it works' },
   { to: '/visualise', label: 'Visualise AI' },
@@ -59,11 +60,11 @@ export function Layout() {
               {cat.name}
             </NavLink>
           ))}
+          <NavLink to="/design" onClick={close}>
+            Design
+          </NavLink>
           <NavLink to="/visualise" onClick={close}>
             Visualise
-          </NavLink>
-          <NavLink to="/carcass" onClick={close}>
-            Carcass
           </NavLink>
           <NavLink to="/shop" onClick={close}>
             All
@@ -151,6 +152,9 @@ export function Layout() {
               </li>
               <li>
                 <NavLink to="/favorites">Favorites</NavLink>
+              </li>
+              <li>
+                <NavLink to="/design">Design my space</NavLink>
               </li>
               <li>
                 <NavLink to="/visualise">Visualise AI</NavLink>

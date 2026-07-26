@@ -137,16 +137,16 @@ export function HomePage() {
             Made-to-measure interiors with clear prices.
           </h1>
           <p className="hero__lede reveal reveal--3">
-            Shop wardrobes, kitchens, doors, panels, and silai bunai. Customise
-            sizes, add to cart, and get a WhatsApp quote.
+            Design your kitchen, wardrobe, or temple with AI — enter your size,
+            see the look, get an instant estimate, then WhatsApp for the final quote.
           </p>
           <div className="hero__actions reveal reveal--4">
-            <Link className="btn btn--primary" to="/shop">
-              Shop now
+            <Link className="btn btn--primary" to="/design">
+              Design my space
             </Link>
-            <a className="btn btn--ghost" href="#categories">
-              Watch collections
-            </a>
+            <Link className="btn btn--ghost" to="/shop">
+              Shop products
+            </Link>
           </div>
         </div>
       </section>

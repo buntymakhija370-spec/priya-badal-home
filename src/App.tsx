@@ -11,6 +11,7 @@ import { CartPage } from './pages/CartPage'
 import { VisualisePage } from './pages/VisualisePage'
 import { HowItWorksPage } from './pages/HowItWorksPage'
 import { CarcassPlannerPage } from './pages/CarcassPlannerPage'
+import { DesignSpacePage } from './pages/DesignSpacePage'
 import './App.css'
 
 export default function App() {
@@ -24,6 +25,7 @@ export default function App() {
           <Route path="shop/:categoryId" element={<ShopPage />} />
           <Route path="shop/:categoryId/:subcategoryId" element={<ShopPage />} />
           <Route path="product/:productId" element={<ProductPage />} />
+          <Route path="design" element={<DesignSpacePage />} />
           <Route path="visualise" element={<VisualisePage />} />
           <Route path="carcass" element={<CarcassPlannerPage />} />
           <Route path="how-it-works" element={<HowItWorksPage />} />

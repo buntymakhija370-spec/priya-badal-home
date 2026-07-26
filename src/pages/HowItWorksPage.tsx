@@ -90,14 +90,14 @@ export function HowItWorksPage() {
         <h2>Ready to start your custom order?</h2>
         <p>Pick a product, set your size, and send a WhatsApp quote.</p>
         <div className="how__hero-actions">
-          <Link className="btn btn--dark" to="/shop">
+          <Link className="btn btn--dark" to="/design">
+            Design my space
+          </Link>
+          <Link className="btn btn--outline" to="/shop">
             Browse products
           </Link>
           <Link className="btn btn--outline" to="/visualise">
             Visualise in my room
-          </Link>
-          <Link className="btn btn--outline" to="/carcass">
-            Plan carcass & price
           </Link>
         </div>
       </section>

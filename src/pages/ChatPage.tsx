@@ -1,10 +1,12 @@
 import { useEffect, useRef, useState, type FormEvent, type KeyboardEvent } from 'react'
 import { Link } from 'react-router-dom'
+import { askPriyaBadalAI } from '../lib/chatAI'
 import {
   buildChatWhatsAppUrl,
   colourFromBrief,
   createWelcomeMessage,
   looksLikeDrawingIntent,
+  mergeBriefFromText,
   messageForPhotoAttached,
   messageForProductSelected,
   processConsultTurn,
@@ -243,14 +245,70 @@ export function ChatPage() {
       role: 'user',
       text: trimmed,
     }
+
+    // Detect visualise / refine actions with the local router first
     const turn = processConsultTurn(brief, trimmed)
     setBrief(turn.brief)
-    setMessages((prev) => [...prev, userMsg, turn.reply])
     setInput('')
     inputRef.current?.focus()
 
     if (turn.shouldVisualise) {
+      setMessages((prev) => [...prev, userMsg, turn.reply])
       await runVisualise(turn.brief, Boolean(turn.refine))
+      return
+    }
+
+    // Live LLM chat for everything else (any product / price / design question)
+    const nextBrief = mergeBriefFromText(turn.brief, trimmed)
+    setBrief(nextBrief)
+    setBusy(true)
+    setMessages((prev) => [...prev, userMsg])
+
+    try {
+      if (!aiConfigured) {
+        // Fallback: catalog rule replies until Fal key is connected
+        setMessages((prev) => [...prev, turn.reply])
+        setShowKey(true)
+        return
+      }
+
+      const history = [...messages, userMsg]
+        .filter((m) => m.role === 'user' || m.role === 'assistant')
+        .map((m) => ({ role: m.role, text: m.text }))
+
+      const ai = await askPriyaBadalAI({
+        message: trimmed,
+        brief: nextBrief,
+        history,
+      })
+
+      setMessages((prev) => [
+        ...prev,
+        {
+          id: crypto.randomUUID(),
+          role: 'assistant',
+          text: ai.text,
+          products: ai.products.length ? ai.products : undefined,
+          suggestions: ai.suggestions,
+        },
+      ])
+    } catch (err) {
+      // Soft fallback to local catalog answers if LLM fails
+      setMessages((prev) => [
+        ...prev,
+        {
+          ...turn.reply,
+          text: [
+            turn.reply.text,
+            '',
+            `(Live AI chat hiccup: ${
+              err instanceof Error ? err.message : 'try again'
+            }. Showing catalog answer above — reconnect AI key if needed.)`,
+          ].join('\n'),
+        },
+      ])
+    } finally {
+      setBusy(false)
     }
   }
 
@@ -374,7 +432,7 @@ export function ChatPage() {
           <div>
             <p className="pbai__title">Priya Badal AI</p>
             <p className="pbai__subtitle">
-              Design · pricing · carcass · materials · visualise
+              Live AI · any product · price · carcass · materials · visualise
             </p>
           </div>
         </div>
@@ -395,7 +453,8 @@ export function ChatPage() {
       {showKey || !aiConfigured ? (
         <section className="pbai__key" aria-label="Connect AI">
           <p>
-            Paste your Fal.ai key to generate visualisations in chat (same as Visualise).{' '}
+            Paste your Fal.ai key for live AI chat answers + visualisations (same key as
+            Visualise).{' '}
             <a href="https://fal.ai/dashboard/billing" target="_blank" rel="noreferrer">
               Billing
             </a>
@@ -446,9 +505,9 @@ export function ChatPage() {
               />
               <h1>Priya Badal AI</h1>
               <p>
-                Ask about design, price, carcass rates, and material specs. Send a room photo
-                or architect drawing when you want to visualise. I’ll
-                suggest from our product list and visualise the look.
+                Ask anything about any Priyabadal product — design, price, carcass,
+                materials. I’ll answer in natural conversation from our catalog. Attach a
+                photo when you want to visualise.
               </p>
             </div>
           ) : null}
@@ -625,7 +684,7 @@ export function ChatPage() {
               value={input}
               onChange={(e) => setInput(e.target.value)}
               onKeyDown={onKeyDown}
-              placeholder="Ask price, carcass, materials, design — or size / visualise…"
+              placeholder="Ask me anything about our products…"
               disabled={busy}
             />
             <div className="pbai__composer-tools">

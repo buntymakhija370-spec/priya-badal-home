@@ -62,6 +62,13 @@ function getCarcassModel() {
   return process.env.FAL_CARCASS_MODEL || getCreateModel()
 }
 
+/** Conversational sales chatbot (Fal any-llm) */
+const DEFAULT_CHAT_MODEL = 'google/gemini-2.5-flash'
+
+function getChatModel() {
+  return process.env.FAL_CHAT_MODEL || DEFAULT_CHAT_MODEL
+}
+
 function readBody(req: IncomingMessage): Promise<string> {
   return new Promise((resolve, reject) => {
     const chunks: Buffer[] = []
@@ -587,6 +594,138 @@ async function handleCarcassLive(req: IncomingMessage, res: ServerResponse) {
   }
 }
 
+type ChatBody = {
+  message?: string
+  systemPrompt?: string
+  knowledge?: string
+  brief?: Record<string, unknown>
+  history?: Array<{ role?: string; text?: string }>
+}
+
+async function handleChat(req: IncomingMessage, res: ServerResponse) {
+  if (req.method === 'OPTIONS') {
+    res.statusCode = 204
+    res.setHeader('Access-Control-Allow-Origin', '*')
+    res.setHeader('Access-Control-Allow-Methods', 'POST, OPTIONS')
+    res.setHeader('Access-Control-Allow-Headers', 'Content-Type')
+    res.end()
+    return
+  }
+
+  if (req.method !== 'POST') {
+    sendJson(res, 405, { error: 'Method not allowed' })
+    return
+  }
+
+  const falKey = getFalKey()
+  if (!falKey) {
+    sendJson(res, 503, {
+      error: 'Connect your Fal.ai key to enable live AI chat',
+      code: 'MISSING_FAL_KEY',
+    })
+    return
+  }
+
+  try {
+    const raw = await readBody(req)
+    const body = JSON.parse(raw) as ChatBody
+    const message = (body.message || '').trim()
+    if (!message) {
+      sendJson(res, 400, { error: 'Message is required' })
+      return
+    }
+
+    const history = (body.history ?? [])
+      .filter((h) => h.text && (h.role === 'user' || h.role === 'assistant'))
+      .slice(-12)
+      .map((h) => `${h.role === 'assistant' ? 'Assistant' : 'Client'}: ${h.text}`)
+      .join('\n')
+
+    const briefBits = body.brief
+      ? Object.entries(body.brief)
+          .filter(([, v]) => v != null && v !== '' && v !== false)
+          .map(([k, v]) => `${k}: ${String(v)}`)
+          .join(', ')
+      : ''
+
+    const systemPrompt = [
+      body.systemPrompt?.trim() ||
+        'You are Priya Badal AI for Priyabadal Homes. Answer helpfully using the catalog.',
+      '',
+      body.knowledge?.trim() || '',
+    ]
+      .filter(Boolean)
+      .join('\n')
+
+    const prompt = [
+      history ? `Recent conversation:\n${history}\n` : '',
+      briefBits ? `Brief snapshot: ${briefBits}\n` : '',
+      `Client message: ${message}`,
+      '',
+      'Reply as Priya Badal AI. End with PRODUCTS: and SUGGESTIONS: lines.',
+    ]
+      .filter(Boolean)
+      .join('\n')
+
+    const model = getChatModel()
+    const falRes = await fetch('https://fal.run/fal-ai/any-llm', {
+      method: 'POST',
+      headers: {
+        Authorization: `Key ${falKey}`,
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({
+        model,
+        system_prompt: systemPrompt.slice(0, 120_000),
+        prompt: prompt.slice(0, 20_000),
+        temperature: 0.4,
+        priority: 'latency',
+        max_tokens: 900,
+      }),
+    })
+
+    const falJson = (await falRes.json()) as {
+      output?: string
+      error?: string
+      detail?: string
+      message?: string
+    }
+
+    if (!falRes.ok) {
+      sendJson(res, 502, {
+        error:
+          falJson.error ||
+          falJson.detail ||
+          falJson.message ||
+          'Chat AI request failed',
+        code: 'FAL_CHAT_ERROR',
+      })
+      return
+    }
+
+    const reply = (falJson.output || '').trim()
+    if (!reply) {
+      sendJson(res, 502, {
+        error: 'Chat AI returned an empty reply',
+        code: 'EMPTY_REPLY',
+      })
+      return
+    }
+
+    sendJson(res, 200, {
+      reply,
+      provider: 'fal',
+      model,
+      mode: 'sales-chat',
+    })
+  } catch (err) {
+    sendJson(res, 500, {
+      error: err instanceof Error ? err.message : 'Chat failed',
+      code: 'SERVER_ERROR',
+    })
+  }
+}
+
 function attach(middlewares: Connect.Server) {
   middlewares.use('/api/visualise-config', (req, res, next) => {
     void handleConfig(req, res).catch(next)
@@ -597,12 +736,16 @@ function attach(middlewares: Connect.Server) {
   middlewares.use('/api/visualise', (req, res, next) => {
     void handleVisualise(req, res).catch(next)
   })
+  middlewares.use('/api/chat', (req, res, next) => {
+    void handleChat(req, res).catch(next)
+  })
   middlewares.use('/api/visualise-status', (_req, res) => {
     sendJson(res, 200, {
       configured: Boolean(getFalKey()),
       mode: getFalKey() ? 'paid-ai' : 'needs-key',
       model: getCreateModel(),
       refineModel: getRefineModel(),
+      chatModel: getChatModel(),
     })
   })
 }

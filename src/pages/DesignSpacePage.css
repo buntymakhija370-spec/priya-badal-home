@@ -240,6 +240,34 @@
   margin-top: 0.5rem;
 }
 
+.design__summary {
+  list-style: none;
+  margin: 0 0 1.1rem;
+  padding: 0.9rem 1rem;
+  display: grid;
+  gap: 0.55rem;
+  border-radius: 0.4rem;
+  border: 1px solid rgba(21, 32, 25, 0.12);
+  background: rgba(255, 255, 255, 0.72);
+}
+
+.design__summary li {
+  margin: 0;
+  font-size: 0.95rem;
+  line-height: 1.4;
+  color: var(--ink);
+}
+
+.design__summary strong {
+  display: inline-block;
+  min-width: 5.5rem;
+  font-size: 0.78rem;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  color: var(--ink-soft);
+  font-weight: 600;
+}
+
 .design__keybox {
   display: grid;
   gap: 0.55rem;

@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useState, type FormEvent } from 'react'
+import { useMemo, useState } from 'react'
 import { Link, useSearchParams } from 'react-router-dom'
 import { getCategory } from '../data/catalog'
 import { getAllProducts, getProductById } from '../lib/products'
@@ -24,16 +24,11 @@ import {
   type CarcassCategory,
   type LayoutPresetId,
 } from '../lib/carcassPlanner'
-import {
-  connectCarcassAiKey,
-  fetchCarcassAiStatus,
-  generateLiveCarcass,
-} from '../lib/carcassLive'
 import { formatPrice } from '../lib/currency'
 import { useCurrency } from '../hooks/useCurrency'
 import './CarcassPlannerPage.css'
 
-type ViewMode = 'live-ai' | 'carcass' | 'exterior'
+type ViewMode = 'carcass' | 'exterior'
 
 export function CarcassPlannerPage() {
   useCurrency()
@@ -86,14 +81,6 @@ export function CarcassPlannerPage() {
   )
   const [showBayEdit, setShowBayEdit] = useState(false)
 
-  const [aiConfigured, setAiConfigured] = useState(false)
-  const [falKeyInput, setFalKeyInput] = useState('')
-  const [savingKey, setSavingKey] = useState(false)
-  const [keyMsg, setKeyMsg] = useState<string | null>(null)
-  const [liveBusy, setLiveBusy] = useState(false)
-  const [liveImageUrl, setLiveImageUrl] = useState<string | null>(null)
-  const [liveMsg, setLiveMsg] = useState<string | null>(null)
-
   const widths = bayWidthsFt(bays, width)
 
   const quote = useMemo(
@@ -112,44 +99,19 @@ export function CarcassPlannerPage() {
   )
 
   const heroImage =
-    viewMode === 'live-ai' && liveImageUrl
-      ? liveImageUrl
-      : viewMode === 'exterior'
-        ? exteriorImage ?? carcassImage
-        : carcassImage ?? exteriorImage
+    viewMode === 'exterior'
+      ? exteriorImage ?? carcassImage
+      : carcassImage ?? exteriorImage
 
   const whatsapp = buildCarcassWhatsAppUrl({
     category,
     productName: product?.name,
+    productId: product?.id,
     quote,
     finishId,
     thicknessId,
     notes: prompt,
-    usedLiveAi: Boolean(liveImageUrl),
-    aiImageUrl: liveImageUrl,
   })
-
-  useEffect(() => {
-    void fetchCarcassAiStatus().then((s) => setAiConfigured(s.configured))
-  }, [])
-
-  const planKey = [
-    productId,
-    category,
-    width,
-    height,
-    depth,
-    finishId,
-    thicknessId,
-    bays.map((b) => `${b.kind}:${b.weight}`).join(','),
-  ].join('|')
-
-  // Clear live AI when size/layout/product changes so user regenerates
-  useEffect(() => {
-    setLiveImageUrl(null)
-    setLiveMsg(null)
-    setViewMode((mode) => (mode === 'live-ai' ? 'carcass' : mode))
-  }, [planKey])
 
   const selectProduct = (id: string) => {
     setProductId(id)
@@ -178,7 +140,7 @@ export function CarcassPlannerPage() {
     setViewMode('carcass')
   }
 
-  const runAi = (nextPreset?: LayoutPresetId) => {
+  const runLayout = (nextPreset?: LayoutPresetId) => {
     const resolved = nextPreset ?? parsePromptToPreset(prompt)
     setPreset(resolved)
     const next = suggestLayout(category, width, resolved, prompt)
@@ -194,62 +156,14 @@ export function CarcassPlannerPage() {
       prev.map((b) => (b.id === id ? { ...b, kind, label: bayMeta(kind).label } : b)),
     )
 
-  const onConnectKey = async (e: FormEvent) => {
-    e.preventDefault()
-    setSavingKey(true)
-    setKeyMsg(null)
-    setLiveMsg(null)
-    try {
-      const next = await connectCarcassAiKey(falKeyInput.trim())
-      setAiConfigured(next.configured)
-      setFalKeyInput('')
-      setKeyMsg('Live-size AI connected. You can generate now.')
-    } catch (err) {
-      setLiveMsg(err instanceof Error ? err.message : 'Could not save AI key.')
-    } finally {
-      setSavingKey(false)
-    }
-  }
-
-  const onGenerateLive = async () => {
-    if (!carcassImage || !product) {
-      setLiveMsg('Select a style with a carcass photo first.')
-      return
-    }
-    setLiveBusy(true)
-    setLiveMsg(null)
-    try {
-      const result = await generateLiveCarcass({
-        carcassImagePath: carcassImage,
-        productName: product.name,
-        category,
-        quote,
-        finishId,
-        thicknessId,
-        notes: prompt || aiNote,
-      })
-      if (result.source === 'ai' && result.imageUrl) {
-        setLiveImageUrl(result.imageUrl)
-        setViewMode('live-ai')
-        setLiveMsg(result.message)
-        setAiConfigured(true)
-      } else {
-        setLiveMsg(result.message)
-        if (result.code === 'MISSING_FAL_KEY') setAiConfigured(false)
-      }
-    } finally {
-      setLiveBusy(false)
-    }
-  }
-
   return (
     <main className="carcass page-pad">
       <header className="carcass__header">
-        <p className="carcass__eyebrow">Live-size AI · Real carcass · Price</p>
+        <p className="carcass__eyebrow">Real carcass · Size · Price</p>
         <h1>Carcass Planner</h1>
         <p>
-          Set your wall size, pick a layout, then generate a <strong>live-size AI carcass</strong>{' '}
-          matched to your feet dimensions — with shutter + carcass price for WhatsApp.
+          Set your wall size, pick a layout, review the catalog carcass photo, and send a clear
+          WhatsApp quote with size, layout, and price.
         </p>
       </header>
 
@@ -261,35 +175,9 @@ export function CarcassPlannerPage() {
           <strong>2</strong> Enter live size (width × height × depth)
         </li>
         <li>
-          <strong>3</strong> Pick layout → tap <em>Generate live-size AI</em>
+          <strong>3</strong> Pick layout → WhatsApp quote
         </li>
       </ol>
-
-      {!aiConfigured ? (
-        <div className="carcass__keybox">
-          <h2>Connect live-size AI</h2>
-          <p>
-            Uses the same Fal.ai professional model as Visualise. Paste your key once — then
-            generate carcass images at your exact size.
-          </p>
-          <form className="carcass__key-form" onSubmit={onConnectKey}>
-            <input
-              type="password"
-              value={falKeyInput}
-              onChange={(e) => setFalKeyInput(e.target.value)}
-              placeholder="Fal.ai API key"
-              autoComplete="off"
-              required
-            />
-            <button className="btn btn--dark" type="submit" disabled={savingKey}>
-              {savingKey ? 'Connecting…' : 'Connect AI'}
-            </button>
-          </form>
-          {keyMsg ? <p className="carcass__key-ok">{keyMsg}</p> : null}
-        </div>
-      ) : (
-        <p className="carcass__ai-ready">Live-size AI ready</p>
-      )}
 
       <div className="carcass__tabs" role="tablist" aria-label="Carcass type">
         <button
@@ -313,17 +201,9 @@ export function CarcassPlannerPage() {
       </div>
 
       <div className="carcass__grid">
-        <section className="carcass__stage" aria-label="Live carcass and price">
+        <section className="carcass__stage" aria-label="Carcass and price">
           <div className="carcass__hero">
             <div className="carcass__view-toggle" role="group" aria-label="Photo view">
-              <button
-                type="button"
-                className={viewMode === 'live-ai' ? 'is-active' : ''}
-                onClick={() => liveImageUrl && setViewMode('live-ai')}
-                disabled={!liveImageUrl}
-              >
-                Live-size AI
-              </button>
               <button
                 type="button"
                 className={viewMode === 'carcass' ? 'is-active' : ''}
@@ -347,49 +227,22 @@ export function CarcassPlannerPage() {
                   key={`${productId}-${viewMode}-${heroImage}`}
                   src={heroImage}
                   alt={
-                    viewMode === 'live-ai'
-                      ? `${product?.name ?? category} live-size AI carcass ${quote.width} by ${quote.height} ft`
-                      : viewMode === 'carcass'
-                        ? `${product?.name ?? category} catalog carcass`
-                        : `${product?.name ?? category} closed exterior`
+                    viewMode === 'carcass'
+                      ? `${product?.name ?? category} catalog carcass`
+                      : `${product?.name ?? category} closed exterior`
                   }
                 />
                 <figcaption>
-                  {viewMode === 'live-ai'
-                    ? `Live-size AI · ${quote.width} × ${quote.height} × ${quote.depth} ft`
-                    : viewMode === 'carcass'
-                      ? 'Catalog carcass reference'
-                      : 'Closed façade'}
+                  {viewMode === 'carcass' ? 'Catalog carcass reference' : 'Closed façade'}
                   {product ? ` · ${product.name}` : ''}
+                  {` · ${quote.width} × ${quote.height} × ${quote.depth} ft`}
                 </figcaption>
               </figure>
             ) : (
               <div className="carcass__photo carcass__photo--empty">
-                <p>Select a style to load the carcass photo, then generate live size.</p>
+                <p>Select a style to load the carcass photo.</p>
               </div>
             )}
-
-            {liveBusy ? (
-              <div className="carcass__busy" aria-live="polite">
-                Generating live-size carcass…
-              </div>
-            ) : null}
-          </div>
-
-          <div className="carcass__live-actions">
-            <button
-              type="button"
-              className="btn btn--dark carcass__live-btn"
-              onClick={() => void onGenerateLive()}
-              disabled={liveBusy || !carcassImage || !product}
-            >
-              {liveBusy ? 'Generating…' : 'Generate live-size AI'}
-            </button>
-            <p className="carcass__live-hint">
-              AI redraws the open carcass to your {quote.width} × {quote.height} × {quote.depth}{' '}
-              ft size and bay plan.
-            </p>
-            {liveMsg ? <p className="carcass__live-msg">{liveMsg}</p> : null}
           </div>
 
           <div className="carcass__bay-strip" aria-label="Storage layout across the wall">
@@ -431,46 +284,23 @@ export function CarcassPlannerPage() {
               </li>
             </ul>
             <div className="carcass__quote-actions">
-              {liveImageUrl ? (
-                <a
-                  className="whatsapp-quote-btn"
-                  href={whatsapp}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                >
-                  WhatsApp plan + AI photo
-                </a>
-              ) : (
-                <button
-                  type="button"
-                  className="whatsapp-quote-btn whatsapp-quote-btn--muted"
-                  onClick={() =>
-                    setLiveMsg(
-                      'Generate live-size AI first — then WhatsApp will include the AI photo link.',
-                    )
-                  }
-                >
-                  WhatsApp plan + AI photo
-                </button>
-              )}
+              <a
+                className="whatsapp-quote-btn"
+                href={whatsapp}
+                target="_blank"
+                rel="noopener noreferrer"
+              >
+                WhatsApp quote
+              </a>
               {product ? (
                 <Link className="btn btn--outline" to={`/product/${product.id}`}>
                   View product
                 </Link>
               ) : null}
             </div>
-            {liveImageUrl ? (
-              <p className="carcass__ai-note">
-                AI photo link goes in WhatsApp so the client keeps the same look after leaving the
-                site.{' '}
-                <a href={liveImageUrl} target="_blank" rel="noopener noreferrer">
-                  Open AI photo
-                </a>
-              </p>
-            ) : null}
             <p className="carcass__disclaimer">
-              Live-size AI is a visual guide for quotation. Final fit, hardware, and price are
-              confirmed after site measure on WhatsApp.
+              Catalog photos show the style. Final fit, hardware, and price are confirmed after
+              site measure on WhatsApp. The quote message includes product link, size, and price.
             </p>
           </aside>
         </section>
@@ -478,7 +308,7 @@ export function CarcassPlannerPage() {
         <section className="carcass__controls" aria-label="Planner controls">
           <div className="carcass__block">
             <h2>1. Style</h2>
-            <p className="carcass__hint">Tap a real product — carcass photo loads as AI reference.</p>
+            <p className="carcass__hint">Tap a real product — carcass photo loads as reference.</p>
             <div className="carcass__styles">
               {styleProducts.map((p) => {
                 const thumb =
@@ -573,7 +403,7 @@ export function CarcassPlannerPage() {
           <div className="carcass__block">
             <h2>3. Storage layout</h2>
             <p className="carcass__hint">
-              Choose a ready plan, or describe what you need — then generate live-size AI.
+              Choose a ready plan, or describe what you need — then update the bay plan.
             </p>
             <div className="carcass__presets">
               {LAYOUT_PRESETS.map((p) => (
@@ -582,7 +412,7 @@ export function CarcassPlannerPage() {
                   type="button"
                   className={preset === p.id ? 'is-active' : ''}
                   title={p.hint}
-                  onClick={() => runAi(p.id)}
+                  onClick={() => runLayout(p.id)}
                 >
                   {p.name}
                 </button>
@@ -601,7 +431,7 @@ export function CarcassPlannerPage() {
             <button
               type="button"
               className="btn btn--outline carcass__ai-run"
-              onClick={() => runAi()}
+              onClick={() => runLayout()}
             >
               Update bay plan
             </button>

@@ -199,9 +199,9 @@ export function ProductPage() {
           </div>
           <Link
             className="btn btn--outline product-page__visualise"
-            to={`/visualise?product=${product.id}`}
+            to="/design"
           >
-            Visualise in my room (AI)
+            Design my space & quote
           </Link>
           {product.categoryId === 'wardrobe' || product.categoryId === 'kitchen' ? (
             <Link

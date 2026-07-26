@@ -110,13 +110,14 @@ export function buildDesignSpaceWhatsAppUrl(input: {
   unitPrice: number
   buildScope: BuildScopeId
   notes?: string
-  usedAi?: boolean
-  /** Public URL of the AI visualisation — included so client & showroom share the same look */
-  aiImageUrl?: string | null
 }) {
   const roomName = DESIGN_ROOMS.find((r) => r.id === input.room)?.name ?? input.room
   const scopeLabel =
     input.buildScope === 'with-carcass' ? 'With carcass' : 'Shutter / façade only'
+  const productUrl =
+    typeof window !== 'undefined'
+      ? `${window.location.origin}/product/${input.product.id}`
+      : `/product/${input.product.id}`
   const lines = [
     'Hi Priyabadal Homes — Design my space request:',
     '',
@@ -126,14 +127,9 @@ export function buildDesignSpaceWhatsAppUrl(input: {
     `Finish: ${getFinish(input.finishId).name} · ${getThickness(input.thicknessId).label}`,
     `Scope: ${scopeLabel}`,
     `Estimated price: ${formatPrice(input.unitPrice, 'INR')}`,
-    input.aiImageUrl
-      ? `AI photo (open this link): ${input.aiImageUrl}`
-      : input.usedAi
-        ? 'AI visualisation was created on the website (photo link missing — please resend).'
-        : 'No AI photo yet — please generate on Design my space, or I can share a room photo here.',
     input.notes?.trim() ? `Notes: ${input.notes.trim()}` : null,
     '',
-    `Product link: ${typeof window !== 'undefined' ? window.location.origin : ''}/product/${input.product.id}`,
+    `Product photo & details: ${productUrl}`,
     '',
     'Please confirm final quote. Thank you.',
   ].filter(Boolean) as string[]

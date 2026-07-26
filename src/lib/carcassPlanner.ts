@@ -407,15 +407,20 @@ export function quoteCarcass(input: {
 export function buildCarcassWhatsAppUrl(input: {
   category: CarcassCategory
   productName?: string
+  productId?: string
   quote: CarcassQuote
   finishId: string
   thicknessId: string
   notes?: string
-  usedLiveAi?: boolean
-  aiImageUrl?: string | null
 }) {
   const title =
     input.category === 'kitchen' ? 'Kitchen carcass plan' : 'Wardrobe carcass plan'
+  const productUrl =
+    input.productId && typeof window !== 'undefined'
+      ? `${window.location.origin}/product/${input.productId}`
+      : input.productId
+        ? `/product/${input.productId}`
+        : null
   const lines = [
     `Hi Priyabadal Homes, I designed a ${title} on the Carcass Planner:`,
     '',
@@ -424,15 +429,11 @@ export function buildCarcassWhatsAppUrl(input: {
     `Area: ${input.quote.sqft.toFixed(1)} sq ft`,
     `Layout: ${input.quote.baySummary}`,
     `Finish: ${getFinish(input.finishId).name} · ${getThickness(input.thicknessId).label}`,
-    input.aiImageUrl
-      ? `AI carcass photo (open this link): ${input.aiImageUrl}`
-      : input.usedLiveAi
-        ? 'Live-size AI carcass was generated on the website (photo link missing — please resend).'
-        : null,
     `Rates: shutter ${formatPrice(input.quote.shutterRate, 'INR')}/sq ft · carcass ${formatPrice(input.quote.carcassRate, 'INR')}/sq ft`,
     `Module add-ons: ${formatPrice(input.quote.moduleAddOn, 'INR')}`,
     `Estimated total: ${formatPrice(input.quote.unitPrice, 'INR')} (with carcass)`,
     input.notes?.trim() ? `Notes: ${input.notes.trim()}` : null,
+    productUrl ? `Product photo & details: ${productUrl}` : null,
     '',
     'Please confirm final quote. Thank you.',
   ].filter(Boolean) as string[]

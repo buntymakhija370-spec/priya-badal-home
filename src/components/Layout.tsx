@@ -14,7 +14,6 @@ const utilityLinks = [
   { to: '/design', label: 'Design my space' },
   { to: '/shop', label: 'All products' },
   { to: '/how-it-works', label: 'How it works' },
-  { to: '/visualise', label: 'Visualise AI' },
   { to: '/carcass', label: 'Carcass Planner' },
   { to: '/favorites', label: 'Favorites' },
   { to: '/chat', label: 'AI Guide' },
@@ -62,9 +61,6 @@ export function Layout() {
           ))}
           <NavLink to="/design" onClick={close}>
             Design
-          </NavLink>
-          <NavLink to="/visualise" onClick={close}>
-            Visualise
           </NavLink>
           <NavLink to="/shop" onClick={close}>
             All
@@ -155,9 +151,6 @@ export function Layout() {
               </li>
               <li>
                 <NavLink to="/design">Design my space</NavLink>
-              </li>
-              <li>
-                <NavLink to="/visualise">Visualise AI</NavLink>
               </li>
               <li>
                 <NavLink to="/carcass">Carcass Planner</NavLink>

@@ -1,5 +1,4 @@
 export type CategoryId =
-  | 'wall-panels'
   | 'kitchen'
   | 'wardrobe'
   | 'temple'
@@ -109,22 +108,7 @@ export type Product = {
 }
 
 export const categories: Category[] = [
-  {
-    id: 'wall-panels',
-    name: 'Wall Panels',
-    description:
-      'Feature walls, fluted panels, layered series, rainbow panels, and decorative cladding.',
-    image: '/products/categories/wall-panels.jpg',
-    video: '/products/categories/wall-panels.mp4',
-    subcategories: [
-      { id: 'fluted', name: 'Fluted Panels' },
-      { id: '3d-panels', name: '3D Panels' },
-      { id: 'acoustic', name: 'Acoustic Panels' },
-      { id: 'layered-series', name: 'Layered Series' },
-      { id: 'rainbow', name: 'Rainbow' },
-    ],
-  },
-  {
+    {
     id: 'kitchen',
     name: 'Kitchen',
     description: 'Modular kitchens, cabinets, and counter finishes.',
@@ -268,7 +252,7 @@ export const categories: Category[] = [
 ]
 
 export const baseProducts: Product[] = [
-  {
+{
     id: 'taupe-panel-hinged-wardrobe',
     name: 'Taupe Panel Hinged Wardrobe',
     categoryId: 'wardrobe',
@@ -345,7 +329,7 @@ export const baseProducts: Product[] = [
     disclaimer:
       'Accessories and room settings in images are for representation only. Final colour, finish, size, and carcass scope are confirmed on WhatsApp before production.',
   },
-  {
+{
     id: 'light-oak-open-wardrobe',
     name: 'Light Oak Open Wardrobe',
     categoryId: 'wardrobe',
@@ -420,7 +404,7 @@ export const baseProducts: Product[] = [
     disclaimer:
       'Accessories and room settings in images are for representation only. Final colour, finish, size, and carcass scope are confirmed on WhatsApp before production.',
   },
-  {
+{
     id: 'led-oak-dressing-wardrobe',
     name: 'LED Oak Dressing Wardrobe',
     categoryId: 'wardrobe',
@@ -496,7 +480,7 @@ export const baseProducts: Product[] = [
     disclaimer:
       'Accessories and room settings in images are for representation only. Final colour, finish, size, lighting, and carcass scope are confirmed on WhatsApp before production.',
   },
-  {
+{
     id: 'walnut-led-open-wardrobe',
     name: 'Walnut LED Open Wardrobe',
     categoryId: 'wardrobe',
@@ -572,7 +556,7 @@ export const baseProducts: Product[] = [
     disclaimer:
       'Accessories and room settings in images are for representation only. Final colour, finish, size, lighting, and carcass scope are confirmed on WhatsApp before production.',
   },
-  {
+{
     id: 'cream-bifold-accent-wardrobe',
     name: 'Cream Bifold Accent Wardrobe',
     categoryId: 'wardrobe',
@@ -647,7 +631,7 @@ export const baseProducts: Product[] = [
     disclaimer:
       'Accessories and room settings in images are for representation only. Final colour, finish, size, and carcass scope are confirmed on WhatsApp before production.',
   },
-  {
+{
     id: 'dark-wood-walk-in-wardrobe',
     name: 'Dark Wood Walk-in Wardrobe',
     categoryId: 'wardrobe',
@@ -726,1000 +710,7 @@ export const baseProducts: Product[] = [
     disclaimer:
       'Accessories and room settings in images are for representation only. Final colour, finish, size, lighting, and carcass scope are confirmed on WhatsApp before production.',
   },
-  {
-    id: 'fluted-oak-panel',
-    name: 'Fluted Oak Wall Panel',
-    categoryId: 'wall-panels',
-    subcategoryId: 'fluted',
-    price: 2499,
-    currency: 'INR',
-    description:
-      'Warm oak fluted cladding for TV walls and feature accents — priced per panel base.',
-    style: ['modern', 'warm', 'natural'],
-    rooms: ['living room', 'bedroom', 'wall panels'],
-    image:
-      'https://images.unsplash.com/photo-1616046229478-9901c5536a45?auto=format&fit=crop&w=1200&q=80',
-  },
-  {
-    id: '3d-geometric-panel',
-    name: '3D Geometric Panel',
-    categoryId: 'wall-panels',
-    subcategoryId: '3d-panels',
-    price: 1899,
-    currency: 'INR',
-    description:
-      'Sculpted 3D pattern panels that catch light and add depth to plain walls.',
-    style: ['modern', 'luxe', 'minimal'],
-    rooms: ['living room', 'hallway', 'wall panels'],
-    image:
-      'https://images.unsplash.com/photo-1586023492125-27b2c045efd7?auto=format&fit=crop&w=1200&q=80',
-  },
-  {
-    id: 'acoustic-soft-panel',
-    name: 'Soft Acoustic Panel',
-    categoryId: 'wall-panels',
-    subcategoryId: 'acoustic',
-    price: 2199,
-    currency: 'INR',
-    description:
-      'Fabric-faced acoustic panels for quieter bedrooms and media rooms.',
-    style: ['soft', 'modern', 'minimal'],
-    rooms: ['bedroom', 'living room', 'wall panels'],
-    image:
-      'https://images.unsplash.com/photo-1616486338812-3dadae4b4ace?auto=format&fit=crop&w=1200&q=80',
-  },
-  {
-    id: 'layered-manifold',
-    name: 'Manifold Layered Panel',
-    categoryId: 'wall-panels',
-    subcategoryId: 'layered-series',
-    price: 4499,
-    currency: 'INR',
-    pricingMode: 'unit',
-    brand: 'Priyabadal Homes',
-    collection: 'Layered Series',
-    sku: 'PBH-WP-LYR-MANIFOLD',
-    description:
-      'Bold layered Manifold panel — customisable size, colour, and finish for a seamless feature wall.',
-    style: ['modern', 'layered', 'feature'],
-    rooms: ['living room', 'hallway', 'bedroom', 'office', 'wall panels'],
-    image: '/products/wall-panels/layered-series/manifold-01.jpg',
-    images: [
-      '/products/wall-panels/layered-series/manifold-01.jpg',
-      '/products/wall-panels/layered-series/manifold-02.jpg',
-      '/products/wall-panels/layered-series/manifold-03.jpg',
-    ],
-    highlights: [
-      'Layered Series wall panel',
-      'Size customisable up to 10 × 4 ft',
-      'Colour & finish customisable',
-      '12 mm or 18 mm depth options',
-      'WhatsApp quote for your wall',
-    ],
-    features: [
-      'Multi-layer design for depth and dimension',
-      'Custom size up to 10 × 4 feet for low wastage install',
-      'Colour and finish options to match your interior',
-      'Ideal for TV walls, feature walls, and commercial accents',
-    ],
-    disclaimer:
-      'Accessories and room settings in images are for representation only. Final colour and finish may vary slightly from screen display. Exact size and finish are confirmed on WhatsApp before production.',
-  },
-  {
-    id: 'layered-box',
-    name: 'Box Layered Panel',
-    categoryId: 'wall-panels',
-    subcategoryId: 'layered-series',
-    price: 4299,
-    currency: 'INR',
-    pricingMode: 'unit',
-    brand: 'Priyabadal Homes',
-    collection: 'Layered Series',
-    sku: 'PBH-WP-LYR-BOX',
-    description:
-      'Contemporary stacked box-layer wall panel with geometric depth — available in 12 mm or 18 mm.',
-    style: ['modern', 'layered', 'feature'],
-    rooms: ['living room', 'hallway', 'bedroom', 'office', 'wall panels'],
-    image: '/products/wall-panels/layered-series/box-01.jpg',
-    images: [
-      '/products/wall-panels/layered-series/box-01.jpg',
-      '/products/wall-panels/layered-series/box-02.jpg',
-      '/products/wall-panels/layered-series/box-03.jpg',
-    ],
-    highlights: [
-      'Layered Series wall panel',
-      'Size customisable up to 10 × 4 ft',
-      'Colour & finish customisable',
-      '12 mm or 18 mm depth options',
-      'WhatsApp quote for your wall',
-    ],
-    features: [
-      'Multi-layer design for depth and dimension',
-      'Custom size up to 10 × 4 feet for low wastage install',
-      'Colour and finish options to match your interior',
-      'Ideal for TV walls, feature walls, and commercial accents',
-    ],
-    disclaimer:
-      'Accessories and room settings in images are for representation only. Final colour and finish may vary slightly from screen display. Exact size and finish are confirmed on WhatsApp before production.',
-  },
-  {
-    id: 'layered-big-box',
-    name: 'Big Box Layered Panel',
-    categoryId: 'wall-panels',
-    subcategoryId: 'layered-series',
-    price: 4999,
-    currency: 'INR',
-    pricingMode: 'unit',
-    brand: 'Priyabadal Homes',
-    collection: 'Layered Series',
-    sku: 'PBH-WP-LYR-BIGBOX',
-    description:
-      'Large 12×12″ box layered panel for an expansive, sculptural wall — solid colours or specialty finishes.',
-    style: ['modern', 'layered', 'feature'],
-    rooms: ['living room', 'hallway', 'bedroom', 'office', 'wall panels'],
-    image: '/products/wall-panels/layered-series/big-box-01.jpg',
-    images: [
-      '/products/wall-panels/layered-series/big-box-01.jpg',
-      '/products/wall-panels/layered-series/big-box-02.jpg',
-      '/products/wall-panels/layered-series/big-box-03.jpg',
-    ],
-    highlights: [
-      'Layered Series wall panel',
-      'Size customisable up to 10 × 4 ft',
-      'Colour & finish customisable',
-      '12 mm or 18 mm depth options',
-      'WhatsApp quote for your wall',
-    ],
-    features: [
-      'Multi-layer design for depth and dimension',
-      'Custom size up to 10 × 4 feet for low wastage install',
-      'Colour and finish options to match your interior',
-      'Ideal for TV walls, feature walls, and commercial accents',
-    ],
-    disclaimer:
-      'Accessories and room settings in images are for representation only. Final colour and finish may vary slightly from screen display. Exact size and finish are confirmed on WhatsApp before production.',
-  },
-  {
-    id: 'layered-terra-layered',
-    name: 'Terra Layered Panel',
-    categoryId: 'wall-panels',
-    subcategoryId: 'layered-series',
-    price: 4399,
-    currency: 'INR',
-    pricingMode: 'unit',
-    brand: 'Priyabadal Homes',
-    collection: 'Layered Series',
-    sku: 'PBH-WP-LYR-TERRALAY',
-    description:
-      'Versatile Terra layered wall panel — ideal for living rooms, hallways, offices, and bedroom accents.',
-    style: ['modern', 'layered', 'feature'],
-    rooms: ['living room', 'hallway', 'bedroom', 'office', 'wall panels'],
-    image: '/products/wall-panels/layered-series/terra-layered-01.jpg',
-    images: [
-      '/products/wall-panels/layered-series/terra-layered-01.jpg',
-      '/products/wall-panels/layered-series/terra-layered-02.jpg',
-    ],
-    highlights: [
-      'Layered Series wall panel',
-      'Size customisable up to 10 × 4 ft',
-      'Colour & finish customisable',
-      '12 mm or 18 mm depth options',
-      'WhatsApp quote for your wall',
-    ],
-    features: [
-      'Multi-layer design for depth and dimension',
-      'Custom size up to 10 × 4 feet for low wastage install',
-      'Colour and finish options to match your interior',
-      'Ideal for TV walls, feature walls, and commercial accents',
-    ],
-    disclaimer:
-      'Accessories and room settings in images are for representation only. Final colour and finish may vary slightly from screen display. Exact size and finish are confirmed on WhatsApp before production.',
-  },
-  {
-    id: 'layered-double-craft',
-    name: 'Double Craft Layered Panel',
-    categoryId: 'wall-panels',
-    subcategoryId: 'layered-series',
-    price: 4599,
-    currency: 'INR',
-    pricingMode: 'unit',
-    brand: 'Priyabadal Homes',
-    collection: 'Layered Series',
-    sku: 'PBH-WP-LYR-DOUBLECR',
-    description:
-      'Two-layer Double Craft panel with dimensional depth beyond regular groove panels — size up to 10×4 ft.',
-    style: ['modern', 'layered', 'feature'],
-    rooms: ['living room', 'hallway', 'bedroom', 'office', 'wall panels'],
-    image: '/products/wall-panels/layered-series/double-craft-01.jpg',
-    images: [
-      '/products/wall-panels/layered-series/double-craft-01.jpg',
-      '/products/wall-panels/layered-series/double-craft-02.jpg',
-      '/products/wall-panels/layered-series/double-craft-03.jpg',
-    ],
-    highlights: [
-      'Layered Series wall panel',
-      'Size customisable up to 10 × 4 ft',
-      'Colour & finish customisable',
-      '12 mm or 18 mm depth options',
-      'WhatsApp quote for your wall',
-    ],
-    features: [
-      'Multi-layer design for depth and dimension',
-      'Custom size up to 10 × 4 feet for low wastage install',
-      'Colour and finish options to match your interior',
-      'Ideal for TV walls, feature walls, and commercial accents',
-    ],
-    disclaimer:
-      'Accessories and room settings in images are for representation only. Final colour and finish may vary slightly from screen display. Exact size and finish are confirmed on WhatsApp before production.',
-  },
-  {
-    id: 'layered-layer-fusion',
-    name: 'Layer Fusion Panel',
-    categoryId: 'wall-panels',
-    subcategoryId: 'layered-series',
-    price: 4799,
-    currency: 'INR',
-    pricingMode: 'unit',
-    brand: 'Priyabadal Homes',
-    collection: 'Layered Series',
-    sku: 'PBH-WP-LYR-LAYERFUS',
-    description:
-      'Distinctive Layer Fusion panel with an added design element for a one-of-a-kind feature wall.',
-    style: ['modern', 'layered', 'feature'],
-    rooms: ['living room', 'hallway', 'bedroom', 'office', 'wall panels'],
-    image: '/products/wall-panels/layered-series/layer-fusion-01.jpg',
-    images: [
-      '/products/wall-panels/layered-series/layer-fusion-01.jpg',
-    ],
-    highlights: [
-      'Layered Series wall panel',
-      'Size customisable up to 10 × 4 ft',
-      'Colour & finish customisable',
-      '12 mm or 18 mm depth options',
-      'WhatsApp quote for your wall',
-    ],
-    features: [
-      'Multi-layer design for depth and dimension',
-      'Custom size up to 10 × 4 feet for low wastage install',
-      'Colour and finish options to match your interior',
-      'Ideal for TV walls, feature walls, and commercial accents',
-    ],
-    disclaimer:
-      'Accessories and room settings in images are for representation only. Final colour and finish may vary slightly from screen display. Exact size and finish are confirmed on WhatsApp before production.',
-  },
-  {
-    id: 'layered-layercraft',
-    name: 'Layercraft Panel',
-    categoryId: 'wall-panels',
-    subcategoryId: 'layered-series',
-    price: 4899,
-    currency: 'INR',
-    pricingMode: 'unit',
-    brand: 'Priyabadal Homes',
-    collection: 'Layered Series',
-    sku: 'PBH-WP-LYR-LAYERCRA',
-    description:
-      'Layercraft panel customisable with accents — shown with matte stainless steel for a sleek modern look.',
-    style: ['modern', 'layered', 'feature'],
-    rooms: ['living room', 'hallway', 'bedroom', 'office', 'wall panels'],
-    image: '/products/wall-panels/layered-series/layercraft-01.jpg',
-    images: [
-      '/products/wall-panels/layered-series/layercraft-01.jpg',
-    ],
-    highlights: [
-      'Layered Series wall panel',
-      'Size customisable up to 10 × 4 ft',
-      'Colour & finish customisable',
-      '12 mm or 18 mm depth options',
-      'WhatsApp quote for your wall',
-    ],
-    features: [
-      'Multi-layer design for depth and dimension',
-      'Custom size up to 10 × 4 feet for low wastage install',
-      'Colour and finish options to match your interior',
-      'Ideal for TV walls, feature walls, and commercial accents',
-    ],
-    disclaimer:
-      'Accessories and room settings in images are for representation only. Final colour and finish may vary slightly from screen display. Exact size and finish are confirmed on WhatsApp before production.',
-  },
-  {
-    id: 'layered-dual-arch',
-    name: 'Dual Arch Layered Panel',
-    categoryId: 'wall-panels',
-    subcategoryId: 'layered-series',
-    price: 5199,
-    currency: 'INR',
-    pricingMode: 'unit',
-    brand: 'Priyabadal Homes',
-    collection: 'Layered Series',
-    sku: 'PBH-WP-LYR-DUALARCH',
-    description:
-      'Dual Arch layered panel with subtle curves — elegant arched geometry for modern interiors.',
-    style: ['modern', 'layered', 'feature'],
-    rooms: ['living room', 'hallway', 'bedroom', 'office', 'wall panels'],
-    image: '/products/wall-panels/layered-series/dual-arch-01.jpg',
-    images: [
-      '/products/wall-panels/layered-series/dual-arch-01.jpg',
-      '/products/wall-panels/layered-series/dual-arch-02.jpg',
-      '/products/wall-panels/layered-series/dual-arch-03.jpg',
-    ],
-    highlights: [
-      'Layered Series wall panel',
-      'Size customisable up to 10 × 4 ft',
-      'Colour & finish customisable',
-      '12 mm or 18 mm depth options',
-      'WhatsApp quote for your wall',
-    ],
-    features: [
-      'Multi-layer design for depth and dimension',
-      'Custom size up to 10 × 4 feet for low wastage install',
-      'Colour and finish options to match your interior',
-      'Ideal for TV walls, feature walls, and commercial accents',
-    ],
-    disclaimer:
-      'Accessories and room settings in images are for representation only. Final colour and finish may vary slightly from screen display. Exact size and finish are confirmed on WhatsApp before production.',
-  },
-  {
-    id: 'layered-arch',
-    name: 'Arch Layered Panel',
-    categoryId: 'wall-panels',
-    subcategoryId: 'layered-series',
-    price: 5099,
-    currency: 'INR',
-    pricingMode: 'unit',
-    brand: 'Priyabadal Homes',
-    collection: 'Layered Series',
-    sku: 'PBH-WP-LYR-ARCH',
-    description:
-      'Trending Arch layered panel with seamless elegance — choose 12 mm or 18 mm depth.',
-    style: ['modern', 'layered', 'feature'],
-    rooms: ['living room', 'hallway', 'bedroom', 'office', 'wall panels'],
-    image: '/products/wall-panels/layered-series/arch-01.jpg',
-    images: [
-      '/products/wall-panels/layered-series/arch-01.jpg',
-      '/products/wall-panels/layered-series/arch-02.jpg',
-      '/products/wall-panels/layered-series/arch-03.jpg',
-    ],
-    highlights: [
-      'Layered Series wall panel',
-      'Size customisable up to 10 × 4 ft',
-      'Colour & finish customisable',
-      '12 mm or 18 mm depth options',
-      'WhatsApp quote for your wall',
-    ],
-    features: [
-      'Multi-layer design for depth and dimension',
-      'Custom size up to 10 × 4 feet for low wastage install',
-      'Colour and finish options to match your interior',
-      'Ideal for TV walls, feature walls, and commercial accents',
-    ],
-    disclaimer:
-      'Accessories and room settings in images are for representation only. Final colour and finish may vary slightly from screen display. Exact size and finish are confirmed on WhatsApp before production.',
-  },
-  {
-    id: 'layered-archino',
-    name: 'Archino Layered Panel',
-    categoryId: 'wall-panels',
-    subcategoryId: 'layered-series',
-    price: 5299,
-    currency: 'INR',
-    pricingMode: 'unit',
-    brand: 'Priyabadal Homes',
-    collection: 'Layered Series',
-    sku: 'PBH-WP-LYR-ARCHINO',
-    description:
-      'Archino panel with base, half-circle, and stacked arch layers for a minimalist dimensional look.',
-    style: ['modern', 'layered', 'feature'],
-    rooms: ['living room', 'hallway', 'bedroom', 'office', 'wall panels'],
-    image: '/products/wall-panels/layered-series/archino-01.jpg',
-    images: [
-      '/products/wall-panels/layered-series/archino-01.jpg',
-    ],
-    highlights: [
-      'Layered Series wall panel',
-      'Size customisable up to 10 × 4 ft',
-      'Colour & finish customisable',
-      '12 mm or 18 mm depth options',
-      'WhatsApp quote for your wall',
-    ],
-    features: [
-      'Multi-layer design for depth and dimension',
-      'Custom size up to 10 × 4 feet for low wastage install',
-      'Colour and finish options to match your interior',
-      'Ideal for TV walls, feature walls, and commercial accents',
-    ],
-    disclaimer:
-      'Accessories and room settings in images are for representation only. Final colour and finish may vary slightly from screen display. Exact size and finish are confirmed on WhatsApp before production.',
-  },
-  {
-    id: 'layered-ova-luxe',
-    name: 'Ova Luxe Layered Panel',
-    categoryId: 'wall-panels',
-    subcategoryId: 'layered-series',
-    price: 5399,
-    currency: 'INR',
-    pricingMode: 'unit',
-    brand: 'Priyabadal Homes',
-    collection: 'Layered Series',
-    sku: 'PBH-WP-LYR-OVALUXE',
-    description:
-      'Ova Luxe oval layered panel — organic curves with optional interlocking for a seamless finish.',
-    style: ['modern', 'layered', 'feature'],
-    rooms: ['living room', 'hallway', 'bedroom', 'office', 'wall panels'],
-    image: '/products/wall-panels/layered-series/ova-luxe-01.jpg',
-    images: [
-      '/products/wall-panels/layered-series/ova-luxe-01.jpg',
-      '/products/wall-panels/layered-series/ova-luxe-02.jpg',
-    ],
-    highlights: [
-      'Layered Series wall panel',
-      'Size customisable up to 10 × 4 ft',
-      'Colour & finish customisable',
-      '12 mm or 18 mm depth options',
-      'WhatsApp quote for your wall',
-    ],
-    features: [
-      'Multi-layer design for depth and dimension',
-      'Custom size up to 10 × 4 feet for low wastage install',
-      'Colour and finish options to match your interior',
-      'Ideal for TV walls, feature walls, and commercial accents',
-    ],
-    disclaimer:
-      'Accessories and room settings in images are for representation only. Final colour and finish may vary slightly from screen display. Exact size and finish are confirmed on WhatsApp before production.',
-  },
-  {
-    id: 'layered-multi-frame',
-    name: 'Multi Frame Layered Panel',
-    categoryId: 'wall-panels',
-    subcategoryId: 'layered-series',
-    price: 4699,
-    currency: 'INR',
-    pricingMode: 'unit',
-    brand: 'Priyabadal Homes',
-    collection: 'Layered Series',
-    sku: 'PBH-WP-LYR-MULTIFRA',
-    description:
-      'Sophisticated two-layer Multi Frame panel with rectangular frames across both layers.',
-    style: ['modern', 'layered', 'feature'],
-    rooms: ['living room', 'hallway', 'bedroom', 'office', 'wall panels'],
-    image: '/products/wall-panels/layered-series/multi-frame-01.jpg',
-    images: [
-      '/products/wall-panels/layered-series/multi-frame-01.jpg',
-    ],
-    highlights: [
-      'Layered Series wall panel',
-      'Size customisable up to 10 × 4 ft',
-      'Colour & finish customisable',
-      '12 mm or 18 mm depth options',
-      'WhatsApp quote for your wall',
-    ],
-    features: [
-      'Multi-layer design for depth and dimension',
-      'Custom size up to 10 × 4 feet for low wastage install',
-      'Colour and finish options to match your interior',
-      'Ideal for TV walls, feature walls, and commercial accents',
-    ],
-    disclaimer:
-      'Accessories and room settings in images are for representation only. Final colour and finish may vary slightly from screen display. Exact size and finish are confirmed on WhatsApp before production.',
-  },
-  {
-    id: 'layered-archena',
-    name: 'Archena Layered Panel',
-    categoryId: 'wall-panels',
-    subcategoryId: 'layered-series',
-    price: 4599,
-    currency: 'INR',
-    pricingMode: 'unit',
-    brand: 'Priyabadal Homes',
-    collection: 'Layered Series',
-    sku: 'PBH-WP-LYR-ARCHENA',
-    description:
-      'Subtle yet impactful Archena layered panel — versatile for small and large feature walls.',
-    style: ['modern', 'layered', 'feature'],
-    rooms: ['living room', 'hallway', 'bedroom', 'office', 'wall panels'],
-    image: '/products/wall-panels/layered-series/archena-01.jpg',
-    images: [
-      '/products/wall-panels/layered-series/archena-01.jpg',
-    ],
-    highlights: [
-      'Layered Series wall panel',
-      'Size customisable up to 10 × 4 ft',
-      'Colour & finish customisable',
-      '12 mm or 18 mm depth options',
-      'WhatsApp quote for your wall',
-    ],
-    features: [
-      'Multi-layer design for depth and dimension',
-      'Custom size up to 10 × 4 feet for low wastage install',
-      'Colour and finish options to match your interior',
-      'Ideal for TV walls, feature walls, and commercial accents',
-    ],
-    disclaimer:
-      'Accessories and room settings in images are for representation only. Final colour and finish may vary slightly from screen display. Exact size and finish are confirmed on WhatsApp before production.',
-  },
-
-  {
-    id: 'rainbow-a51',
-    name: 'Rainbow A51 — Beige Morocco',
-    categoryId: 'wall-panels',
-    subcategoryId: 'rainbow',
-    price: 700,
-    currency: 'INR',
-    pricingMode: 'per-sqft',
-    defaultFinishId: 'ceramic',
-    defaultThicknessId: '6',
-    brand: 'Priyabadal Homes',
-    collection: 'Rainbow',
-    sku: 'PBH-WP-RBOW-A51',
-    description:
-      'Rainbow Series A51 wall panel in Beige Morocco — 6 mm engineer wood with ceramic coating finish. Priced at ₹700 / sq ft. Size fully customisable to your wall.',
-    style: ['modern', 'rainbow', 'feature'],
-    rooms: ['living room', 'hallway', 'bedroom', 'office', 'wall panels'],
-    image: '/products/wall-panels/rainbow/a51-01.jpg',
-    images: [
-      '/products/wall-panels/rainbow/a51-01.jpg',
-      '/products/wall-panels/rainbow/a51-02.jpg',
-      '/products/wall-panels/rainbow/a51-03.jpg',
-    ],
-    highlights: [
-      '₹700 / sq ft',
-      '6 mm thickness',
-      'Ceramic coating finish',
-      'Engineer wood base',
-      'Size fully customisable',
-      'Rainbow A51 — Beige Morocco',
-    ],
-    features: [
-      'Ceramic-coated engineer wood surface — durable colour and finish',
-      '6 mm panel thickness for sleek feature walls',
-      'Made to your wall size — width and height customisable',
-      'Ideal for TV walls, lobbies, bedrooms, and commercial accents',
-    ],
-    disclaimer:
-      'Accessories and room settings in images are for representation only. Final colour and finish may vary slightly from screen display. Exact size and colour are confirmed on WhatsApp before production.',
-  },
-  {
-    id: 'rainbow-a52',
-    name: 'Rainbow A52 — Dove',
-    categoryId: 'wall-panels',
-    subcategoryId: 'rainbow',
-    price: 700,
-    currency: 'INR',
-    pricingMode: 'per-sqft',
-    defaultFinishId: 'ceramic',
-    defaultThicknessId: '6',
-    brand: 'Priyabadal Homes',
-    collection: 'Rainbow',
-    sku: 'PBH-WP-RBOW-A52',
-    description:
-      'Rainbow Series A52 wall panel in Dove — 6 mm engineer wood with ceramic coating finish. Priced at ₹700 / sq ft. Size fully customisable to your wall.',
-    style: ['modern', 'rainbow', 'feature'],
-    rooms: ['living room', 'hallway', 'bedroom', 'office', 'wall panels'],
-    image: '/products/wall-panels/rainbow/a52-01.jpg',
-    images: [
-      '/products/wall-panels/rainbow/a52-01.jpg',
-      '/products/wall-panels/rainbow/a52-02.jpg',
-      '/products/wall-panels/rainbow/a52-03.jpg',
-    ],
-    highlights: [
-      '₹700 / sq ft',
-      '6 mm thickness',
-      'Ceramic coating finish',
-      'Engineer wood base',
-      'Size fully customisable',
-      'Rainbow A52 — Dove',
-    ],
-    features: [
-      'Ceramic-coated engineer wood surface — durable colour and finish',
-      '6 mm panel thickness for sleek feature walls',
-      'Made to your wall size — width and height customisable',
-      'Ideal for TV walls, lobbies, bedrooms, and commercial accents',
-    ],
-    disclaimer:
-      'Accessories and room settings in images are for representation only. Final colour and finish may vary slightly from screen display. Exact size and colour are confirmed on WhatsApp before production.',
-  },
-  {
-    id: 'rainbow-a53',
-    name: 'Rainbow A53 — Coco',
-    categoryId: 'wall-panels',
-    subcategoryId: 'rainbow',
-    price: 700,
-    currency: 'INR',
-    pricingMode: 'per-sqft',
-    defaultFinishId: 'ceramic',
-    defaultThicknessId: '6',
-    brand: 'Priyabadal Homes',
-    collection: 'Rainbow',
-    sku: 'PBH-WP-RBOW-A53',
-    description:
-      'Rainbow Series A53 wall panel in Coco — 6 mm engineer wood with ceramic coating finish. Priced at ₹700 / sq ft. Size fully customisable to your wall.',
-    style: ['modern', 'rainbow', 'feature'],
-    rooms: ['living room', 'hallway', 'bedroom', 'office', 'wall panels'],
-    image: '/products/wall-panels/rainbow/a53-01.jpg',
-    images: [
-      '/products/wall-panels/rainbow/a53-01.jpg',
-      '/products/wall-panels/rainbow/a53-02.jpg',
-      '/products/wall-panels/rainbow/a53-03.jpg',
-    ],
-    highlights: [
-      '₹700 / sq ft',
-      '6 mm thickness',
-      'Ceramic coating finish',
-      'Engineer wood base',
-      'Size fully customisable',
-      'Rainbow A53 — Coco',
-    ],
-    features: [
-      'Ceramic-coated engineer wood surface — durable colour and finish',
-      '6 mm panel thickness for sleek feature walls',
-      'Made to your wall size — width and height customisable',
-      'Ideal for TV walls, lobbies, bedrooms, and commercial accents',
-    ],
-    disclaimer:
-      'Accessories and room settings in images are for representation only. Final colour and finish may vary slightly from screen display. Exact size and colour are confirmed on WhatsApp before production.',
-  },
-  {
-    id: 'rainbow-a54',
-    name: 'Rainbow A54 — Mid Grey',
-    categoryId: 'wall-panels',
-    subcategoryId: 'rainbow',
-    price: 700,
-    currency: 'INR',
-    pricingMode: 'per-sqft',
-    defaultFinishId: 'ceramic',
-    defaultThicknessId: '6',
-    brand: 'Priyabadal Homes',
-    collection: 'Rainbow',
-    sku: 'PBH-WP-RBOW-A54',
-    description:
-      'Rainbow Series A54 wall panel in Mid Grey — 6 mm engineer wood with ceramic coating finish. Priced at ₹700 / sq ft. Size fully customisable to your wall.',
-    style: ['modern', 'rainbow', 'feature'],
-    rooms: ['living room', 'hallway', 'bedroom', 'office', 'wall panels'],
-    image: '/products/wall-panels/rainbow/a54-01.jpg',
-    images: [
-      '/products/wall-panels/rainbow/a54-01.jpg',
-      '/products/wall-panels/rainbow/a54-02.jpg',
-      '/products/wall-panels/rainbow/a54-03.jpg',
-    ],
-    highlights: [
-      '₹700 / sq ft',
-      '6 mm thickness',
-      'Ceramic coating finish',
-      'Engineer wood base',
-      'Size fully customisable',
-      'Rainbow A54 — Mid Grey',
-    ],
-    features: [
-      'Ceramic-coated engineer wood surface — durable colour and finish',
-      '6 mm panel thickness for sleek feature walls',
-      'Made to your wall size — width and height customisable',
-      'Ideal for TV walls, lobbies, bedrooms, and commercial accents',
-    ],
-    disclaimer:
-      'Accessories and room settings in images are for representation only. Final colour and finish may vary slightly from screen display. Exact size and colour are confirmed on WhatsApp before production.',
-  },
-  {
-    id: 'rainbow-a55',
-    name: 'Rainbow A55 — Dark Grey',
-    categoryId: 'wall-panels',
-    subcategoryId: 'rainbow',
-    price: 700,
-    currency: 'INR',
-    pricingMode: 'per-sqft',
-    defaultFinishId: 'ceramic',
-    defaultThicknessId: '6',
-    brand: 'Priyabadal Homes',
-    collection: 'Rainbow',
-    sku: 'PBH-WP-RBOW-A55',
-    description:
-      'Rainbow Series A55 wall panel in Dark Grey — 6 mm engineer wood with ceramic coating finish. Priced at ₹700 / sq ft. Size fully customisable to your wall.',
-    style: ['modern', 'rainbow', 'feature'],
-    rooms: ['living room', 'hallway', 'bedroom', 'office', 'wall panels'],
-    image: '/products/wall-panels/rainbow/a55-01.jpg',
-    images: [
-      '/products/wall-panels/rainbow/a55-01.jpg',
-      '/products/wall-panels/rainbow/a55-02.jpg',
-      '/products/wall-panels/rainbow/a55-03.jpg',
-    ],
-    highlights: [
-      '₹700 / sq ft',
-      '6 mm thickness',
-      'Ceramic coating finish',
-      'Engineer wood base',
-      'Size fully customisable',
-      'Rainbow A55 — Dark Grey',
-    ],
-    features: [
-      'Ceramic-coated engineer wood surface — durable colour and finish',
-      '6 mm panel thickness for sleek feature walls',
-      'Made to your wall size — width and height customisable',
-      'Ideal for TV walls, lobbies, bedrooms, and commercial accents',
-    ],
-    disclaimer:
-      'Accessories and room settings in images are for representation only. Final colour and finish may vary slightly from screen display. Exact size and colour are confirmed on WhatsApp before production.',
-  },
-  {
-    id: 'rainbow-a56',
-    name: 'Rainbow A56 — Army Green',
-    categoryId: 'wall-panels',
-    subcategoryId: 'rainbow',
-    price: 700,
-    currency: 'INR',
-    pricingMode: 'per-sqft',
-    defaultFinishId: 'ceramic',
-    defaultThicknessId: '6',
-    brand: 'Priyabadal Homes',
-    collection: 'Rainbow',
-    sku: 'PBH-WP-RBOW-A56',
-    description:
-      'Rainbow Series A56 wall panel in Army Green — 6 mm engineer wood with ceramic coating finish. Priced at ₹700 / sq ft. Size fully customisable to your wall.',
-    style: ['modern', 'rainbow', 'feature'],
-    rooms: ['living room', 'hallway', 'bedroom', 'office', 'wall panels'],
-    image: '/products/wall-panels/rainbow/a56-01.jpg',
-    images: [
-      '/products/wall-panels/rainbow/a56-01.jpg',
-      '/products/wall-panels/rainbow/a56-02.jpg',
-      '/products/wall-panels/rainbow/a56-03.jpg',
-    ],
-    highlights: [
-      '₹700 / sq ft',
-      '6 mm thickness',
-      'Ceramic coating finish',
-      'Engineer wood base',
-      'Size fully customisable',
-      'Rainbow A56 — Army Green',
-    ],
-    features: [
-      'Ceramic-coated engineer wood surface — durable colour and finish',
-      '6 mm panel thickness for sleek feature walls',
-      'Made to your wall size — width and height customisable',
-      'Ideal for TV walls, lobbies, bedrooms, and commercial accents',
-    ],
-    disclaimer:
-      'Accessories and room settings in images are for representation only. Final colour and finish may vary slightly from screen display. Exact size and colour are confirmed on WhatsApp before production.',
-  },
-  {
-    id: 'rainbow-a57',
-    name: 'Rainbow A57 — Grigio Beige',
-    categoryId: 'wall-panels',
-    subcategoryId: 'rainbow',
-    price: 700,
-    currency: 'INR',
-    pricingMode: 'per-sqft',
-    defaultFinishId: 'ceramic',
-    defaultThicknessId: '6',
-    brand: 'Priyabadal Homes',
-    collection: 'Rainbow',
-    sku: 'PBH-WP-RBOW-A57',
-    description:
-      'Rainbow Series A57 wall panel in Grigio Beige — 6 mm engineer wood with ceramic coating finish. Priced at ₹700 / sq ft. Size fully customisable to your wall.',
-    style: ['modern', 'rainbow', 'feature'],
-    rooms: ['living room', 'hallway', 'bedroom', 'office', 'wall panels'],
-    image: '/products/wall-panels/rainbow/a57-01.jpg',
-    images: [
-      '/products/wall-panels/rainbow/a57-01.jpg',
-      '/products/wall-panels/rainbow/a57-02.jpg',
-      '/products/wall-panels/rainbow/a57-03.jpg',
-    ],
-    highlights: [
-      '₹700 / sq ft',
-      '6 mm thickness',
-      'Ceramic coating finish',
-      'Engineer wood base',
-      'Size fully customisable',
-      'Rainbow A57 — Grigio Beige',
-    ],
-    features: [
-      'Ceramic-coated engineer wood surface — durable colour and finish',
-      '6 mm panel thickness for sleek feature walls',
-      'Made to your wall size — width and height customisable',
-      'Ideal for TV walls, lobbies, bedrooms, and commercial accents',
-    ],
-    disclaimer:
-      'Accessories and room settings in images are for representation only. Final colour and finish may vary slightly from screen display. Exact size and colour are confirmed on WhatsApp before production.',
-  },
-  {
-    id: 'rainbow-a58',
-    name: 'Rainbow A58 — Terra Di Sienna',
-    categoryId: 'wall-panels',
-    subcategoryId: 'rainbow',
-    price: 700,
-    currency: 'INR',
-    pricingMode: 'per-sqft',
-    defaultFinishId: 'ceramic',
-    defaultThicknessId: '6',
-    brand: 'Priyabadal Homes',
-    collection: 'Rainbow',
-    sku: 'PBH-WP-RBOW-A58',
-    description:
-      'Rainbow Series A58 wall panel in Terra Di Sienna — 6 mm engineer wood with ceramic coating finish. Priced at ₹700 / sq ft. Size fully customisable to your wall.',
-    style: ['modern', 'rainbow', 'feature'],
-    rooms: ['living room', 'hallway', 'bedroom', 'office', 'wall panels'],
-    image: '/products/wall-panels/rainbow/a58-01.jpg',
-    images: [
-      '/products/wall-panels/rainbow/a58-01.jpg',
-      '/products/wall-panels/rainbow/a58-02.jpg',
-      '/products/wall-panels/rainbow/a58-03.jpg',
-    ],
-    highlights: [
-      '₹700 / sq ft',
-      '6 mm thickness',
-      'Ceramic coating finish',
-      'Engineer wood base',
-      'Size fully customisable',
-      'Rainbow A58 — Terra Di Sienna',
-    ],
-    features: [
-      'Ceramic-coated engineer wood surface — durable colour and finish',
-      '6 mm panel thickness for sleek feature walls',
-      'Made to your wall size — width and height customisable',
-      'Ideal for TV walls, lobbies, bedrooms, and commercial accents',
-    ],
-    disclaimer:
-      'Accessories and room settings in images are for representation only. Final colour and finish may vary slightly from screen display. Exact size and colour are confirmed on WhatsApp before production.',
-  },
-  {
-    id: 'rainbow-a59',
-    name: 'Rainbow A59 — Pebble Grey',
-    categoryId: 'wall-panels',
-    subcategoryId: 'rainbow',
-    price: 700,
-    currency: 'INR',
-    pricingMode: 'per-sqft',
-    defaultFinishId: 'ceramic',
-    defaultThicknessId: '6',
-    brand: 'Priyabadal Homes',
-    collection: 'Rainbow',
-    sku: 'PBH-WP-RBOW-A59',
-    description:
-      'Rainbow Series A59 wall panel in Pebble Grey — 6 mm engineer wood with ceramic coating finish. Priced at ₹700 / sq ft. Size fully customisable to your wall.',
-    style: ['modern', 'rainbow', 'feature'],
-    rooms: ['living room', 'hallway', 'bedroom', 'office', 'wall panels'],
-    image: '/products/wall-panels/rainbow/a59-01.jpg',
-    images: [
-      '/products/wall-panels/rainbow/a59-01.jpg',
-      '/products/wall-panels/rainbow/a59-02.jpg',
-      '/products/wall-panels/rainbow/a59-03.jpg',
-    ],
-    highlights: [
-      '₹700 / sq ft',
-      '6 mm thickness',
-      'Ceramic coating finish',
-      'Engineer wood base',
-      'Size fully customisable',
-      'Rainbow A59 — Pebble Grey',
-    ],
-    features: [
-      'Ceramic-coated engineer wood surface — durable colour and finish',
-      '6 mm panel thickness for sleek feature walls',
-      'Made to your wall size — width and height customisable',
-      'Ideal for TV walls, lobbies, bedrooms, and commercial accents',
-    ],
-    disclaimer:
-      'Accessories and room settings in images are for representation only. Final colour and finish may vary slightly from screen display. Exact size and colour are confirmed on WhatsApp before production.',
-  },
-  {
-    id: 'rainbow-a60',
-    name: 'Rainbow A60 — Beige Morocco',
-    categoryId: 'wall-panels',
-    subcategoryId: 'rainbow',
-    price: 700,
-    currency: 'INR',
-    pricingMode: 'per-sqft',
-    defaultFinishId: 'ceramic',
-    defaultThicknessId: '6',
-    brand: 'Priyabadal Homes',
-    collection: 'Rainbow',
-    sku: 'PBH-WP-RBOW-A60',
-    description:
-      'Rainbow Series A60 wall panel in Beige Morocco — 6 mm engineer wood with ceramic coating finish. Priced at ₹700 / sq ft. Size fully customisable to your wall.',
-    style: ['modern', 'rainbow', 'feature'],
-    rooms: ['living room', 'hallway', 'bedroom', 'office', 'wall panels'],
-    image: '/products/wall-panels/rainbow/a60-01.jpg',
-    images: [
-      '/products/wall-panels/rainbow/a60-01.jpg',
-      '/products/wall-panels/rainbow/a60-02.jpg',
-      '/products/wall-panels/rainbow/a60-03.jpg',
-    ],
-    highlights: [
-      '₹700 / sq ft',
-      '6 mm thickness',
-      'Ceramic coating finish',
-      'Engineer wood base',
-      'Size fully customisable',
-      'Rainbow A60 — Beige Morocco',
-    ],
-    features: [
-      'Ceramic-coated engineer wood surface — durable colour and finish',
-      '6 mm panel thickness for sleek feature walls',
-      'Made to your wall size — width and height customisable',
-      'Ideal for TV walls, lobbies, bedrooms, and commercial accents',
-    ],
-    disclaimer:
-      'Accessories and room settings in images are for representation only. Final colour and finish may vary slightly from screen display. Exact size and colour are confirmed on WhatsApp before production.',
-  },
-  {
-    id: 'rainbow-a61',
-    name: 'Rainbow A61 — Mint',
-    categoryId: 'wall-panels',
-    subcategoryId: 'rainbow',
-    price: 700,
-    currency: 'INR',
-    pricingMode: 'per-sqft',
-    defaultFinishId: 'ceramic',
-    defaultThicknessId: '6',
-    brand: 'Priyabadal Homes',
-    collection: 'Rainbow',
-    sku: 'PBH-WP-RBOW-A61',
-    description:
-      'Rainbow Series A61 wall panel in Mint — 6 mm engineer wood with ceramic coating finish. Priced at ₹700 / sq ft. Size fully customisable to your wall.',
-    style: ['modern', 'rainbow', 'feature'],
-    rooms: ['living room', 'hallway', 'bedroom', 'office', 'wall panels'],
-    image: '/products/wall-panels/rainbow/a61-01.jpg',
-    images: [
-      '/products/wall-panels/rainbow/a61-01.jpg',
-      '/products/wall-panels/rainbow/a61-02.jpg',
-      '/products/wall-panels/rainbow/a61-03.jpg',
-    ],
-    highlights: [
-      '₹700 / sq ft',
-      '6 mm thickness',
-      'Ceramic coating finish',
-      'Engineer wood base',
-      'Size fully customisable',
-      'Rainbow A61 — Mint',
-    ],
-    features: [
-      'Ceramic-coated engineer wood surface — durable colour and finish',
-      '6 mm panel thickness for sleek feature walls',
-      'Made to your wall size — width and height customisable',
-      'Ideal for TV walls, lobbies, bedrooms, and commercial accents',
-    ],
-    disclaimer:
-      'Accessories and room settings in images are for representation only. Final colour and finish may vary slightly from screen display. Exact size and colour are confirmed on WhatsApp before production.',
-  },
-  {
-    id: 'rainbow-a62',
-    name: 'Rainbow A62 — Limpido',
-    categoryId: 'wall-panels',
-    subcategoryId: 'rainbow',
-    price: 700,
-    currency: 'INR',
-    pricingMode: 'per-sqft',
-    defaultFinishId: 'ceramic',
-    defaultThicknessId: '6',
-    brand: 'Priyabadal Homes',
-    collection: 'Rainbow',
-    sku: 'PBH-WP-RBOW-A62',
-    description:
-      'Rainbow Series A62 wall panel in Limpido — 6 mm engineer wood with ceramic coating finish. Priced at ₹700 / sq ft. Size fully customisable to your wall.',
-    style: ['modern', 'rainbow', 'feature'],
-    rooms: ['living room', 'hallway', 'bedroom', 'office', 'wall panels'],
-    image: '/products/wall-panels/rainbow/a62-01.jpg',
-    images: [
-      '/products/wall-panels/rainbow/a62-01.jpg',
-      '/products/wall-panels/rainbow/a62-02.jpg',
-      '/products/wall-panels/rainbow/a62-03.jpg',
-    ],
-    highlights: [
-      '₹700 / sq ft',
-      '6 mm thickness',
-      'Ceramic coating finish',
-      'Engineer wood base',
-      'Size fully customisable',
-      'Rainbow A62 — Limpido',
-    ],
-    features: [
-      'Ceramic-coated engineer wood surface — durable colour and finish',
-      '6 mm panel thickness for sleek feature walls',
-      'Made to your wall size — width and height customisable',
-      'Ideal for TV walls, lobbies, bedrooms, and commercial accents',
-    ],
-    disclaimer:
-      'Accessories and room settings in images are for representation only. Final colour and finish may vary slightly from screen display. Exact size and colour are confirmed on WhatsApp before production.',
-  },
-
-  {
+{
     id: 'modular-kitchen-showcase',
     name: 'Modular Kitchen Showcase',
     categoryId: 'kitchen',
@@ -1743,7 +734,7 @@ export const baseProducts: Product[] = [
       'WhatsApp quote available',
     ],
   },
-  {
+{
     id: 'modular-l-kitchen',
     name: 'Modular L-Shape Kitchen',
     categoryId: 'kitchen',
@@ -1757,7 +748,7 @@ export const baseProducts: Product[] = [
     image:
       'https://images.unsplash.com/photo-1556912173-46c336c7fd55?auto=format&fit=crop&w=1200&q=80',
   },
-  {
+{
     id: 'tall-kitchen-cabinet',
     name: 'Tall Kitchen Cabinet',
     categoryId: 'kitchen',
@@ -1771,7 +762,7 @@ export const baseProducts: Product[] = [
     image:
       'https://images.unsplash.com/photo-1556911220-bff31c8750ea?auto=format&fit=crop&w=1200&q=80',
   },
-  {
+{
     id: 'kitchen-island-unit',
     name: 'Kitchen Island Unit',
     categoryId: 'kitchen',
@@ -1785,7 +776,7 @@ export const baseProducts: Product[] = [
     image:
       'https://images.unsplash.com/photo-1600585154340-be6161a56a0c?auto=format&fit=crop&w=1200&q=80',
   },
-  {
+{
     id: 'pink-lotus-arched-mandir',
     name: 'Pink Lotus Arched Mandir',
     categoryId: 'temple',
@@ -1869,7 +860,7 @@ export const baseProducts: Product[] = [
     disclaimer:
       'Accessories and room settings in images are for representation only. Final colour, finish, size, handle, and carcass scope are confirmed on WhatsApp before production.',
   },
-  {
+{
     id: 'lotus-branch-bifold-mandir',
     name: 'Lotus Branch Bifold Mandir',
     categoryId: 'temple',
@@ -1952,7 +943,7 @@ export const baseProducts: Product[] = [
     disclaimer:
       'Accessories and room settings in images are for representation only. Final colour, finish, size, and carcass scope are confirmed on WhatsApp before production.',
   },
-  {
+{
     id: 'bird-vine-jali-temple-doors',
     name: 'Bird & Vine Jali Temple Doors',
     categoryId: 'temple',
@@ -2025,7 +1016,7 @@ export const baseProducts: Product[] = [
     disclaimer:
       'Accessories and room settings in images are for representation only. Final colour, finish, and size are confirmed on WhatsApp before production. This product is doors only — carcass is not included.',
   },
-  {
+{
     id: 'lotus-circle-wood-niche-mandir',
     name: 'Lotus Circle Wood Niche Mandir',
     categoryId: 'temple',
@@ -2094,7 +1085,7 @@ export const baseProducts: Product[] = [
     disclaimer:
       'Accessories and room settings in images are for representation only. Final colour, finish, and size are confirmed on WhatsApp before production. This product is doors only — carcass is not included.',
   },
-  {
+{
     id: 'brushed-metal-scallop-mandir',
     name: 'Brushed Metal Scallop Mandir',
     categoryId: 'temple',
@@ -2124,7 +1115,7 @@ export const baseProducts: Product[] = [
       'WhatsApp quote available',
     ],
   },
-  {
+{
     id: 'hex-jali-elephant-mandir',
     name: 'Hex Jali Elephant Mandir',
     categoryId: 'temple',
@@ -2208,7 +1199,7 @@ export const baseProducts: Product[] = [
     disclaimer:
       'Accessories and room settings in images are for representation only. Final colour, finish, size, and carcass scope are confirmed on WhatsApp before production.',
   },
-  {
+{
     id: 'arch-lattice-marble-mandir',
     name: 'Arch Lattice Marble Mandir',
     categoryId: 'temple',
@@ -2296,7 +1287,7 @@ export const baseProducts: Product[] = [
     disclaimer:
       'Accessories and room settings in images are for representation only. Final colour, finish, size, and carcass scope are confirmed on WhatsApp before production.',
   },
-  {
+{
     id: 'floral-bell-jali-mandir',
     name: 'Floral Bell Jali Mandir',
     categoryId: 'temple',
@@ -2371,7 +1362,7 @@ export const baseProducts: Product[] = [
     disclaimer:
       'Accessories and room settings in images are for representation only. Final colour, finish, and size are confirmed on WhatsApp before production. This product is doors only — carcass is not included.',
   },
-  {
+{
     id: 'ginkgo-grid-arched-mandir',
     name: 'Ginkgo Grid Arched Mandir',
     categoryId: 'temple',
@@ -2451,7 +1442,7 @@ export const baseProducts: Product[] = [
     disclaimer:
       'Accessories and room settings in images are for representation only. Final colour, finish, size, and carcass scope are confirmed on WhatsApp before production.',
   },
-  {
+{
     id: 'pixel-jali-bifold-mandir',
     name: 'Pixel Jali Bifold Mandir',
     categoryId: 'temple',
@@ -2535,7 +1526,7 @@ export const baseProducts: Product[] = [
     disclaimer:
       'Accessories and room settings in images are for representation only. Final colour, finish, size, and carcass scope are confirmed on WhatsApp before production.',
   },
-  {
+{
     id: 'gold-lotus-relief-mandir',
     name: 'Gold Lotus Relief Mandir',
     categoryId: 'temple',
@@ -2619,7 +1610,7 @@ export const baseProducts: Product[] = [
     disclaimer:
       'Accessories and room settings in images are for representation only. Final colour, finish, size, and carcass scope are confirmed on WhatsApp before production.',
   },
-  {
+{
     id: 'tree-relief-arch-jali-mandir',
     name: 'Tree Relief Arch Jali Mandir',
     categoryId: 'temple',
@@ -2703,7 +1694,7 @@ export const baseProducts: Product[] = [
     disclaimer:
       'Accessories and room settings in images are for representation only. Final colour, finish, size, and carcass scope are confirmed on WhatsApp before production.',
   },
-  {
+{
     id: 'sunburst-jali-temple-doors',
     name: 'Sunburst Jali Temple Doors',
     categoryId: 'temple',
@@ -2782,7 +1773,7 @@ export const baseProducts: Product[] = [
     disclaimer:
       'Accessories and room settings in images are for representation only. Final colour, finish, size, and carcass scope are confirmed on WhatsApp before production.',
   },
-  {
+{
     id: 'gold-lotus-arch-temple-wall',
     name: 'Gold Lotus Arch Temple Wall',
     categoryId: 'temple',
@@ -2848,7 +1839,7 @@ export const baseProducts: Product[] = [
     disclaimer:
       'Accessories, idols, and room settings in images are for representation only. Final colour, finish, size, lighting, and carcass scope are confirmed on WhatsApp before production.',
   },
-  {
+{
     id: 'bevel-panel-prayer-wall',
     name: 'Bevel Panel Prayer Wall',
     categoryId: 'temple',
@@ -2913,7 +1904,7 @@ export const baseProducts: Product[] = [
     disclaimer:
       'Accessories and room settings in images are for representation only. Final colour, finish, size, and carcass scope are confirmed on WhatsApp before production.',
   },
-  {
+{
     id: 'gold-leaf-motif-temple-wall',
     name: 'Gold Leaf Motif Temple Wall',
     categoryId: 'temple',
@@ -2978,7 +1969,7 @@ export const baseProducts: Product[] = [
     disclaimer:
       'Accessories, idols, and room settings in images are for representation only. Final colour, finish, lighting, size, and carcass scope are confirmed on WhatsApp before production.',
   },
-  {
+{
     id: 'fluted-flame-niche-mandir',
     name: 'Fluted Flame Niche Mandir',
     categoryId: 'temple',
@@ -3044,7 +2035,7 @@ export const baseProducts: Product[] = [
     disclaimer:
       'Accessories, idols, wallpaper, and room settings in images are for representation only. Final colour, finish, lighting, size, and carcass scope are confirmed on WhatsApp before production.',
   },
-  {
+{
     id: 'pink-lotus-handle-pair',
     name: 'Pink Lotus Handle Pair',
     categoryId: 'handles',
@@ -3104,7 +2095,7 @@ export const baseProducts: Product[] = [
     disclaimer:
       'Room settings in images are for representation only. Confirm finish and fitting on WhatsApp before order.',
   },
-  {
+{
     id: 'main-entrance-door',
     name: 'Main Entrance Door',
     categoryId: 'doors',
@@ -3118,7 +2109,7 @@ export const baseProducts: Product[] = [
     image:
       'https://images.unsplash.com/photo-1505693416388-ac5ce068fe85?auto=format&fit=crop&w=1200&q=80',
   },
-  {
+{
     id: 'interior-room-door',
     name: 'Interior Room Door',
     categoryId: 'doors',
@@ -3132,7 +2123,7 @@ export const baseProducts: Product[] = [
     image:
       'https://images.unsplash.com/photo-1600585154526-990dced4db0d?auto=format&fit=crop&w=1200&q=80',
   },
-  {
+{
     id: 'flush-designer-door',
     name: 'Designer Flush Door',
     categoryId: 'doors',
@@ -3146,7 +2137,7 @@ export const baseProducts: Product[] = [
     image:
       'https://images.unsplash.com/photo-1600047509807-ba8f99d2cd00?auto=format&fit=crop&w=1200&q=80',
   },
-  {
+{
     id: 'sculpted-sofa',
     name: 'Sculpted Lounge Sofa',
     categoryId: 'sculpted-furniture',
@@ -3160,7 +2151,7 @@ export const baseProducts: Product[] = [
     image:
       'https://images.unsplash.com/photo-1555041469-a586c61ea9bc?auto=format&fit=crop&w=1200&q=80',
   },
-  {
+{
     id: 'sculpted-console',
     name: 'Sculpted Console',
     categoryId: 'sculpted-furniture',
@@ -3174,7 +2165,7 @@ export const baseProducts: Product[] = [
     image:
       'https://images.unsplash.com/photo-1592078615290-033ee584e267?auto=format&fit=crop&w=1200&q=80',
   },
-  {
+{
     id: 'sculpted-centre-table',
     name: 'Sculpted Centre Table',
     categoryId: 'sculpted-furniture',
@@ -3188,7 +2179,7 @@ export const baseProducts: Product[] = [
     image:
       'https://images.unsplash.com/photo-1611269154421-4e27233ac5c7?auto=format&fit=crop&w=1200&q=80',
   },
-  {
+{
     id: 'live-edge-seater-01',
     name: 'Mountain Crest Live Edge Bench',
     categoryId: 'live-edge-furniture',
@@ -3211,7 +2202,7 @@ export const baseProducts: Product[] = [
       'One-of-a-kind slab',
     ],
   },
-  {
+{
     id: 'live-edge-seater-02',
     name: 'Slab Beam Live Edge Bench',
     categoryId: 'live-edge-furniture',
@@ -3234,7 +2225,7 @@ export const baseProducts: Product[] = [
       'Made to order finish',
     ],
   },
-  {
+{
     id: 'live-edge-seater-03',
     name: 'Bird Form Live Edge Seater',
     categoryId: 'live-edge-furniture',
@@ -3257,7 +2248,7 @@ export const baseProducts: Product[] = [
       'Statement seating',
     ],
   },
-  {
+{
     id: 'live-edge-seater-04',
     name: 'Root Lattice Live Edge Bench',
     categoryId: 'live-edge-furniture',
@@ -3280,7 +2271,7 @@ export const baseProducts: Product[] = [
       'Artisan one-off piece',
     ],
   },
-  {
+{
     id: 'live-edge-seater-05',
     name: 'Gnarled Hollow Live Edge Bench',
     categoryId: 'live-edge-furniture',
@@ -3303,7 +2294,7 @@ export const baseProducts: Product[] = [
       'Natural grain showcase',
     ],
   },
-  {
+{
     id: 'live-edge-seater-06',
     name: 'Branch Reach Live Edge Seater',
     categoryId: 'live-edge-furniture',
@@ -3326,7 +2317,7 @@ export const baseProducts: Product[] = [
       'Compact statement piece',
     ],
   },
-  {
+{
     id: 'live-edge-seater-07',
     name: 'Cave Hollow Live Edge Chair',
     categoryId: 'live-edge-furniture',
@@ -3349,7 +2340,7 @@ export const baseProducts: Product[] = [
       'Oil / wax finish look',
     ],
   },
-  {
+{
     id: 'live-edge-seater-08',
     name: 'Bowl Seat Live Edge Chair',
     categoryId: 'live-edge-furniture',
@@ -3372,7 +2363,7 @@ export const baseProducts: Product[] = [
       'Studio-finished piece',
     ],
   },
-  {
+{
     id: 'live-edge-seater-09',
     name: 'Portal Void Live Edge Seater',
     categoryId: 'live-edge-furniture',
@@ -3395,7 +2386,7 @@ export const baseProducts: Product[] = [
       'Heavy solid hardwood',
     ],
   },
-  {
+{
     id: 'live-edge-seater-10',
     name: 'Root Wrap Live Edge Chair',
     categoryId: 'live-edge-furniture',
@@ -3418,7 +2409,7 @@ export const baseProducts: Product[] = [
       'Polished honey finish',
     ],
   },
-  {
+{
     id: 'live-edge-seater-11',
     name: 'Ridge Peak Live Edge Bench',
     categoryId: 'live-edge-furniture',
@@ -3441,7 +2432,7 @@ export const baseProducts: Product[] = [
       'Branch-tapered legs',
     ],
   },
-  {
+{
     id: 'live-edge-seater-12',
     name: 'Armored Hollow Live Edge Seater',
     categoryId: 'live-edge-furniture',
@@ -3464,7 +2455,7 @@ export const baseProducts: Product[] = [
       'Trunk-leg support',
     ],
   },
-  {
+{
     id: 'live-edge-seater-13',
     name: 'Honey Grain Live Edge Seater',
     categoryId: 'live-edge-furniture',
@@ -3487,7 +2478,7 @@ export const baseProducts: Product[] = [
       'Stump-style legs',
     ],
   },
-  {
+{
     id: 'live-edge-console-01',
     name: 'Root Lattice Console',
     categoryId: 'live-edge-furniture',
@@ -3510,7 +2501,7 @@ export const baseProducts: Product[] = [
       'One-of-a-kind hardwood',
     ],
   },
-  {
+{
     id: 'live-edge-console-02',
     name: 'Wing Tip Root Console',
     categoryId: 'live-edge-furniture',
@@ -3533,7 +2524,7 @@ export const baseProducts: Product[] = [
       'Organic modern look',
     ],
   },
-  {
+{
     id: 'live-edge-console-03',
     name: 'Wall Flush Root Console',
     categoryId: 'live-edge-furniture',
@@ -3556,7 +2547,7 @@ export const baseProducts: Product[] = [
       'Natural teak-root character',
     ],
   },
-  {
+{
     id: 'live-edge-console-04',
     name: 'Fan Span Root Console',
     categoryId: 'live-edge-furniture',
@@ -3579,7 +2570,7 @@ export const baseProducts: Product[] = [
       'Statement entry piece',
     ],
   },
-  {
+{
     id: 'live-edge-centre-01',
     name: 'Root Void Centre Table',
     categoryId: 'live-edge-furniture',
@@ -3602,7 +2593,7 @@ export const baseProducts: Product[] = [
       'One-of-a-kind piece',
     ],
   },
-  {
+{
     id: 'live-edge-centre-02',
     name: 'Flared Bowl Centre Base',
     categoryId: 'live-edge-furniture',
@@ -3625,7 +2616,7 @@ export const baseProducts: Product[] = [
       'Solid hardwood',
     ],
   },
-  {
+{
     id: 'live-edge-centre-03',
     name: 'Interlace Root Centre Table',
     categoryId: 'live-edge-furniture',
@@ -3648,7 +2639,7 @@ export const baseProducts: Product[] = [
       'Artisan teak-root look',
     ],
   },
-  {
+{
     id: 'live-edge-centre-04',
     name: 'Porous Stump Centre Table',
     categoryId: 'live-edge-furniture',
@@ -3671,7 +2662,7 @@ export const baseProducts: Product[] = [
       'Stable wide base',
     ],
   },
-  {
+{
     id: 'live-edge-centre-05',
     name: 'Branch Peak Centre Base',
     categoryId: 'live-edge-furniture',
@@ -3694,7 +2685,7 @@ export const baseProducts: Product[] = [
       'Sculptural base',
     ],
   },
-  {
+{
     id: 'live-edge-centre-06',
     name: 'Starburst Root Centre Base',
     categoryId: 'live-edge-furniture',
@@ -3717,7 +2708,7 @@ export const baseProducts: Product[] = [
       'Low living-room profile',
     ],
   },
-  {
+{
     id: 'live-edge-centre-07',
     name: 'Block Root Centre Table',
     categoryId: 'live-edge-furniture',
@@ -3740,7 +2731,7 @@ export const baseProducts: Product[] = [
       'Multi-point base',
     ],
   },
-  {
+{
     id: 'live-edge-centre-08',
     name: 'Pale Root Pedestal Table',
     categoryId: 'live-edge-furniture',
@@ -3763,7 +2754,7 @@ export const baseProducts: Product[] = [
       'Pedestal / glass base',
     ],
   },
-  {
+{
     id: 'live-edge-centre-09',
     name: 'Level Top Root Centre Table',
     categoryId: 'live-edge-furniture',
@@ -3786,7 +2777,7 @@ export const baseProducts: Product[] = [
       'Warm matte finish',
     ],
   },
-  {
+{
     id: 'live-edge-centre-10',
     name: 'Wing Span Root Centre Base',
     categoryId: 'live-edge-furniture',
@@ -3809,7 +2800,7 @@ export const baseProducts: Product[] = [
       'Polished solid hardwood',
     ],
   },
-  {
+{
     id: 'live-edge-ball-01',
     name: 'Hex Bolt Ball Stool',
     categoryId: 'live-edge-furniture',
@@ -3832,7 +2823,7 @@ export const baseProducts: Product[] = [
       'Solid wood piece',
     ],
   },
-  {
+{
     id: 'live-edge-ball-02',
     name: 'Weathered Column Ball Stool',
     categoryId: 'live-edge-furniture',
@@ -3855,7 +2846,7 @@ export const baseProducts: Product[] = [
       'Solid hardwood',
     ],
   },
-  {
+{
     id: 'live-edge-ball-03',
     name: 'Cave Hollow Ball Stool',
     categoryId: 'live-edge-furniture',
@@ -3878,7 +2869,7 @@ export const baseProducts: Product[] = [
       'Organic modern accent',
     ],
   },
-  {
+{
     id: 'live-edge-ball-04',
     name: 'Terracotta Burl Ball Stool',
     categoryId: 'live-edge-furniture',
@@ -3901,7 +2892,7 @@ export const baseProducts: Product[] = [
       'Accent seating',
     ],
   },
-  {
+{
     id: 'live-edge-ball-05',
     name: 'Twin Hollow Ball Stools',
     categoryId: 'live-edge-furniture',
@@ -3924,7 +2915,7 @@ export const baseProducts: Product[] = [
       'Stackable / pair seating',
     ],
   },
-  {
+{
     id: 'live-edge-ball-06',
     name: 'Root Orb Ball Stool',
     categoryId: 'live-edge-furniture',
@@ -3947,7 +2938,7 @@ export const baseProducts: Product[] = [
       'Solid hardwood stool',
     ],
   },
-  {
+{
     id: 'live-edge-basin-01',
     name: 'Fissure Edge Wood Basin',
     categoryId: 'live-edge-furniture',
@@ -3970,7 +2961,7 @@ export const baseProducts: Product[] = [
       'Sealed hardwood finish',
     ],
   },
-  {
+{
     id: 'live-edge-basin-02',
     name: 'Burl Grain Wood Basin',
     categoryId: 'live-edge-furniture',
@@ -3993,7 +2984,7 @@ export const baseProducts: Product[] = [
       'Waterproof sealed finish',
     ],
   },
-  {
+{
     id: 'live-edge-basin-03',
     name: 'Gold River Resin Basin',
     categoryId: 'live-edge-furniture',
@@ -4016,7 +3007,7 @@ export const baseProducts: Product[] = [
       'Statement powder-room piece',
     ],
   },
-  {
+{
     id: 'live-edge-basin-04',
     name: 'Asymmetric Grain Wood Basin',
     categoryId: 'live-edge-furniture',
@@ -4039,7 +3030,7 @@ export const baseProducts: Product[] = [
       'Sealed for wet areas',
     ],
   },
-  {
+{
     id: 'silaibunai-sofa-refresh',
     name: 'Sofa Silai Bunai Refresh',
     categoryId: 'silaibunai',
@@ -4061,7 +3052,7 @@ export const baseProducts: Product[] = [
       'WhatsApp quote',
     ],
   },
-  {
+{
     id: 'commercial-1bhk-pack',
     name: '1BHK Commercial Pack',
     categoryId: 'commercials',
@@ -4106,7 +3097,7 @@ export const baseProducts: Product[] = [
     disclaimer:
       'Commercial packs are bulk-only. We do not accept single-piece commercial orders. Final pack contents and sizes are confirmed on WhatsApp after site / layout details.',
   },
-  {
+{
     id: 'commercial-2bhk-pack',
     name: '2BHK Commercial Pack',
     categoryId: 'commercials',
@@ -4151,7 +3142,7 @@ export const baseProducts: Product[] = [
     disclaimer:
       'Commercial packs are bulk-only. We do not accept single-piece commercial orders. Final pack contents and sizes are confirmed on WhatsApp after site / layout details.',
   },
-  {
+{
     id: 'commercial-3bhk-pack',
     name: '3BHK Commercial Pack',
     categoryId: 'commercials',
@@ -4195,7 +3186,7 @@ export const baseProducts: Product[] = [
     ],
     disclaimer:
       'Commercial packs are bulk-only. We do not accept single-piece commercial orders. Final pack contents and sizes are confirmed on WhatsApp after site / layout details.',
-  },
+  }
 ]
 
 /** Effective minimum order quantity for a product (commercials default to 10). */

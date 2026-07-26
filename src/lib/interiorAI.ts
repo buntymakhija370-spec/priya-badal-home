@@ -82,11 +82,6 @@ const ROOM_MAP: { match: RegExp; label: string; categoryId?: string }[] = [
     label: 'temple / puja',
     categoryId: 'temple',
   },
-  {
-    match: /\b(wall panels?|feature wall|fluted|cladding)\b/i,
-    label: 'wall panels',
-    categoryId: 'wall-panels',
-  },
   { match: /\b(doors?|main door|flush)\b/i, label: 'doors', categoryId: 'doors' },
   {
     match: /\b(living room|bedroom|dining)\b/i,
@@ -431,7 +426,7 @@ function conversationalReply(
   } else {
     lines.push(
       '',
-      'What space are we planning — kitchen, wardrobe, temple, or wall panels? I can also explain prices and materials.',
+      'What space are we planning — kitchen, wardrobe, temple, or doors? I can also explain prices and materials.',
     )
   }
 

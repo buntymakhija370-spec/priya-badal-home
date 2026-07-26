@@ -1,4 +1,4 @@
-/** Clean product path for routing and sharing, e.g. /product/fluted-oak-panel */
+/** Clean product path for routing and sharing, e.g. /product/taupe-panel-hinged-wardrobe */
 export function productPath(productId: string) {
   return `/product/${productId}`
 }

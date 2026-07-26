@@ -273,19 +273,6 @@ const DEFAULT_SIZE: SizeLimits = {
 }
 
 const SIZE_BY_CATEGORY: Record<string, Partial<SizeLimits>> = {
-  'wall-panels': {
-    defaultWidth: 2,
-    defaultHeight: 8,
-    defaultDepth: 0.1,
-    baseWidth: 2,
-    baseHeight: 8,
-    baseDepth: 0.1,
-    usesDepth: false,
-    minWidth: 1,
-    maxWidth: 14,
-    minHeight: 1,
-    maxHeight: 12,
-  },
   kitchen: {
     defaultWidth: 8,
     defaultHeight: 7,

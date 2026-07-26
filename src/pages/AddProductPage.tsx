@@ -14,8 +14,8 @@ const SAMPLE_PHOTOS = [
 export function AddProductPage() {
   const navigate = useNavigate()
   const [name, setName] = useState('')
-  const [categoryId, setCategoryId] = useState<CategoryId>('wall-panels')
-  const [subcategoryId, setSubcategoryId] = useState('fluted')
+  const [categoryId, setCategoryId] = useState<CategoryId>('wardrobe')
+  const [subcategoryId, setSubcategoryId] = useState('hinged')
   const [price, setPrice] = useState('9999')
   const [description, setDescription] = useState('')
   const [image, setImage] = useState(SAMPLE_PHOTOS[0]!)

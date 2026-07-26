@@ -163,7 +163,16 @@ export function ChatPage() {
 
   const send = async (text: string) => {
     const trimmed = text.trim()
-    if (!trimmed || busy) return
+    // Allow chatting while idle; only block during an active AI render
+    if (!trimmed) return
+    if (busy) {
+      push({
+        id: crypto.randomUUID(),
+        role: 'assistant',
+        text: 'One moment — I’m still finishing the current visualisation. Send your next message right after it appears.',
+      })
+      return
+    }
 
     if (/^whatsapp quote$/i.test(trimmed)) {
       const url = buildChatWhatsAppUrl(brief)

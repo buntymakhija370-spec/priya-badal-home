@@ -35,10 +35,11 @@ export type ConsultBrief = {
   lastChangeRequest?: string | null
 }
 
+/** Strict: only clear edit-the-AI-photo commands (not general chitchat) */
 export function isChangeRequest(text: string): boolean {
   const t = text.trim()
   if (!t) return false
-  return /\b(change|changes|update|edit|revise|modify|adjust|tweak|redo|make (it|the|them|this)|make doors|make colour|make color|lighter|darker|brighter|softer|warmer|cooler|remove|add more|without|instead|more hanging|more drawers|less drawers|no handles|different (colour|color|finish|style)|same (photo|image|look|visual)|on this (photo|image|look)|to this (photo|image)|please (make|change|update|edit)|can you (make|change|update|edit)|want(ed)? (it|them) )\b/i.test(
+  return /\b(change (the|this|it|colour|color|finish|doors?|handles?)|changes?:|update (the|this|it)|edit (the|this|it)|revise|modify|adjust|tweak|redo (the|this|it)|make (it|the|them|this|doors?|colour|color) |make it |lighter|darker|brighter|softer|warmer|cooler|remove (the )?handles?|add more (hanging|drawers|shelves)|no handles|more hanging|more drawers|less drawers|different (colour|color|finish)|on this (photo|image|look|visual)|apply (this )?change)\b/i.test(
     t,
   )
 }
@@ -233,24 +234,9 @@ export function mergeBriefFromText(brief: ConsultBrief, text: string): ConsultBr
   const style = extractStyle(text)
   if (style) next.style = style
 
-  const lower = text.toLowerCase()
-  if (
-    text.length > 12 &&
-    !/^(hi|hello|hey|namaste|yes|ok|okay|thanks|visuali[sz]e|show|upload)\b/.test(lower)
-  ) {
-    const sizeOnly = extractSize(text)
-    const looksLikeSizeOnly =
-      sizeOnly.widthFt != null &&
-      text.replace(/[\d.\sx×byftfeet'whd:=,-]/gi, '').trim().length < 8
-    if (!looksLikeSizeOnly && !budget && !room && !style) {
-      next.notes = [next.notes, text.trim()].filter(Boolean).join(' · ').slice(0, 400)
-    } else if (text.length > 20 && (room || style || size.widthFt != null)) {
-      // Keep free-form preference snippets
-      const preference = text.trim()
-      if (preference.length < 180) {
-        next.notes = [next.notes, preference].filter(Boolean).join(' · ').slice(0, 400)
-      }
-    }
+  // Only store clear preference / change language in notes — not every chat line
+  if (isChangeRequest(text) || /\b(i want|we want|prefer|please|need more|need less|don'?t want)\b/i.test(text)) {
+    next.notes = [next.notes, text.trim()].filter(Boolean).join(' · ').slice(0, 400)
   }
 
   return next
@@ -336,6 +322,135 @@ export type ConsultTurnResult = {
   refine?: boolean
 }
 
+function productSuggestionMessage(
+  brief: ConsultBrief,
+  text: string,
+  intro: string,
+): ChatMessage {
+  const products = suggestProducts(brief, text, 3)
+  const sizeLine =
+    brief.widthFt != null && brief.heightFt != null
+      ? `Size on file: ${brief.widthFt} × ${brief.heightFt}${
+          brief.depthFt != null ? ` × ${brief.depthFt}` : ''
+        } ft.`
+      : 'Share size in feet anytime (e.g. 8 x 7).'
+  const photoLine = brief.roomPhotoDataUrl
+    ? brief.attachmentKind === 'drawing'
+      ? 'Architect drawing is attached.'
+      : 'Room photo is attached.'
+    : 'You can attach a room photo or architect drawing when ready.'
+
+  return {
+    id: crypto.randomUUID(),
+    role: 'assistant',
+    text: [
+      intro,
+      '',
+      ...products.map(
+        (p, i) =>
+          `${i + 1}. ${p.name} — from ${formatPrice(p.price)}${
+            p.pricingMode === 'per-sqft' ? '/sq ft' : ''
+          }`,
+      ),
+      '',
+      sizeLine,
+      photoLine,
+      'Tap Use this on a product, keep chatting about what you want, or ask me to visualise.',
+    ].join('\n'),
+    products,
+    suggestions: brief.aiImageUrl
+      ? ['Make it lighter', 'Suggest other styles', 'WhatsApp quote']
+      : brief.roomPhotoDataUrl
+        ? ['Visualise my look', 'Suggest other styles', 'WhatsApp quote']
+        : ['Attach room photo', 'Visualise my look', 'Tell me more'],
+  }
+}
+
+/** Normal chitchat reply — listens and continues the consultation without forcing a new visual */
+function conversationalReply(
+  before: ConsultBrief,
+  after: ConsultBrief,
+  userText: string,
+): ChatMessage {
+  const heard: string[] = []
+  if (after.room && after.room !== before.room) heard.push(`space → ${after.room}`)
+  if (
+    after.widthFt != null &&
+    after.heightFt != null &&
+    (after.widthFt !== before.widthFt ||
+      after.heightFt !== before.heightFt ||
+      after.depthFt !== before.depthFt)
+  ) {
+    heard.push(
+      `size → ${after.widthFt} × ${after.heightFt}${
+        after.depthFt != null ? ` × ${after.depthFt}` : ''
+      } ft`,
+    )
+  }
+  if (after.style && after.style !== before.style) heard.push(`style → ${after.style}`)
+  if (after.budget != null && after.budget !== before.budget) {
+    heard.push(`budget → ${formatPrice(after.budget)}`)
+  }
+
+  const quote = userText.trim().length > 140 ? `${userText.trim().slice(0, 140)}…` : userText.trim()
+  const lines = [`I heard you: “${quote}”.`]
+
+  if (heard.length) {
+    lines.push('', 'Updated in your brief:', ...heard.map((h) => `• ${h}`))
+  } else {
+    lines.push('', 'I’m keeping that in our conversation.')
+  }
+
+  if (after.aiImageUrl) {
+    lines.push(
+      '',
+      'Your AI visualisation is already here. We can keep chatting about the plan, price, or layout — or give a clear photo change (e.g. “make it lighter” / “remove handles”) and I’ll revise that same look.',
+    )
+  } else if (after.selectedProductId && after.roomPhotoDataUrl) {
+    lines.push(
+      '',
+      'You already have a product + photo/drawing. Say “Visualise my look” when you want the AI image, or keep telling me what you prefer.',
+    )
+  } else if (after.selectedProductId) {
+    lines.push(
+      '',
+      'Product is selected. Attach a room photo or architect drawing when you want visualisation, or keep describing the space.',
+    )
+  } else if (after.categoryId) {
+    lines.push(
+      '',
+      'Tell me size, budget, or what you like/dislike — or ask me to “suggest styles” from our product list.',
+    )
+  } else {
+    lines.push(
+      '',
+      'What space are we planning — kitchen, wardrobe, temple, or wall panels?',
+    )
+  }
+
+  const selected = after.selectedProductId
+    ? getProductById(after.selectedProductId)
+    : undefined
+
+  return {
+    id: crypto.randomUUID(),
+    role: 'assistant',
+    text: lines.join('\n'),
+    products: selected ? [selected] : undefined,
+    suggestions: after.aiImageUrl
+      ? [
+          'Make it lighter',
+          'Remove handles',
+          'Suggest other styles',
+          'WhatsApp quote',
+          'What do you recommend next?',
+        ]
+      : after.categoryId
+        ? ['Suggest styles', 'Attach room photo', 'Visualise my look', 'My details']
+        : ['Kitchen remodel', 'Bedroom wardrobe 8x7', 'Temple wall modern'],
+  }
+}
+
 export function processConsultTurn(
   brief: ConsultBrief,
   userText: string,
@@ -349,7 +464,7 @@ export function processConsultTurn(
       reply: {
         id: crypto.randomUUID(),
         role: 'assistant',
-        text: 'Tell me the room, size in feet, and what you want changed — or upload a photo.',
+        text: 'I’m listening — tell me the room, size in feet, what you want, or attach a photo/drawing.',
         suggestions: ['Kitchen 10x8', 'Wardrobe 8x7', 'Temple wall'],
       },
     }
@@ -359,80 +474,85 @@ export function processConsultTurn(
     return { brief, reply: createWelcomeMessage() }
   }
 
+  if (/^(ok|okay|thanks|thank you|cool|great|nice|yes|hmm|👍)\.?$/i.test(text)) {
+    return {
+      brief,
+      reply: {
+        id: crypto.randomUUID(),
+        role: 'assistant',
+        text: brief.aiImageUrl
+          ? 'Happy to continue. Tell me what you think of the look, ask for a specific change on that photo, or we can talk size / price / WhatsApp quote.'
+          : 'I’m here. Share the room, size, a photo/drawing, or ask me to suggest products.',
+        suggestions: brief.aiImageUrl
+          ? ['Make it lighter', 'Suggest other styles', 'WhatsApp quote']
+          : ['Suggest styles', 'Attach room photo', 'Kitchen remodel'],
+      },
+    }
+  }
+
+  const before = brief
   let next = mergeBriefFromText(brief, text)
+  const roomJustSet =
+    Boolean(next.categoryId) &&
+    (!before.categoryId || before.categoryId !== next.categoryId)
 
   const wantsVisualise =
-    /\b(visuali[sz]e|render|show (?:me )?(?:the )?look|ai (?:look|photo|image)|generate)\b/i.test(
+    /\b(visuali[sz]e|render|show (?:me )?(?:the )?look|generate (?:again|look|image|visual))\b/i.test(
       text,
-    ) || lower === 'upload photo & visualise'
+    ) || /^visualise my look$/i.test(lower)
 
   const wantsSuggest =
-    /\b(suggest|recommend|show (?:me )?options|ideas?|what (?:do you|can you) suggest|other styles|another style)\b/i.test(
+    /\b(suggest|recommend|show (?:me )?options|ideas?|other styles|another style|what (?:do you|can you) suggest|product list|styles)\b/i.test(
       text,
-    ) ||
-    Boolean(next.categoryId && (!brief.categoryId || brief.categoryId !== next.categoryId))
+    ) || /^suggest styles$/i.test(lower)
 
-  const wantsSummary = /\b(summary|what do you have|my details|brief)\b/i.test(text)
+  const wantsSummary =
+    /\b(summary|what do you have|my details|brief|what do you recommend next)\b/i.test(
+      text,
+    ) || /^my details$/i.test(lower)
 
-  // After an AI photo exists, treat change commands as refine-and-revisualise service
+  const wantsDrawingHelp =
+    /\b(architect drawing|floor plan|elevation|i have (?:an? )?drawing|cad|blueprint)\b/i.test(
+      lower,
+    )
+
+  // 1) Explicit photo edit only — never treat normal chat as refine
   const canRefine =
     Boolean(brief.aiImageUrl) &&
     Boolean(brief.selectedProductId) &&
     Boolean(brief.roomPhotoDataUrl)
 
-  const politeOnly =
-    /^(ok|okay|thanks|thank you|cool|great|nice|yes|no|hmm|👍)\.?$/i.test(text)
-
-  if (
-    canRefine &&
-    !politeOnly &&
-    !wantsSuggest &&
-    !wantsSummary &&
-    (isChangeRequest(text) || (!wantsVisualise && text.length >= 8))
-  ) {
-    // Don't steal clear new-room intents that aren't change language
-    const newRoom = extractRoom(text)
-    const jumpingRoom =
-      newRoom?.categoryId &&
-      brief.categoryId &&
-      newRoom.categoryId !== brief.categoryId &&
-      !isChangeRequest(text)
-
-    if (!jumpingRoom) {
-      const changeText = text.trim()
-      next = {
-        ...next,
-        lastChangeRequest: changeText,
-        notes: [brief.notes, `Change request: ${changeText}`]
-          .filter(Boolean)
-          .join(' · ')
-          .slice(0, 500),
-      }
-      return {
-        brief: next,
-        shouldVisualise: true,
-        refine: true,
-        reply: {
-          id: crypto.randomUUID(),
-          role: 'assistant',
-          text: `Got it — updating your current visualisation with: “${changeText}”. Keeping the same photo/drawing base and applying this change now…`,
-          suggestions: [
-            'Make it lighter',
-            'Make it darker',
-            'Add more hanging',
-            'Remove handles',
-            'WhatsApp quote',
-          ],
-        },
-      }
+  if (canRefine && isChangeRequest(text) && !wantsSuggest && !wantsSummary) {
+    const changeText = text.trim()
+    next = {
+      ...next,
+      lastChangeRequest: changeText,
+      notes: [brief.notes, `Change request: ${changeText}`]
+        .filter(Boolean)
+        .join(' · ')
+        .slice(0, 500),
+    }
+    return {
+      brief: next,
+      shouldVisualise: true,
+      refine: true,
+      reply: {
+        id: crypto.randomUUID(),
+        role: 'assistant',
+        text: `Understood — revising your current AI photo for: “${changeText}”.`,
+        suggestions: [
+          'Make it lighter',
+          'Make it darker',
+          'Add more hanging',
+          'Remove handles',
+          'WhatsApp quote',
+        ],
+      },
     }
   }
 
-  if (
-    /\b(architect drawing|floor plan|elevation|i have (?:an? )?drawing|cad|blueprint)\b/i.test(
-      lower,
-    )
-  ) {
+  // 2) Drawing help
+  if (wantsDrawingHelp) {
     next = { ...next, attachmentKind: next.attachmentKind ?? 'drawing' }
     return {
       brief: next,
@@ -440,32 +560,34 @@ export function processConsultTurn(
         id: crypto.randomUUID(),
         role: 'assistant',
         text: [
-          'I can read interior architect drawings — floor plans, elevations, sections, and dimensioned sketches.',
-          '',
-          'Attach your drawing with the paperclip, tell me the room and size in feet if not marked, then pick a Priyabadal product. I’ll visualise our catalog style onto that drawing.',
+          'Yes — send architect drawings (floor plan, elevation, section, or sketch).',
+          'Use the Drawing button, tell me room + size if not marked, pick a Priyabadal product, then ask to visualise.',
           '',
           briefSummary(next),
         ].join('\n'),
-        products: suggestProducts(next, text, 3),
-        suggestions: ['Attach drawing', 'Kitchen remodel', 'Bedroom wardrobe 8x7'],
+        suggestions: ['Attach drawing', 'Suggest styles', 'Kitchen remodel'],
       },
     }
   }
 
+  // 3) Summary
   if (wantsSummary) {
     return {
       brief: next,
       reply: {
         id: crypto.randomUUID(),
         role: 'assistant',
-        text: `Here’s what I have so far:\n${briefSummary(next)}\n\nUpload a photo and pick a product to visualise, or ask me to suggest styles.`,
-        suggestions: next.selectedProductId
-          ? ['Visualise my look', 'Suggest other styles', 'WhatsApp quote']
-          : ['Suggest products', 'I have a room photo'],
+        text: `Here’s what I’m holding from our chat:\n${briefSummary(next)}\n\nWhat should we do next?`,
+        suggestions: next.aiImageUrl
+          ? ['Make it lighter', 'Suggest other styles', 'WhatsApp quote']
+          : next.selectedProductId
+            ? ['Visualise my look', 'Suggest other styles', 'Attach room photo']
+            : ['Suggest styles', 'Attach room photo', 'Kitchen remodel'],
       },
     }
   }
 
+  // 4) Visualise on demand only
   if (wantsVisualise) {
     const missing = missingForVisualise(next)
     if (missing.length) {
@@ -474,17 +596,19 @@ export function processConsultTurn(
         reply: {
           id: crypto.randomUUID(),
           role: 'assistant',
-          text: `I can create an AI visualisation in this chat. Still need: ${missing.join(' and ')}.\n\n${briefSummary(next)}`,
+          text: `I can visualise — still need: ${missing.join(' and ')}.\n\n${briefSummary(next)}`,
           products: next.selectedProductId
             ? undefined
             : suggestProducts(next, text, 3),
           suggestions: missing.some((m) => m.includes('upload'))
             ? ['Attach room photo', 'I have an architect drawing']
-            : ['Suggest products'],
+            : ['Suggest styles'],
         },
       }
     }
-    const refineAgain = Boolean(next.aiImageUrl && next.lastChangeRequest?.trim())
+    const refineAgain = Boolean(
+      next.aiImageUrl && next.lastChangeRequest?.trim() && isChangeRequest(text),
+    )
     return {
       brief: next,
       shouldVisualise: true,
@@ -494,79 +618,31 @@ export function processConsultTurn(
         role: 'assistant',
         text: refineAgain
           ? `Revising your current visualisation with: “${next.lastChangeRequest}”…`
-          : 'Perfect — generating your AI visualisation with the selected Priyabadal product and your size…',
+          : next.aiImageUrl
+            ? 'Generating a fresh visualisation from your photo/drawing and selected product…'
+            : 'Generating your AI visualisation with the selected Priyabadal product…',
       },
     }
   }
 
-  // Default: update brief + suggest when we know the room / enough intent
-  const products =
-    wantsSuggest || next.categoryId || next.style || next.budget != null
-      ? suggestProducts(next, text, 3)
-      : []
-
-  if (products.length === 0 && !next.categoryId) {
+  // 5) Product suggestions only when asked, or when room is newly chosen
+  if (wantsSuggest || roomJustSet) {
     return {
       brief: next,
-      reply: {
-        id: crypto.randomUUID(),
-        role: 'assistant',
-        text: [
-          'Got it. To build the right furniture plan, tell me the space:',
-          '• Kitchen',
-          '• Wardrobe / bedroom',
-          '• Temple / puja',
-          '• Wall panels',
-          '',
-          'Include size if you know it — e.g. “Wardrobe 8 x 7 ft, modern, under ₹80,000”.',
-        ].join('\n'),
-        suggestions: [
-          'Kitchen remodel',
-          'Bedroom wardrobe 8x7',
-          'Temple wall modern',
-          'Wall panels living room',
-        ],
-      },
+      reply: productSuggestionMessage(
+        next,
+        text,
+        roomJustSet
+          ? `Got it — ${next.room}. Here are Priyabadal styles from our list that fit:`
+          : `Here are Priyabadal styles I’d suggest for your ${next.room ?? 'space'}:`,
+      ),
     }
   }
 
-  const sizeLine =
-    next.widthFt != null && next.heightFt != null
-      ? `Size noted: ${next.widthFt} × ${next.heightFt}${
-          next.depthFt != null ? ` × ${next.depthFt}` : ''
-        } ft.`
-      : 'Share size in feet when ready (e.g. 8 x 7).'
-
-  const photoLine = next.roomPhotoDataUrl
-    ? 'Room photo is attached — pick a product below, then say “Visualise my look”.'
-    : 'Upload a room/wall photo anytime, then we can visualise our product in your space.'
-
-  const lines = [
-    `For your ${next.room ?? 'space'}${next.style ? ` (${next.style})` : ''}, here are Priyabadal styles I’d recommend:`,
-    '',
-    ...products.map(
-      (p, i) =>
-        `${i + 1}. ${p.name} — from ${formatPrice(p.price)}${
-          p.pricingMode === 'per-sqft' ? '/sq ft' : ''
-        }`,
-    ),
-    '',
-    sizeLine,
-    photoLine,
-    'Tap a product to select it for visualisation, or tell me what to change.',
-  ]
-
+  // 6) Default = listen & chitchat (no forced visual, no spam product dump)
   return {
     brief: next,
-    reply: {
-      id: crypto.randomUUID(),
-      role: 'assistant',
-      text: lines.join('\n'),
-      products,
-      suggestions: next.roomPhotoDataUrl
-        ? ['Visualise my look', 'Suggest other styles', 'WhatsApp quote']
-        : ['Attach room photo', 'Visualise my look', 'Suggest other styles'],
-    },
+    reply: conversationalReply(before, next, text),
   }
 }
 

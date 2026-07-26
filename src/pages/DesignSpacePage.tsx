@@ -1,4 +1,4 @@
-import { useMemo, useState } from 'react'
+import { useEffect, useMemo, useState, type FormEvent } from 'react'
 import { Link } from 'react-router-dom'
 import { getAllProducts, getProductById } from '../lib/products'
 import {
@@ -9,6 +9,14 @@ import {
   quoteDesignSpace,
   type DesignRoomId,
 } from '../lib/designSpace'
+import {
+  VISUALISE_COLOURS,
+  connectFalKey,
+  fetchVisualiseStatus,
+  fileToDataUrl,
+  generateVisualise,
+  type VisualiseColour,
+} from '../lib/visualise'
 import {
   getFinish,
   getFinishOptionsForProduct,
@@ -21,7 +29,7 @@ import { useCurrency } from '../hooks/useCurrency'
 import { getCategory } from '../data/catalog'
 import './DesignSpacePage.css'
 
-const STEPS = ['Space', 'Size', 'Style', 'Quote'] as const
+const STEPS = ['Space', 'Size', 'Style', 'Visual & quote'] as const
 
 export function DesignSpacePage() {
   useCurrency()
@@ -37,6 +45,16 @@ export function DesignSpacePage() {
   const [finishId, setFinishId] = useState('')
   const [thicknessId, setThicknessId] = useState('')
   const [buildScope, setBuildScope] = useState<BuildScopeId>('with-carcass')
+  const [colour, setColour] = useState<VisualiseColour>(VISUALISE_COLOURS[0]!)
+
+  const [roomDataUrl, setRoomDataUrl] = useState<string | null>(null)
+  const [aiConfigured, setAiConfigured] = useState(false)
+  const [falKeyInput, setFalKeyInput] = useState('')
+  const [savingKey, setSavingKey] = useState(false)
+  const [keyMsg, setKeyMsg] = useState<string | null>(null)
+  const [busy, setBusy] = useState(false)
+  const [aiUrl, setAiUrl] = useState<string | null>(null)
+  const [statusMsg, setStatusMsg] = useState<string | null>(null)
 
   const roomProducts = useMemo(
     () => (room ? productsForRoom(products, room) : []),
@@ -62,6 +80,10 @@ export function DesignSpacePage() {
     })
   }, [product, room, width, height, depth, finishId, thicknessId, buildScope, hasCarcass])
 
+  useEffect(() => {
+    void fetchVisualiseStatus().then((s) => setAiConfigured(s.configured))
+  }, [])
+
   const selectRoom = (id: DesignRoomId) => {
     setRoom(id)
     const limits = designRoomDefaults(id)
@@ -71,6 +93,9 @@ export function DesignSpacePage() {
     setProductId('')
     setFinishId('')
     setThicknessId('')
+    setAiUrl(null)
+    setRoomDataUrl(null)
+    setStatusMsg(null)
     setStep(1)
   }
 
@@ -83,6 +108,81 @@ export function DesignSpacePage() {
     setFinishId(finishes[0]?.id ?? p.defaultFinishId ?? 'pu')
     setThicknessId(thicknesses[0]?.id ?? p.defaultThicknessId ?? '25')
     setBuildScope(productHasCarcass(p) ? 'with-carcass' : 'shutter')
+    setAiUrl(null)
+    setStatusMsg(null)
+  }
+
+  const onRoomPhoto = async (file: File | null) => {
+    if (!file) return
+    if (!file.type.startsWith('image/')) {
+      setStatusMsg('Please upload a room photo (JPG/PNG).')
+      return
+    }
+    setBusy(true)
+    setStatusMsg(null)
+    try {
+      const dataUrl = await fileToDataUrl(file)
+      setRoomDataUrl(dataUrl)
+      setAiUrl(null)
+    } catch {
+      setStatusMsg('Could not read that photo. Try another image.')
+    } finally {
+      setBusy(false)
+    }
+  }
+
+  const onConnectKey = async (e: FormEvent) => {
+    e.preventDefault()
+    setSavingKey(true)
+    setKeyMsg(null)
+    try {
+      const next = await connectFalKey(falKeyInput.trim())
+      setAiConfigured(next.configured)
+      setFalKeyInput('')
+      setKeyMsg('AI connected. You can generate a room look now.')
+    } catch (err) {
+      setStatusMsg(err instanceof Error ? err.message : 'Could not save AI key.')
+    } finally {
+      setSavingKey(false)
+    }
+  }
+
+  const onGenerate = async () => {
+    if (!roomDataUrl || !product || !category) {
+      setStatusMsg('Upload a room photo and select a style first.')
+      return
+    }
+    setBusy(true)
+    setStatusMsg(null)
+    try {
+      const sizeNote = `Live size: ${width} × ${height} × ${depth} ft`
+      const result = await generateVisualise({
+        roomDataUrl,
+        product,
+        colour,
+        notes: [sizeNote, notes.trim()].filter(Boolean).join('. '),
+        categoryName: category.name,
+        widthFt: width,
+        heightFt: height,
+        depthFt: depth,
+        finishLabel: finishId ? getFinish(finishId).name : undefined,
+        scopeLabel: hasCarcass
+          ? buildScope === 'with-carcass'
+            ? 'With carcass'
+            : 'Shutter / façade only'
+          : undefined,
+      })
+      if (result.source === 'ai' && result.imageUrl) {
+        setAiUrl(result.imageUrl)
+        setStatusMsg(result.message)
+        setAiConfigured(true)
+      } else {
+        setStatusMsg(result.message)
+        if (result.code === 'MISSING_FAL_KEY') setAiConfigured(false)
+      }
+    } finally {
+      setBusy(false)
+    }
   }
 
   const goNext = () => {
@@ -104,11 +204,13 @@ export function DesignSpacePage() {
           unitPrice: quote.unitPrice,
           buildScope: hasCarcass ? buildScope : 'shutter',
           notes,
+          usedAi: Boolean(aiUrl),
+          aiImageUrl: aiUrl,
         })
       : null
 
   const previewImage =
-    product?.image || (room ? DESIGN_ROOMS.find((r) => r.id === room)?.image : null)
+    aiUrl || roomDataUrl || product?.image || (room ? DESIGN_ROOMS.find((r) => r.id === room)?.image : null)
 
   return (
     <main className="design page-pad">
@@ -116,8 +218,8 @@ export function DesignSpacePage() {
         <p className="eyebrow">Renovate or build new</p>
         <h1>Design my space</h1>
         <p>
-          Tell us the room and size, pick a Priyabadal look, get an instant estimate, then send a
-          clear WhatsApp quote — product, size, and price together.
+          Tell us the room and size, pick a Priyabadal look, optionally upload a photo for AI
+          visualisation, and get an instant estimate — then WhatsApp for the final quote.
         </p>
       </header>
 
@@ -301,7 +403,7 @@ export function DesignSpacePage() {
                   disabled={!product}
                   onClick={goNext}
                 >
-                  Next · Get quote
+                  Next · Visual & quote
                 </button>
               </div>
             </div>
@@ -309,38 +411,112 @@ export function DesignSpacePage() {
 
           {step === 3 && product && quote ? (
             <div className="design__block">
-              <h2>Review & WhatsApp quote</h2>
+              <h2>Visualise & get quote</h2>
               <p className="design__hint">
-                Your estimate uses {width} × {height} × {depth} ft
-                {category ? ` · ${category.name}` : ''}. Send this on WhatsApp — product photo is
-                on the product link in the message.
+                1) Upload a clear room photo · 2) Tap Generate AI room look · 3) WhatsApp the
+                estimate. Your size ({width} × {height} × {depth} ft) is sent to the AI and used
+                for pricing. AI look can vary slightly — WhatsApp quote uses your exact feet.
               </p>
 
-              <ul className="design__summary">
-                <li>
-                  <strong>Product</strong> {product.name}
-                </li>
-                <li>
-                  <strong>Size</strong> {width} × {height}
-                  {sizeLimits?.usesDepth ? ` × ${depth}` : ''} ft
-                  {product.pricingMode === 'per-sqft'
-                    ? ` · ${quote.sqft.toFixed(1)} sq ft`
-                    : ''}
-                </li>
-                <li>
-                  <strong>Finish</strong> {getFinish(finishId || quote.config.finishId).name}
-                  {hasCarcass
-                    ? ` · ${
-                        buildScope === 'with-carcass'
-                          ? 'With carcass'
-                          : 'Shutter / façade only'
-                      }`
-                    : ''}
-                </li>
-                <li>
-                  <strong>Estimate</strong> {formatPrice(quote.unitPrice)}
-                </li>
-              </ul>
+              {!aiConfigured ? (
+                <div className="design__keybox">
+                  <h3>Connect AI for room visualisation</h3>
+                  <p>
+                    Same Fal.ai key as Visualise / Carcass. You also need Fal credits at{' '}
+                    <a
+                      href="https://fal.ai/dashboard/billing"
+                      target="_blank"
+                      rel="noreferrer"
+                    >
+                      fal.ai/dashboard/billing
+                    </a>
+                    .
+                  </p>
+                  <form onSubmit={onConnectKey} className="design__key-form">
+                    <input
+                      type="password"
+                      value={falKeyInput}
+                      onChange={(e) => setFalKeyInput(e.target.value)}
+                      placeholder="Fal.ai API key"
+                      autoComplete="off"
+                      required
+                    />
+                    <button className="btn btn--dark" type="submit" disabled={savingKey}>
+                      {savingKey ? 'Connecting…' : 'Connect AI'}
+                    </button>
+                  </form>
+                  {keyMsg ? <p className="design__ok">{keyMsg}</p> : null}
+                </div>
+              ) : (
+                <p className="design__ok">AI key connected — keep Fal credits topped up to generate.</p>
+              )}
+
+              <div className="design__upload-box">
+                <p className="design__upload-label">Room photo (required for AI)</p>
+                <label className="design__upload-btn">
+                  <input
+                    type="file"
+                    accept="image/*"
+                    capture="environment"
+                    onChange={(e) => void onRoomPhoto(e.target.files?.[0] || null)}
+                  />
+                  {roomDataUrl ? 'Change room photo' : 'Upload room photo'}
+                </label>
+                {roomDataUrl ? (
+                  <p className="design__ok">Photo ready — tap Generate below.</p>
+                ) : (
+                  <p className="design__status">
+                    Upload a kitchen/bedroom/puja room photo first, then Generate will work.
+                  </p>
+                )}
+              </div>
+
+              <label className="design__colour">
+                <span>AI finish colour cue</span>
+                <select
+                  value={colour.id}
+                  onChange={(e) => {
+                    const next = VISUALISE_COLOURS.find((c) => c.id === e.target.value)
+                    if (next) setColour(next)
+                  }}
+                >
+                  {VISUALISE_COLOURS.map((c) => (
+                    <option key={c.id} value={c.id}>
+                      {c.label}
+                    </option>
+                  ))}
+                </select>
+              </label>
+
+              <button
+                type="button"
+                className="btn btn--dark design__generate"
+                disabled={busy}
+                onClick={() => {
+                  if (!roomDataUrl) {
+                    setStatusMsg('Upload a room photo first, then tap Generate again.')
+                    return
+                  }
+                  if (!aiConfigured) {
+                    setStatusMsg('Connect your Fal.ai key above first (and top up credits).')
+                    return
+                  }
+                  void onGenerate()
+                }}
+              >
+                {busy ? 'Generating…' : 'Generate AI room look'}
+              </button>
+              {statusMsg ? (
+                <p
+                  className={
+                    statusMsg.includes('balance') || statusMsg.includes('Upload')
+                      ? 'design__status design__status--warn'
+                      : 'design__status'
+                  }
+                >
+                  {statusMsg}
+                </p>
+              ) : null}
 
               <div className="design__nav">
                 <button type="button" className="btn btn--outline" onClick={() => setStep(2)}>
@@ -353,10 +529,32 @@ export function DesignSpacePage() {
                     target="_blank"
                     rel="noopener noreferrer"
                   >
-                    WhatsApp quote
+                    {aiUrl ? 'WhatsApp quote + AI photo' : 'WhatsApp quote'}
                   </a>
                 ) : null}
               </div>
+              {aiUrl ? (
+                <p className="design__ok">
+                  AI photo link is included in the WhatsApp message (same look the client saw
+                  here).
+                </p>
+              ) : (
+                <p className="design__status">
+                  Tip: generate the AI room look first so WhatsApp also includes the AI photo
+                  link. You can still send the quote without it.
+                </p>
+              )}
+              {aiUrl ? (
+                <p className="design__links">
+                  <a href={aiUrl} target="_blank" rel="noopener noreferrer">
+                    Open AI photo
+                  </a>
+                  {' · '}
+                  <a href={aiUrl} download="priyabadal-ai-look.jpg">
+                    Download AI photo
+                  </a>
+                </p>
+              ) : null}
 
               <p className="design__links">
                 Need more detail?{' '}
@@ -374,7 +572,13 @@ export function DesignSpacePage() {
               <img
                 key={previewImage}
                 src={previewImage}
-                alt={product ? product.name : 'Space preview'}
+                alt={
+                  aiUrl
+                    ? 'AI room visualisation'
+                    : product
+                      ? product.name
+                      : 'Space preview'
+                }
               />
             ) : (
               <div className="design__preview-empty">
@@ -382,11 +586,15 @@ export function DesignSpacePage() {
               </div>
             )}
             <p className="design__preview-cap">
-              {product
-                ? `Style · ${product.name}`
-                : room
-                  ? DESIGN_ROOMS.find((r) => r.id === room)?.name
-                  : 'Start with a space'}
+              {aiUrl
+                ? 'AI visualisation of your room'
+                : roomDataUrl
+                  ? 'Your uploaded room photo'
+                  : product
+                    ? `Style · ${product.name}`
+                    : room
+                      ? DESIGN_ROOMS.find((r) => r.id === room)?.name
+                      : 'Start with a space'}
             </p>
           </div>
 
@@ -420,12 +628,12 @@ export function DesignSpacePage() {
                   target="_blank"
                   rel="noopener noreferrer"
                 >
-                  WhatsApp quote
+                  {aiUrl ? 'WhatsApp quote + AI photo' : 'WhatsApp quote'}
                 </a>
               ) : null}
               <p className="design__disclaimer">
-                Estimate only. Final price after site measure. WhatsApp sends product, size, and
-                price clearly — open the product link in the message to see the catalog photo.
+                Estimate only. Final price after site measure. Generate AI for the room look —
+                when ready, WhatsApp includes the AI photo link with your quote.
               </p>
             </div>
           ) : (

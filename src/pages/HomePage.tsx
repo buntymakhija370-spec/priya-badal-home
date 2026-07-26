@@ -137,8 +137,8 @@ export function HomePage() {
             Made-to-measure interiors with clear prices.
           </h1>
           <p className="hero__lede reveal reveal--3">
-            Design your kitchen, wardrobe, or temple — enter your size, pick a
-            style, get an instant estimate, then WhatsApp a clear product + price quote.
+            Design your kitchen, wardrobe, or temple with AI — enter your size,
+            see the look, get an instant estimate, then WhatsApp for the final quote.
           </p>
           <div className="hero__actions reveal reveal--4">
             <Link className="btn btn--primary" to="/design">

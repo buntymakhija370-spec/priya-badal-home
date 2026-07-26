@@ -218,6 +218,12 @@ export function ProductPage() {
           </div>
           <Link
             className="btn btn--outline product-page__visualise"
+            to={`/visualise?product=${product.id}`}
+          >
+            Visualise in my room (AI)
+          </Link>
+          <Link
+            className="btn btn--outline product-page__visualise"
             to="/design"
           >
             Design my space & quote

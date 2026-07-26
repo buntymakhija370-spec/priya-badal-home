@@ -8,6 +8,7 @@ import { ChatPage } from './pages/ChatPage'
 import { AddProductPage } from './pages/AddProductPage'
 import { FavoritesPage } from './pages/FavoritesPage'
 import { CartPage } from './pages/CartPage'
+import { VisualisePage } from './pages/VisualisePage'
 import { HowItWorksPage } from './pages/HowItWorksPage'
 import { CarcassPlannerPage } from './pages/CarcassPlannerPage'
 import { DesignSpacePage } from './pages/DesignSpacePage'
@@ -25,7 +26,7 @@ export default function App() {
           <Route path="shop/:categoryId/:subcategoryId" element={<ShopPage />} />
           <Route path="product/:productId" element={<ProductPage />} />
           <Route path="design" element={<DesignSpacePage />} />
-          <Route path="visualise" element={<Navigate to="/design" replace />} />
+          <Route path="visualise" element={<VisualisePage />} />
           <Route path="carcass" element={<CarcassPlannerPage />} />
           <Route path="how-it-works" element={<HowItWorksPage />} />
           <Route path="favorites" element={<FavoritesPage />} />

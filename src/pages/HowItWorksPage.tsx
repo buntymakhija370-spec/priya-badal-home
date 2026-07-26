@@ -96,8 +96,8 @@ export function HowItWorksPage() {
           <Link className="btn btn--outline" to="/shop">
             Browse products
           </Link>
-          <Link className="btn btn--outline" to="/carcass">
-            Carcass planner
+          <Link className="btn btn--outline" to="/visualise">
+            Visualise in my room
           </Link>
         </div>
       </section>

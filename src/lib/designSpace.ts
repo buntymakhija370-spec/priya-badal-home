@@ -110,6 +110,9 @@ export function buildDesignSpaceWhatsAppUrl(input: {
   unitPrice: number
   buildScope: BuildScopeId
   notes?: string
+  usedAi?: boolean
+  /** Public URL of the AI visualisation — included so client & showroom share the same look */
+  aiImageUrl?: string | null
 }) {
   const roomName = DESIGN_ROOMS.find((r) => r.id === input.room)?.name ?? input.room
   const scopeLabel =
@@ -127,6 +130,11 @@ export function buildDesignSpaceWhatsAppUrl(input: {
     `Finish: ${getFinish(input.finishId).name} · ${getThickness(input.thicknessId).label}`,
     `Scope: ${scopeLabel}`,
     `Estimated price: ${formatPrice(input.unitPrice, 'INR')}`,
+    input.aiImageUrl
+      ? `AI photo (open this link): ${input.aiImageUrl}`
+      : input.usedAi
+        ? 'AI visualisation was created on the website (photo link missing — please resend).'
+        : null,
     input.notes?.trim()
       ? `Changes / instructions: ${input.notes.trim()}`
       : null,

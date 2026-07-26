@@ -1,18 +1,49 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 750 1000" width="750" height="1000" preserveAspectRatio="xMidYMid meet" role="img">
-  <title>Taupe Panel Hinged Wardrobe — exterior dimension drawing</title>
-  <rect width="750" height="1000" fill="#ffffff"/>
-  <rect x="28" y="28" width="694" height="944" rx="18" fill="#fff" stroke="#c5d2cb" stroke-width="2"/>
-  <text x="52" y="72" font-family="Georgia, serif" font-size="26" fill="#152019">Dimension drawing 1</text>
-  <text x="52" y="102" font-family="system-ui,sans-serif" font-size="16" fill="#5c6b62">Exterior elevation · Taupe Panel Hinged Wardrobe</text>
-  <text x="52" y="126" font-family="system-ui,sans-serif" font-size="14" fill="#8a9690">Made to measure — reference size shown</text>
-  <rect x="90" y="140" width="480" height="620" fill="#e8eeea" stroke="#4f6a58" stroke-width="2.5"/>
-  <rect x="95" y="150" width="110" height="600" rx="5" fill="#f3f6f4" stroke="#4f6a58" stroke-width="2"/><line x1="176.39999999999998" y1="357" x2="176.39999999999998" y2="524.4" stroke="#152019" stroke-width="3.5" stroke-linecap="round"/><rect x="215" y="150" width="110" height="600" rx="5" fill="#f3f6f4" stroke="#4f6a58" stroke-width="2"/><line x1="296.4" y1="357" x2="296.4" y2="524.4" stroke="#152019" stroke-width="3.5" stroke-linecap="round"/><rect x="335" y="150" width="110" height="600" rx="5" fill="#f3f6f4" stroke="#4f6a58" stroke-width="2"/><line x1="416.4" y1="357" x2="416.4" y2="524.4" stroke="#152019" stroke-width="3.5" stroke-linecap="round"/><rect x="455" y="150" width="110" height="600" rx="5" fill="#f3f6f4" stroke="#4f6a58" stroke-width="2"/><line x1="536.4" y1="357" x2="536.4" y2="524.4" stroke="#152019" stroke-width="3.5" stroke-linecap="round"/>
-  <line x1="90" y1="800" x2="570" y2="800" stroke="#9a7340" stroke-width="2"/>
-  <text x="330" y="828" text-anchor="middle" font-size="18" font-weight="700" fill="#152019">W = 8 ft</text>
-  <line x1="610" y1="140" x2="610" y2="760" stroke="#9a7340" stroke-width="2"/>
-  <text x="632" y="450" font-size="18" font-weight="700" fill="#152019" transform="rotate(90 632 450)">H = 7 ft</text>
-  <rect x="48" y="880" width="654" height="72" rx="12" fill="#f7faf8" stroke="#c5d2cb"/>
-  <text x="64" y="912" font-size="15" fill="#5c6b62">Depth D = 2 ft (typical)</text>
-  <text x="64" y="936" font-size="14" fill="#5c6b62">Final W × H × D confirmed on site · BWP · 1 mm laminate both sides · 2 mm edge banding</text>
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 980 1280" width="980" height="1280" preserveAspectRatio="xMidYMid meet" role="img">
+  <title>Taupe Panel Hinged Wardrobe — exterior elevation shop drawing</title>
+  <rect width="980" height="1280" fill="#ffffff"/>
+  <rect x="20" y="20" width="940" height="1240" rx="8" fill="none" stroke="#c5d2cb" stroke-width="2"/>
+
+  <text x="44" y="54" font-family="Georgia, 'Times New Roman', serif" font-size="26" fill="#152019">Exterior elevation</text>
+  <text x="44" y="78" font-family="system-ui,sans-serif" font-size="15" fill="#5c6b62">Taupe Panel Hinged Wardrobe</text>
+  <text x="44" y="98" font-family="system-ui,sans-serif" font-size="12" fill="#8a9690">SKU PBH-WR-01 · Front elevation · 4 hinged shutter leaves</text>
+  <text x="44" y="116" font-family="system-ui,sans-serif" font-size="12" fill="#8a9690">Matte taupe façade · dark walnut carcass interior</text>
+
+  <rect x="730" y="36" width="206" height="90" rx="6" fill="#f7faf8" stroke="#c5d2cb"/>
+  <text x="742" y="58" font-size="11" font-weight="700" fill="#152019">OVERALL (reference)</text>
+  <text x="742" y="80" font-size="14" fill="#152019">W 8′ · H 7′ · D 2′</text>
+  <text x="742" y="100" font-size="11" fill="#5c6b62">2438 × 2134 mm</text>
+  <text x="742" y="116" font-size="11" fill="#5c6b62">Confirm on site measure</text>
+
+  <rect x="140" y="170" width="560" height="740" fill="#e8eeea" stroke="#3d5646" stroke-width="2.4"/>
+  <rect x="145" y="178" width="130" height="724" rx="3" fill="#ebe4da" stroke="#3d5646" stroke-width="1.7"/><rect x="154" y="192" width="112" height="266.4" fill="none" stroke="#9a7340" stroke-width="1.2"/><rect x="154" y="480.8" width="112" height="103.60000000000001" fill="none" stroke="#9a7340" stroke-width="1.2"/><rect x="154" y="614" width="112" height="207.20000000000002" fill="none" stroke="#9a7340" stroke-width="1.2"/><line x1="249.2" y1="451.2" x2="249.2" y2="599.2" stroke="#152019" stroke-width="4" stroke-linecap="round"/><rect x="285" y="178" width="130" height="724" rx="3" fill="#ebe4da" stroke="#3d5646" stroke-width="1.7"/><rect x="294" y="192" width="112" height="266.4" fill="none" stroke="#9a7340" stroke-width="1.2"/><rect x="294" y="480.8" width="112" height="103.60000000000001" fill="none" stroke="#9a7340" stroke-width="1.2"/><rect x="294" y="614" width="112" height="207.20000000000002" fill="none" stroke="#9a7340" stroke-width="1.2"/><line x1="389.2" y1="451.2" x2="389.2" y2="599.2" stroke="#152019" stroke-width="4" stroke-linecap="round"/><rect x="425" y="178" width="130" height="724" rx="3" fill="#ebe4da" stroke="#3d5646" stroke-width="1.7"/><rect x="434" y="192" width="112" height="266.4" fill="none" stroke="#9a7340" stroke-width="1.2"/><rect x="434" y="480.8" width="112" height="103.60000000000001" fill="none" stroke="#9a7340" stroke-width="1.2"/><rect x="434" y="614" width="112" height="207.20000000000002" fill="none" stroke="#9a7340" stroke-width="1.2"/><line x1="529.2" y1="451.2" x2="529.2" y2="599.2" stroke="#152019" stroke-width="4" stroke-linecap="round"/><rect x="565" y="178" width="130" height="724" rx="3" fill="#ebe4da" stroke="#3d5646" stroke-width="1.7"/><rect x="574" y="192" width="112" height="266.4" fill="none" stroke="#9a7340" stroke-width="1.2"/><rect x="574" y="480.8" width="112" height="103.60000000000001" fill="none" stroke="#9a7340" stroke-width="1.2"/><rect x="574" y="614" width="112" height="207.20000000000002" fill="none" stroke="#9a7340" stroke-width="1.2"/><line x1="669.2" y1="451.2" x2="669.2" y2="599.2" stroke="#152019" stroke-width="4" stroke-linecap="round"/>
+
+  <line x1="112" y1="170" x2="728" y2="170" stroke="#c5d2cb" stroke-dasharray="4 4"/>
+  <text x="114" y="162" font-size="11" fill="#8a9690">ceiling line</text>
+  <line x1="112" y1="910" x2="728" y2="910" stroke="#c5d2cb" stroke-dasharray="4 4"/>
+  <text x="114" y="926" font-size="11" fill="#8a9690">finished floor</text>
+
+  
+  <line x1="140" y1="946" x2="700" y2="946" stroke="#9a7340" stroke-width="1.3"/>
+  <line x1="140" y1="941" x2="140" y2="951" stroke="#9a7340" stroke-width="1.3"/>
+  <line x1="700" y1="941" x2="700" y2="951" stroke="#9a7340" stroke-width="1.3"/>
+  <text x="420" y="938" text-anchor="middle" font-size="12" font-weight="700" fill="#152019">Overall width = 8 ft (2438 mm)</text>
+  
+  <line x1="726" y1="170" x2="726" y2="910" stroke="#9a7340" stroke-width="1.3"/>
+  <line x1="721" y1="170" x2="731" y2="170" stroke="#9a7340" stroke-width="1.3"/>
+  <line x1="721" y1="910" x2="731" y2="910" stroke="#9a7340" stroke-width="1.3"/>
+  <text x="740" y="540" font-size="12" font-weight="700" fill="#152019" transform="rotate(90 740 540)">Height = 7 ft (2134 mm)</text>
+
+  <g transform="translate(48, 220)">
+    <polygon points="0,40 40,18 40,170 0,192" fill="#f3f6f4" stroke="#3d5646" stroke-width="1.2"/>
+    <text x="48" y="100" font-size="12" fill="#5c6b62">Depth</text>
+    <text x="48" y="118" font-size="13" font-weight="700" fill="#152019">D = 2 ft</text>
+    <text x="48" y="136" font-size="11" fill="#5c6b62">610 mm</text>
+  </g>
+
+  <rect x="40" y="1160" width="900" height="80" rx="8" fill="#f7faf8" stroke="#c5d2cb"/>
+  <text x="56" y="1186" font-size="13" font-weight="700" fill="#152019">Notes</text>
+  <text x="56" y="1206" font-size="12" fill="#5c6b62">Drawing 1 — façade / shutters · Drawing 2 — full carcass internals (shelves, rods, drawers, shoes, LED) from carcass photo</text>
+  <text x="56" y="1224" font-size="12" fill="#5c6b62">Carcass: BWP plywood · both-side 1 mm laminate · 2 mm edge banding · 18 mm panels</text>
+  <text x="56" y="1242" font-size="12" fill="#5c6b62">Sizes are reference — live wall size confirmed before production · 10-year manufacturing warranty</text>
 </svg>

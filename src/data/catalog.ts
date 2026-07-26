@@ -301,8 +301,8 @@ export const baseProducts: Product[] = [
       'Closed exterior look — finished hinged façade.',
       'Exterior detail — door panels and handles.',
       'Room setting — wardrobe in context.',
-      'Dimension drawing 1 — exterior elevation (W × H × D reference).',
-      'Dimension drawing 2 — open carcass bay elevation.',
+      'Shop drawing 1 — exterior elevation (W × H × D reference).',
+      'Shop drawing 2 — detailed carcass (bays, shelves, rods, drawers, LED).',
       'Open carcass / interior — last photo; storage layout as shown.',
     ],
     highlights: [
@@ -376,8 +376,8 @@ export const baseProducts: Product[] = [
     imageCaptions: [
       'Exterior / open façade look.',
       'Detail view — modular dressing wall.',
-      'Dimension drawing 1 — exterior elevation (W × H × D reference).',
-      'Dimension drawing 2 — open carcass bay elevation.',
+      'Shop drawing 1 — exterior elevation (W × H × D reference).',
+      'Shop drawing 2 — detailed carcass (bays, shelves, rods, drawers, LED).',
       'Open carcass / interior — last photo; storage layout as shown.',
     ],
     highlights: [
@@ -451,8 +451,8 @@ export const baseProducts: Product[] = [
     imageCaptions: [
       'Warm oak dressing wardrobe exterior look.',
       'Detail view — LED and leather-tab drawers.',
-      'Dimension drawing 1 — exterior elevation (W × H × D reference).',
-      'Dimension drawing 2 — open carcass bay elevation.',
+      'Shop drawing 1 — exterior elevation (W × H × D reference).',
+      'Shop drawing 2 — detailed carcass (bays, shelves, rods, drawers, LED).',
       'Open carcass / interior — last photo; storage layout as shown.',
     ],
     highlights: [
@@ -527,8 +527,8 @@ export const baseProducts: Product[] = [
     imageCaptions: [
       'Dark walnut open wardrobe façade.',
       'Detail view — LED cove lighting.',
-      'Dimension drawing 1 — exterior elevation (W × H × D reference).',
-      'Dimension drawing 2 — open carcass bay elevation.',
+      'Shop drawing 1 — exterior elevation (W × H × D reference).',
+      'Shop drawing 2 — detailed carcass (bays, shelves, rods, drawers, LED).',
       'Open carcass / interior — last photo; storage layout as shown.',
     ],
     highlights: [
@@ -603,8 +603,8 @@ export const baseProducts: Product[] = [
     imageCaptions: [
       'Cream bifold exterior façade.',
       'Detail view — wood accent band and handles.',
-      'Dimension drawing 1 — exterior elevation (W × H × D reference).',
-      'Dimension drawing 2 — open carcass bay elevation.',
+      'Shop drawing 1 — exterior elevation (W × H × D reference).',
+      'Shop drawing 2 — detailed carcass (bays, shelves, rods, drawers, LED).',
       'Open carcass / interior — last photo; storage layout as shown.',
     ],
     highlights: [
@@ -680,8 +680,8 @@ export const baseProducts: Product[] = [
       'Dark wood walk-in wardrobe look.',
       'Detail view — LED shelves and gold pulls.',
       'Room / dressing context.',
-      'Dimension drawing 1 — exterior elevation (W × H × D reference).',
-      'Dimension drawing 2 — open carcass bay elevation.',
+      'Shop drawing 1 — exterior elevation (W × H × D reference).',
+      'Shop drawing 2 — detailed carcass (bays, shelves, rods, drawers, LED).',
       'Open carcass / interior — last photo; storage layout as shown.',
     ],
     highlights: [

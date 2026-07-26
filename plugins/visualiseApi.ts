@@ -41,8 +41,25 @@ type CarcassLiveBody = {
 /** Runtime key so owner can paste FAL_KEY without restarting */
 let runtimeFalKey = process.env.FAL_KEY || process.env.VITE_FAL_KEY || ''
 
+/** Multi-reference room + product install (create / carcass) */
+const DEFAULT_CREATE_MODEL = 'fal-ai/flux-2-pro/edit'
+/** Single-image targeted edits (chat “change something”) */
+const DEFAULT_REFINE_MODEL = 'fal-ai/flux-pro/kontext'
+
 function getFalKey() {
   return runtimeFalKey || process.env.FAL_KEY || process.env.VITE_FAL_KEY || ''
+}
+
+function getCreateModel() {
+  return process.env.FAL_VISUALISE_MODEL || DEFAULT_CREATE_MODEL
+}
+
+function getRefineModel() {
+  return process.env.FAL_REFINE_MODEL || DEFAULT_REFINE_MODEL
+}
+
+function getCarcassModel() {
+  return process.env.FAL_CARCASS_MODEL || getCreateModel()
 }
 
 function readBody(req: IncomingMessage): Promise<string> {
@@ -209,8 +226,10 @@ function buildPrompt(body: VisualiseBody) {
   if (isRefine) {
     return [
       'ACCURACY-FIRST revision for Priyabadal Homes (India).',
-      'IMAGE 1 = current visualisation — preserve camera, room geometry, walls, floor, ceiling, windows, and lighting.',
-      productMatch,
+      'Edit the attached visualisation photo. Preserve camera, room geometry, walls, floor, ceiling, windows, and lighting.',
+      `Keep the same Priyabadal catalog product identity: "${body.productName}" (${body.categoryName}).`,
+      `Preferred finish cue: ${body.colourLabel} (${body.colour}).`,
+      body.finishLabel ? `Finish: ${body.finishLabel}.` : '',
       `CHANGE REQUEST (must apply): ${body.changeRequest!.trim()}`,
       'Edit only what the change asks. Do not invent a new room or a different product family.',
       sizeLine,
@@ -286,43 +305,60 @@ async function handleVisualise(req: IncomingMessage, res: ServerResponse) {
     }
 
     const isRefine = Boolean(body.refineImageUrl && body.changeRequest?.trim())
-    const extraProductSrcs = (body.productImageUrls ?? [])
-      .filter((u) => typeof u === 'string' && u.length > 0)
-      .filter((u) => u !== body.productImageUrl)
-      .slice(0, 2)
+    const prompt = buildPrompt(body)
 
-    const [baseUrl, productUrl, ...extraProductUrls] = await Promise.all([
-      resolveImageUrl(
+    let model: string
+    let falPayload: Record<string, unknown>
+
+    if (isRefine) {
+      // Kontext: single image + text change (best for follow-up tweaks)
+      const refineUrl = await resolveImageUrl(
         falKey,
-        isRefine ? body.refineImageUrl! : body.roomDataUrl,
-        isRefine ? 'refine.jpg' : 'room.jpg',
-      ),
-      resolveImageUrl(falKey, body.productImageUrl, 'product-exterior.jpg'),
-      ...extraProductSrcs.map((src, i) =>
-        resolveImageUrl(falKey, src, `product-detail-${i + 1}.jpg`),
-      ),
-    ])
+        body.refineImageUrl!,
+        'refine.jpg',
+      )
+      model = getRefineModel()
+      falPayload = {
+        prompt,
+        image_url: refineUrl,
+        num_images: 1,
+        output_format: 'jpeg',
+        guidance_scale: 3.5,
+        safety_tolerance: '2',
+      }
+    } else {
+      // FLUX.2 Pro Edit: room + exterior (+ optional detail) multi-ref
+      const extraProductSrcs = (body.productImageUrls ?? [])
+        .filter((u) => typeof u === 'string' && u.length > 0)
+        .filter((u) => u !== body.productImageUrl)
+        .slice(0, 2)
 
-    const model =
-      process.env.FAL_VISUALISE_MODEL || 'fal-ai/nano-banana-pro/edit'
+      const [baseUrl, productUrl, ...extraProductUrls] = await Promise.all([
+        resolveImageUrl(falKey, body.roomDataUrl, 'room.jpg'),
+        resolveImageUrl(falKey, body.productImageUrl, 'product-exterior.jpg'),
+        ...extraProductSrcs.map((src, i) =>
+          resolveImageUrl(falKey, src, `product-detail-${i + 1}.jpg`),
+        ),
+      ])
 
-    // Keep aspect_ratio auto so the room photo framing is preserved.
-    // Furniture feet sizes belong in the prompt only — never as image aspect.
+      model = getCreateModel()
+      falPayload = {
+        prompt,
+        image_urls: [baseUrl, productUrl, ...extraProductUrls],
+        image_size: 'auto',
+        output_format: 'jpeg',
+        safety_tolerance: '2',
+        enable_safety_checker: true,
+      }
+    }
+
     const falRes = await fetch(`https://fal.run/${model}`, {
       method: 'POST',
       headers: {
         Authorization: `Key ${falKey}`,
         'Content-Type': 'application/json',
       },
-      body: JSON.stringify({
-        prompt: buildPrompt(body),
-        image_urls: [baseUrl, productUrl, ...extraProductUrls],
-        num_images: 1,
-        aspect_ratio: 'auto',
-        output_format: 'jpeg',
-        resolution: process.env.FAL_VISUALISE_RESOLUTION || '2K',
-        limit_generations: true,
-      }),
+      body: JSON.stringify(falPayload),
     })
 
     const falJson = (await falRes.json()) as {
@@ -393,7 +429,8 @@ async function handleConfig(req: IncomingMessage, res: ServerResponse) {
     sendJson(res, 200, {
       configured: true,
       mode: 'paid-ai',
-      model: process.env.FAL_VISUALISE_MODEL || 'fal-ai/nano-banana-pro/edit',
+      model: getCreateModel(),
+      refineModel: getRefineModel(),
     })
   } catch (err) {
     sendJson(res, 500, {
@@ -402,13 +439,14 @@ async function handleConfig(req: IncomingMessage, res: ServerResponse) {
   }
 }
 
-function aspectFromFeet(widthFt: number, heightFt: number): string {
+/** Map furniture feet to FLUX.2 Pro Edit image_size presets */
+function imageSizeFromFeet(widthFt: number, heightFt: number): string {
   const ratio = widthFt / Math.max(heightFt, 0.1)
-  if (ratio >= 1.7) return '16:9'
-  if (ratio >= 1.25) return '4:3'
-  if (ratio >= 0.95) return '1:1'
-  if (ratio >= 0.7) return '3:4'
-  return '9:16'
+  if (ratio >= 1.7) return 'landscape_16_9'
+  if (ratio >= 1.25) return 'landscape_4_3'
+  if (ratio >= 0.95) return 'square_hd'
+  if (ratio >= 0.7) return 'portrait_4_3'
+  return 'portrait_16_9'
 }
 
 function buildCarcassLivePrompt(body: CarcassLiveBody) {
@@ -483,10 +521,7 @@ async function handleCarcassLive(req: IncomingMessage, res: ServerResponse) {
       'carcass-ref.jpg',
     )
 
-    const model =
-      process.env.FAL_CARCASS_MODEL ||
-      process.env.FAL_VISUALISE_MODEL ||
-      'fal-ai/nano-banana-pro/edit'
+    const model = getCarcassModel()
 
     const falRes = await fetch(`https://fal.run/${model}`, {
       method: 'POST',
@@ -497,10 +532,13 @@ async function handleCarcassLive(req: IncomingMessage, res: ServerResponse) {
       body: JSON.stringify({
         prompt: buildCarcassLivePrompt(body),
         image_urls: [imageUrl],
-        num_images: 1,
-        aspect_ratio: aspectFromFeet(Number(body.widthFt), Number(body.heightFt)),
+        image_size: imageSizeFromFeet(
+          Number(body.widthFt),
+          Number(body.heightFt),
+        ),
         output_format: 'jpeg',
-        resolution: '1K',
+        safety_tolerance: '2',
+        enable_safety_checker: true,
       }),
     })
 
@@ -563,7 +601,8 @@ function attach(middlewares: Connect.Server) {
     sendJson(res, 200, {
       configured: Boolean(getFalKey()),
       mode: getFalKey() ? 'paid-ai' : 'needs-key',
-      model: process.env.FAL_VISUALISE_MODEL || 'fal-ai/nano-banana-pro/edit',
+      model: getCreateModel(),
+      refineModel: getRefineModel(),
     })
   })
 }

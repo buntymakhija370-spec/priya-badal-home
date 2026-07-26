@@ -33,7 +33,7 @@ export function VisualisePage() {
   const [keyMsg, setKeyMsg] = useState<string | null>(null)
   const [falKeyInput, setFalKeyInput] = useState('')
   const [aiConfigured, setAiConfigured] = useState(false)
-  const [aiModel, setAiModel] = useState('fal-ai/nano-banana-pro/edit')
+  const [aiModel, setAiModel] = useState('fal-ai/flux-2-pro/edit')
 
   const product = productId ? getProductById(productId) : undefined
   const category = product ? getCategory(product.categoryId) : undefined

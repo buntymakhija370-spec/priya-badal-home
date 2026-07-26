@@ -1,5 +1,11 @@
 import { categories, formatPrice, type Product } from '../data/catalog'
+import {
+  answerCatalogIntent,
+  chatEstimateSummary,
+  detectCatalogIntent,
+} from './chatCatalogAnswers'
 import { getAllProducts, getProductById } from './products'
+import { productHasCarcass } from './pricing'
 import { WHATSAPP_QUOTE_NUMBER } from './whatsapp'
 import { VISUALISE_COLOURS, type VisualiseColour } from './visualise'
 
@@ -291,23 +297,23 @@ export function createWelcomeMessage(): ChatMessage {
     id: crypto.randomUUID(),
     role: 'assistant',
     text: [
-      'Hi — I’m Priya Badal AI.',
+      'Hi — I’m Priya Badal AI, your Priyabadal Homes design assistant.',
       '',
-      'For an accurate visualisation, please give me:',
-      '1) Room type (kitchen / wardrobe / temple / panels)',
-      '2) Exact size in feet (e.g. 8 x 7 or 10 x 8 x 2)',
-      '3) A clear straight-on wall photo (or architect drawing)',
-      '4) Then pick a product from our list → Visualise',
+      'I can help with:',
+      '• Design understanding — explain catalog styles & features',
+      '• Pricing — shutter rates, size estimates in feet',
+      '• Carcass pricing — shutter vs with-carcass (catalog rates)',
+      '• Material specs — finish, thickness, details from our list',
+      '• Visualise — room photo / architect drawing + product look',
       '',
-      'Best photo tip: stand in front of the wall, good light, no extreme wide-angle. AI is a visual guide — final price follows your measured size.',
-      '',
-      'What are we designing today?',
+      'Start with room + size (e.g. wardrobe 8 x 7), ask a price question, or pick a product.',
+      'All prices are catalog estimates — final quote on WhatsApp after measure.',
     ].join('\n'),
     suggestions: [
-      'Kitchen remodel',
       'Bedroom wardrobe 8x7',
-      'Temple wall modern',
-      'I have an architect drawing',
+      'What is carcass pricing?',
+      'Material specs',
+      'Suggest styles',
       'Attach room photo',
     ],
   }
@@ -346,23 +352,28 @@ function productSuggestionMessage(
     text: [
       intro,
       '',
-      ...products.map(
-        (p, i) =>
-          `${i + 1}. ${p.name} — from ${formatPrice(p.price)}${
-            p.pricingMode === 'per-sqft' ? '/sq ft' : ''
-          }`,
-      ),
+      ...products.map((p, i) => {
+        const carcass =
+          productHasCarcass(p) && p.carcassPrice != null
+            ? ` · carcass ${formatPrice(p.carcassPrice)}${
+                p.pricingMode === 'per-sqft' ? '/sq ft' : ''
+              }`
+            : ''
+        return `${i + 1}. ${p.name} — shutter from ${formatPrice(p.price)}${
+          p.pricingMode === 'per-sqft' ? '/sq ft' : ''
+        }${carcass}`
+      }),
       '',
       sizeLine,
       photoLine,
-      'Tap Use this on a product, keep chatting about what you want, or ask me to visualise.',
+      'Tap Use this, then ask price / carcass / material specs, or visualise.',
     ].join('\n'),
     products,
     suggestions: brief.aiImageUrl
-      ? ['Make it lighter', 'Suggest other styles', 'WhatsApp quote']
+      ? ['Price estimate', 'Material specs', 'WhatsApp quote']
       : brief.roomPhotoDataUrl
-        ? ['Visualise my look', 'Suggest other styles', 'WhatsApp quote']
-        : ['Attach room photo', 'Visualise my look', 'Tell me more'],
+        ? ['Visualise my look', 'Price estimate', 'Material specs']
+        : ['Price estimate', 'What is carcass pricing?', 'Attach room photo'],
   }
 }
 
@@ -404,27 +415,27 @@ function conversationalReply(
   if (after.aiImageUrl) {
     lines.push(
       '',
-      'Your AI visualisation is already here. We can keep chatting about the plan, price, or layout — or give a clear photo change (e.g. “make it lighter” / “remove handles”) and I’ll revise that same look.',
+      'Your AI visualisation is already here. Ask about price, carcass, or material specs — or give a clear photo change (e.g. “make it lighter”).',
     )
   } else if (after.selectedProductId && after.roomPhotoDataUrl) {
     lines.push(
       '',
-      'You already have a product + photo/drawing. Say “Visualise my look” when you want the AI image, or keep telling me what you prefer.',
+      'You have a product + photo/drawing. Ask for a price estimate, material specs, or say “Visualise my look”.',
     )
   } else if (after.selectedProductId) {
     lines.push(
       '',
-      'Product is selected. Attach a room photo or architect drawing when you want visualisation, or keep describing the space.',
+      'Product selected. Ask price / carcass / specs, share size in feet, or attach a photo to visualise.',
     )
   } else if (after.categoryId) {
     lines.push(
       '',
-      'Tell me size, budget, or what you like/dislike — or ask me to “suggest styles” from our product list.',
+      'Ask me to suggest styles, share size for pricing, or ask “what is carcass pricing?” / “material specs”.',
     )
   } else {
     lines.push(
       '',
-      'What space are we planning — kitchen, wardrobe, temple, or wall panels?',
+      'What space are we planning — kitchen, wardrobe, temple, or wall panels? I can also explain prices and materials.',
     )
   }
 
@@ -439,15 +450,16 @@ function conversationalReply(
     products: selected ? [selected] : undefined,
     suggestions: after.aiImageUrl
       ? [
+          'Price estimate',
+          'Material specs',
           'Make it lighter',
-          'Remove handles',
-          'Suggest other styles',
           'WhatsApp quote',
-          'What do you recommend next?',
         ]
-      : after.categoryId
-        ? ['Suggest styles', 'Attach room photo', 'Visualise my look', 'My details']
-        : ['Kitchen remodel', 'Bedroom wardrobe 8x7', 'Temple wall modern'],
+      : after.selectedProductId
+        ? ['Price estimate', 'Explain carcass pricing', 'Material specs', 'Visualise my look']
+        : after.categoryId
+          ? ['Suggest styles', 'Price estimate', 'What is carcass pricing?', 'Attach room photo']
+          : ['Bedroom wardrobe 8x7', 'What is carcass pricing?', 'Material specs'],
   }
 }
 
@@ -572,18 +584,36 @@ export function processConsultTurn(
 
   // 3) Summary
   if (wantsSummary) {
+    const estimate = chatEstimateSummary(next)
     return {
       brief: next,
       reply: {
         id: crypto.randomUUID(),
         role: 'assistant',
-        text: `Here’s what I’m holding from our chat:\n${briefSummary(next)}\n\nWhat should we do next?`,
+        text: [
+          'Here’s what I’m holding from our chat:',
+          briefSummary(next),
+          estimate ? `\n${estimate}` : null,
+          '',
+          'Ask about price, carcass, materials, design details — or visualise.',
+        ]
+          .filter((line) => line != null)
+          .join('\n'),
         suggestions: next.aiImageUrl
-          ? ['Make it lighter', 'Suggest other styles', 'WhatsApp quote']
+          ? ['Price estimate', 'Material specs', 'WhatsApp quote']
           : next.selectedProductId
-            ? ['Visualise my look', 'Suggest other styles', 'Attach room photo']
-            : ['Suggest styles', 'Attach room photo', 'Kitchen remodel'],
+            ? ['Price estimate', 'Explain carcass pricing', 'Visualise my look']
+            : ['Suggest styles', 'What is carcass pricing?', 'Attach room photo'],
       },
+    }
+  }
+
+  // 3b) Catalog sales Q&A — price, carcass, specs, materials, design
+  const catalogIntent = detectCatalogIntent(text)
+  if (catalogIntent && !wantsVisualise && !wantsSuggest) {
+    const reply = answerCatalogIntent(next, text, catalogIntent)
+    if (reply) {
+      return { brief: next, reply }
     }
   }
 
@@ -669,21 +699,48 @@ export function messageForPhotoAttached(brief: ConsultBrief): ChatMessage {
 export function messageForProductSelected(product: Product, brief: ConsultBrief): ChatMessage {
   const missing = missingForVisualise({ ...brief, selectedProductId: product.id })
   const needAttach = missing.some((m) => m.includes('upload'))
+  const withProduct = { ...brief, selectedProductId: product.id }
+  const estimate = chatEstimateSummary(withProduct)
+  const carcassHint = productHasCarcass(product)
+    ? `Carcass listed at ${formatPrice(product.carcassPrice!)}${
+        product.pricingMode === 'per-sqft' ? '/sq ft' : ''
+      } (plus shutter).`
+    : null
+
   return {
     id: crypto.randomUUID(),
     role: 'assistant',
     text: [
-      `Selected from our product list: ${product.name}.`,
-      briefSummary({ ...brief, selectedProductId: product.id }),
+      `Selected: ${product.name}.`,
+      product.description?.trim()
+        ? product.description.trim().slice(0, 220) +
+          (product.description.trim().length > 220 ? '…' : '')
+        : null,
       '',
+      ...[
+        `Shutter / catalog: ${formatPrice(product.price)}${
+          product.pricingMode === 'per-sqft' ? '/sq ft' : ''
+        }`,
+        carcassHint,
+        estimate,
+      ].filter(Boolean),
+      '',
+      briefSummary(withProduct),
+      '',
+      'Ask me: price estimate · carcass pricing · material specs · tell me about this design',
       missing.length
-        ? `To visualise here, please ${missing.join(' and ')}.`
-        : 'Ready — tap Visualise and I’ll render this catalog style into your photo or drawing.',
-    ].join('\n'),
+        ? `To visualise: ${missing.join(' and ')}.`
+        : 'Ready to visualise anytime.',
+    ]
+      .filter((line) => line != null)
+      .join('\n'),
     products: [product],
-    suggestions: needAttach
-      ? ['Attach room photo', 'I have an architect drawing', 'Visualise my look']
-      : ['Visualise my look', 'WhatsApp quote', 'Suggest other styles'],
+    suggestions: [
+      'Price estimate',
+      productHasCarcass(product) ? 'Explain carcass pricing' : 'Material specs',
+      'Tell me about this design',
+      needAttach ? 'Attach room photo' : 'Visualise my look',
+    ],
   }
 }
 
@@ -698,8 +755,9 @@ export function buildChatWhatsAppUrl(brief: ConsultBrief): string | null {
       ? `${window.location.origin}/product/${product.id}`
       : `/product/${product.id}`
 
+  const estimate = chatEstimateSummary(brief)
   const lines = [
-    'Hi Priyabadal Homes — Design Chat consultation:',
+    'Hi Priyabadal Homes — Priya Badal AI consultation:',
     '',
     brief.room ? `Space: ${brief.room}` : null,
     `Product: ${product.name}`,
@@ -708,6 +766,15 @@ export function buildChatWhatsAppUrl(brief: ConsultBrief): string | null {
           brief.depthFt != null ? ` × ${brief.depthFt}` : ''
         } ft`
       : null,
+    `Shutter rate: ${formatPrice(product.price)}${
+      product.pricingMode === 'per-sqft' ? '/sq ft' : ''
+    }`,
+    productHasCarcass(product)
+      ? `Carcass rate: ${formatPrice(product.carcassPrice!)}${
+          product.pricingMode === 'per-sqft' ? '/sq ft' : ''
+        }`
+      : null,
+    estimate,
     brief.style ? `Style: ${brief.style}` : null,
     brief.budget != null ? `Budget: ${formatPrice(brief.budget, 'INR')}` : null,
     brief.attachmentKind === 'drawing' ? 'Reference: architect drawing attached in chat' : null,

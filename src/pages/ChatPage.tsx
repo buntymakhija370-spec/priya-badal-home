@@ -374,7 +374,7 @@ export function ChatPage() {
           <div>
             <p className="pbai__title">Priya Badal AI</p>
             <p className="pbai__subtitle">
-              Interior chat · photos · architect drawings · catalog visualise
+              Design · pricing · carcass · materials · visualise
             </p>
           </div>
         </div>
@@ -446,7 +446,8 @@ export function ChatPage() {
               />
               <h1>Priya Badal AI</h1>
               <p>
-                Chitchat about your interior. Send a room photo or architect drawing. I’ll
+                Ask about design, price, carcass rates, and material specs. Send a room photo
+                or architect drawing when you want to visualise. I’ll
                 suggest from our product list and visualise the look.
               </p>
             </div>
@@ -624,7 +625,7 @@ export function ChatPage() {
               value={input}
               onChange={(e) => setInput(e.target.value)}
               onKeyDown={onKeyDown}
-              placeholder="Message Priya Badal AI — size, style, or ask to visualise…"
+              placeholder="Ask price, carcass, materials, design — or size / visualise…"
               disabled={busy}
             />
             <div className="pbai__composer-tools">

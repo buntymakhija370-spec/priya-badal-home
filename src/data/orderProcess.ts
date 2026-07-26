@@ -67,4 +67,8 @@ export const ORDER_NOTES = [
     title: 'Carcass construction',
     body: 'BWP plywood · both-side 1 mm laminate · 2 mm edge banding, with installation drawing and QR for easy assembly.',
   },
+  {
+    title: '10-year warranty',
+    body: "Every product includes a 10 Years' warranty on manufacturing defects.",
+  },
 ]

@@ -10,6 +10,7 @@ import {
   CARCASS_SPEC_ROWS,
   productUsesCarcassConstruction,
 } from '../data/carcassSpec'
+import { PRODUCT_WARRANTY } from '../data/materials'
 
 const FINISH_LABELS: Record<string, string> = {
   pu: 'PU finish',
@@ -105,7 +106,7 @@ function liveEdgePresentation(product: Product) {
     },
     { label: 'Assembly', value: 'Ready piece / light on-site placement' },
     { label: 'Room Type', value: roomType(product) || 'Home' },
-    { label: 'Warranty', value: "12 Months' warranty on manufacturing defects" },
+    { label: 'Warranty', value: PRODUCT_WARRANTY },
     { label: 'Weight', value: 'Shared on WhatsApp confirmation for the selected piece' },
     { label: 'Sku', value: skuFor(product) },
   ]
@@ -230,7 +231,7 @@ export function resolveProductPresentation(product: Product) {
       : []),
     { label: 'Product Rating', value: 'Made-to-order quality' },
     { label: 'Room Type', value: roomType(product) || category?.name || 'Home' },
-    { label: 'Warranty', value: "12 Months' warranty on manufacturing defects" },
+    { label: 'Warranty', value: PRODUCT_WARRANTY },
     {
       label: 'Weight',
       value:

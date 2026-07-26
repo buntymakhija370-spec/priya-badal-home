@@ -168,15 +168,15 @@ export function ProductPage() {
               </>
             ) : customizable ? (
               <>
-                <li>12-month warranty</li>
+                <li>10-year warranty</li>
                 <li>On-site assembly</li>
                 <li>Made to measure</li>
               </>
             ) : (
               <>
+                <li>10-year warranty</li>
                 <li>Indonesian imported teak</li>
                 <li>One-of-a-kind natural piece</li>
-                <li>Confirm size on WhatsApp</li>
               </>
             )}
           </ul>

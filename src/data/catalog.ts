@@ -310,7 +310,7 @@ export const baseProducts: Product[] = [
       { label: 'Assembly', value: 'Carpenter Assembly (on-site)' },
       { label: 'Dimensions', value: 'Made to measure (custom width × height)' },
       { label: 'Room Type', value: 'Bedroom' },
-      { label: 'Warranty', value: "12 Months' warranty on manufacturing defects" },
+      { label: 'Warranty', value: "10 Years' warranty on manufacturing defects" },
     ],
     specifications: [
       { label: 'Door Type', value: 'Hinged' },
@@ -376,7 +376,7 @@ export const baseProducts: Product[] = [
       { label: 'Assembly', value: 'Carpenter Assembly (on-site)' },
       { label: 'Dimensions', value: 'Made to measure (custom width × height)' },
       { label: 'Room Type', value: 'Bedroom' },
-      { label: 'Warranty', value: "12 Months' warranty on manufacturing defects" },
+      { label: 'Warranty', value: "10 Years' warranty on manufacturing defects" },
     ],
     specifications: [
       { label: 'Type', value: 'Open / walk-in wardrobe wall' },
@@ -442,7 +442,7 @@ export const baseProducts: Product[] = [
       { label: 'Assembly', value: 'Carpenter Assembly (on-site)' },
       { label: 'Dimensions', value: 'Made to measure (custom width × height)' },
       { label: 'Room Type', value: 'Bedroom' },
-      { label: 'Warranty', value: "12 Months' warranty on manufacturing defects" },
+      { label: 'Warranty', value: "10 Years' warranty on manufacturing defects" },
     ],
     specifications: [
       { label: 'Type', value: 'Open dressing wardrobe' },
@@ -509,7 +509,7 @@ export const baseProducts: Product[] = [
       { label: 'Assembly', value: 'Carpenter Assembly (on-site)' },
       { label: 'Dimensions', value: 'Made to measure (custom width × height)' },
       { label: 'Room Type', value: 'Bedroom' },
-      { label: 'Warranty', value: "12 Months' warranty on manufacturing defects" },
+      { label: 'Warranty', value: "10 Years' warranty on manufacturing defects" },
     ],
     specifications: [
       { label: 'Type', value: 'Open walk-in wardrobe wall' },
@@ -576,7 +576,7 @@ export const baseProducts: Product[] = [
       { label: 'Assembly', value: 'Carpenter Assembly (on-site)' },
       { label: 'Dimensions', value: 'Made to measure (custom width × height)' },
       { label: 'Room Type', value: 'Bedroom' },
-      { label: 'Warranty', value: "12 Months' warranty on manufacturing defects" },
+      { label: 'Warranty', value: "10 Years' warranty on manufacturing defects" },
     ],
     specifications: [
       { label: 'Door Type', value: 'Bifold' },
@@ -643,7 +643,7 @@ export const baseProducts: Product[] = [
       { label: 'Assembly', value: 'Carpenter Assembly (on-site)' },
       { label: 'Dimensions', value: 'Made to measure (custom width × height)' },
       { label: 'Room Type', value: 'Bedroom' },
-      { label: 'Warranty', value: "12 Months' warranty on manufacturing defects" },
+      { label: 'Warranty', value: "10 Years' warranty on manufacturing defects" },
     ],
     specifications: [
       { label: 'Type', value: 'Walk-in wardrobe' },
@@ -1773,7 +1773,7 @@ export const baseProducts: Product[] = [
       { label: 'Assembly', value: 'Carpenter Assembly (on-site)' },
       { label: 'Dimensions', value: 'Made to measure (custom width × height)' },
       { label: 'Room Type', value: 'Puja, Temple, Living room' },
-      { label: 'Warranty', value: "12 Months' warranty on manufacturing defects" },
+      { label: 'Warranty', value: "10 Years' warranty on manufacturing defects" },
     ],
     specifications: [
       { label: 'Shutter rate', value: '₹1,800 / sq ft' },
@@ -1854,7 +1854,7 @@ export const baseProducts: Product[] = [
       { label: 'Assembly', value: 'Carpenter Assembly (on-site)' },
       { label: 'Dimensions', value: 'Made to measure (custom width × height)' },
       { label: 'Room Type', value: 'Puja, Temple, Hallway' },
-      { label: 'Warranty', value: "12 Months' warranty on manufacturing defects" },
+      { label: 'Warranty', value: "10 Years' warranty on manufacturing defects" },
     ],
     specifications: [
       { label: 'Shutter rate', value: '₹1,600 / sq ft' },
@@ -1937,7 +1937,7 @@ export const baseProducts: Product[] = [
       { label: 'Assembly', value: 'Carpenter Assembly (on-site)' },
       { label: 'Dimensions', value: 'Made to measure (custom width × height)' },
       { label: 'Room Type', value: 'Puja, Temple' },
-      { label: 'Warranty', value: "12 Months' warranty on manufacturing defects" },
+      { label: 'Warranty', value: "10 Years' warranty on manufacturing defects" },
     ],
     specifications: [
       { label: 'Door / shutter rate', value: '₹4,000 / sq ft' },
@@ -2009,7 +2009,7 @@ export const baseProducts: Product[] = [
       { label: 'Assembly', value: 'Carpenter Assembly (on-site)' },
       { label: 'Dimensions', value: 'Made to measure (custom width × height)' },
       { label: 'Room Type', value: 'Puja, Temple, Living room' },
-      { label: 'Warranty', value: "12 Months' warranty on manufacturing defects" },
+      { label: 'Warranty', value: "10 Years' warranty on manufacturing defects" },
     ],
     specifications: [
       { label: 'Door / shutter rate', value: '₹1,100 / sq ft' },
@@ -2109,7 +2109,7 @@ export const baseProducts: Product[] = [
       { label: 'Assembly', value: 'Carpenter Assembly (on-site)' },
       { label: 'Dimensions', value: 'Made to measure (custom width × height)' },
       { label: 'Room Type', value: 'Puja, Temple, Bedroom' },
-      { label: 'Warranty', value: "12 Months' warranty on manufacturing defects" },
+      { label: 'Warranty', value: "10 Years' warranty on manufacturing defects" },
     ],
     specifications: [
       { label: 'Shutter rate', value: '₹1,800 / sq ft' },
@@ -2194,7 +2194,7 @@ export const baseProducts: Product[] = [
       { label: 'Assembly', value: 'Carpenter Assembly (on-site)' },
       { label: 'Dimensions', value: 'Made to measure (custom width × height)' },
       { label: 'Room Type', value: 'Puja, Temple' },
-      { label: 'Warranty', value: "12 Months' warranty on manufacturing defects" },
+      { label: 'Warranty', value: "10 Years' warranty on manufacturing defects" },
     ],
     specifications: [
       { label: 'Shutter rate', value: '₹1,400 / sq ft' },
@@ -2280,7 +2280,7 @@ export const baseProducts: Product[] = [
       { label: 'Assembly', value: 'Carpenter Assembly (on-site)' },
       { label: 'Dimensions', value: 'Made to measure (custom width × height)' },
       { label: 'Room Type', value: 'Puja, Temple' },
-      { label: 'Warranty', value: "12 Months' warranty on manufacturing defects" },
+      { label: 'Warranty', value: "10 Years' warranty on manufacturing defects" },
     ],
     specifications: [
       { label: 'Door / shutter rate', value: '₹3,500 / sq ft' },
@@ -2355,7 +2355,7 @@ export const baseProducts: Product[] = [
       { label: 'Assembly', value: 'Carpenter Assembly (on-site)' },
       { label: 'Dimensions', value: 'Made to measure (custom width × height)' },
       { label: 'Room Type', value: 'Puja, Temple, Living room' },
-      { label: 'Warranty', value: "12 Months' warranty on manufacturing defects" },
+      { label: 'Warranty', value: "10 Years' warranty on manufacturing defects" },
     ],
     specifications: [
       { label: 'Shutter rate', value: '₹1,200 / sq ft' },
@@ -2436,7 +2436,7 @@ export const baseProducts: Product[] = [
       { label: 'Assembly', value: 'Carpenter Assembly (on-site)' },
       { label: 'Dimensions', value: 'Made to measure (custom width × height)' },
       { label: 'Room Type', value: 'Puja, Temple, Living room' },
-      { label: 'Warranty', value: "12 Months' warranty on manufacturing defects" },
+      { label: 'Warranty', value: "10 Years' warranty on manufacturing defects" },
     ],
     specifications: [
       { label: 'Shutter rate', value: '₹1,500 / sq ft' },
@@ -2520,7 +2520,7 @@ export const baseProducts: Product[] = [
       { label: 'Assembly', value: 'Carpenter Assembly (on-site)' },
       { label: 'Dimensions', value: 'Made to measure (custom width × height)' },
       { label: 'Room Type', value: 'Puja, Temple' },
-      { label: 'Warranty', value: "12 Months' warranty on manufacturing defects" },
+      { label: 'Warranty', value: "10 Years' warranty on manufacturing defects" },
     ],
     specifications: [
       { label: 'Shutter rate', value: '₹5,000 / sq ft' },
@@ -2604,7 +2604,7 @@ export const baseProducts: Product[] = [
       { label: 'Assembly', value: 'Carpenter Assembly (on-site)' },
       { label: 'Dimensions', value: 'Made to measure (custom width × height)' },
       { label: 'Room Type', value: 'Puja, Temple' },
-      { label: 'Warranty', value: "12 Months' warranty on manufacturing defects" },
+      { label: 'Warranty', value: "10 Years' warranty on manufacturing defects" },
     ],
     specifications: [
       { label: 'Shutter rate', value: '₹2,200 / sq ft' },
@@ -2688,7 +2688,7 @@ export const baseProducts: Product[] = [
       { label: 'Assembly', value: 'Carpenter Assembly (on-site)' },
       { label: 'Dimensions', value: 'Made to measure (custom width × height)' },
       { label: 'Room Type', value: 'Puja, Temple' },
-      { label: 'Warranty', value: "12 Months' warranty on manufacturing defects" },
+      { label: 'Warranty', value: "10 Years' warranty on manufacturing defects" },
     ],
     specifications: [
       { label: 'Shutter rate', value: '₹1,500 / sq ft' },
@@ -2768,7 +2768,7 @@ export const baseProducts: Product[] = [
       { label: 'Assembly', value: 'Carpenter Assembly (on-site)' },
       { label: 'Dimensions', value: 'Made to measure (custom width × height)' },
       { label: 'Room Type', value: 'Puja, Temple, Living room' },
-      { label: 'Warranty', value: "12 Months' warranty on manufacturing defects" },
+      { label: 'Warranty', value: "10 Years' warranty on manufacturing defects" },
     ],
     specifications: [
       { label: 'Type', value: 'Temple wall / arched niche' },
@@ -2833,7 +2833,7 @@ export const baseProducts: Product[] = [
       { label: 'Assembly', value: 'Carpenter Assembly (on-site)' },
       { label: 'Dimensions', value: 'Made to measure (custom width × height)' },
       { label: 'Room Type', value: 'Puja, Temple' },
-      { label: 'Warranty', value: "12 Months' warranty on manufacturing defects" },
+      { label: 'Warranty', value: "10 Years' warranty on manufacturing defects" },
     ],
     specifications: [
       { label: 'Type', value: 'Temple wall panel façade' },
@@ -2898,7 +2898,7 @@ export const baseProducts: Product[] = [
       { label: 'Assembly', value: 'Carpenter Assembly (on-site)' },
       { label: 'Dimensions', value: 'Made to measure (custom width × height)' },
       { label: 'Room Type', value: 'Puja, Temple' },
-      { label: 'Warranty', value: "12 Months' warranty on manufacturing defects" },
+      { label: 'Warranty', value: "10 Years' warranty on manufacturing defects" },
     ],
     specifications: [
       { label: 'Type', value: 'Temple wall / puja alcove' },
@@ -2963,7 +2963,7 @@ export const baseProducts: Product[] = [
       { label: 'Assembly', value: 'Carpenter Assembly (on-site)' },
       { label: 'Dimensions', value: 'Made to measure (custom width × height)' },
       { label: 'Room Type', value: 'Puja, Temple' },
-      { label: 'Warranty', value: "12 Months' warranty on manufacturing defects" },
+      { label: 'Warranty', value: "10 Years' warranty on manufacturing defects" },
     ],
     specifications: [
       { label: 'Type', value: 'Temple wall niche with doors' },
@@ -3023,7 +3023,7 @@ export const baseProducts: Product[] = [
       { label: 'Sku', value: 'PBH-HDL-01' },
       { label: 'Pack', value: '1 pair' },
       { label: 'Assembly', value: 'Fitted on-site with shutter / door' },
-      { label: 'Warranty', value: "12 Months' warranty on manufacturing defects" },
+      { label: 'Warranty', value: "10 Years' warranty on manufacturing defects" },
     ],
     specifications: [
       { label: 'Price', value: '₹13,500 per pair' },

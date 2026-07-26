@@ -3,6 +3,11 @@ export const MATERIALS_HEADLINE = 'Premium Materials,\nZero Compromise'
 export const MATERIALS_LEDE =
   "Every product uses certified, top-grade raw materials sourced from India's most trusted brands."
 
+/** Site-wide product warranty (shown on every PDP / specs) */
+export const PRODUCT_WARRANTY_YEARS = 10
+export const PRODUCT_WARRANTY =
+  "10 Years' warranty on manufacturing defects"
+
 export type MaterialPoint = {
   id: string
   title: string
@@ -42,7 +47,7 @@ export const MATERIAL_POINTS: MaterialPoint[] = [
   },
   {
     id: 'warranty',
-    title: 'Built to last',
-    body: 'Quality-checked before dispatch, with manufacturing warranty support on confirmed custom orders.',
+    title: '10-year warranty',
+    body: "Every Priyabadal Homes product carries a 10 Years' warranty on manufacturing defects — quality-checked before dispatch.",
   },
 ]

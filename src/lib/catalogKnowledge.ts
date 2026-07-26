@@ -5,7 +5,7 @@ import {
   CARCASS_CONSTRUCTION_SHORT,
   CARCASS_SPEC_ROWS,
 } from '../data/carcassSpec'
-import { MATERIAL_POINTS } from '../data/materials'
+import { MATERIAL_POINTS, PRODUCT_WARRANTY } from '../data/materials'
 import { getAllProducts, getProductById } from './products'
 import {
   calculatePrice,
@@ -166,6 +166,9 @@ export function buildCatalogKnowledge(brief: ConsultBrief, query = ''): string {
     '',
     '=== MATERIALS PROMISE ===',
     ...MATERIAL_POINTS.map((m) => `${m.title}: ${m.body}`),
+    '',
+    '=== WARRANTY (every product) ===',
+    PRODUCT_WARRANTY,
     '',
     '=== CARCASS CONSTRUCTION STANDARD (trusted) ===',
     CARCASS_CONSTRUCTION_SHORT,

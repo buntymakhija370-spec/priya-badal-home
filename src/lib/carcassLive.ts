@@ -66,15 +66,17 @@ export async function generateLiveCarcass(input: {
       }
     }
 
+    const raw = data.error || data.hint || ''
+    const exhausted = /exhausted balance|top up your balance|locked/i.test(raw)
     return {
       source: 'error',
-      code: data.code,
+      code: exhausted ? 'FAL_BALANCE' : data.code,
       message:
         data.code === 'MISSING_FAL_KEY'
           ? 'Connect your Fal.ai key below to generate live-size carcass AI.'
-          : data.error ||
-            data.hint ||
-            'Live-size AI could not generate this carcass. Try again.',
+          : exhausted
+            ? 'Fal.ai balance is empty. Top up credits at fal.ai/dashboard/billing, then try again.'
+            : raw || 'Live-size AI could not generate this carcass. Try again.',
     }
   } catch (err) {
     return {

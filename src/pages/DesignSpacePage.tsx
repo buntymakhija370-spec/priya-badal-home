@@ -401,16 +401,23 @@ export function DesignSpacePage() {
             <div className="design__block">
               <h2>Visualise & get quote</h2>
               <p className="design__hint">
-                Upload your room photo for AI (optional), or go straight to WhatsApp with the
-                estimate.
+                1) Upload a clear room photo · 2) Tap Generate AI room look · 3) WhatsApp the
+                estimate. Price works even without AI.
               </p>
 
               {!aiConfigured ? (
                 <div className="design__keybox">
                   <h3>Connect AI for room visualisation</h3>
                   <p>
-                    Same Fal.ai key as Visualise / Carcass. Optional — you can still get a price
-                    without it.
+                    Same Fal.ai key as Visualise / Carcass. You also need Fal credits at{' '}
+                    <a
+                      href="https://fal.ai/dashboard/billing"
+                      target="_blank"
+                      rel="noreferrer"
+                    >
+                      fal.ai/dashboard/billing
+                    </a>
+                    .
                   </p>
                   <form onSubmit={onConnectKey} className="design__key-form">
                     <input
@@ -428,18 +435,28 @@ export function DesignSpacePage() {
                   {keyMsg ? <p className="design__ok">{keyMsg}</p> : null}
                 </div>
               ) : (
-                <p className="design__ok">AI ready for room visualisation</p>
+                <p className="design__ok">AI key connected — keep Fal credits topped up to generate.</p>
               )}
 
-              <label className="design__upload">
-                <span>Room photo (optional)</span>
-                <input
-                  type="file"
-                  accept="image/*"
-                  capture="environment"
-                  onChange={(e) => void onRoomPhoto(e.target.files?.[0] || null)}
-                />
-              </label>
+              <div className="design__upload-box">
+                <p className="design__upload-label">Room photo (required for AI)</p>
+                <label className="design__upload-btn">
+                  <input
+                    type="file"
+                    accept="image/*"
+                    capture="environment"
+                    onChange={(e) => void onRoomPhoto(e.target.files?.[0] || null)}
+                  />
+                  {roomDataUrl ? 'Change room photo' : 'Upload room photo'}
+                </label>
+                {roomDataUrl ? (
+                  <p className="design__ok">Photo ready — tap Generate below.</p>
+                ) : (
+                  <p className="design__status">
+                    Upload a kitchen/bedroom/puja room photo first, then Generate will work.
+                  </p>
+                )}
+              </div>
 
               <label className="design__colour">
                 <span>AI finish colour cue</span>
@@ -461,12 +478,32 @@ export function DesignSpacePage() {
               <button
                 type="button"
                 className="btn btn--dark design__generate"
-                disabled={busy || !roomDataUrl || !aiConfigured}
-                onClick={() => void onGenerate()}
+                disabled={busy}
+                onClick={() => {
+                  if (!roomDataUrl) {
+                    setStatusMsg('Upload a room photo first, then tap Generate again.')
+                    return
+                  }
+                  if (!aiConfigured) {
+                    setStatusMsg('Connect your Fal.ai key above first (and top up credits).')
+                    return
+                  }
+                  void onGenerate()
+                }}
               >
                 {busy ? 'Generating…' : 'Generate AI room look'}
               </button>
-              {statusMsg ? <p className="design__status">{statusMsg}</p> : null}
+              {statusMsg ? (
+                <p
+                  className={
+                    statusMsg.includes('balance') || statusMsg.includes('Upload')
+                      ? 'design__status design__status--warn'
+                      : 'design__status'
+                  }
+                >
+                  {statusMsg}
+                </p>
+              ) : null}
 
               <div className="design__nav">
                 <button type="button" className="btn btn--outline" onClick={() => setStep(2)}>

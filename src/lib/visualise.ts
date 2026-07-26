@@ -139,15 +139,19 @@ export async function generateVisualise(
       }
     }
 
+    const raw = data.error || data.hint || ''
+    const exhausted =
+      /exhausted balance|top up your balance|locked/i.test(raw)
     return {
       source: 'error',
-      code: data.code,
+      code: exhausted ? 'FAL_BALANCE' : data.code,
       message:
         data.code === 'MISSING_FAL_KEY'
           ? 'Connect your Fal.ai key below to generate professional room renders.'
-          : data.error ||
-            data.hint ||
-            'Professional AI could not generate this look. Try again or WhatsApp us.',
+          : exhausted
+            ? 'Fal.ai balance is empty. Top up credits at fal.ai/dashboard/billing, then try again.'
+            : raw ||
+              'Professional AI could not generate this look. Try again or WhatsApp us.',
     }
   } catch (err) {
     return {

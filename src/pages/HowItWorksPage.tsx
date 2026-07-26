@@ -96,6 +96,9 @@ export function HowItWorksPage() {
           <Link className="btn btn--outline" to="/visualise">
             Visualise in my room
           </Link>
+          <Link className="btn btn--outline" to="/carcass">
+            Plan carcass & price
+          </Link>
         </div>
       </section>
     </main>

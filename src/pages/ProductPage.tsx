@@ -203,6 +203,14 @@ export function ProductPage() {
           >
             Visualise in my room (AI)
           </Link>
+          {product.categoryId === 'wardrobe' || product.categoryId === 'kitchen' ? (
+            <Link
+              className="btn btn--outline product-page__visualise"
+              to={`/carcass?type=${product.categoryId}&product=${product.id}`}
+            >
+              Plan carcass & price
+            </Link>
+          ) : null}
           {customizable ? (
             <Link className="product-page__how" to="/how-it-works">
               How your custom order works

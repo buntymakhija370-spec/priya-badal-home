@@ -1,0 +1,345 @@
+.carcass {
+  padding-bottom: 3.5rem;
+}
+
+.carcass__header {
+  max-width: 40rem;
+  margin-bottom: 1.35rem;
+}
+
+.carcass__eyebrow {
+  font-size: 0.78rem;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--honey-deep);
+  margin-bottom: 0.45rem;
+}
+
+.carcass__header h1 {
+  font-family: var(--font-display);
+  font-size: clamp(1.85rem, 4.8vw, 2.75rem);
+  letter-spacing: -0.03em;
+  margin-bottom: 0.55rem;
+}
+
+.carcass__header p {
+  color: var(--ink-soft);
+  line-height: 1.55;
+  font-weight: 300;
+}
+
+.carcass__tabs {
+  display: inline-flex;
+  gap: 0.35rem;
+  padding: 0.25rem;
+  margin-bottom: 1.35rem;
+  border: 1px solid rgba(21, 32, 25, 0.12);
+  border-radius: 0.45rem;
+  background:
+    linear-gradient(135deg, rgba(220, 230, 223, 0.55), rgba(247, 250, 248, 0.9)),
+    var(--paper);
+}
+
+.carcass__tabs button {
+  padding: 0.55rem 0.95rem;
+  border-radius: 0.35rem;
+  color: var(--ink-soft);
+  font-size: 0.92rem;
+  transition: background 180ms var(--ease-out), color 180ms var(--ease-out);
+}
+
+.carcass__tabs button.is-active {
+  background: var(--ink);
+  color: #f7faf8;
+}
+
+.carcass__grid {
+  display: grid;
+  grid-template-columns: minmax(0, 22rem) minmax(0, 1fr);
+  gap: 1.5rem;
+  align-items: start;
+}
+
+.carcass__controls {
+  display: grid;
+  gap: 1rem;
+}
+
+.carcass__field {
+  display: grid;
+  gap: 0.35rem;
+}
+
+.carcass__field span {
+  font-size: 0.78rem;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  color: var(--ink-soft);
+}
+
+.carcass__field input,
+.carcass__field select,
+.carcass__ai textarea,
+.carcass__bays select {
+  width: 100%;
+  border: 1px solid rgba(21, 32, 25, 0.16);
+  border-radius: 0.35rem;
+  background: #fff;
+  padding: 0.55rem 0.7rem;
+  color: var(--ink);
+  font-size: 0.92rem;
+}
+
+.carcass__dims {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 0.65rem;
+}
+
+.carcass__dims:has(.carcass__field:nth-child(2):last-child) {
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+}
+
+.carcass__ai,
+.carcass__bays {
+  padding: 1rem 0 0;
+  border-top: 1px solid rgba(21, 32, 25, 0.1);
+}
+
+.carcass__ai h2,
+.carcass__bays-head h2 {
+  font-family: var(--font-display);
+  font-size: 1.15rem;
+  letter-spacing: -0.02em;
+  margin-bottom: 0.35rem;
+}
+
+.carcass__ai > p {
+  font-size: 0.88rem;
+  color: var(--ink-soft);
+  line-height: 1.45;
+  margin-bottom: 0.65rem;
+}
+
+.carcass__ai textarea {
+  resize: vertical;
+  min-height: 4.5rem;
+  margin-bottom: 0.65rem;
+}
+
+.carcass__presets {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.4rem;
+  margin-bottom: 0.75rem;
+}
+
+.carcass__presets button {
+  padding: 0.35rem 0.65rem;
+  border-radius: 0.3rem;
+  border: 1px solid rgba(154, 115, 64, 0.35);
+  background: rgba(154, 115, 64, 0.08);
+  color: var(--honey-deep);
+  font-size: 0.8rem;
+  transition: background 160ms var(--ease-out), color 160ms var(--ease-out);
+}
+
+.carcass__presets button.is-active,
+.carcass__presets button:hover {
+  background: var(--honey);
+  border-color: var(--honey);
+  color: #fffaf2;
+}
+
+.carcass__ai-run {
+  width: 100%;
+}
+
+.carcass__ai-note {
+  margin-top: 0.75rem;
+  font-size: 0.86rem;
+  line-height: 1.45;
+  color: var(--moss);
+}
+
+.carcass__bays-head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.75rem;
+  margin-bottom: 0.65rem;
+}
+
+.carcass__bays-head select {
+  max-width: 10.5rem;
+}
+
+.carcass__bays ul {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: grid;
+  gap: 0.45rem;
+}
+
+.carcass__bays li {
+  display: grid;
+  grid-template-columns: 1.5rem 1fr auto;
+  gap: 0.45rem;
+  align-items: center;
+}
+
+.carcass__bay-index {
+  font-size: 0.78rem;
+  color: var(--ink-soft);
+  text-align: center;
+}
+
+.carcass__bay-remove {
+  width: 2rem;
+  height: 2rem;
+  border-radius: 0.3rem;
+  color: var(--ink-soft);
+  font-size: 1.2rem;
+  line-height: 1;
+}
+
+.carcass__bay-remove:hover {
+  background: rgba(21, 32, 25, 0.06);
+  color: var(--ink);
+}
+
+.carcass__stage {
+  display: grid;
+  gap: 1rem;
+  position: sticky;
+  top: calc(var(--nav-h) + 0.75rem);
+}
+
+.carcass-svg {
+  width: 100%;
+  height: auto;
+  border-radius: 0.45rem;
+  display: block;
+  box-shadow: 0 18px 40px rgba(21, 32, 25, 0.08);
+  animation: carcass-in 520ms var(--ease-out);
+}
+
+.carcass-svg__caption {
+  fill: var(--ink-soft);
+  font-size: 12px;
+  font-family: var(--font-body);
+}
+
+.carcass-svg__bay-label {
+  fill: #f7f1e6;
+  font-size: 12px;
+  font-weight: 600;
+  font-family: var(--font-body);
+}
+
+.carcass-svg__bay-ft {
+  fill: rgba(247, 241, 230, 0.75);
+  font-size: 10px;
+  font-family: var(--font-body);
+}
+
+.carcass__quote {
+  padding: 1.1rem 1.15rem 1.25rem;
+  border-radius: 0.45rem;
+  background:
+    radial-gradient(120% 80% at 0% 0%, rgba(154, 115, 64, 0.14), transparent 55%),
+    linear-gradient(180deg, #fff 0%, #f3f7f4 100%);
+  border: 1px solid rgba(21, 32, 25, 0.1);
+  animation: carcass-in 640ms var(--ease-out);
+}
+
+.carcass__quote-label {
+  font-size: 0.78rem;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: var(--honey-deep);
+  margin-bottom: 0.25rem;
+}
+
+.carcass__quote-price {
+  font-family: var(--font-display);
+  font-size: clamp(1.8rem, 4vw, 2.4rem);
+  letter-spacing: -0.03em;
+  margin-bottom: 0.55rem;
+}
+
+.carcass__quote-meta {
+  list-style: none;
+  margin: 0 0 1rem;
+  padding: 0;
+  display: grid;
+  gap: 0.3rem;
+  font-size: 0.88rem;
+  color: var(--ink-soft);
+  line-height: 1.4;
+}
+
+.carcass__quote-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.55rem;
+  margin-bottom: 0.75rem;
+}
+
+.carcass__quote-actions .whatsapp-quote-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 2.6rem;
+  padding: 0.55rem 1rem;
+  border-radius: 0.35rem;
+  background: #1f6b3a;
+  color: #f4fff7;
+  font-weight: 600;
+  font-size: 0.92rem;
+}
+
+.carcass__quote-actions .whatsapp-quote-btn:hover,
+.carcass__quote-actions .whatsapp-quote-btn:focus-visible {
+  background: #185730;
+}
+
+.carcass__disclaimer {
+  font-size: 0.78rem;
+  color: var(--ink-soft);
+  line-height: 1.4;
+}
+
+@keyframes carcass-in {
+  from {
+    opacity: 0;
+    transform: translateY(10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@media (max-width: 960px) {
+  .carcass__grid {
+    grid-template-columns: 1fr;
+  }
+
+  .carcass__stage {
+    position: static;
+    order: -1;
+  }
+}
+
+@media (max-width: 560px) {
+  .carcass__dims {
+    grid-template-columns: 1fr;
+  }
+
+  .carcass__tabs {
+    display: grid;
+    width: 100%;
+  }
+}

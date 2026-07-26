@@ -1,0 +1,43 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 980 1280" width="980" height="1280" preserveAspectRatio="xMidYMid meet" role="img">
+  <title>Gold Lotus Arch Temple Wall — exterior elevation shop drawing</title>
+  <rect width="980" height="1280" fill="#ffffff"/>
+  <rect x="20" y="20" width="940" height="1240" rx="8" fill="none" stroke="#c5d2cb" stroke-width="2"/>
+
+  <text x="44" y="54" font-family="Georgia, 'Times New Roman', serif" font-size="26" fill="#152019">Temple exterior elevation</text>
+  <text x="44" y="78" font-family="system-ui,sans-serif" font-size="15" fill="#5c6b62">Gold Lotus Arch Temple Wall</text>
+  <text x="44" y="98" font-family="system-ui,sans-serif" font-size="12" fill="#8a9690">SKU PBH-TMP-W01 · Front elevation · Open temple-wall façade — see Drawing 2 for carcass zones</text>
+  <text x="44" y="116" font-family="system-ui,sans-serif" font-size="12" fill="#8a9690">Arched niche · sunburst lining · gold lotus · marble altar</text>
+
+  <rect x="730" y="36" width="206" height="90" rx="6" fill="#f7faf8" stroke="#c5d2cb"/>
+  <text x="742" y="58" font-size="11" font-weight="700" fill="#152019">OVERALL (reference)</text>
+  <text x="742" y="80" font-size="14" fill="#152019">W 6′ · H 9′ · D 1.5′</text>
+  <text x="742" y="100" font-size="11" fill="#5c6b62">1829 × 2743 mm</text>
+  <text x="742" y="116" font-size="11" fill="#5c6b62">Confirm on site measure</text>
+
+  <rect x="180" y="170" width="420" height="780" fill="#e8eeea" stroke="#3d5646" stroke-width="2.3"/>
+  <rect x="184" y="174" width="412" height="772" fill="#f3f6f4" stroke="#4f6a58" stroke-width="1.2" stroke-dasharray="5 4"/><rect x="198" y="193.28" width="384" height="534.8" rx="4" fill="#f3f6f4" stroke="#3d5646" stroke-width="1.4"/><path d="M202 381.28 A188 188 0 0 1 578 381.28" fill="none" stroke="#9a7340" stroke-width="1.5"/><ellipse cx="390" cy="433.94" rx="18" ry="28" fill="none" stroke="#8a9690" stroke-width="1.2" stroke-dasharray="3 3"/><text x="390" y="209.28" text-anchor="middle" font-size="11" font-weight="600" fill="#5c6b62">arched niche</text><rect x="202" y="239.12" width="376" height="4" rx="1" fill="#f0d9a0"/><text x="580" y="253.12" text-anchor="end" font-size="9" fill="#9a7340">LED</text><circle cx="390" cy="431.92" r="36" fill="#f7f1e4" stroke="#9a7340" stroke-width="1.5"/><circle cx="390" cy="431.92" r="18" fill="none" stroke="#c4a574" stroke-width="2"/><text x="390" y="481.92" text-anchor="middle" font-size="10" font-weight="600" fill="#5c6b62">gold lotus relief</text><rect x="198" y="651.6800000000001" width="384" height="14" rx="2" fill="#eef1f0" stroke="#3d5646" stroke-width="1.2"/><rect x="212" y="667.6800000000001" width="356" height="14" rx="2" fill="#eef1f0" stroke="#3d5646" stroke-width="1.2"/><text x="390" y="645.6800000000001" text-anchor="middle" font-size="10" font-weight="600" fill="#5c6b62">tiered marble altar</text><rect x="196" y="804.48" width="190" height="34" rx="2" fill="#f7faf8" stroke="#3d5646" stroke-width="1.2"/><circle cx="291" cy="821.48" r="3" fill="#152019"/><rect x="196" y="842.48" width="190" height="34" rx="2" fill="#f7faf8" stroke="#3d5646" stroke-width="1.2"/><circle cx="291" cy="859.48" r="3" fill="#152019"/><rect x="390" y="804.48" width="190" height="34" rx="2" fill="#f7faf8" stroke="#3d5646" stroke-width="1.2"/><circle cx="485" cy="821.48" r="3" fill="#152019"/><rect x="390" y="842.48" width="190" height="34" rx="2" fill="#f7faf8" stroke="#3d5646" stroke-width="1.2"/><circle cx="485" cy="859.48" r="3" fill="#152019"/><text x="390" y="799.48" text-anchor="middle" font-size="10" font-weight="600" fill="#5c6b62">4 drawers</text><text x="390" y="932" text-anchor="middle" font-size="11" fill="#8a9690">OPEN FAÇADE</text>
+
+  
+  <line x1="180" y1="986" x2="600" y2="986" stroke="#9a7340" stroke-width="1.3"/>
+  <line x1="180" y1="981" x2="180" y2="991" stroke="#9a7340" stroke-width="1.3"/>
+  <line x1="600" y1="981" x2="600" y2="991" stroke="#9a7340" stroke-width="1.3"/>
+  <text x="390" y="978" text-anchor="middle" font-size="12" font-weight="700" fill="#152019">Overall width = 6 ft (1829 mm)</text>
+  
+  <line x1="626" y1="170" x2="626" y2="950" stroke="#9a7340" stroke-width="1.3"/>
+  <line x1="621" y1="170" x2="631" y2="170" stroke="#9a7340" stroke-width="1.3"/>
+  <line x1="621" y1="950" x2="631" y2="950" stroke="#9a7340" stroke-width="1.3"/>
+  <text x="640" y="560" font-size="12" font-weight="700" fill="#152019" transform="rotate(90 640 560)">Height = 9 ft (2743 mm)</text>
+
+  <g transform="translate(48, 230)">
+    <polygon points="0,40 40,18 40,170 0,192" fill="#f3f6f4" stroke="#3d5646" stroke-width="1.2"/>
+    <text x="48" y="100" font-size="12" fill="#5c6b62">Depth</text>
+    <text x="48" y="118" font-size="13" font-weight="700" fill="#152019">D = 1.5 ft</text>
+  </g>
+
+  <rect x="40" y="1160" width="900" height="80" rx="8" fill="#f7faf8" stroke="#c5d2cb"/>
+  <text x="56" y="1186" font-size="13" font-weight="700" fill="#152019">Notes</text>
+  <text x="56" y="1206" font-size="12" fill="#5c6b62">Drawing 1 — façade / shutters · Drawing 2 — full carcass (niche, altar, drawers, LED) from product photos</text>
+  <text x="56" y="1224" font-size="12" fill="#5c6b62">Carcass: BWP plywood · both-side 1 mm laminate · 2 mm edge banding · 18 mm panels</text>
+  <text x="56" y="1242" font-size="12" fill="#5c6b62">Sizes are reference — live niche size confirmed before production · 10-year manufacturing warranty</text>
+</svg>

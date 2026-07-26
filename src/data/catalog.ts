@@ -1010,6 +1010,15 @@ export const baseProducts: Product[] = [
       '/products/temple/temple-01-02.jpg',
       '/products/temple/temple-01-03.jpg',
       '/products/temple/temple-01-01.png',
+      '/products/temple/temple-01-dim-elevation.svg',
+      '/products/temple/temple-01-dim-carcass.svg',
+    ],
+    imageCaptions: [
+      'Open mandir / carcass — lit niche and altar.',
+      'Open mandir — puja interior layout.',
+      'Exterior detail — arched shutters and lotus handles.',
+      'Shop drawing 1 — exterior elevation (W × H × D reference).',
+      'Shop drawing 2 — detailed carcass (niche, altar, drawers, LED).',
     ],
     highlights: [
       'Shutter ₹1,800 / sq ft',
@@ -1090,8 +1099,16 @@ export const baseProducts: Product[] = [
     rooms: ['puja', 'temple', 'hallway'],
     image: '/products/temple/temple-02-01.jpg',
     images: [
-      '/products/temple/temple-02-01.jpg',
       '/products/temple/temple-02-02.jpg',
+      '/products/temple/temple-02-01.jpg',
+      '/products/temple/temple-02-dim-elevation.svg',
+      '/products/temple/temple-02-dim-carcass.svg',
+    ],
+    imageCaptions: [
+      'Closed exterior — bifold CNC shutters.',
+      'Open carcass — lit niche, altar, drawer base.',
+      'Shop drawing 1 — exterior elevation (W × H × D reference).',
+      'Shop drawing 2 — detailed carcass (niche, altar, drawers, LED).',
     ],
     highlights: [
       'Shutter ₹1,600 / sq ft · HDHMR',
@@ -1311,6 +1328,14 @@ export const baseProducts: Product[] = [
     images: [
       '/products/temple/temple-05-01.jpg',
       '/products/temple/temple-05-02.jpg',
+      '/products/temple/temple-05-dim-elevation.svg',
+      '/products/temple/temple-05-dim-carcass.svg',
+    ],
+    imageCaptions: [
+      'Brushed metal scallop mandir façade.',
+      'Carcass zones — niche, tray, drawer base.',
+      'Shop drawing 1 — exterior elevation (W × H × D reference).',
+      'Shop drawing 2 — detailed carcass (niche, altar, drawers, LED).',
     ],
     highlights: [
       'Brushed metal finish',
@@ -1345,8 +1370,16 @@ export const baseProducts: Product[] = [
     rooms: ['puja', 'temple', 'bedroom'],
     image: '/products/temple/temple-06-01.png',
     images: [
-      '/products/temple/temple-06-01.png',
       '/products/temple/temple-06-02.jpg',
+      '/products/temple/temple-06-01.png',
+      '/products/temple/temple-06-dim-elevation.svg',
+      '/products/temple/temple-06-dim-carcass.svg',
+    ],
+    imageCaptions: [
+      'Exterior / open mix — hex jali façade.',
+      'Open carcass — loft, lit niche, tray, drawers.',
+      'Shop drawing 1 — exterior elevation (W × H × D reference).',
+      'Shop drawing 2 — detailed carcass (niche, altar, drawers, LED).',
     ],
     highlights: [
       'Shutter ₹1,800 / sq ft · HDHMR',
@@ -1429,9 +1462,18 @@ export const baseProducts: Product[] = [
     rooms: ['puja', 'temple'],
     image: '/products/temple/temple-07-01.png',
     images: [
-      '/products/temple/temple-07-01.png',
       '/products/temple/temple-07-03.png',
       '/products/temple/temple-07-02.jpg',
+      '/products/temple/temple-07-01.png',
+      '/products/temple/temple-07-dim-elevation.svg',
+      '/products/temple/temple-07-dim-carcass.svg',
+    ],
+    imageCaptions: [
+      'Closed façade — arch lattice shutters.',
+      'Exterior detail.',
+      'Open carcass — marble altar and lit niche.',
+      'Shop drawing 1 — exterior elevation (W × H × D reference).',
+      'Shop drawing 2 — detailed carcass (niche, altar, LED).',
     ],
     highlights: [
       'Shutter ₹1,400 / sq ft · HDHMR',
@@ -1593,6 +1635,14 @@ export const baseProducts: Product[] = [
     images: [
       '/products/temple/temple-09-01.jpg',
       '/products/temple/temple-09-02.jpg',
+      '/products/temple/temple-09-dim-elevation.svg',
+      '/products/temple/temple-09-dim-carcass.svg',
+    ],
+    imageCaptions: [
+      'Closed arched exterior — ginkgo grid.',
+      'Open carcass — glass shelf, marble altar, base cupboard.',
+      'Shop drawing 1 — exterior elevation (W × H × D reference).',
+      'Shop drawing 2 — detailed carcass (niche, altar, storage, LED).',
     ],
     highlights: [
       'Shutter ₹1,200 / sq ft · laminate + plywood',
@@ -1672,8 +1722,16 @@ export const baseProducts: Product[] = [
     rooms: ['puja', 'temple', 'living room'],
     image: '/products/temple/temple-10-01.jpg',
     images: [
-      '/products/temple/temple-10-01.jpg',
       '/products/temple/temple-10-02.jpg',
+      '/products/temple/temple-10-01.jpg',
+      '/products/temple/temple-10-dim-elevation.svg',
+      '/products/temple/temple-10-dim-carcass.svg',
+    ],
+    imageCaptions: [
+      'Open carcass — lit niche and altar.',
+      'Open mandir — pixel-jali bifold context.',
+      'Shop drawing 1 — exterior elevation (W × H × D reference).',
+      'Shop drawing 2 — detailed carcass (niche, altar, base, LED).',
     ],
     highlights: [
       'Shutter ₹1,500 / sq ft · HDHMR',
@@ -1756,8 +1814,16 @@ export const baseProducts: Product[] = [
     rooms: ['puja', 'temple'],
     image: '/products/temple/temple-11-02.jpg',
     images: [
-      '/products/temple/temple-11-02.jpg',
       '/products/temple/temple-11-01.jpg',
+      '/products/temple/temple-11-02.jpg',
+      '/products/temple/temple-11-dim-elevation.svg',
+      '/products/temple/temple-11-dim-carcass.svg',
+    ],
+    imageCaptions: [
+      'Exterior detail — lotus relief shutters.',
+      'Open carcass — multi-shelf lit puja interior.',
+      'Shop drawing 1 — exterior elevation (W × H × D reference).',
+      'Shop drawing 2 — detailed carcass (shelves, altar, LED).',
     ],
     highlights: [
       'Shutter ₹5,000 / sq ft · HDHMR + plywood',
@@ -1842,6 +1908,14 @@ export const baseProducts: Product[] = [
     images: [
       '/products/temple/temple-12-02.jpg',
       '/products/temple/temple-12-01.jpg',
+      '/products/temple/temple-12-dim-elevation.svg',
+      '/products/temple/temple-12-dim-carcass.svg',
+    ],
+    imageCaptions: [
+      'Open carcass — tree-of-life niche and altar.',
+      'Interior detail — relief and marble altar.',
+      'Shop drawing 1 — exterior elevation (W × H × D reference).',
+      'Shop drawing 2 — detailed carcass (niche, altar, drawers, LED).',
     ],
     highlights: [
       'Shutter ₹2,200 / sq ft · HDHMR',
@@ -1924,8 +1998,16 @@ export const baseProducts: Product[] = [
     rooms: ['puja', 'temple'],
     image: '/products/temple/temple-13-01.png',
     images: [
-      '/products/temple/temple-13-01.png',
       '/products/temple/temple-13-02.jpg',
+      '/products/temple/temple-13-01.png',
+      '/products/temple/temple-13-dim-elevation.svg',
+      '/products/temple/temple-13-dim-carcass.svg',
+    ],
+    imageCaptions: [
+      'Exterior detail — sunburst jali shutters.',
+      'Open carcass — backlit niche and stepped altar.',
+      'Shop drawing 1 — exterior elevation (W × H × D reference).',
+      'Shop drawing 2 — detailed carcass (niche, altar, LED).',
     ],
     highlights: [
       'Shutter ₹1,500 / sq ft · HDHMR',
@@ -2005,6 +2087,15 @@ export const baseProducts: Product[] = [
       '/products/temple/temple-wall/1/01.jpg',
       '/products/temple/temple-wall/1/03.jpg',
       '/products/temple/temple-wall/1/02.jpg',
+      '/products/temple/temple-wall/1/dim-elevation.svg',
+      '/products/temple/temple-wall/1/dim-carcass.svg',
+    ],
+    imageCaptions: [
+      'Temple-wall arched niche — full view.',
+      'Altar and base drawers — carcass zones.',
+      'Arch detail — sunburst lining and lotus.',
+      'Shop drawing 1 — exterior elevation (W × H × D reference).',
+      'Shop drawing 2 — detailed carcass (niche, altar, drawers, LED).',
     ],
     highlights: [
       'Arched temple wall niche',
@@ -2070,6 +2161,14 @@ export const baseProducts: Product[] = [
     images: [
       '/products/temple/temple-wall/2/01.jpg',
       '/products/temple/temple-wall/2/02.jpg',
+      '/products/temple/temple-wall/2/dim-elevation.svg',
+      '/products/temple/temple-wall/2/dim-carcass.svg',
+    ],
+    imageCaptions: [
+      'Bevel panel prayer wall — full façade.',
+      'Panel detail — altar and base drawers.',
+      'Shop drawing 1 — exterior elevation (W × H × D reference).',
+      'Shop drawing 2 — detailed carcass (panels, altar, drawers).',
     ],
     highlights: [
       'Bevelled 3D panel grid',
@@ -2135,6 +2234,14 @@ export const baseProducts: Product[] = [
     images: [
       '/products/temple/temple-wall/3/02.jpg',
       '/products/temple/temple-wall/3/01.jpg',
+      '/products/temple/temple-wall/3/dim-elevation.svg',
+      '/products/temple/temple-wall/3/dim-carcass.svg',
+    ],
+    imageCaptions: [
+      'Temple-wall alcove — leaf motifs and altar.',
+      'Panel detail — backlit gold leaf niches.',
+      'Shop drawing 1 — exterior elevation (W × H × D reference).',
+      'Shop drawing 2 — detailed carcass (panels, altar, drawers, LED).',
     ],
     highlights: [
       'Gold leaf feature motifs',
@@ -2200,6 +2307,14 @@ export const baseProducts: Product[] = [
     images: [
       '/products/temple/temple-wall/4/02.png',
       '/products/temple/temple-wall/4/01.png',
+      '/products/temple/temple-wall/4/dim-elevation.svg',
+      '/products/temple/temple-wall/4/dim-carcass.svg',
+    ],
+    imageCaptions: [
+      'Open niche — frosted doors and drawer base.',
+      'Fluted flame backdrop — lit carcass niche.',
+      'Shop drawing 1 — exterior elevation (W × H × D reference).',
+      'Shop drawing 2 — detailed carcass (niche, altar, drawers, LED).',
     ],
     highlights: [
       'Backlit fluted flame niche',

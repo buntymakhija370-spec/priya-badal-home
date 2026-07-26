@@ -171,7 +171,7 @@ export function ChatPage() {
       push({
         id: crypto.randomUUID(),
         role: 'assistant',
-        text: 'One moment — I’m still finishing the current visualisation. Send your next message right after it appears.',
+        text: 'One moment — I’m still replying / rendering. Send your next message right after this finishes.',
       })
       return
     }

@@ -585,7 +585,10 @@ export function configKey(config: PriceConfig) {
 }
 
 export function describeConfig(categoryId: string, config: PriceConfig) {
-  const dims = `${config.width} × ${config.height} ft`
+  const size = getSizeLimits(categoryId)
+  const dims = size.usesDepth
+    ? `${config.width} × ${config.height} × ${config.depth} ft`
+    : `${config.width} × ${config.height} ft`
   if (isCncCarveHd(config)) {
     return [
       'CNC-Carve HD Board',

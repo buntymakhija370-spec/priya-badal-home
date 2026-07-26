@@ -492,8 +492,23 @@ export function CarcassPlannerPage() {
                   min={sizeLimits.minWidth}
                   max={sizeLimits.maxWidth}
                   step={0.1}
-                  value={width}
-                  onChange={(e) => setWidth(Number(e.target.value))}
+                  value={width || ''}
+                  onChange={(e) => {
+                    const n = Number(e.target.value)
+                    if (Number.isFinite(n) && n > 0) setWidth(n)
+                  }}
+                  onBlur={() => {
+                    if (!Number.isFinite(width) || width <= 0) {
+                      setWidth(sizeLimits.defaultWidth)
+                    } else {
+                      setWidth(
+                        Math.min(
+                          sizeLimits.maxWidth,
+                          Math.max(sizeLimits.minWidth, Math.round(width * 100) / 100),
+                        ),
+                      )
+                    }
+                  }}
                 />
               </label>
               <label className="carcass__field">
@@ -503,8 +518,23 @@ export function CarcassPlannerPage() {
                   min={sizeLimits.minHeight}
                   max={sizeLimits.maxHeight}
                   step={0.1}
-                  value={height}
-                  onChange={(e) => setHeight(Number(e.target.value))}
+                  value={height || ''}
+                  onChange={(e) => {
+                    const n = Number(e.target.value)
+                    if (Number.isFinite(n) && n > 0) setHeight(n)
+                  }}
+                  onBlur={() => {
+                    if (!Number.isFinite(height) || height <= 0) {
+                      setHeight(sizeLimits.defaultHeight)
+                    } else {
+                      setHeight(
+                        Math.min(
+                          sizeLimits.maxHeight,
+                          Math.max(sizeLimits.minHeight, Math.round(height * 100) / 100),
+                        ),
+                      )
+                    }
+                  }}
                 />
               </label>
               <label className="carcass__field">
@@ -514,8 +544,23 @@ export function CarcassPlannerPage() {
                   min={sizeLimits.minDepth}
                   max={sizeLimits.maxDepth}
                   step={0.1}
-                  value={depth}
-                  onChange={(e) => setDepth(Number(e.target.value))}
+                  value={depth || ''}
+                  onChange={(e) => {
+                    const n = Number(e.target.value)
+                    if (Number.isFinite(n) && n > 0) setDepth(n)
+                  }}
+                  onBlur={() => {
+                    if (!Number.isFinite(depth) || depth <= 0) {
+                      setDepth(sizeLimits.defaultDepth)
+                    } else {
+                      setDepth(
+                        Math.min(
+                          sizeLimits.maxDepth,
+                          Math.max(sizeLimits.minDepth, Math.round(depth * 100) / 100),
+                        ),
+                      )
+                    }
+                  }}
                 />
               </label>
             </div>

@@ -9,6 +9,10 @@ type VisualiseBody = {
   colour: string
   colourLabel: string
   notes?: string
+  /** Made-to-measure size in feet — AI must match these proportions */
+  widthFt?: number
+  heightFt?: number
+  depthFt?: number
 }
 
 type CarcassLiveBody = {
@@ -156,18 +160,64 @@ async function resolveImageUrl(
   throw new Error('Unsupported image source')
 }
 
+function hasLiveSize(body: VisualiseBody): body is VisualiseBody & {
+  widthFt: number
+  heightFt: number
+  depthFt: number
+} {
+  return (
+    Number.isFinite(body.widthFt) &&
+    Number(body.widthFt) > 0 &&
+    Number.isFinite(body.heightFt) &&
+    Number(body.heightFt) > 0 &&
+    Number.isFinite(body.depthFt) &&
+    Number(body.depthFt) > 0
+  )
+}
+
+function sizeGuidance(body: VisualiseBody): string[] {
+  if (!hasLiveSize(body)) {
+    return [
+      'Infer a realistic made-to-measure scale for an Indian home: wardrobe depth about 1.8–2.2 ft, temple/mandir depth about 1–1.5 ft, kitchen carcass depth about 2 ft.',
+      'The unit must sit on the real floor plane with correct perspective foreshortening — never a flat sticker floating on the wall.',
+    ]
+  }
+
+  const w = Number(body.widthFt)
+  const h = Number(body.heightFt)
+  const d = Number(body.depthFt)
+  const space = body.categoryName.toLowerCase()
+  const isTemple = /temple|mandir|puja/.test(space)
+  const isWardrobe = /wardrobe|cupboard|almirah/.test(space)
+
+  return [
+    `LIVE MADE-TO-MEASURE SIZE (must look correct in the room): width ${w} ft × height ${h} ft × depth ${d} ft.`,
+    `CRITICAL DEPTH: the unit must project about ${d} ft from the wall into the room — not paper-thin, not exaggerated. Side returns, door thickness, and carcass sides must read as real ${d} ft depth.`,
+    `Scale the width to about ${w} ft and height to about ${h} ft relative to nearby walls, switches, appliances, and floor tiles in IMAGE 1.`,
+    isTemple
+      ? 'For temple/mandir: install as a real floor-standing or wall-niche unit with true carcass depth; do not copy a shallow showroom alcove if it conflicts with the live depth.'
+      : '',
+    isWardrobe
+      ? 'For wardrobe: full-height carcass with true cupboard depth; doors and side panels must align to the floor and wall corner perspective.'
+      : '',
+    'Do NOT keep IMAGE 2 showroom proportions if they conflict with the live size — resize width, height, and depth to the feet above.',
+    'Ground the unit on the real floor plane with correct vanishing lines, contact shadows, and no floating or sliding off the floor.',
+  ]
+}
+
 function buildPrompt(body: VisualiseBody) {
   const space = body.categoryName.toLowerCase()
   return [
     'You are a professional interior visualiser for Priyabadal Homes (India).',
     `IMAGE 1 = customer's real ${space} / room photograph — keep this exact camera angle, walls, floor, ceiling, windows, appliances, and lighting.`,
-    `IMAGE 2 = exact product reference photo of "${body.productName}" from Priyabadal Homes.`,
+    `IMAGE 2 = exact product reference photo of "${body.productName}" from Priyabadal Homes (style/details only — not the final size).`,
     'Task: Photorealistically redesign IMAGE 1 by installing the product style from IMAGE 2 onto the correct surfaces (cabinets, shutters, doors, panels, wardrobe, or temple as relevant).',
-    'Match door styles, groove profiles, handles, proportions, materials, and detailing from IMAGE 2 as closely as possible.',
+    ...sizeGuidance(body),
+    'Match door styles, groove profiles, handles, materials, and detailing from IMAGE 2 as closely as possible.',
     `Cabinet / product finish colour: ${body.colourLabel} (${body.colour}).`,
     'Do NOT invent a different product brand. Do NOT paste IMAGE 2 as a floating sticker or collage.',
     'Blend seamlessly with correct perspective, contact shadows, reflections, and ambient light.',
-    'No text, logos, watermarks, or UI overlays in the output.',
+    'No text, logos, watermarks, dimension arrows, or UI overlays in the output.',
     'Output a single photorealistic interior photograph suitable for a showroom quote.',
     body.notes ? `Customer note: ${body.notes}` : '',
   ]
@@ -217,6 +267,14 @@ async function handleVisualise(req: IncomingMessage, res: ServerResponse) {
     const model =
       process.env.FAL_VISUALISE_MODEL || 'fal-ai/nano-banana-pro/edit'
 
+    const live = hasLiveSize(body)
+      ? {
+          widthFt: Number(body.widthFt),
+          heightFt: Number(body.heightFt),
+          depthFt: Number(body.depthFt),
+        }
+      : null
+
     const falRes = await fetch(`https://fal.run/${model}`, {
       method: 'POST',
       headers: {
@@ -227,9 +285,26 @@ async function handleVisualise(req: IncomingMessage, res: ServerResponse) {
         prompt: buildPrompt(body),
         image_urls: [roomUrl, productUrl],
         num_images: 1,
-        aspect_ratio: 'auto',
+        // Prefer room photo framing; when live size is tall/narrow use a matching bucket
+        aspect_ratio: live
+          ? aspectFromFeet(live.widthFt, live.heightFt)
+          : 'auto',
         output_format: 'jpeg',
         resolution: '1K',
+        // Size-derived seed makes the same W×H×D + product more repeatable across retries
+        ...(live
+          ? {
+              seed:
+                Math.abs(
+                  Math.round(
+                    live.widthFt * 1000 +
+                      live.heightFt * 100 +
+                      live.depthFt * 10 +
+                      (body.productName.length % 97),
+                  ),
+                ) % 2_147_483_647,
+            }
+          : {}),
       }),
     })
 
@@ -264,6 +339,7 @@ async function handleVisualise(req: IncomingMessage, res: ServerResponse) {
       provider: 'fal',
       model,
       mode: 'product-referenced-pro',
+      size: live,
     })
   } catch (err) {
     sendJson(res, 500, {
@@ -326,11 +402,12 @@ function buildCarcassLivePrompt(body: CarcassLiveBody) {
     'IMAGE 1 = exact open carcass / interior reference photo of the product.',
     `Task: Create ONE photorealistic ${kind} image resized to the customer's LIVE made-to-measure size.`,
     `LIVE SIZE (must look correct): width ${body.widthFt} ft × height ${body.heightFt} ft × depth ${body.depthFt} ft.`,
+    `CRITICAL DEPTH: carcass must read as about ${body.depthFt} ft deep (side walls, shelf depth, hanging rod setback) — not a flat elevation.`,
     `Storage bay plan left-to-right: ${body.baySummary}.`,
     body.finishLabel ? `Finish: ${body.finishLabel}.` : '',
     body.thicknessLabel ? `Board thickness look: ${body.thicknessLabel}.` : '',
     'Keep the same wood tone, LED lighting style, hardware language, and material quality as IMAGE 1.',
-    'Do NOT keep the old proportions if they conflict with the live size — stretch the wall run and bay widths to match the feet sizes.',
+    'Do NOT keep the old proportions if they conflict with the live size — stretch the wall run, bay widths, and depth to match the feet sizes.',
     'Show a full open carcass elevation (doors open / no doors), floor-to-ceiling where height allows, realistic shelves, hanging rods, drawers as per the bay plan.',
     'Include subtle room context (floor + wall edges) for scale. No text, logos, dimension arrows, or watermarks.',
     'Output a single showroom-quality photograph for quotation.',
@@ -374,6 +451,7 @@ async function handleCarcassLive(req: IncomingMessage, res: ServerResponse) {
       !body.productName ||
       !body.widthFt ||
       !body.heightFt ||
+      !body.depthFt ||
       !body.baySummary
     ) {
       sendJson(res, 400, { error: 'Missing carcass image, size, or layout' })

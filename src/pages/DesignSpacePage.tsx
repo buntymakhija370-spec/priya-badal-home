@@ -39,6 +39,10 @@ export function DesignSpacePage() {
   const [width, setWidth] = useState(8)
   const [height, setHeight] = useState(7)
   const [depth, setDepth] = useState(2)
+  /** Draft strings so clearing a field while typing does not clamp to 0.5 ft */
+  const [widthText, setWidthText] = useState('8')
+  const [heightText, setHeightText] = useState('7')
+  const [depthText, setDepthText] = useState('2')
   const [notes, setNotes] = useState('')
   const [productId, setProductId] = useState('')
   const [finishId, setFinishId] = useState('')
@@ -83,12 +87,20 @@ export function DesignSpacePage() {
     void fetchVisualiseStatus().then((s) => setAiConfigured(s.configured))
   }, [])
 
+  // Size drives AI scale/depth — drop stale renders when dimensions change
+  useEffect(() => {
+    setAiUrl(null)
+  }, [width, height, depth])
+
   const selectRoom = (id: DesignRoomId) => {
     setRoom(id)
     const limits = designRoomDefaults(id)
     setWidth(limits.defaultWidth)
     setHeight(limits.defaultHeight)
     setDepth(limits.defaultDepth)
+    setWidthText(String(limits.defaultWidth))
+    setHeightText(String(limits.defaultHeight))
+    setDepthText(String(limits.defaultDepth))
     setProductId('')
     setFinishId('')
     setThicknessId('')
@@ -96,6 +108,78 @@ export function DesignSpacePage() {
     setRoomDataUrl(null)
     setStatusMsg(null)
     setStep(1)
+  }
+
+  const onDimChange = (
+    axis: 'width' | 'height' | 'depth',
+    raw: string,
+    limits: NonNullable<typeof sizeLimits>,
+  ) => {
+    if (axis === 'width') setWidthText(raw)
+    else if (axis === 'height') setHeightText(raw)
+    else setDepthText(raw)
+
+    if (raw.trim() === '' || raw === '.' || raw === '-') return
+    const n = Number(raw)
+    if (!Number.isFinite(n) || n <= 0) return
+    const min =
+      axis === 'width'
+        ? limits.minWidth
+        : axis === 'height'
+          ? limits.minHeight
+          : limits.minDepth
+    const max =
+      axis === 'width'
+        ? limits.maxWidth
+        : axis === 'height'
+          ? limits.maxHeight
+          : limits.maxDepth
+    if (n >= min && n <= max) {
+      const rounded = Math.round(n * 100) / 100
+      if (axis === 'width') setWidth(rounded)
+      else if (axis === 'height') setHeight(rounded)
+      else setDepth(rounded)
+    }
+  }
+
+  const onDimBlur = (
+    axis: 'width' | 'height' | 'depth',
+    raw: string,
+    limits: NonNullable<typeof sizeLimits>,
+  ) => {
+    const min =
+      axis === 'width'
+        ? limits.minWidth
+        : axis === 'height'
+          ? limits.minHeight
+          : limits.minDepth
+    const max =
+      axis === 'width'
+        ? limits.maxWidth
+        : axis === 'height'
+          ? limits.maxHeight
+          : limits.maxDepth
+    const fallback =
+      axis === 'width'
+        ? limits.defaultWidth
+        : axis === 'height'
+          ? limits.defaultHeight
+          : limits.defaultDepth
+    const n = Number(raw)
+    const next =
+      Number.isFinite(n) && raw.trim() !== '' && n > 0
+        ? Math.min(max, Math.max(min, Math.round(n * 100) / 100))
+        : fallback
+    if (axis === 'width') {
+      setWidth(next)
+      setWidthText(String(next))
+    } else if (axis === 'height') {
+      setHeight(next)
+      setHeightText(String(next))
+    } else {
+      setDepth(next)
+      setDepthText(String(next))
+    }
   }
 
   const selectProduct = (id: string) => {
@@ -147,19 +231,24 @@ export function DesignSpacePage() {
   }
 
   const onGenerate = async () => {
-    if (!roomDataUrl || !product || !category) {
+    if (!roomDataUrl || !product || !category || !quote) {
       setStatusMsg('Upload a room photo and select a style first.')
       return
     }
     setBusy(true)
     setStatusMsg(null)
     try {
+      // Use priced/clamped size so AI depth matches the instant estimate
+      const sized = quote.config
       const result = await generateVisualise({
         roomDataUrl,
         product,
         colour,
         notes: notes.trim() || undefined,
         categoryName: category.name,
+        widthFt: sized.width,
+        heightFt: sized.height,
+        depthFt: sized.depth,
       })
       if (result.source === 'ai' && result.imageUrl) {
         setAiUrl(result.imageUrl)
@@ -185,9 +274,9 @@ export function DesignSpacePage() {
       ? buildDesignSpaceWhatsAppUrl({
           room: room!,
           product,
-          width,
-          height,
-          depth,
+          width: quote.config.width,
+          height: quote.config.height,
+          depth: quote.config.depth,
           finishId: finishId || quote.config.finishId,
           thicknessId: thicknessId || quote.config.thicknessId,
           unitPrice: quote.unitPrice,
@@ -261,8 +350,9 @@ export function DesignSpacePage() {
                     min={sizeLimits.minWidth}
                     max={sizeLimits.maxWidth}
                     step={0.1}
-                    value={width}
-                    onChange={(e) => setWidth(Number(e.target.value))}
+                    value={widthText}
+                    onChange={(e) => onDimChange('width', e.target.value, sizeLimits)}
+                    onBlur={(e) => onDimBlur('width', e.target.value, sizeLimits)}
                   />
                 </label>
                 <label>
@@ -272,8 +362,9 @@ export function DesignSpacePage() {
                     min={sizeLimits.minHeight}
                     max={sizeLimits.maxHeight}
                     step={0.1}
-                    value={height}
-                    onChange={(e) => setHeight(Number(e.target.value))}
+                    value={heightText}
+                    onChange={(e) => onDimChange('height', e.target.value, sizeLimits)}
+                    onBlur={(e) => onDimBlur('height', e.target.value, sizeLimits)}
                   />
                 </label>
                 <label>
@@ -283,8 +374,9 @@ export function DesignSpacePage() {
                     min={sizeLimits.minDepth}
                     max={sizeLimits.maxDepth}
                     step={0.1}
-                    value={depth}
-                    onChange={(e) => setDepth(Number(e.target.value))}
+                    value={depthText}
+                    onChange={(e) => onDimChange('depth', e.target.value, sizeLimits)}
+                    onBlur={(e) => onDimBlur('depth', e.target.value, sizeLimits)}
                   />
                 </label>
               </div>
@@ -569,8 +661,8 @@ export function DesignSpacePage() {
               <p className="design__quote-price">{formatPrice(quote.unitPrice)}</p>
               <ul>
                 <li>
-                  {width} × {height}
-                  {sizeLimits?.usesDepth ? ` × ${depth}` : ''} ft
+                  {quote.config.width} × {quote.config.height}
+                  {sizeLimits?.usesDepth ? ` × ${quote.config.depth}` : ''} ft
                   {product.pricingMode === 'per-sqft'
                     ? ` · ${quote.sqft.toFixed(1)} sq ft`
                     : ' · package base'}

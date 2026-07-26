@@ -18,6 +18,7 @@ import {
   type VisualiseColour,
 } from '../lib/visualise'
 import {
+  getFinish,
   getFinishOptionsForProduct,
   getThicknessOptionsForProduct,
   productHasCarcass,
@@ -154,12 +155,22 @@ export function DesignSpacePage() {
     setBusy(true)
     setStatusMsg(null)
     try {
+      const sizeNote = `Live size: ${width} × ${height} × ${depth} ft`
       const result = await generateVisualise({
         roomDataUrl,
         product,
         colour,
-        notes: notes.trim() || undefined,
+        notes: [sizeNote, notes.trim()].filter(Boolean).join('. '),
         categoryName: category.name,
+        widthFt: width,
+        heightFt: height,
+        depthFt: depth,
+        finishLabel: finishId ? getFinish(finishId).name : undefined,
+        scopeLabel: hasCarcass
+          ? buildScope === 'with-carcass'
+            ? 'With carcass'
+            : 'Shutter / façade only'
+          : undefined,
       })
       if (result.source === 'ai' && result.imageUrl) {
         setAiUrl(result.imageUrl)
@@ -402,7 +413,8 @@ export function DesignSpacePage() {
               <h2>Visualise & get quote</h2>
               <p className="design__hint">
                 1) Upload a clear room photo · 2) Tap Generate AI room look · 3) WhatsApp the
-                estimate. Price works even without AI.
+                estimate. Your size ({width} × {height} × {depth} ft) is sent to the AI and used
+                for pricing. AI look can vary slightly — WhatsApp quote uses your exact feet.
               </p>
 
               {!aiConfigured ? (

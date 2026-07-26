@@ -22,6 +22,12 @@ export type VisualiseRequest = {
   colour: VisualiseColour
   notes?: string
   categoryName: string
+  /** Made-to-measure size in feet — improves AI scale accuracy */
+  widthFt?: number
+  heightFt?: number
+  depthFt?: number
+  finishLabel?: string
+  scopeLabel?: string
 }
 
 export type VisualiseResult = {
@@ -120,6 +126,11 @@ export async function generateVisualise(
         colour: input.colour.hex,
         colourLabel: input.colour.label,
         notes: input.notes,
+        widthFt: input.widthFt,
+        heightFt: input.heightFt,
+        depthFt: input.depthFt,
+        finishLabel: input.finishLabel,
+        scopeLabel: input.scopeLabel,
       }),
     })
 
@@ -131,11 +142,18 @@ export async function generateVisualise(
     }
 
     if (res.ok && data.imageUrl) {
+      const sizeHint =
+        input.widthFt && input.heightFt
+          ? ` Sized for ${input.widthFt} × ${input.heightFt}` +
+            (input.depthFt ? ` × ${input.depthFt}` : '') +
+            ' ft (AI look is a guide — quote uses your exact size).'
+          : ''
       return {
         imageUrl: data.imageUrl,
         source: 'ai',
         message:
-          'Professional AI render using your Priyabadal Homes product as reference.',
+          'Professional AI render using your Priyabadal Homes product as reference.' +
+          sizeHint,
       }
     }
 

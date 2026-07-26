@@ -46,8 +46,14 @@ function defaultImageCaption(
     if (imageIndex === 0) {
       return 'Closed exterior look — the finished façade as shown in this photograph.'
     }
-    if (imageIndex === imageCount - 1) {
-      return 'Open carcass / interior — last photograph; storage layout as shown.'
+    // Carcass photo is the last non-drawing image in the gallery
+    const imgs = product.images ?? []
+    const lastPhotoIdx = [...imgs]
+      .map((src, i) => ({ src, i }))
+      .filter(({ src }) => !isDimensionDrawingSrc(src))
+      .at(-1)?.i
+    if (lastPhotoIdx != null && imageIndex === lastPhotoIdx && imageIndex > 0) {
+      return 'Open carcass / interior — storage layout as shown.'
     }
     return `Detail view ${imageIndex} — as shown in this photograph.`
   }

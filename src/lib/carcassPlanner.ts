@@ -518,8 +518,8 @@ export function getProductExteriorImage(product?: Product | null): string | null
 
 /**
  * Open carcass / interior photo.
- * Wardrobe catalog stores carcass as the last gallery photograph
- * (after exterior shots and the two dimension drawings).
+ * Wardrobe catalog stores carcass as the last photograph before shop drawings
+ * (exterior shots → carcass photo → dimension drawings).
  */
 export function getProductCarcassImage(product?: Product | null): string | null {
   if (!product) return null

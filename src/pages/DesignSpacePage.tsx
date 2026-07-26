@@ -199,17 +199,17 @@ export function DesignSpacePage() {
                 </label>
               </div>
               <label className="design__notes">
-                <span>What do you want? (optional)</span>
+                <span>Want to change something? (optional)</span>
                 <textarea
-                  rows={3}
+                  rows={4}
                   value={notes}
                   onChange={(e) => setNotes(e.target.value)}
                   placeholder={
                     room === 'kitchen'
-                      ? 'e.g. L-shape, more drawers, keep the window'
+                      ? 'e.g. L-shape, more drawers, keep the window, lighter colour'
                       : room === 'wardrobe'
-                        ? 'e.g. more hanging, shoe racks, soft modern look'
-                        : 'e.g. wall mandir niche, warm gold accents'
+                        ? 'e.g. more hanging, shoe racks, no handles, different colour'
+                        : 'e.g. wall mandir niche, warm gold accents, taller height'
                   }
                 />
               </label>

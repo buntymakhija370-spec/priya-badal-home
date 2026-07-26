@@ -184,7 +184,8 @@
 }
 
 .calc-sheet__field input,
-.calc-sheet__field select {
+.calc-sheet__field select,
+.calc-sheet__field textarea {
   min-height: 2.55rem;
   padding: 0.5rem 0.65rem;
   border: 1px solid rgba(21, 32, 25, 0.16);
@@ -192,6 +193,17 @@
   background: #fff;
   font-weight: 400;
   font-size: 0.95rem;
+  font-family: inherit;
+}
+
+.calc-sheet__field textarea {
+  min-height: 5.5rem;
+  resize: vertical;
+  line-height: 1.4;
+}
+
+.calc-sheet__change {
+  margin-top: 0.25rem;
 }
 
 .calc-sheet__locked {

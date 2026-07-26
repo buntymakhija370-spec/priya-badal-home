@@ -56,6 +56,12 @@
   border-color: var(--moss);
 }
 
+.product-gallery__main {
+  display: grid;
+  gap: 0.65rem;
+  min-width: 0;
+}
+
 .product-gallery__stage {
   position: relative;
   margin: 0;
@@ -63,6 +69,14 @@
   background: linear-gradient(160deg, #e7eee9, #d5e0d8);
   aspect-ratio: 3 / 4;
   width: 100%;
+}
+
+.product-gallery__caption {
+  margin: 0;
+  padding: 0.15rem 0.1rem 0;
+  font-size: 0.92rem;
+  line-height: 1.45;
+  color: var(--ink-soft);
 }
 
 .product-gallery__track {
@@ -160,8 +174,11 @@
     width: 3.6rem;
   }
 
-  .product-gallery__stage {
+  .product-gallery__main {
     order: 1;
+  }
+
+  .product-gallery__stage {
     border-radius: 0;
     margin-inline: -0.15rem;
     width: calc(100% + 0.3rem);

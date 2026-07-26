@@ -98,6 +98,9 @@ export function ProductGallery({ media, alt }: Props) {
 
   if (gallery.length === 0) return null
 
+  const activeItem = gallery[active]
+  const activeCaption = activeItem?.caption
+
   const goTo = (index: number) => {
     const el = trackRef.current
     if (!el) return
@@ -116,7 +119,10 @@ export function ProductGallery({ media, alt }: Props) {
               type="button"
               role="tab"
               aria-selected={index === active}
-              aria-label={item.type === 'video' ? `Video ${index + 1}` : `Photo ${index + 1}`}
+              aria-label={
+                item.caption ||
+                (item.type === 'video' ? `Video ${index + 1}` : `Photo ${index + 1}`)
+              }
               className={
                 index === active
                   ? 'product-gallery__thumb is-active'
@@ -139,64 +145,79 @@ export function ProductGallery({ media, alt }: Props) {
         </div>
       )}
 
-      <div className="product-gallery__stage">
-        <div
-          ref={trackRef}
-          className="product-gallery__track"
-          tabIndex={0}
-          role="region"
-          aria-roledescription="carousel"
-          aria-label={`${alt} media`}
-        >
-          {gallery.map((item, index) => (
-            <figure key={`${item.src}-${index}`} className="product-gallery__slide">
-              {item.type === 'video' ? (
-                <video
-                  ref={(el) => {
-                    if (el) videoRefs.current.set(index, el)
-                    else videoRefs.current.delete(index)
-                  }}
-                  className="product-gallery__video"
-                  src={item.src}
-                  poster={item.poster}
-                  controls
-                  playsInline
-                  preload="metadata"
-                  aria-label={`${alt} video`}
-                />
-              ) : (
-                <img
-                  src={item.src}
-                  alt={index === 0 ? alt : `${alt} — photo ${index + 1}`}
-                  loading={index === 0 ? 'eager' : 'lazy'}
-                  draggable={false}
-                />
-              )}
-            </figure>
-          ))}
-        </div>
-
-        {gallery.length > 1 && (
-          <div className="product-gallery__dots" role="tablist" aria-label="Media position">
+      <div className="product-gallery__main">
+        <div className="product-gallery__stage">
+          <div
+            ref={trackRef}
+            className="product-gallery__track"
+            tabIndex={0}
+            role="region"
+            aria-roledescription="carousel"
+            aria-label={`${alt} media`}
+          >
             {gallery.map((item, index) => (
-              <button
-                key={index}
-                type="button"
-                role="tab"
-                aria-selected={index === active}
-                aria-label={
-                  item.type === 'video' ? `Video ${index + 1}` : `Photo ${index + 1}`
-                }
-                className={
-                  index === active
-                    ? 'product-gallery__dot is-active'
-                    : 'product-gallery__dot'
-                }
-                onClick={() => goTo(index)}
-              />
+              <figure key={`${item.src}-${index}`} className="product-gallery__slide">
+                {item.type === 'video' ? (
+                  <video
+                    ref={(el) => {
+                      if (el) videoRefs.current.set(index, el)
+                      else videoRefs.current.delete(index)
+                    }}
+                    className="product-gallery__video"
+                    src={item.src}
+                    poster={item.poster}
+                    controls
+                    playsInline
+                    preload="metadata"
+                    aria-label={`${alt} video`}
+                  />
+                ) : (
+                  <img
+                    src={item.src}
+                    alt={
+                      item.caption
+                        ? `${alt} — ${item.caption}`
+                        : index === 0
+                          ? alt
+                          : `${alt} — photo ${index + 1}`
+                    }
+                    loading={index === 0 ? 'eager' : 'lazy'}
+                    draggable={false}
+                  />
+                )}
+              </figure>
             ))}
           </div>
-        )}
+
+          {gallery.length > 1 && (
+            <div className="product-gallery__dots" role="tablist" aria-label="Media position">
+              {gallery.map((item, index) => (
+                <button
+                  key={index}
+                  type="button"
+                  role="tab"
+                  aria-selected={index === active}
+                  aria-label={
+                    item.caption ||
+                    (item.type === 'video' ? `Video ${index + 1}` : `Photo ${index + 1}`)
+                  }
+                  className={
+                    index === active
+                      ? 'product-gallery__dot is-active'
+                      : 'product-gallery__dot'
+                  }
+                  onClick={() => goTo(index)}
+                />
+              ))}
+            </div>
+          )}
+        </div>
+
+        {activeCaption ? (
+          <p className="product-gallery__caption" aria-live="polite">
+            {activeCaption}
+          </p>
+        ) : null}
       </div>
     </div>
   )

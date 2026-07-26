@@ -18,6 +18,7 @@ export function buildWhatsAppQuoteUrl(
   product: Product,
   config: PriceConfig,
   unitPrice: number,
+  changeNotes?: string,
 ) {
   const minQty = getMinOrderQuantity(product)
   const cnc = isCncCarveHd(config)
@@ -62,6 +63,11 @@ export function buildWhatsAppQuoteUrl(
     }
   }
 
+  const change = changeNotes?.trim()
+  if (change) {
+    lines.push('', 'Changes / instructions from the photograph:', change)
+  }
+
   if (minQty > 1) {
     lines.push(
       `Bulk commercial order — minimum ${minQty} identical packs`,
@@ -76,8 +82,9 @@ export function buildWhatsAppQuoteUrl(
 }
 
 /** Fixed catalog pieces (e.g. Live Edge) — no size/finish customisation */
-export function buildWhatsAppProductUrl(product: Product) {
+export function buildWhatsAppProductUrl(product: Product, changeNotes?: string) {
   const isLiveEdge = product.categoryId === 'live-edge-furniture'
+  const change = changeNotes?.trim()
   const lines = isLiveEdge
     ? [
         'Hi Priyabadal Homes, I am interested in this Live Edge piece:',
@@ -88,6 +95,8 @@ export function buildWhatsAppProductUrl(product: Product) {
         'Please confirm:',
         '- Exact size of this piece',
         '- Current availability (natural teak — unique / not repeatable)',
+        change ? '' : null,
+        change ? `Changes / instructions from the photograph: ${change}` : null,
         '',
         'Thank you.',
       ]
@@ -96,10 +105,12 @@ export function buildWhatsAppProductUrl(product: Product) {
         '',
         `Product: ${product.name}`,
         `Price: ${formatPrice(product.price, 'INR')}`,
+        change ? '' : null,
+        change ? `Changes / instructions from the photograph: ${change}` : null,
         '',
         'Please share availability and next steps. Thank you.',
       ]
-  const text = lines.join('\n')
+  const text = lines.filter((line) => line != null).join('\n')
   return `https://wa.me/${WHATSAPP_QUOTE_NUMBER}?text=${encodeURIComponent(text)}`
 }
 

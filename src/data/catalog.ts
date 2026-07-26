@@ -85,6 +85,8 @@ export type Product = {
   rooms: string[]
   image: string
   images?: string[]
+  /** Optional captions aligned with `images` (shown under each photograph) */
+  imageCaptions?: string[]
   /** Optional product videos (mp4/webm) shown in the gallery */
   videos?: string[]
   custom?: boolean

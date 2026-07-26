@@ -127,7 +127,9 @@ export function buildDesignSpaceWhatsAppUrl(input: {
     `Finish: ${getFinish(input.finishId).name} · ${getThickness(input.thicknessId).label}`,
     `Scope: ${scopeLabel}`,
     `Estimated price: ${formatPrice(input.unitPrice, 'INR')}`,
-    input.notes?.trim() ? `Notes: ${input.notes.trim()}` : null,
+    input.notes?.trim()
+      ? `Changes / instructions: ${input.notes.trim()}`
+      : null,
     '',
     `Product photo & details: ${productUrl}`,
     '',

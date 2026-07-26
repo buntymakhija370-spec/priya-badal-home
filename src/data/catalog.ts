@@ -284,12 +284,12 @@ export const baseProducts: Product[] = [
       'Floor-to-ceiling hinged wardrobe in matte taupe with recessed panel doors and slim black handles — a calm, tailored bedroom façade.',
     style: ['modern', 'minimal', 'luxe'],
     rooms: ['bedroom'],
-    image: '/products/wardrobe/wardrobe-1/03.png',
+    image: '/products/wardrobe/wardrobe-1/04.png',
     images: [
-      '/products/wardrobe/wardrobe-1/03.png',
       '/products/wardrobe/wardrobe-1/04.png',
       '/products/wardrobe/wardrobe-1/01.jpg',
       '/products/wardrobe/wardrobe-1/02.jpg',
+      '/products/wardrobe/wardrobe-1/03.png',
     ],
     highlights: [
       'Hinged panel doors',
@@ -351,11 +351,11 @@ export const baseProducts: Product[] = [
       'Open light-oak wardrobe system with hanging bays, cubby shelves, and handle-less drawers — a bright, modular dressing wall.',
     style: ['modern', 'warm', 'minimal'],
     rooms: ['bedroom'],
-    image: '/products/wardrobe/wardrobe-2/03.png',
+    image: '/products/wardrobe/wardrobe-2/01.jpg',
     images: [
-      '/products/wardrobe/wardrobe-2/03.png',
-      '/products/wardrobe/wardrobe-2/02.jpg',
       '/products/wardrobe/wardrobe-2/01.jpg',
+      '/products/wardrobe/wardrobe-2/02.jpg',
+      '/products/wardrobe/wardrobe-2/03.png',
     ],
     highlights: [
       'Open modular layout',
@@ -417,11 +417,11 @@ export const baseProducts: Product[] = [
       'Warm oak open wardrobe with integrated LED shelf lighting, leather-tab drawers, hanging rails, and a glass accessory tray — a lit dressing bay.',
     style: ['modern', 'warm', 'luxe'],
     rooms: ['bedroom'],
-    image: '/products/wardrobe/wardrobe-3/03.png',
+    image: '/products/wardrobe/wardrobe-3/02.jpg',
     images: [
-      '/products/wardrobe/wardrobe-3/03.png',
-      '/products/wardrobe/wardrobe-3/01.jpg',
       '/products/wardrobe/wardrobe-3/02.jpg',
+      '/products/wardrobe/wardrobe-3/01.jpg',
+      '/products/wardrobe/wardrobe-3/03.png',
     ],
     highlights: [
       'Integrated LED lighting',
@@ -484,11 +484,11 @@ export const baseProducts: Product[] = [
       'Dark walnut open wardrobe wall with multi-column shelves, hanging zones, drawers, and warm LED cove lighting — a statement walk-in façade.',
     style: ['luxe', 'modern', 'warm'],
     rooms: ['bedroom'],
-    image: '/products/wardrobe/wardrobe-4/01.png',
+    image: '/products/wardrobe/wardrobe-4/02.png',
     images: [
-      '/products/wardrobe/wardrobe-4/01.png',
       '/products/wardrobe/wardrobe-4/02.png',
       '/products/wardrobe/wardrobe-4/03.png',
+      '/products/wardrobe/wardrobe-4/01.png',
     ],
     highlights: [
       'Dark walnut finish',
@@ -617,12 +617,12 @@ export const baseProducts: Product[] = [
       'Dark wood walk-in wardrobe with LED-lit shelves, hanging rails, gold-tone pulls, drawers, and a tall mirror bay — a full dressing room wall.',
     style: ['luxe', 'modern', 'warm'],
     rooms: ['bedroom'],
-    image: '/products/wardrobe/wardrobe-6/03.png',
+    image: '/products/wardrobe/wardrobe-6/01.jpg',
     images: [
-      '/products/wardrobe/wardrobe-6/03.png',
-      '/products/wardrobe/wardrobe-6/04.png',
       '/products/wardrobe/wardrobe-6/01.jpg',
+      '/products/wardrobe/wardrobe-6/04.png',
       '/products/wardrobe/wardrobe-6/02.jpg',
+      '/products/wardrobe/wardrobe-6/03.png',
     ],
     highlights: [
       'Walk-in dressing layout',

@@ -1,5 +1,5 @@
 import { Link, useParams } from 'react-router-dom'
-import { useEffect, useMemo, useState } from 'react'
+import { useMemo, useState } from 'react'
 import {
   formatPrice,
   getCategory,
@@ -51,7 +51,6 @@ export function ProductPage() {
   const { currency } = useCurrency()
   const [section, setSection] = useState<SectionId>('details')
   const [added, setAdded] = useState(false)
-  const [changeNotes, setChangeNotes] = useState('')
 
   const related = useMemo(() => {
     if (!product) return []
@@ -59,10 +58,6 @@ export function ProductPage() {
       .filter((p) => p.categoryId === product.categoryId && p.id !== product.id)
       .slice(0, 4)
   }, [product])
-
-  useEffect(() => {
-    setChangeNotes('')
-  }, [product?.id])
 
   if (!product) {
     return (
@@ -102,20 +97,6 @@ export function ProductPage() {
       <div className="product-page__layout">
         <div className="product-page__gallery">
           <ProductGallery key={product.id} media={media} alt={product.name} />
-          <div className="product-page__change-notes">
-            <label htmlFor="product-change-notes">
-              <span>Want to change something?</span>
-              <em>Write a short paragraph — colour, size, handles, layout, or anything else.</em>
-            </label>
-            <textarea
-              id="product-change-notes"
-              rows={4}
-              value={changeNotes}
-              onChange={(e) => setChangeNotes(e.target.value)}
-              placeholder="e.g. Same look but lighter colour, more hanging space, no handles, taller height…"
-            />
-            <p>These instructions go with your WhatsApp quote so we know what to change.</p>
-          </div>
         </div>
 
         <div className="product-page__info">
@@ -191,7 +172,7 @@ export function ProductPage() {
 
           <div className="product-page__actions">
             {customizable ? (
-              <CustomizeButton product={product} changeNotes={changeNotes} />
+              <CustomizeButton product={product} />
             ) : (
               <div className="product-page__cta-stack">
                 <button
@@ -212,7 +193,7 @@ export function ProductPage() {
                 </button>
                 <a
                   className="whatsapp-quote-btn"
-                  href={buildWhatsAppProductUrl(product, changeNotes)}
+                  href={buildWhatsAppProductUrl(product)}
                   target="_blank"
                   rel="noopener noreferrer"
                 >

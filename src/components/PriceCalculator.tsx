@@ -26,8 +26,6 @@ import './PriceCalculator.css'
 type Props = {
   product: Product
   className?: string
-  /** Optional change instructions written next to the product photograph */
-  changeNotes?: string
 }
 
 type PriceCategoryOption = {
@@ -37,7 +35,7 @@ type PriceCategoryOption = {
   patch: Partial<PriceConfig>
 }
 
-export function CustomizeButton({ product, className = '', changeNotes = '' }: Props) {
+export function CustomizeButton({ product, className = '' }: Props) {
   const [open, setOpen] = useState(false)
   const minQty = getMinOrderQuantity(product)
   const label = minQty > 1 ? 'Bulk quote & cart' : 'Customise & Price'
@@ -63,13 +61,7 @@ export function CustomizeButton({ product, className = '', changeNotes = '' }: P
       >
         {label}
       </button>
-      {open && (
-        <CalculatorOverlay
-          product={product}
-          onClose={close}
-          changeNotes={changeNotes}
-        />
-      )}
+      {open && <CalculatorOverlay product={product} onClose={close} />}
     </>
   )
 }
@@ -77,10 +69,9 @@ export function CustomizeButton({ product, className = '', changeNotes = '' }: P
 type OverlayProps = {
   product: Product
   onClose: () => void
-  changeNotes?: string
 }
 
-function CalculatorOverlay({ product, onClose, changeNotes = '' }: OverlayProps) {
+function CalculatorOverlay({ product, onClose }: OverlayProps) {
   useCurrency()
   const titleId = useId()
   const minQty = getMinOrderQuantity(product)
@@ -96,10 +87,6 @@ function CalculatorOverlay({ product, onClose, changeNotes = '' }: OverlayProps)
     String(defaultConfig(product.categoryId, product).height),
   )
   const [added, setAdded] = useState(false)
-  const [localChangeNotes, setLocalChangeNotes] = useState(changeNotes)
-  useEffect(() => {
-    setLocalChangeNotes(changeNotes)
-  }, [changeNotes])
   const finishOptions = getFinishOptionsForProduct(product)
   const thicknessOptions = getThicknessOptionsForProduct(product)
   const hasBuildScope = supportsBuildScope(product.categoryId)
@@ -273,7 +260,6 @@ function CalculatorOverlay({ product, onClose, changeNotes = '' }: OverlayProps)
     product,
     quote.config,
     quote.unitPrice,
-    localChangeNotes,
   )
 
   const sqft =
@@ -481,16 +467,6 @@ function CalculatorOverlay({ product, onClose, changeNotes = '' }: OverlayProps)
             </span>
           </label>
         ) : null}
-
-        <label className="calc-sheet__field calc-sheet__field--full calc-sheet__change">
-          <span>Want to change something?</span>
-          <textarea
-            rows={3}
-            value={localChangeNotes}
-            onChange={(e) => setLocalChangeNotes(e.target.value)}
-            placeholder="e.g. lighter colour, more drawers, no handles…"
-          />
-        </label>
 
         {orderNotes.length > 0 ? (
           <div className="calc-sheet__notes">

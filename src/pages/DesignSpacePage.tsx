@@ -40,7 +40,6 @@ export function DesignSpacePage() {
   const [width, setWidth] = useState(8)
   const [height, setHeight] = useState(7)
   const [depth, setDepth] = useState(2)
-  const [notes, setNotes] = useState('')
   const [productId, setProductId] = useState('')
   const [finishId, setFinishId] = useState('')
   const [thicknessId, setThicknessId] = useState('')
@@ -160,7 +159,7 @@ export function DesignSpacePage() {
         roomDataUrl,
         product,
         colour,
-        notes: [sizeNote, notes.trim()].filter(Boolean).join('. '),
+        notes: sizeNote,
         categoryName: category.name,
         widthFt: width,
         heightFt: height,
@@ -203,7 +202,6 @@ export function DesignSpacePage() {
           thicknessId: thicknessId || quote.config.thicknessId,
           unitPrice: quote.unitPrice,
           buildScope: hasCarcass ? buildScope : 'shutter',
-          notes,
           usedAi: Boolean(aiUrl),
           aiImageUrl: aiUrl,
         })
@@ -300,21 +298,6 @@ export function DesignSpacePage() {
                   />
                 </label>
               </div>
-              <label className="design__notes">
-                <span>Want to change something? (optional)</span>
-                <textarea
-                  rows={4}
-                  value={notes}
-                  onChange={(e) => setNotes(e.target.value)}
-                  placeholder={
-                    room === 'kitchen'
-                      ? 'e.g. L-shape, more drawers, keep the window, lighter colour'
-                      : room === 'wardrobe'
-                        ? 'e.g. more hanging, shoe racks, no handles, different colour'
-                        : 'e.g. wall mandir niche, warm gold accents, taller height'
-                  }
-                />
-              </label>
               <div className="design__nav">
                 <button type="button" className="btn btn--outline" onClick={() => setStep(0)}>
                   Back

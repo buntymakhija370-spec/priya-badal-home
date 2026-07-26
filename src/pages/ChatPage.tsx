@@ -265,13 +265,6 @@ export function ChatPage() {
     setMessages((prev) => [...prev, userMsg])
 
     try {
-      if (!aiConfigured) {
-        // Fallback: catalog rule replies until Fal key is connected
-        setMessages((prev) => [...prev, turn.reply])
-        setShowKey(true)
-        return
-      }
-
       const history = [...messages, userMsg]
         .filter((m) => m.role === 'user' || m.role === 'assistant')
         .map((m) => ({ role: m.role, text: m.text }))
@@ -282,6 +275,7 @@ export function ChatPage() {
         history,
       })
 
+      if (!aiConfigured) setAiConfigured(true)
       setMessages((prev) => [
         ...prev,
         {
@@ -293,20 +287,43 @@ export function ChatPage() {
         },
       ])
     } catch (err) {
-      // Soft fallback to local catalog answers if LLM fails
-      setMessages((prev) => [
-        ...prev,
-        {
-          ...turn.reply,
-          text: [
-            turn.reply.text,
-            '',
-            `(Live AI chat hiccup: ${
-              err instanceof Error ? err.message : 'try again'
-            }. Showing catalog answer above — reconnect AI key if needed.)`,
-          ].join('\n'),
-        },
-      ])
+      const msg = err instanceof Error ? err.message : 'try again'
+      const needsKey = /fal\.ai key|MISSING_FAL_KEY|not connected|unavailable/i.test(
+        msg,
+      )
+      if (needsKey) {
+        setShowKey(true)
+        setAiConfigured(false)
+        setMessages((prev) => [
+          ...prev,
+          {
+            id: crypto.randomUUID(),
+            role: 'assistant',
+            text: [
+              'Live AI chat needs your Fal.ai key to answer freely about any product.',
+              'Paste the key above (AI key), tap Connect, then ask again.',
+              '',
+              'Meanwhile, here’s a catalog answer:',
+              '',
+              turn.reply.text,
+            ].join('\n'),
+            products: turn.reply.products,
+            suggestions: ['Connect AI key', ...(turn.reply.suggestions ?? [])],
+          },
+        ])
+      } else {
+        setMessages((prev) => [
+          ...prev,
+          {
+            ...turn.reply,
+            text: [
+              turn.reply.text,
+              '',
+              `(Live AI hiccup: ${msg}. Showing catalog answer — try again in a moment.)`,
+            ].join('\n'),
+          },
+        ])
+      }
     } finally {
       setBusy(false)
     }

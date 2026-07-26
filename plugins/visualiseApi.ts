@@ -1,5 +1,7 @@
-import type { Connect, Plugin } from 'vite'
+import { loadEnv, type Connect, type Plugin } from 'vite'
 import type { IncomingMessage, ServerResponse } from 'node:http'
+import { existsSync, readFileSync } from 'node:fs'
+import { resolve } from 'node:path'
 
 type VisualiseBody = {
   roomDataUrl: string
@@ -39,15 +41,64 @@ type CarcassLiveBody = {
 }
 
 /** Runtime key so owner can paste FAL_KEY without restarting */
-let runtimeFalKey = process.env.FAL_KEY || process.env.VITE_FAL_KEY || ''
+let runtimeFalKey = ''
 
 /** Multi-reference room + product install (create / carcass) */
 const DEFAULT_CREATE_MODEL = 'fal-ai/flux-2-pro/edit'
 /** Single-image targeted edits (chat “change something”) */
 const DEFAULT_REFINE_MODEL = 'fal-ai/flux-pro/kontext'
 
+/** Load .env into process.env — Vite may import this plugin before loadEnv runs */
+function hydrateFalEnv(mode = 'development') {
+  try {
+    const env = loadEnv(mode, process.cwd(), '')
+    for (const [key, value] of Object.entries(env)) {
+      if (value != null && value !== '' && !process.env[key]) {
+        process.env[key] = value
+      }
+    }
+  } catch {
+    // fall through to manual .env parse
+  }
+
+  for (const name of ['.env.local', '.env']) {
+    const file = resolve(process.cwd(), name)
+    if (!existsSync(file)) continue
+    try {
+      for (const line of readFileSync(file, 'utf8').split('\n')) {
+        const trimmed = line.trim()
+        if (!trimmed || trimmed.startsWith('#')) continue
+        const eq = trimmed.indexOf('=')
+        if (eq <= 0) continue
+        const key = trimmed.slice(0, eq).trim()
+        let value = trimmed.slice(eq + 1).trim()
+        if (
+          (value.startsWith('"') && value.endsWith('"')) ||
+          (value.startsWith("'") && value.endsWith("'"))
+        ) {
+          value = value.slice(1, -1)
+        }
+        if (key && value && !process.env[key]) process.env[key] = value
+      }
+    } catch {
+      /* ignore */
+    }
+  }
+
+  if (!runtimeFalKey) {
+    runtimeFalKey = process.env.FAL_KEY || process.env.VITE_FAL_KEY || ''
+  }
+}
+
+hydrateFalEnv(process.env.NODE_ENV === 'production' ? 'production' : 'development')
+
 function getFalKey() {
-  return runtimeFalKey || process.env.FAL_KEY || process.env.VITE_FAL_KEY || ''
+  return (
+    runtimeFalKey ||
+    process.env.FAL_KEY ||
+    process.env.VITE_FAL_KEY ||
+    ''
+  )
 }
 
 function getCreateModel() {
@@ -754,10 +805,15 @@ function attach(middlewares: Connect.Server) {
 export function visualiseApiPlugin(): Plugin {
   return {
     name: 'priyabadal-visualise-api',
+    configResolved(config) {
+      hydrateFalEnv(config.mode)
+    },
     configureServer(server) {
+      hydrateFalEnv(server.config.mode)
       attach(server.middlewares)
     },
     configurePreviewServer(server) {
+      hydrateFalEnv(server.config.mode)
       attach(server.middlewares)
     },
   }

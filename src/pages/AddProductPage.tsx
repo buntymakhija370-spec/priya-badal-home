@@ -79,7 +79,7 @@ export function AddProductPage() {
         <h1>Add product & photograph</h1>
         <p>
           Upload a photo or paste an image link, set the category, subcategory,
-          and price. Saved products appear in Shop and the AI Guide.
+          and price. Saved products appear in Shop and Design Chat.
         </p>
       </header>
 

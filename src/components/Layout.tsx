@@ -17,7 +17,7 @@ const utilityLinks = [
   { to: '/visualise', label: 'Visualise AI' },
   { to: '/carcass', label: 'Carcass Planner' },
   { to: '/favorites', label: 'Favorites' },
-  { to: '/chat', label: 'AI Guide' },
+  { to: '/chat', label: 'Design Chat' },
   { to: '/add-product', label: 'Add Product' },
 ]
 
@@ -163,7 +163,7 @@ export function Layout() {
                 <NavLink to="/carcass">Carcass Planner</NavLink>
               </li>
               <li>
-                <NavLink to="/chat">AI Guide</NavLink>
+                <NavLink to="/chat">Design Chat</NavLink>
               </li>
               <li>
                 <a href={WHATSAPP_CHAT_URL} target="_blank" rel="noopener noreferrer">

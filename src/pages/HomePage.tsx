@@ -319,14 +319,14 @@ export function HomePage() {
       </section>
 
       <section className="home-cta">
-        <p className="eyebrow">AI Interior Guide</p>
-        <h2>Describe a room. Get pieces with prices.</h2>
+        <p className="eyebrow">Design Chat</p>
+        <h2>Consult, build, and visualise in one chat.</h2>
         <p>
-          Chat about style, budget, and space — the guide recommends products
-          from this collection.
+          Share your size and room photo, get Priyabadal product suggestions, and see an AI
+          visualisation of our furniture in your space.
         </p>
         <Link className="btn btn--dark" to="/chat">
-          Open chat board
+          Open Design Chat
         </Link>
       </section>
     </main>

@@ -10,6 +10,8 @@ import {
   buildCarcassWhatsAppUrl,
   defaultSize,
   finishOptionsForPlanner,
+  getProductCarcassImage,
+  getProductExteriorImage,
   kindsForCategory,
   makeBay,
   parsePromptToPreset,
@@ -26,279 +28,7 @@ import { formatPrice } from '../lib/currency'
 import { useCurrency } from '../hooks/useCurrency'
 import './CarcassPlannerPage.css'
 
-function CarcassSvg({
-  category,
-  widthFt,
-  heightFt,
-  bays,
-}: {
-  category: CarcassCategory
-  widthFt: number
-  heightFt: number
-  bays: CarcassBay[]
-}) {
-  const widths = bayWidthsFt(bays, widthFt)
-  const viewW = 640
-  const viewH = 420
-  const pad = 28
-  const innerW = viewW - pad * 2
-  const innerH = viewH - pad * 2 - 24
-  const totalWeight = widths.reduce((s, w) => s + w, 0) || 1
-
-  let x = pad
-  const cols = bays.map((bay, i) => {
-    const w = (widths[i]! / totalWeight) * innerW
-    const col = { bay, x, w, widthFt: widths[i]! }
-    x += w
-    return col
-  })
-
-  return (
-    <svg
-      className="carcass-svg"
-      viewBox={`0 0 ${viewW} ${viewH}`}
-      role="img"
-      aria-label={`${category} carcass layout ${widthFt} by ${heightFt} feet`}
-    >
-      <defs>
-        <linearGradient id="carcassWood" x1="0" y1="0" x2="0" y2="1">
-          <stop offset="0%" stopColor="#c4a882" />
-          <stop offset="100%" stopColor="#9a7a55" />
-        </linearGradient>
-        <linearGradient id="carcassGlow" x1="0" y1="0" x2="0" y2="1">
-          <stop offset="0%" stopColor="#fff6e8" stopOpacity="0.55" />
-          <stop offset="100%" stopColor="#fff6e8" stopOpacity="0" />
-        </linearGradient>
-      </defs>
-
-      <rect x="0" y="0" width={viewW} height={viewH} fill="#e8efe9" />
-      <text x={pad} y={22} className="carcass-svg__caption">
-        {category === 'kitchen' ? 'Kitchen carcass' : 'Wardrobe carcass'} · {widthFt} ×{' '}
-        {heightFt} ft elevation
-      </text>
-
-      <rect
-        x={pad}
-        y={pad + 8}
-        width={innerW}
-        height={innerH}
-        rx="4"
-        fill="url(#carcassWood)"
-        stroke="#5c4632"
-        strokeWidth="2"
-      />
-
-      {cols.map((col) => {
-        const meta = bayMeta(col.bay.kind)
-        const top = pad + 8
-        const h = innerH
-        return (
-          <g key={col.bay.id}>
-            <rect
-              x={col.x}
-              y={top}
-              width={col.w}
-              height={h}
-              fill={meta.tone}
-              fillOpacity="0.35"
-              stroke="#3d2f22"
-              strokeWidth="1.2"
-            />
-            <rect
-              x={col.x + 4}
-              y={top + 4}
-              width={Math.max(0, col.w - 8)}
-              height={36}
-              fill="url(#carcassGlow)"
-            />
-            <BayGlyph kind={col.bay.kind} x={col.x} y={top} w={col.w} h={h} />
-            <text
-              x={col.x + col.w / 2}
-              y={top + h - 18}
-              textAnchor="middle"
-              className="carcass-svg__bay-label"
-            >
-              {meta.short}
-            </text>
-            <text
-              x={col.x + col.w / 2}
-              y={top + h - 4}
-              textAnchor="middle"
-              className="carcass-svg__bay-ft"
-            >
-              {col.widthFt} ft
-            </text>
-          </g>
-        )
-      })}
-    </svg>
-  )
-}
-
-function BayGlyph({
-  kind,
-  x,
-  y,
-  w,
-  h,
-}: {
-  kind: BayKind
-  x: number
-  y: number
-  w: number
-  h: number
-}) {
-  const cx = x + w / 2
-  const inset = 14
-  const left = x + inset
-  const right = x + w - inset
-  const stroke = '#f7f1e6'
-  const sw = 1.6
-
-  if (kind === 'hanging' || kind === 'double-hanging') {
-    const rods = kind === 'double-hanging' ? [0.28, 0.62] : [0.38]
-    return (
-      <g>
-        {rods.map((t) => {
-          const yy = y + h * t
-          return (
-            <g key={t}>
-              <line x1={left} y1={yy} x2={right} y2={yy} stroke={stroke} strokeWidth={sw} />
-              <line
-                x1={cx - 8}
-                y1={yy}
-                x2={cx - 8}
-                y2={yy + 28}
-                stroke={stroke}
-                strokeWidth={1.2}
-              />
-              <line
-                x1={cx + 8}
-                y1={yy}
-                x2={cx + 8}
-                y2={yy + 28}
-                stroke={stroke}
-                strokeWidth={1.2}
-              />
-            </g>
-          )
-        })}
-      </g>
-    )
-  }
-
-  if (kind === 'shelves' || kind === 'open-display' || kind === 'wall-cabinet') {
-    const rows = kind === 'open-display' ? [0.25, 0.45, 0.65, 0.82] : [0.3, 0.5, 0.7]
-    return (
-      <g>
-        {rows.map((t) => (
-          <line
-            key={t}
-            x1={left}
-            y1={y + h * t}
-            x2={right}
-            y2={y + h * t}
-            stroke={stroke}
-            strokeWidth={sw}
-          />
-        ))}
-      </g>
-    )
-  }
-
-  if (kind === 'drawers' || kind === 'combo' || kind === 'shoes') {
-    const start = kind === 'combo' ? 0.48 : 0.28
-    const rows = kind === 'shoes' ? 5 : 4
-    return (
-      <g>
-        {kind === 'combo' ? (
-          <line
-            x1={left}
-            y1={y + h * 0.28}
-            x2={right}
-            y2={y + h * 0.28}
-            stroke={stroke}
-            strokeWidth={sw}
-          />
-        ) : null}
-        {Array.from({ length: rows }, (_, i) => {
-          const t = start + i * ((0.9 - start) / rows)
-          const yy = y + h * t
-          return (
-            <g key={i}>
-              <rect
-                x={left}
-                y={yy}
-                width={right - left}
-                height={h * 0.08}
-                fill="none"
-                stroke={stroke}
-                strokeWidth={1.2}
-                rx="1"
-              />
-              <circle cx={cx} cy={yy + h * 0.04} r="2.2" fill={stroke} />
-            </g>
-          )
-        })}
-      </g>
-    )
-  }
-
-  // kitchen-ish blocks
-  return (
-    <g>
-      <rect
-        x={left}
-        y={y + h * 0.22}
-        width={right - left}
-        height={h * 0.55}
-        fill="none"
-        stroke={stroke}
-        strokeWidth={sw}
-        rx="2"
-      />
-      <line
-        x1={cx}
-        y1={y + h * 0.22}
-        x2={cx}
-        y2={y + h * 0.77}
-        stroke={stroke}
-        strokeWidth={1.2}
-      />
-      {kind === 'sink-base' ? (
-        <ellipse
-          cx={cx}
-          cy={y + h * 0.42}
-          rx={Math.min(28, w * 0.28)}
-          ry={10}
-          fill="none"
-          stroke={stroke}
-          strokeWidth={sw}
-        />
-      ) : null}
-      {kind === 'tall-unit' ? (
-        <>
-          <line
-            x1={left}
-            y1={y + h * 0.4}
-            x2={right}
-            y2={y + h * 0.4}
-            stroke={stroke}
-            strokeWidth={1.2}
-          />
-          <line
-            x1={left}
-            y1={y + h * 0.58}
-            x2={right}
-            y2={y + h * 0.58}
-            stroke={stroke}
-            strokeWidth={1.2}
-          />
-        </>
-      ) : null}
-    </g>
-  )
-}
+type ViewMode = 'carcass' | 'exterior'
 
 export function CarcassPlannerPage() {
   useCurrency()
@@ -313,12 +43,7 @@ export function CarcassPlannerPage() {
   const sizeLimits = defaultSize(category)
 
   const styleProducts = useMemo(
-    () =>
-      products.filter((p) =>
-        category === 'wardrobe'
-          ? p.categoryId === 'wardrobe'
-          : p.categoryId === 'kitchen',
-      ),
+    () => products.filter((p) => p.categoryId === category),
     [products, category],
   )
 
@@ -332,6 +57,10 @@ export function CarcassPlannerPage() {
   const finishOpts = finishOptionsForPlanner(category, product)
   const thicknessOpts = thicknessOptionsForPlanner(category, product)
 
+  const carcassImage = getProductCarcassImage(product)
+  const exteriorImage = getProductExteriorImage(product)
+
+  const [viewMode, setViewMode] = useState<ViewMode>('carcass')
   const [width, setWidth] = useState(sizeLimits.defaultWidth)
   const [height, setHeight] = useState(sizeLimits.defaultHeight)
   const [depth, setDepth] = useState(sizeLimits.defaultDepth)
@@ -339,10 +68,22 @@ export function CarcassPlannerPage() {
   const [thicknessId, setThicknessId] = useState(rates.thicknessId)
   const [preset, setPreset] = useState<LayoutPresetId>('balanced')
   const [prompt, setPrompt] = useState('')
-  const [aiNote, setAiNote] = useState('')
+  const [aiNote, setAiNote] = useState(() =>
+    aiExplanation(
+      initialCategory,
+      'balanced',
+      suggestLayout(initialCategory, sizeLimits.defaultWidth, 'balanced'),
+      sizeLimits.defaultWidth,
+    ),
+  )
   const [bays, setBays] = useState<CarcassBay[]>(() =>
     suggestLayout(initialCategory, sizeLimits.defaultWidth, 'balanced'),
   )
+  const [showBayEdit, setShowBayEdit] = useState(false)
+
+  const widths = bayWidthsFt(bays, width)
+  const heroImage =
+    viewMode === 'exterior' ? exteriorImage ?? carcassImage : carcassImage ?? exteriorImage
 
   const quote = useMemo(
     () =>
@@ -368,6 +109,15 @@ export function CarcassPlannerPage() {
     notes: prompt,
   })
 
+  const selectProduct = (id: string) => {
+    setProductId(id)
+    const p = getProductById(id)
+    const r = ratesFromProduct(category, p)
+    setFinishId(r.finishId)
+    setThicknessId(r.thicknessId)
+    setViewMode('carcass')
+  }
+
   const switchCategory = (next: CarcassCategory) => {
     setCategory(next)
     const limits = defaultSize(next)
@@ -383,6 +133,7 @@ export function CarcassPlannerPage() {
     const nextBays = suggestLayout(next, limits.defaultWidth, preset, prompt)
     setBays(nextBays)
     setAiNote(aiExplanation(next, preset, nextBays, limits.defaultWidth))
+    setViewMode('carcass')
   }
 
   const runAi = (nextPreset?: LayoutPresetId) => {
@@ -393,31 +144,36 @@ export function CarcassPlannerPage() {
     setAiNote(aiExplanation(category, resolved, next, width))
   }
 
-  const addBay = (kind: BayKind) => {
-    setBays((prev) => [...prev, makeBay(kind)])
-  }
-
-  const removeBay = (id: string) => {
+  const addBay = (kind: BayKind) => setBays((prev) => [...prev, makeBay(kind)])
+  const removeBay = (id: string) =>
     setBays((prev) => (prev.length <= 1 ? prev : prev.filter((b) => b.id !== id)))
-  }
-
-  const changeBayKind = (id: string, kind: BayKind) => {
+  const changeBayKind = (id: string, kind: BayKind) =>
     setBays((prev) =>
       prev.map((b) => (b.id === id ? { ...b, kind, label: bayMeta(kind).label } : b)),
     )
-  }
 
   return (
     <main className="carcass page-pad">
       <header className="carcass__header">
-        <p className="carcass__eyebrow">Structure · Price · WhatsApp quote</p>
+        <p className="carcass__eyebrow">Real product photos · Size · Price</p>
         <h1>Carcass Planner</h1>
         <p>
-          Design kitchen or wardrobe carcass bays, see a live elevation, and get an
-          estimated shutter + carcass price. AI suggests a practical layout from your
-          brief — you can edit every bay.
+          Pick a real wardrobe or kitchen look, set your wall size, choose a storage layout,
+          and get a shutter + carcass estimate. WhatsApp sends the plan for a final quote.
         </p>
       </header>
+
+      <ol className="carcass__steps" aria-label="How to use">
+        <li>
+          <strong>1</strong> Choose wardrobe or kitchen, then a style photo
+        </li>
+        <li>
+          <strong>2</strong> Enter your wall size
+        </li>
+        <li>
+          <strong>3</strong> Pick a layout — price updates instantly
+        </li>
+      </ol>
 
       <div className="carcass__tabs" role="tablist" aria-label="Carcass type">
         <button
@@ -427,7 +183,7 @@ export function CarcassPlannerPage() {
           className={category === 'wardrobe' ? 'is-active' : ''}
           onClick={() => switchCategory('wardrobe')}
         >
-          Wardrobe carcass
+          Wardrobe
         </button>
         <button
           type="button"
@@ -436,112 +192,215 @@ export function CarcassPlannerPage() {
           className={category === 'kitchen' ? 'is-active' : ''}
           onClick={() => switchCategory('kitchen')}
         >
-          Kitchen structure
+          Kitchen
         </button>
       </div>
 
       <div className="carcass__grid">
-        <section className="carcass__controls" aria-label="Planner controls">
-          <label className="carcass__field">
-            <span>Style reference</span>
-            <select
-              value={productId}
-              onChange={(e) => {
-                const id = e.target.value
-                setProductId(id)
-                const p = getProductById(id)
-                const r = ratesFromProduct(category, p)
-                setFinishId(r.finishId)
-                setThicknessId(r.thicknessId)
-              }}
-            >
-              {styleProducts.length === 0 ? (
-                <option value="">Default rates</option>
-              ) : (
-                styleProducts.map((p) => (
-                  <option key={p.id} value={p.id}>
-                    {p.name}
-                  </option>
-                ))
-              )}
-            </select>
-          </label>
-
-          <div className="carcass__dims">
-            <label className="carcass__field">
-              <span>Width (ft)</span>
-              <input
-                type="number"
-                min={sizeLimits.minWidth}
-                max={sizeLimits.maxWidth}
-                step={0.1}
-                value={width}
-                onChange={(e) => setWidth(Number(e.target.value))}
-              />
-            </label>
-            <label className="carcass__field">
-              <span>Height (ft)</span>
-              <input
-                type="number"
-                min={sizeLimits.minHeight}
-                max={sizeLimits.maxHeight}
-                step={0.1}
-                value={height}
-                onChange={(e) => setHeight(Number(e.target.value))}
-              />
-            </label>
-            <label className="carcass__field">
-              <span>Depth (ft)</span>
-              <input
-                type="number"
-                min={sizeLimits.minDepth}
-                max={sizeLimits.maxDepth}
-                step={0.1}
-                value={depth}
-                onChange={(e) => setDepth(Number(e.target.value))}
-              />
-            </label>
-          </div>
-
-          <div className="carcass__dims">
-            <label className="carcass__field">
-              <span>Finish</span>
-              <select value={finishId} onChange={(e) => setFinishId(e.target.value)}>
-                {finishOpts.map((f) => (
-                  <option key={f.id} value={f.id}>
-                    {f.name}
-                  </option>
-                ))}
-              </select>
-            </label>
-            <label className="carcass__field">
-              <span>Thickness</span>
-              <select
-                value={thicknessId}
-                onChange={(e) => setThicknessId(e.target.value)}
+        <section className="carcass__stage" aria-label="Product photo and price">
+          <div className="carcass__hero">
+            <div className="carcass__view-toggle" role="group" aria-label="Photo view">
+              <button
+                type="button"
+                className={viewMode === 'carcass' ? 'is-active' : ''}
+                onClick={() => setViewMode('carcass')}
               >
-                {thicknessOpts.map((t) => (
-                  <option key={t.id} value={t.id}>
-                    {t.label}
-                  </option>
-                ))}
-              </select>
-            </label>
+                Open carcass
+              </button>
+              <button
+                type="button"
+                className={viewMode === 'exterior' ? 'is-active' : ''}
+                onClick={() => setViewMode('exterior')}
+                disabled={!exteriorImage}
+              >
+                Closed look
+              </button>
+            </div>
+
+            {heroImage ? (
+              <figure className="carcass__photo">
+                <img
+                  key={`${productId}-${viewMode}-${heroImage}`}
+                  src={heroImage}
+                  alt={
+                    viewMode === 'carcass'
+                      ? `${product?.name ?? category} open carcass interior`
+                      : `${product?.name ?? category} closed exterior`
+                  }
+                />
+                <figcaption>
+                  {viewMode === 'carcass' ? 'Open carcass photo' : 'Closed façade photo'}
+                  {product ? ` · ${product.name}` : ''} · your size {quote.width} ×{' '}
+                  {quote.height} ft
+                </figcaption>
+              </figure>
+            ) : (
+              <div className="carcass__photo carcass__photo--empty">
+                <p>Select a style below to see the real carcass photo.</p>
+              </div>
+            )}
           </div>
 
-          <div className="carcass__ai">
-            <h2>AI layout</h2>
-            <p>Describe how you use the space — hanging, drawers, shoes, sink, pantry…</p>
-            <textarea
-              value={prompt}
-              onChange={(e) => setPrompt(e.target.value)}
-              rows={3}
-              placeholder={
-                category === 'kitchen'
-                  ? 'e.g. L-shape feel, tall pantry, sink in centre, more drawers'
-                  : 'e.g. more hanging for shirts, shoe racks, open display with LED'
-              }
-            />
+          <div className="carcass__bay-strip" aria-label="Storage layout across the wall">
+            <p className="carcass__bay-strip-label">
+              Your storage plan across {quote.width} ft
+            </p>
+            <div className="carcass__bay-row">
+              {bays.map((bay, i) => {
+                const meta = bayMeta(bay.kind)
+                const ft = widths[i] ?? 0
+                return (
+                  <div
+                    key={bay.id}
+                    className="carcass__bay-chip"
+                    style={{ flexGrow: bay.weight, background: meta.tone }}
+                  >
+                    <span>{meta.label}</span>
+                    <em>{ft} ft</em>
+                  </div>
+                )
+              })}
+            </div>
+            {aiNote ? <p className="carcass__ai-note">{aiNote}</p> : null}
+          </div>
+
+          <aside className="carcass__quote">
+            <p className="carcass__quote-label">Estimated with carcass</p>
+            <p className="carcass__quote-price">{formatPrice(quote.unitPrice)}</p>
+            <ul className="carcass__quote-meta">
+              <li>
+                {quote.sqft.toFixed(1)} sq ft · shutter {formatPrice(quote.shutterRate)} +
+                carcass {formatPrice(quote.carcassRate)} / sq ft
+              </li>
+              <li>
+                Board {formatPrice(quote.boardPrice)}
+                {quote.moduleAddOn > 0
+                  ? ` · layout extras +${formatPrice(quote.moduleAddOn)}`
+                  : ''}
+              </li>
+            </ul>
+            <div className="carcass__quote-actions">
+              <a
+                className="whatsapp-quote-btn"
+                href={whatsapp}
+                target="_blank"
+                rel="noopener noreferrer"
+              >
+                WhatsApp this plan
+              </a>
+              {product ? (
+                <Link className="btn btn--outline" to={`/product/${product.id}`}>
+                  View product
+                </Link>
+              ) : null}
+            </div>
+            <p className="carcass__disclaimer">
+              Photo shows the real product carcass. Size and bay plan are for your quote —
+              final fit is confirmed after site measure on WhatsApp.
+            </p>
+          </aside>
+        </section>
+
+        <section className="carcass__controls" aria-label="Planner controls">
+          <div className="carcass__block">
+            <h2>1. Style</h2>
+            <p className="carcass__hint">Tap a real product — carcass photo updates.</p>
+            <div className="carcass__styles">
+              {styleProducts.map((p) => {
+                const thumb =
+                  getProductCarcassImage(p) ?? getProductExteriorImage(p) ?? p.image
+                return (
+                  <button
+                    key={p.id}
+                    type="button"
+                    className={`carcass__style ${productId === p.id ? 'is-active' : ''}`}
+                    onClick={() => selectProduct(p.id)}
+                  >
+                    <img src={thumb} alt="" loading="lazy" />
+                    <span>{p.name}</span>
+                  </button>
+                )
+              })}
+            </div>
+            {product ? (
+              <p className="carcass__ref">
+                Selected: {product.name}
+                {getCategory(product.categoryId)
+                  ? ` · ${getCategory(product.categoryId)!.name}`
+                  : ''}
+              </p>
+            ) : null}
+          </div>
+
+          <div className="carcass__block">
+            <h2>2. Your size</h2>
+            <div className="carcass__dims">
+              <label className="carcass__field">
+                <span>Width (ft)</span>
+                <input
+                  type="number"
+                  min={sizeLimits.minWidth}
+                  max={sizeLimits.maxWidth}
+                  step={0.1}
+                  value={width}
+                  onChange={(e) => setWidth(Number(e.target.value))}
+                />
+              </label>
+              <label className="carcass__field">
+                <span>Height (ft)</span>
+                <input
+                  type="number"
+                  min={sizeLimits.minHeight}
+                  max={sizeLimits.maxHeight}
+                  step={0.1}
+                  value={height}
+                  onChange={(e) => setHeight(Number(e.target.value))}
+                />
+              </label>
+              <label className="carcass__field">
+                <span>Depth (ft)</span>
+                <input
+                  type="number"
+                  min={sizeLimits.minDepth}
+                  max={sizeLimits.maxDepth}
+                  step={0.1}
+                  value={depth}
+                  onChange={(e) => setDepth(Number(e.target.value))}
+                />
+              </label>
+            </div>
+            <div className="carcass__dims carcass__dims--2">
+              <label className="carcass__field">
+                <span>Finish</span>
+                <select value={finishId} onChange={(e) => setFinishId(e.target.value)}>
+                  {finishOpts.map((f) => (
+                    <option key={f.id} value={f.id}>
+                      {f.name}
+                    </option>
+                  ))}
+                </select>
+              </label>
+              <label className="carcass__field">
+                <span>Thickness</span>
+                <select
+                  value={thicknessId}
+                  onChange={(e) => setThicknessId(e.target.value)}
+                >
+                  {thicknessOpts.map((t) => (
+                    <option key={t.id} value={t.id}>
+                      {t.label}
+                    </option>
+                  ))}
+                </select>
+              </label>
+            </div>
+          </div>
+
+          <div className="carcass__block">
+            <h2>3. Storage layout</h2>
+            <p className="carcass__hint">
+              Choose a ready plan, or describe what you need and tap Suggest.
+            </p>
             <div className="carcass__presets">
               {LAYOUT_PRESETS.map((p) => (
                 <button
@@ -555,108 +414,87 @@ export function CarcassPlannerPage() {
                 </button>
               ))}
             </div>
-            <button type="button" className="btn btn--dark carcass__ai-run" onClick={() => runAi()}>
+            <textarea
+              value={prompt}
+              onChange={(e) => setPrompt(e.target.value)}
+              rows={2}
+              placeholder={
+                category === 'kitchen'
+                  ? 'e.g. tall pantry, sink centre, more drawers'
+                  : 'e.g. more hanging, shoe racks, open display'
+              }
+            />
+            <button
+              type="button"
+              className="btn btn--dark carcass__ai-run"
+              onClick={() => runAi()}
+            >
               Suggest layout
             </button>
-            {aiNote ? <p className="carcass__ai-note">{aiNote}</p> : null}
-          </div>
 
-          <div className="carcass__bays">
-            <div className="carcass__bays-head">
-              <h2>Bays</h2>
-              <select
-                aria-label="Add bay type"
-                defaultValue=""
-                onChange={(e) => {
-                  const kind = e.target.value as BayKind
-                  if (!kind) return
-                  addBay(kind)
-                  e.target.value = ''
-                }}
-              >
-                <option value="">Add bay…</option>
-                {kindsForCategory(category).map((kind) => (
-                  <option key={kind} value={kind}>
-                    {bayMeta(kind).label}
-                  </option>
-                ))}
-              </select>
-            </div>
-            <ul>
-              {bays.map((bay, index) => (
-                <li key={bay.id}>
-                  <span className="carcass__bay-index">{index + 1}</span>
+            <button
+              type="button"
+              className="carcass__edit-toggle"
+              onClick={() => setShowBayEdit((v) => !v)}
+            >
+              {showBayEdit ? 'Hide bay editor' : 'Fine-tune bay types'}
+            </button>
+
+            {showBayEdit ? (
+              <div className="carcass__bays">
+                <div className="carcass__bays-head">
                   <select
-                    value={bay.kind}
-                    onChange={(e) => changeBayKind(bay.id, e.target.value as BayKind)}
+                    aria-label="Add bay type"
+                    defaultValue=""
+                    onChange={(e) => {
+                      const kind = e.target.value as BayKind
+                      if (!kind) return
+                      addBay(kind)
+                      e.target.value = ''
+                    }}
                   >
+                    <option value="">Add bay…</option>
                     {kindsForCategory(category).map((kind) => (
                       <option key={kind} value={kind}>
                         {bayMeta(kind).label}
                       </option>
                     ))}
                   </select>
-                  <button
-                    type="button"
-                    className="carcass__bay-remove"
-                    onClick={() => removeBay(bay.id)}
-                    aria-label={`Remove bay ${index + 1}`}
-                  >
-                    ×
-                  </button>
-                </li>
-              ))}
-            </ul>
+                </div>
+                <ul>
+                  {bays.map((bay, index) => (
+                    <li key={bay.id}>
+                      <span className="carcass__bay-index">{index + 1}</span>
+                      <select
+                        value={bay.kind}
+                        onChange={(e) =>
+                          changeBayKind(bay.id, e.target.value as BayKind)
+                        }
+                      >
+                        {kindsForCategory(category).map((kind) => (
+                          <option key={kind} value={kind}>
+                            {bayMeta(kind).label}
+                          </option>
+                        ))}
+                      </select>
+                      <button
+                        type="button"
+                        className="carcass__bay-remove"
+                        onClick={() => removeBay(bay.id)}
+                        aria-label={`Remove bay ${index + 1}`}
+                      >
+                        ×
+                      </button>
+                    </li>
+                  ))}
+                </ul>
+              </div>
+            ) : null}
           </div>
-        </section>
 
-        <section className="carcass__stage" aria-label="Carcass visualisation and price">
-          <CarcassSvg
-            category={category}
-            widthFt={quote.width}
-            heightFt={quote.height}
-            bays={bays}
-          />
-
-          <aside className="carcass__quote">
-            <p className="carcass__quote-label">Estimated with carcass</p>
-            <p className="carcass__quote-price">{formatPrice(quote.unitPrice)}</p>
-            <ul className="carcass__quote-meta">
-              <li>
-                {quote.sqft.toFixed(1)} sq ft · shutter {formatPrice(quote.shutterRate)} +
-                carcass {formatPrice(quote.carcassRate)} / sq ft
-              </li>
-              <li>
-                Board estimate {formatPrice(quote.boardPrice)}
-                {quote.moduleAddOn > 0
-                  ? ` · modules +${formatPrice(quote.moduleAddOn)}`
-                  : ''}
-              </li>
-              <li>{quote.baySummary}</li>
-            </ul>
-            <div className="carcass__quote-actions">
-              <a
-                className="whatsapp-quote-btn"
-                href={whatsapp}
-                target="_blank"
-                rel="noopener noreferrer"
-              >
-                WhatsApp this plan
-              </a>
-              {product ? (
-                <Link className="btn btn--outline" to={`/product/${product.id}`}>
-                  View {getCategory(product.categoryId)?.name ?? 'product'}
-                </Link>
-              ) : null}
-              <Link className="btn btn--outline" to={`/shop/${category}`}>
-                Browse {category}
-              </Link>
-            </div>
-            <p className="carcass__disclaimer">
-              Estimate only — final quote confirmed on WhatsApp after site measure,
-              hardware, and finish selection.
-            </p>
-          </aside>
+          <Link className="btn btn--outline" to={`/shop/${category}`}>
+            Browse {category} products
+          </Link>
         </section>
       </div>
     </main>

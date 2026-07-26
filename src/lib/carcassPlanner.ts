@@ -477,3 +477,22 @@ export function aiExplanation(
   const presetName = LAYOUT_PRESETS.find((p) => p.id === preset)?.name ?? 'Balanced'
   return `${presetName} plan for a ${width} ft ${room}: ${bays.length} bays — ${unique.join(', ')}. Price updates from shutter + carcass rates and module add-ons.`
 }
+
+/** Exterior / closed façade — first catalog image */
+export function getProductExteriorImage(product?: Product | null): string | null {
+  if (!product) return null
+  const images = product.images?.length ? product.images : product.image ? [product.image] : []
+  return images[0] ?? null
+}
+
+/**
+ * Open carcass / interior photo.
+ * Wardrobe catalog stores carcass as the last gallery image.
+ */
+export function getProductCarcassImage(product?: Product | null): string | null {
+  if (!product) return null
+  const images = product.images?.length ? product.images : product.image ? [product.image] : []
+  if (!images.length) return null
+  if (images.length === 1) return images[0]!
+  return images[images.length - 1]!
+}

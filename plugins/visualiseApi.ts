@@ -15,6 +15,8 @@ type VisualiseBody = {
   depthFt?: number
   finishLabel?: string
   scopeLabel?: string
+  /** Customer room photo or architect drawing (plan / elevation / section) */
+  inputKind?: 'photo' | 'drawing'
 }
 
 type CarcassLiveBody = {
@@ -164,6 +166,7 @@ async function resolveImageUrl(
 
 function buildPrompt(body: VisualiseBody) {
   const space = body.categoryName.toLowerCase()
+  const isDrawing = body.inputKind === 'drawing'
   const hasSize =
     Number(body.widthFt) > 0 && Number(body.heightFt) > 0
   const sizeLine = hasSize
@@ -171,7 +174,7 @@ function buildPrompt(body: VisualiseBody) {
         `CRITICAL MADE-TO-MEASURE SIZE (feet): width ${body.widthFt} ft × height ${body.heightFt} ft` +
           (Number(body.depthFt) > 0 ? ` × depth ${body.depthFt} ft` : '') +
           '.',
-        'The installed product MUST match this live size in the room — not the sample proportions from IMAGE 2.',
+        'The installed product MUST match this live size — not the sample proportions from IMAGE 2.',
         `If IMAGE 2 shows a different width/height, RESCALE it: span about ${body.widthFt} ft along the wall and about ${body.heightFt} ft tall` +
           (Number(body.depthFt) > 0
             ? `, projecting about ${body.depthFt} ft deep from the wall`
@@ -183,7 +186,32 @@ function buildPrompt(body: VisualiseBody) {
             ? 'For kitchen: fit cabinetry to the given run width/height/depth; keep shutter style from IMAGE 2 but respect live feet sizes.'
             : 'Fit the temple / product into the niche or wall at the given live feet sizes while keeping the design language of IMAGE 2.',
       ].join(' ')
-    : 'Scale the product naturally to the room opening visible in IMAGE 1.'
+    : isDrawing
+      ? 'Read dimensions from the drawing if marked; otherwise scale the product naturally to the indicated wall / run.'
+      : 'Scale the product naturally to the room opening visible in IMAGE 1.'
+
+  if (isDrawing) {
+    return [
+      'You are a professional interior architect visualiser for Priyabadal Homes (India).',
+      'You understand interior architect drawings: floor plans, elevations, sections, CAD layouts, hand sketches, and dimensioned drawings.',
+      `IMAGE 1 = customer's architect drawing / plan / elevation / sketch for a ${space} — use its layout, wall runs, openings, and marked sizes as the design brief.`,
+      `IMAGE 2 = catalog style reference of "${body.productName}" from the Priyabadal Homes product list (doors, shutters, finish, detailing).`,
+      'Task: Create a photorealistic interior visualisation that follows IMAGE 1 as the architectural layout, and installs the Priyabadal product style from IMAGE 2 on the correct walls / units.',
+      'Interpret plan lines, elevation outlines, kitchen/wardrobe runs, niches, and openings correctly — do not invent a random room that ignores the drawing.',
+      sizeLine,
+      'Match door styles, groove profiles, handles, materials, and detailing from IMAGE 2 as closely as possible.',
+      `Cabinet / product finish colour cue: ${body.colourLabel} (${body.colour}).`,
+      body.finishLabel ? `Finish selection: ${body.finishLabel}.` : '',
+      body.scopeLabel ? `Build scope: ${body.scopeLabel}.` : '',
+      'Do NOT invent a different product brand. Do NOT paste IMAGE 2 as a floating sticker or collage.',
+      'Convert the drawing into a believable finished interior photograph (eye-level or natural interior camera), not a CAD screenshot.',
+      'No text, logos, dimension arrows, watermarks, or UI overlays in the output.',
+      'Output a single photorealistic interior photograph suitable for a showroom quote.',
+      body.notes ? `Customer note: ${body.notes}` : '',
+    ]
+      .filter(Boolean)
+      .join(' ')
+  }
 
   return [
     'You are a professional interior visualiser for Priyabadal Homes (India).',

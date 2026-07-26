@@ -319,14 +319,14 @@ export function HomePage() {
       </section>
 
       <section className="home-cta">
-        <p className="eyebrow">Design Chat</p>
-        <h2>Consult, build, and visualise in one chat.</h2>
+        <p className="eyebrow">Priya Badal AI</p>
+        <h2>Chitchat, drawings, and product visualisation.</h2>
         <p>
-          Share your size and room photo, get Priyabadal product suggestions, and see an AI
-          visualisation of our furniture in your space.
+          Talk through your interior, send a room photo or architect drawing, pick from our
+          catalog, and get an AI visualisation in chat.
         </p>
         <Link className="btn btn--dark" to="/chat">
-          Open Design Chat
+          Open Priya Badal AI
         </Link>
       </section>
     </main>

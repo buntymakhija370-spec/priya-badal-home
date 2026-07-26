@@ -28,6 +28,8 @@ export type VisualiseRequest = {
   depthFt?: number
   finishLabel?: string
   scopeLabel?: string
+  /** Room photo vs architect drawing / plan / elevation */
+  inputKind?: 'photo' | 'drawing'
 }
 
 export type VisualiseResult = {
@@ -131,6 +133,7 @@ export async function generateVisualise(
         depthFt: input.depthFt,
         finishLabel: input.finishLabel,
         scopeLabel: input.scopeLabel,
+        inputKind: input.inputKind ?? 'photo',
       }),
     })
 

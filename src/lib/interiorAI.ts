@@ -8,8 +8,9 @@ export type ChatMessage = {
   role: 'user' | 'assistant'
   text: string
   products?: Product[]
-  /** User-uploaded room photo preview */
+  /** User-uploaded room photo or architect drawing */
   imageUrl?: string
+  imageKind?: 'photo' | 'drawing'
   /** AI visualisation result */
   aiImageUrl?: string
   /** Suggested quick replies */
@@ -26,6 +27,8 @@ export type ConsultBrief = {
   style?: string
   notes?: string
   roomPhotoDataUrl?: string | null
+  /** Room photograph vs architect drawing / plan / elevation */
+  attachmentKind?: 'photo' | 'drawing'
   selectedProductId?: string | null
   aiImageUrl?: string | null
 }
@@ -255,7 +258,13 @@ function briefSummary(brief: ConsultBrief): string {
   }
   if (brief.style) bits.push(`Style: ${brief.style}`)
   if (brief.budget != null) bits.push(`Budget: ${formatPrice(brief.budget)}`)
-  if (brief.roomPhotoDataUrl) bits.push('Room photo: attached')
+  if (brief.roomPhotoDataUrl) {
+    bits.push(
+      brief.attachmentKind === 'drawing'
+        ? 'Architect drawing: attached'
+        : 'Room photo: attached',
+    )
+  }
   if (brief.selectedProductId) {
     const p = getProductById(brief.selectedProductId)
     if (p) bits.push(`Selected: ${p.name}`)
@@ -265,9 +274,18 @@ function briefSummary(brief: ConsultBrief): string {
 
 function missingForVisualise(brief: ConsultBrief): string[] {
   const missing: string[] = []
-  if (!brief.selectedProductId) missing.push('pick a product style')
-  if (!brief.roomPhotoDataUrl) missing.push('upload a room / wall photo')
+  if (!brief.selectedProductId) missing.push('pick a product from our list')
+  if (!brief.roomPhotoDataUrl) {
+    missing.push('upload a room photo or architect drawing')
+  }
   return missing
+}
+
+export function looksLikeDrawingIntent(text: string, fileName = ''): boolean {
+  const hay = `${text} ${fileName}`.toLowerCase()
+  return /\b(drawing|drawings|floor\s*plan|elevation|section|cad|autocad|layout|architect|blueprint|2d\s*plan|plan\s*pdf|dimension)\b/i.test(
+    hay,
+  )
 }
 
 export function createWelcomeMessage(): ChatMessage {
@@ -275,22 +293,24 @@ export function createWelcomeMessage(): ChatMessage {
     id: crypto.randomUUID(),
     role: 'assistant',
     text: [
-      'Hi — I’m your Priyabadal Homes design consultant.',
+      'Hi — I’m Priya Badal AI, your interior design chat.',
       '',
-      'We can chat, plan furniture to your size, and I’ll suggest products from our collection. Upload a room photo and I’ll create an AI visualisation with our product in your space.',
+      'I consult like an interior architect: room photos, size in feet, and architect drawings (plans, elevations, sketches). Then I suggest finishes from our Priyabadal product list and visualise them for you.',
       '',
-      'Tell me:',
-      '1) Room (kitchen / wardrobe / temple / wall panels)',
-      '2) Size in feet (e.g. 8 x 7 or 10 x 8 x 2)',
-      '3) Style or colour you like',
+      'You can:',
+      '• Chat about kitchen, wardrobe, temple, or wall panels',
+      '• Share size (e.g. 8 × 7 ft)',
+      '• Attach a room photo or architect drawing',
+      '• Pick a catalog product → Visualise',
       '',
-      'Or tap a quick start below.',
+      'What are we designing today?',
     ].join('\n'),
     suggestions: [
       'Kitchen remodel',
       'Bedroom wardrobe 8x7',
       'Temple wall modern',
-      'Upload photo & visualise',
+      'I have an architect drawing',
+      'Attach room photo',
     ],
   }
 }
@@ -326,6 +346,30 @@ export function processConsultTurn(
   }
 
   let next = mergeBriefFromText(brief, text)
+
+  if (
+    /\b(architect drawing|floor plan|elevation|i have (?:an? )?drawing|cad|blueprint)\b/i.test(
+      lower,
+    )
+  ) {
+    next = { ...next, attachmentKind: next.attachmentKind ?? 'drawing' }
+    return {
+      brief: next,
+      reply: {
+        id: crypto.randomUUID(),
+        role: 'assistant',
+        text: [
+          'I can read interior architect drawings — floor plans, elevations, sections, and dimensioned sketches.',
+          '',
+          'Attach your drawing with the paperclip, tell me the room and size in feet if not marked, then pick a Priyabadal product. I’ll visualise our catalog style onto that drawing.',
+          '',
+          briefSummary(next),
+        ].join('\n'),
+        products: suggestProducts(next, text, 3),
+        suggestions: ['Attach drawing', 'Kitchen remodel', 'Bedroom wardrobe 8x7'],
+      },
+    }
+  }
 
   const wantsVisualise =
     /\b(visuali[sz]e|render|show (?:me )?(?:the )?look|ai (?:look|photo|image)|generate)\b/i.test(
@@ -458,14 +502,15 @@ export function messageForPhotoAttached(brief: ConsultBrief): ChatMessage {
   const products = brief.selectedProductId
     ? undefined
     : suggestProducts(brief, brief.room ?? '', 3)
+  const isDrawing = brief.attachmentKind === 'drawing'
   return {
     id: crypto.randomUUID(),
     role: 'assistant',
     text: brief.selectedProductId
-      ? `Photo received. I have your selected style ready.\n\n${briefSummary(brief)}\n\nSay “Visualise my look” and I’ll place our product in your photo.`
-      : `Photo received — thanks. ${
+      ? `${isDrawing ? 'Drawing' : 'Photo'} received. I have your selected Priyabadal style ready.\n\n${briefSummary(brief)}\n\nSay “Visualise my look” — I’ll build a photoreal look from our product list${isDrawing ? ' following your architect drawing' : ' in your room'}.`
+      : `${isDrawing ? 'Architect drawing received — I’ll read the layout, wall runs, and openings.' : 'Room photo received — thanks.'} ${
           brief.room ? `Planning for ${brief.room}. ` : ''
-        }Pick a product below (or tell me the room/size), then we’ll generate the AI visualisation in this chat.`,
+        }Pick a product from our list below (or tell me room/size), then we’ll visualise.`,
     products,
     suggestions: brief.selectedProductId
       ? ['Visualise my look', 'Suggest other styles']
@@ -475,20 +520,21 @@ export function messageForPhotoAttached(brief: ConsultBrief): ChatMessage {
 
 export function messageForProductSelected(product: Product, brief: ConsultBrief): ChatMessage {
   const missing = missingForVisualise({ ...brief, selectedProductId: product.id })
+  const needAttach = missing.some((m) => m.includes('upload'))
   return {
     id: crypto.randomUUID(),
     role: 'assistant',
     text: [
-      `Selected: ${product.name}.`,
+      `Selected from our product list: ${product.name}.`,
       briefSummary({ ...brief, selectedProductId: product.id }),
       '',
       missing.length
-        ? `To visualise in chat, please ${missing.join(' and ')}.`
-        : 'Everything is ready — tap “Visualise my look” and I’ll generate the AI image here.',
+        ? `To visualise here, please ${missing.join(' and ')}.`
+        : 'Ready — tap Visualise and I’ll render this catalog style into your photo or drawing.',
     ].join('\n'),
     products: [product],
-    suggestions: missing.includes('upload a room / wall photo')
-      ? ['I will upload a photo', 'Visualise my look']
+    suggestions: needAttach
+      ? ['Attach room photo', 'I have an architect drawing', 'Visualise my look']
       : ['Visualise my look', 'WhatsApp quote', 'Suggest other styles'],
   }
 }
@@ -516,6 +562,7 @@ export function buildChatWhatsAppUrl(brief: ConsultBrief): string | null {
       : null,
     brief.style ? `Style: ${brief.style}` : null,
     brief.budget != null ? `Budget: ${formatPrice(brief.budget, 'INR')}` : null,
+    brief.attachmentKind === 'drawing' ? 'Reference: architect drawing attached in chat' : null,
     brief.aiImageUrl ? `AI visualisation (open this link): ${brief.aiImageUrl}` : null,
     brief.notes?.trim() ? `Changes / instructions: ${brief.notes.trim()}` : null,
     '',

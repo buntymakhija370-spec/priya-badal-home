@@ -31,11 +31,17 @@ function defaultImageCaption(
   }
 
   if (hasCarcassViews) {
+    if (/\bdim-elevation\b/i.test(product.images?.[imageIndex] ?? '')) {
+      return 'Dimension drawing 1 — exterior elevation (reference W × H × D).'
+    }
+    if (/\bdim-carcass\b/i.test(product.images?.[imageIndex] ?? '')) {
+      return 'Dimension drawing 2 — open carcass bay elevation.'
+    }
     if (imageIndex === 0) {
       return 'Closed exterior look — the finished façade as shown in this photograph.'
     }
     if (imageIndex === imageCount - 1) {
-      return 'Open carcass / interior — storage layout as shown in this photograph.'
+      return 'Open carcass / interior — last photograph; storage layout as shown.'
     }
     return `Detail view ${imageIndex} — as shown in this photograph.`
   }

@@ -495,21 +495,36 @@ export function aiExplanation(
   return `${presetName} plan for a ${width} ft ${room}: ${bays.length} bays — ${unique.join(', ')}. Price updates from shutter + carcass rates and module add-ons.`
 }
 
-/** Exterior / closed façade — first catalog image */
+function isDimensionDrawing(src: string) {
+  return /dim-(elevation|carcass)\.(svg|png|jpg|jpeg|webp)(\?|$)/i.test(src)
+}
+
+function catalogPhotos(product: Product): string[] {
+  const images = product.images?.length
+    ? product.images
+    : product.image
+      ? [product.image]
+      : []
+  // Dimension drawings are gallery extras — not used as exterior/carcass photo refs
+  const photos = images.filter((src) => !isDimensionDrawing(src))
+  return photos.length ? photos : images
+}
+
+/** Exterior / closed façade — first catalog photograph (skips dimension drawings) */
 export function getProductExteriorImage(product?: Product | null): string | null {
   if (!product) return null
-  const images = product.images?.length ? product.images : product.image ? [product.image] : []
-  return images[0] ?? null
+  return catalogPhotos(product)[0] ?? null
 }
 
 /**
  * Open carcass / interior photo.
- * Wardrobe catalog stores carcass as the last gallery image.
+ * Wardrobe catalog stores carcass as the last gallery photograph
+ * (after exterior shots and the two dimension drawings).
  */
 export function getProductCarcassImage(product?: Product | null): string | null {
   if (!product) return null
-  const images = product.images?.length ? product.images : product.image ? [product.image] : []
-  if (!images.length) return null
-  if (images.length === 1) return images[0]!
-  return images[images.length - 1]!
+  const photos = catalogPhotos(product)
+  if (!photos.length) return null
+  if (photos.length === 1) return photos[0]!
+  return photos[photos.length - 1]!
 }

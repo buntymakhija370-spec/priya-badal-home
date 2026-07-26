@@ -293,7 +293,17 @@ export const baseProducts: Product[] = [
       '/products/wardrobe/wardrobe-1/04.png',
       '/products/wardrobe/wardrobe-1/01.jpg',
       '/products/wardrobe/wardrobe-1/02.jpg',
+      '/products/wardrobe/wardrobe-1/dim-elevation.svg',
+      '/products/wardrobe/wardrobe-1/dim-carcass.svg',
       '/products/wardrobe/wardrobe-1/03.png',
+    ],
+    imageCaptions: [
+      'Closed exterior look — finished hinged façade.',
+      'Exterior detail — door panels and handles.',
+      'Room setting — wardrobe in context.',
+      'Dimension drawing 1 — exterior elevation (W × H × D reference).',
+      'Dimension drawing 2 — open carcass bay elevation.',
+      'Open carcass / interior — last photo; storage layout as shown.',
     ],
     highlights: [
       'Hinged panel doors',
@@ -359,7 +369,16 @@ export const baseProducts: Product[] = [
     images: [
       '/products/wardrobe/wardrobe-2/01.jpg',
       '/products/wardrobe/wardrobe-2/02.jpg',
+      '/products/wardrobe/wardrobe-2/dim-elevation.svg',
+      '/products/wardrobe/wardrobe-2/dim-carcass.svg',
       '/products/wardrobe/wardrobe-2/03.png',
+    ],
+    imageCaptions: [
+      'Exterior / open façade look.',
+      'Detail view — modular dressing wall.',
+      'Dimension drawing 1 — exterior elevation (W × H × D reference).',
+      'Dimension drawing 2 — open carcass bay elevation.',
+      'Open carcass / interior — last photo; storage layout as shown.',
     ],
     highlights: [
       'Open modular layout',
@@ -425,7 +444,16 @@ export const baseProducts: Product[] = [
     images: [
       '/products/wardrobe/wardrobe-3/02.jpg',
       '/products/wardrobe/wardrobe-3/01.jpg',
+      '/products/wardrobe/wardrobe-3/dim-elevation.svg',
+      '/products/wardrobe/wardrobe-3/dim-carcass.svg',
       '/products/wardrobe/wardrobe-3/03.png',
+    ],
+    imageCaptions: [
+      'Warm oak dressing wardrobe exterior look.',
+      'Detail view — LED and leather-tab drawers.',
+      'Dimension drawing 1 — exterior elevation (W × H × D reference).',
+      'Dimension drawing 2 — open carcass bay elevation.',
+      'Open carcass / interior — last photo; storage layout as shown.',
     ],
     highlights: [
       'Integrated LED lighting',
@@ -492,7 +520,16 @@ export const baseProducts: Product[] = [
     images: [
       '/products/wardrobe/wardrobe-4/02.png',
       '/products/wardrobe/wardrobe-4/03.png',
+      '/products/wardrobe/wardrobe-4/dim-elevation.svg',
+      '/products/wardrobe/wardrobe-4/dim-carcass.svg',
       '/products/wardrobe/wardrobe-4/01.png',
+    ],
+    imageCaptions: [
+      'Dark walnut open wardrobe façade.',
+      'Detail view — LED cove lighting.',
+      'Dimension drawing 1 — exterior elevation (W × H × D reference).',
+      'Dimension drawing 2 — open carcass bay elevation.',
+      'Open carcass / interior — last photo; storage layout as shown.',
     ],
     highlights: [
       'Dark walnut finish',
@@ -559,7 +596,16 @@ export const baseProducts: Product[] = [
     images: [
       '/products/wardrobe/wardrobe-5/02.png',
       '/products/wardrobe/wardrobe-5/03.png',
+      '/products/wardrobe/wardrobe-5/dim-elevation.svg',
+      '/products/wardrobe/wardrobe-5/dim-carcass.svg',
       '/products/wardrobe/wardrobe-5/01.jpg',
+    ],
+    imageCaptions: [
+      'Cream bifold exterior façade.',
+      'Detail view — wood accent band and handles.',
+      'Dimension drawing 1 — exterior elevation (W × H × D reference).',
+      'Dimension drawing 2 — open carcass bay elevation.',
+      'Open carcass / interior — last photo; storage layout as shown.',
     ],
     highlights: [
       'Bifold stacking doors',
@@ -626,7 +672,17 @@ export const baseProducts: Product[] = [
       '/products/wardrobe/wardrobe-6/01.jpg',
       '/products/wardrobe/wardrobe-6/04.png',
       '/products/wardrobe/wardrobe-6/02.jpg',
+      '/products/wardrobe/wardrobe-6/dim-elevation.svg',
+      '/products/wardrobe/wardrobe-6/dim-carcass.svg',
       '/products/wardrobe/wardrobe-6/03.png',
+    ],
+    imageCaptions: [
+      'Dark wood walk-in wardrobe look.',
+      'Detail view — LED shelves and gold pulls.',
+      'Room / dressing context.',
+      'Dimension drawing 1 — exterior elevation (W × H × D reference).',
+      'Dimension drawing 2 — open carcass bay elevation.',
+      'Open carcass / interior — last photo; storage layout as shown.',
     ],
     highlights: [
       'Walk-in dressing layout',

@@ -35,7 +35,11 @@ export type VisualiseRequest = {
   changeRequest?: string
 }
 
-/** Prefer closed exterior first; add carcass/detail as extra refs for fidelity */
+function isDimensionDrawing(src: string) {
+  return /dim-(elevation|carcass)\.(svg|png|jpg|jpeg|webp)(\?|$)/i.test(src)
+}
+
+/** Prefer closed exterior first; add carcass/detail photos (skip dimension drawings) */
 export function productReferencePaths(product: Product): {
   primary: string
   extras: string[]
@@ -45,14 +49,16 @@ export function productReferencePaths(product: Product): {
     : product.image
       ? [product.image]
       : []
-  const primary = images[0] || product.image
+  const photos = images.filter((src) => !isDimensionDrawing(src))
+  const pool = photos.length ? photos : images
+  const primary = pool[0] || product.image
   const extras: string[] = []
-  if (images.length > 1) {
-    const last = images[images.length - 1]!
+  if (pool.length > 1) {
+    const last = pool[pool.length - 1]!
     if (last !== primary) extras.push(last)
   }
-  if (images.length > 2) {
-    const mid = images[1]!
+  if (pool.length > 2) {
+    const mid = pool[1]!
     if (mid !== primary && !extras.includes(mid)) extras.push(mid)
   }
   return { primary, extras: extras.slice(0, 2) }

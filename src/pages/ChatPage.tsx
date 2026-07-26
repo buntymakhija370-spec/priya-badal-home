@@ -130,10 +130,10 @@ export function ChatPage() {
           id: crypto.randomUUID(),
           role: 'assistant',
           text: shouldRefine
-            ? `${result.message}\n\nUpdated look for ${product.name}. Tell me the next change on this photo (colour, handles, hanging, drawers…), or WhatsApp the quote.`
-            : `${result.message}\n\nVisualisation of ${product.name} from our product list${
-                kind === 'drawing' ? ', based on your architect drawing' : ', in your room'
-              }.\n\nNow you can command changes on this photo — e.g. “make it lighter”, “remove handles”, “more hanging” — and I’ll revise this same look.`,
+            ? `${result.message}\n\nUpdated look for ${product.name}. Say another clear change (e.g. “make it lighter”), keep chatting, or WhatsApp the quote.`
+            : `${result.message}\n\nVisualisation of ${product.name}${
+                kind === 'drawing' ? ' from your architect drawing' : ' in your room photo'
+              }.\n\nIf something is off, tell me a specific change — or attach a clearer straight-on wall photo and visualise again for better accuracy.`,
           aiImageUrl: result.imageUrl,
           products: [product],
           suggestions: [

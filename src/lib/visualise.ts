@@ -35,6 +35,29 @@ export type VisualiseRequest = {
   changeRequest?: string
 }
 
+/** Prefer closed exterior first; add carcass/detail as extra refs for fidelity */
+export function productReferencePaths(product: Product): {
+  primary: string
+  extras: string[]
+} {
+  const images = product.images?.length
+    ? product.images
+    : product.image
+      ? [product.image]
+      : []
+  const primary = images[0] || product.image
+  const extras: string[] = []
+  if (images.length > 1) {
+    const last = images[images.length - 1]!
+    if (last !== primary) extras.push(last)
+  }
+  if (images.length > 2) {
+    const mid = images[1]!
+    if (mid !== primary && !extras.includes(mid)) extras.push(mid)
+  }
+  return { primary, extras: extras.slice(0, 2) }
+}
+
 export type VisualiseResult = {
   imageUrl?: string
   source: 'ai' | 'error'
@@ -48,11 +71,11 @@ export type VisualiseStatus = {
   model?: string
 }
 
-/** Compress / resize room photo for upload + AI */
+/** Compress / resize room photo for upload + AI (higher res = better room fidelity) */
 export async function fileToDataUrl(
   file: File,
-  maxSide = 1400,
-  quality = 0.85,
+  maxSide = 2048,
+  quality = 0.9,
 ): Promise<string> {
   const bitmap = await createImageBitmap(file)
   const scale = Math.min(1, maxSide / Math.max(bitmap.width, bitmap.height))
@@ -118,7 +141,11 @@ export async function generateVisualise(
   input: VisualiseRequest,
 ): Promise<VisualiseResult> {
   try {
-    const productDataUrl = await urlToDataUrl(input.product.image)
+    const refs = productReferencePaths(input.product)
+    const [productDataUrl, ...extraDataUrls] = await Promise.all([
+      urlToDataUrl(refs.primary),
+      ...refs.extras.map((src) => urlToDataUrl(src)),
+    ])
 
     const res = await fetch('/api/visualise', {
       method: 'POST',
@@ -126,6 +153,7 @@ export async function generateVisualise(
       body: JSON.stringify({
         roomDataUrl: input.roomDataUrl,
         productImageUrl: productDataUrl,
+        productImageUrls: extraDataUrls,
         productName: input.product.name,
         categoryName: input.categoryName,
         colour: input.colour.hex,
@@ -152,20 +180,20 @@ export async function generateVisualise(
     if (res.ok && data.imageUrl) {
       const sizeHint =
         input.widthFt && input.heightFt
-          ? ` Sized for ${input.widthFt} × ${input.heightFt}` +
+          ? ` Furniture sized toward ${input.widthFt} × ${input.heightFt}` +
             (input.depthFt ? ` × ${input.depthFt}` : '') +
-            ' ft (AI look is a guide — quote uses your exact size).'
-          : ''
+            ' ft. AI is a visual guide — final quote uses your exact measure.'
+          : ' Tip: share exact feet size for a closer scale match.'
       const refineHint = input.changeRequest?.trim()
-        ? ` Updated for your change: “${input.changeRequest.trim()}”.`
+        ? ` Updated for: “${input.changeRequest.trim()}”.`
         : ''
       return {
         imageUrl: data.imageUrl,
         source: 'ai',
         message:
           (input.refineImageUrl
-            ? 'Revised visualisation from your change request.'
-            : 'Professional AI render using your Priyabadal Homes product as reference.') +
+            ? 'Revised look from your change request, matching catalog references.'
+            : 'Higher-accuracy render: your room framing kept, catalog exterior (+ detail) matched.') +
           refineHint +
           sizeHint,
       }

@@ -4,6 +4,8 @@ import type { IncomingMessage, ServerResponse } from 'node:http'
 type VisualiseBody = {
   roomDataUrl: string
   productImageUrl: string
+  /** Extra catalog refs (e.g. detail / carcass) for closer product match */
+  productImageUrls?: string[]
   productName: string
   categoryName: string
   colour: string
@@ -172,44 +174,48 @@ function buildPrompt(body: VisualiseBody) {
   const space = body.categoryName.toLowerCase()
   const isDrawing = body.inputKind === 'drawing'
   const isRefine = Boolean(body.refineImageUrl && body.changeRequest?.trim())
+  const hasExtraProduct = Boolean(body.productImageUrls?.length)
   const hasSize =
     Number(body.widthFt) > 0 && Number(body.heightFt) > 0
   const sizeLine = hasSize
     ? [
-        `CRITICAL MADE-TO-MEASURE SIZE (feet): width ${body.widthFt} ft × height ${body.heightFt} ft` +
+        `INSTALL SIZE (feet, for the furniture only — do NOT change the photo aspect ratio): width ${body.widthFt} ft × height ${body.heightFt} ft` +
           (Number(body.depthFt) > 0 ? ` × depth ${body.depthFt} ft` : '') +
           '.',
-        'The installed product MUST match this live size — not the sample proportions from IMAGE 2.',
-        `If IMAGE 2 shows a different width/height, RESCALE it: span about ${body.widthFt} ft along the wall and about ${body.heightFt} ft tall` +
-          (Number(body.depthFt) > 0
-            ? `, projecting about ${body.depthFt} ft deep from the wall`
-            : '') +
-          '.',
+        'Rescale the catalog product to this live size on the wall. Keep IMAGE 1 camera framing exactly.',
         space.includes('wardrobe')
-          ? 'For wardrobe: build a continuous floor-to-near-ceiling run at the given width; keep door/panel style from IMAGE 2 but change overall scale to the live feet sizes.'
+          ? `Wardrobe must read as about ${body.widthFt} ft wide and ${body.heightFt} ft tall on the wall (floor-to-near-ceiling if height is tall).`
           : space.includes('kitchen')
-            ? 'For kitchen: fit cabinetry to the given run width/height/depth; keep shutter style from IMAGE 2 but respect live feet sizes.'
-            : 'Fit the temple / product into the niche or wall at the given live feet sizes while keeping the design language of IMAGE 2.',
+            ? `Kitchen run must fit about ${body.widthFt} ft width and ${body.heightFt} ft shutter/cabinet height.`
+            : `Product must fit about ${body.widthFt} ft × ${body.heightFt} ft on the intended wall/niche.`,
       ].join(' ')
     : isDrawing
-      ? 'Read dimensions from the drawing if marked; otherwise scale the product naturally to the indicated wall / run.'
-      : 'Scale the product naturally to the room opening visible in IMAGE 1.'
+      ? 'Read marked dimensions from the drawing when present; otherwise fit the product to the indicated wall run.'
+      : 'Scale the product to the natural wall opening in IMAGE 1.'
+
+  const productMatch = [
+    `Product to match: "${body.productName}" (Priyabadal Homes catalog).`,
+    'IMAGE 2 = CLOSED EXTERIOR / façade reference — match door layout, panel grooves, handle style, edge profile, and finish as closely as possible.',
+    hasExtraProduct
+      ? 'IMAGE 3 = extra catalog detail or open carcass reference — use only for construction/detail cues; keep the closed look of IMAGE 2 unless the customer asked for open carcass.'
+      : '',
+    `Preferred finish cue: ${body.colourLabel} (${body.colour}).`,
+    body.finishLabel ? `Finish: ${body.finishLabel}.` : '',
+    body.scopeLabel ? `Scope: ${body.scopeLabel}.` : '',
+  ]
+    .filter(Boolean)
+    .join(' ')
 
   if (isRefine) {
     return [
-      'You are a professional interior visualiser for Priyabadal Homes (India) doing a REVISION service.',
-      'IMAGE 1 = the CURRENT AI visualisation the customer is looking at — keep the same camera, room, overall composition, and furniture placement unless the change requires it.',
-      `IMAGE 2 = catalog style reference of "${body.productName}" from the Priyabadal Homes product list (use for finish / door / detail cues).`,
-      `CUSTOMER CHANGE REQUEST (apply this carefully): ${body.changeRequest!.trim()}`,
-      'Task: Edit IMAGE 1 to satisfy the change request. Do not ignore the request. Do not start a brand-new unrelated room.',
-      'Only change what the customer asked for (colour, handles, layout density, open/closed look, etc.). Preserve everything else from IMAGE 1.',
+      'ACCURACY-FIRST revision for Priyabadal Homes (India).',
+      'IMAGE 1 = current visualisation — preserve camera, room geometry, walls, floor, ceiling, windows, and lighting.',
+      productMatch,
+      `CHANGE REQUEST (must apply): ${body.changeRequest!.trim()}`,
+      'Edit only what the change asks. Do not invent a new room or a different product family.',
       sizeLine,
-      `Finish colour cue if relevant: ${body.colourLabel} (${body.colour}).`,
-      body.finishLabel ? `Finish selection: ${body.finishLabel}.` : '',
-      'Do NOT invent a different product brand. Do NOT paste IMAGE 2 as a sticker.',
-      'No text, logos, dimension arrows, watermarks, or UI overlays in the output.',
-      'Output a single updated photorealistic interior photograph.',
-      body.notes ? `Other notes: ${body.notes}` : '',
+      'Photorealistic interior photo only. No text, logos, arrows, or watermarks.',
+      body.notes ? `Notes: ${body.notes}` : '',
     ]
       .filter(Boolean)
       .join(' ')
@@ -217,43 +223,29 @@ function buildPrompt(body: VisualiseBody) {
 
   if (isDrawing) {
     return [
-      'You are a professional interior architect visualiser for Priyabadal Homes (India).',
-      'You understand interior architect drawings: floor plans, elevations, sections, CAD layouts, hand sketches, and dimensioned drawings.',
-      `IMAGE 1 = customer's architect drawing / plan / elevation / sketch for a ${space} — use its layout, wall runs, openings, and marked sizes as the design brief.`,
-      `IMAGE 2 = catalog style reference of "${body.productName}" from the Priyabadal Homes product list (doors, shutters, finish, detailing).`,
-      'Task: Create a photorealistic interior visualisation that follows IMAGE 1 as the architectural layout, and installs the Priyabadal product style from IMAGE 2 on the correct walls / units.',
-      'Interpret plan lines, elevation outlines, kitchen/wardrobe runs, niches, and openings correctly — do not invent a random room that ignores the drawing.',
+      'ACCURACY-FIRST interior architect visualisation for Priyabadal Homes (India).',
+      `IMAGE 1 = architect drawing for ${space} (plan/elevation/section/sketch). Respect wall runs, openings, and marked sizes.`,
+      productMatch,
+      'Task: Photoreal eye-level interior showing the catalog product installed per the drawing — not a CAD screenshot, not a random room.',
       sizeLine,
-      'Match door styles, groove profiles, handles, materials, and detailing from IMAGE 2 as closely as possible.',
-      `Cabinet / product finish colour cue: ${body.colourLabel} (${body.colour}).`,
-      body.finishLabel ? `Finish selection: ${body.finishLabel}.` : '',
-      body.scopeLabel ? `Build scope: ${body.scopeLabel}.` : '',
-      'Do NOT invent a different product brand. Do NOT paste IMAGE 2 as a floating sticker or collage.',
-      'Convert the drawing into a believable finished interior photograph (eye-level or natural interior camera), not a CAD screenshot.',
-      'No text, logos, dimension arrows, watermarks, or UI overlays in the output.',
-      'Output a single photorealistic interior photograph suitable for a showroom quote.',
-      body.notes ? `Customer note: ${body.notes}` : '',
+      'Match IMAGE 2 product identity tightly (doors, grooves, handles, materials).',
+      'No text, logos, dimension arrows, or watermarks in the output.',
+      body.notes ? `Notes: ${body.notes}` : '',
     ]
       .filter(Boolean)
       .join(' ')
   }
 
   return [
-    'You are a professional interior visualiser for Priyabadal Homes (India).',
-    `IMAGE 1 = customer's real ${space} / room photograph — keep this exact camera angle, walls, floor, ceiling, windows, doors, and lighting.`,
-    `IMAGE 2 = style reference of "${body.productName}" from Priyabadal Homes (design / finish / detailing only — NOT the final size).`,
-    'Task: Photorealistically redesign IMAGE 1 by installing that product style onto the correct wall/surfaces in IMAGE 1.',
+    'ACCURACY-FIRST interior product visualisation for Priyabadal Homes (India).',
+    `IMAGE 1 = customer’s real ${space} photograph. Keep THE SAME camera angle, perspective, walls, floor, ceiling, windows, doors, and lighting. Do not replace the room.`,
+    productMatch,
+    'Task: Install the Priyabadal catalog product onto the correct wall/surfaces in IMAGE 1 with correct perspective, contact shadows, and seamless lighting.',
     sizeLine,
-    'Match door styles, groove profiles, handles, materials, and detailing from IMAGE 2 as closely as possible.',
-    `Cabinet / product finish colour cue: ${body.colourLabel} (${body.colour}).`,
-    body.finishLabel ? `Finish selection: ${body.finishLabel}.` : '',
-    body.scopeLabel ? `Build scope: ${body.scopeLabel}.` : '',
-    'Do NOT invent a different product brand. Do NOT paste IMAGE 2 as a floating sticker or collage.',
-    'Do NOT keep a tiny sample-sized unit if the customer size is larger — fill the intended wall run.',
-    'Blend seamlessly with correct perspective, contact shadows, reflections, and ambient light.',
-    'No text, logos, dimension arrows, watermarks, or UI overlays in the output.',
-    'Output a single photorealistic interior photograph suitable for a showroom quote.',
-    body.notes ? `Customer note: ${body.notes}` : '',
+    'Do NOT paste IMAGE 2 as a sticker/collage. Do NOT invent another brand or a totally different design.',
+    'Do NOT leave a tiny sample-sized unit — fill the intended wall run at the given feet size.',
+    'Output one photorealistic interior photograph. No text, logos, arrows, or watermarks.',
+    body.notes ? `Notes: ${body.notes}` : '',
   ]
     .filter(Boolean)
     .join(' ')
@@ -294,23 +286,28 @@ async function handleVisualise(req: IncomingMessage, res: ServerResponse) {
     }
 
     const isRefine = Boolean(body.refineImageUrl && body.changeRequest?.trim())
-    const [baseUrl, productUrl] = await Promise.all([
+    const extraProductSrcs = (body.productImageUrls ?? [])
+      .filter((u) => typeof u === 'string' && u.length > 0)
+      .filter((u) => u !== body.productImageUrl)
+      .slice(0, 2)
+
+    const [baseUrl, productUrl, ...extraProductUrls] = await Promise.all([
       resolveImageUrl(
         falKey,
         isRefine ? body.refineImageUrl! : body.roomDataUrl,
         isRefine ? 'refine.jpg' : 'room.jpg',
       ),
-      resolveImageUrl(falKey, body.productImageUrl, 'product.jpg'),
+      resolveImageUrl(falKey, body.productImageUrl, 'product-exterior.jpg'),
+      ...extraProductSrcs.map((src, i) =>
+        resolveImageUrl(falKey, src, `product-detail-${i + 1}.jpg`),
+      ),
     ])
 
     const model =
       process.env.FAL_VISUALISE_MODEL || 'fal-ai/nano-banana-pro/edit'
 
-    const aspect =
-      Number(body.widthFt) > 0 && Number(body.heightFt) > 0
-        ? aspectFromFeet(Number(body.widthFt), Number(body.heightFt))
-        : 'auto'
-
+    // Keep aspect_ratio auto so the room photo framing is preserved.
+    // Furniture feet sizes belong in the prompt only — never as image aspect.
     const falRes = await fetch(`https://fal.run/${model}`, {
       method: 'POST',
       headers: {
@@ -319,11 +316,12 @@ async function handleVisualise(req: IncomingMessage, res: ServerResponse) {
       },
       body: JSON.stringify({
         prompt: buildPrompt(body),
-        image_urls: [baseUrl, productUrl],
+        image_urls: [baseUrl, productUrl, ...extraProductUrls],
         num_images: 1,
-        aspect_ratio: aspect,
+        aspect_ratio: 'auto',
         output_format: 'jpeg',
-        resolution: '1K',
+        resolution: process.env.FAL_VISUALISE_RESOLUTION || '2K',
+        limit_generations: true,
       }),
     })
 

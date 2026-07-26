@@ -1,13 +1,25 @@
-/* Priya Badal AI — full-height chat shell (modern assistant UI) */
+/* Priya Badal AI — locked viewport shell; only the thread scrolls */
 
 .pbai {
   --pbai-max: 48rem;
+  box-sizing: border-box;
   display: flex;
   flex-direction: column;
-  min-height: calc(100vh - var(--nav-h));
+  /* Sit below fixed site nav; lock to the remaining viewport */
+  margin-top: var(--nav-h);
+  height: calc(100dvh - var(--nav-h));
+  max-height: calc(100dvh - var(--nav-h));
+  min-height: 0;
+  overflow: hidden;
   background:
     radial-gradient(120% 80% at 50% -10%, rgba(157, 180, 184, 0.22), transparent 55%),
     linear-gradient(180deg, #eef3f0 0%, var(--paper) 42%, #f3f6f4 100%);
+}
+
+/* Hide site chrome that would push the chat page and fight scroll */
+body:has(.pbai) .footer,
+body:has(.pbai) .wa-fab {
+  display: none;
 }
 
 .pbai__top {
@@ -17,11 +29,11 @@
   gap: 1rem;
   padding: 0.85rem clamp(1rem, 3vw, 1.75rem);
   border-bottom: 1px solid rgba(21, 32, 25, 0.08);
-  background: rgba(247, 250, 248, 0.88);
+  background: rgba(247, 250, 248, 0.96);
   backdrop-filter: blur(10px);
-  position: sticky;
-  top: var(--nav-h);
+  position: relative;
   z-index: 5;
+  flex-shrink: 0;
 }
 
 .pbai__brand {
@@ -102,6 +114,7 @@
   max-width: var(--pbai-max);
   width: min(100% - 2rem, var(--pbai-max));
   margin-inline: auto;
+  flex-shrink: 0;
 }
 
 .pbai__key p {
@@ -144,6 +157,7 @@
   gap: 0.4rem;
   justify-content: center;
   padding: 0.65rem clamp(1rem, 3vw, 1.5rem) 0.15rem;
+  flex-shrink: 0;
 }
 
 .pbai__brief-bar span {
@@ -159,9 +173,14 @@
 }
 
 .pbai__scroll {
-  flex: 1;
+  flex: 1 1 auto;
+  min-height: 0;
+  overflow-x: hidden;
   overflow-y: auto;
+  overscroll-behavior: contain;
+  -webkit-overflow-scrolling: touch;
   padding: 0.5rem 0 1rem;
+  scroll-behavior: auto;
 }
 
 .pbai__thread {
@@ -384,10 +403,11 @@
 }
 
 .pbai__composer-wrap {
-  position: sticky;
-  bottom: 0;
+  position: relative;
+  flex-shrink: 0;
   padding: 0.35rem clamp(0.75rem, 2.5vw, 1.25rem) 0.9rem;
-  background: linear-gradient(180deg, rgba(247, 250, 248, 0), rgba(247, 250, 248, 0.92) 28%, var(--paper) 70%);
+  background: linear-gradient(180deg, rgba(247, 250, 248, 0.55), var(--paper) 35%);
+  border-top: 1px solid rgba(21, 32, 25, 0.06);
 }
 
 .pbai__chips {

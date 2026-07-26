@@ -43,11 +43,39 @@ export function ChatPage() {
     kind: AttachMode
   } | null>(null)
   const endRef = useRef<HTMLDivElement>(null)
+  const scrollRef = useRef<HTMLDivElement>(null)
+  const stickToBottomRef = useRef(true)
   const fileRef = useRef<HTMLInputElement>(null)
   const inputRef = useRef<HTMLTextAreaElement>(null)
 
+  /** Scroll only the chat thread — never the whole page */
+  const scrollThreadToBottom = (smooth = false) => {
+    const el = scrollRef.current
+    if (!el) return
+    const top = el.scrollHeight
+    if (smooth && typeof el.scrollTo === 'function') {
+      el.scrollTo({ top, behavior: 'smooth' })
+    } else {
+      el.scrollTop = top
+    }
+  }
+
   useEffect(() => {
-    endRef.current?.scrollIntoView({ behavior: 'smooth' })
+    // Lock page scroll while chatting so only the thread moves
+    const prevHtml = document.documentElement.style.overflow
+    const prevBody = document.body.style.overflow
+    document.documentElement.style.overflow = 'hidden'
+    document.body.style.overflow = 'hidden'
+    return () => {
+      document.documentElement.style.overflow = prevHtml
+      document.body.style.overflow = prevBody
+    }
+  }, [])
+
+  useEffect(() => {
+    if (!stickToBottomRef.current) return
+    // Instant on send; smooth only for short assistant updates feels jumpy — keep instant
+    scrollThreadToBottom(false)
   }, [messages, busy, pendingFile])
 
   useEffect(() => {
@@ -56,6 +84,13 @@ export function ChatPage() {
       if (!s.configured) setShowKey(false)
     })
   }, [])
+
+  const onThreadScroll = () => {
+    const el = scrollRef.current
+    if (!el) return
+    const distance = el.scrollHeight - el.scrollTop - el.clientHeight
+    stickToBottomRef.current = distance < 100
+  }
 
   const push = (...next: ChatMessage[]) => {
     setMessages((prev) => [...prev, ...next])
@@ -175,6 +210,9 @@ export function ChatPage() {
       })
       return
     }
+
+    // New messages should pin the thread to the latest reply
+    stickToBottomRef.current = true
 
     if (/^whatsapp quote$/i.test(trimmed)) {
       const url = buildChatWhatsAppUrl(brief)
@@ -511,7 +549,13 @@ export function ChatPage() {
         <span>{brief.aiImageUrl ? 'AI ready' : 'No AI yet'}</span>
       </div>
 
-      <div className="pbai__scroll" role="log" aria-live="polite">
+      <div
+        className="pbai__scroll"
+        ref={scrollRef}
+        role="log"
+        aria-live="polite"
+        onScroll={onThreadScroll}
+      >
         <div className="pbai__thread">
           {showWelcomeHero ? (
             <div className="pbai__hero">

@@ -205,6 +205,7 @@ export function DesignSpacePage() {
           buildScope: hasCarcass ? buildScope : 'shutter',
           notes,
           usedAi: Boolean(aiUrl),
+          aiImageUrl: aiUrl,
         })
       : null
 
@@ -521,17 +522,51 @@ export function DesignSpacePage() {
                 <button type="button" className="btn btn--outline" onClick={() => setStep(2)}>
                   Back
                 </button>
-                {whatsapp ? (
+                {whatsapp && aiUrl ? (
                   <a
                     className="whatsapp-quote-btn"
                     href={whatsapp}
                     target="_blank"
                     rel="noopener noreferrer"
                   >
-                    WhatsApp this plan
+                    WhatsApp quote + AI photo
                   </a>
-                ) : null}
+                ) : (
+                  <button
+                    type="button"
+                    className="btn btn--outline"
+                    onClick={() =>
+                      setStatusMsg(
+                        'Generate AI room look first — then WhatsApp will include the AI photo link for the client.',
+                      )
+                    }
+                  >
+                    WhatsApp quote + AI photo
+                  </button>
+                )}
               </div>
+              {aiUrl ? (
+                <p className="design__ok">
+                  AI photo will go in the WhatsApp message as an openable link (same look the
+                  client saw here).
+                </p>
+              ) : (
+                <p className="design__status">
+                  WhatsApp sends price + size always; generate AI first so the photo link goes with
+                  the quote.
+                </p>
+              )}
+              {aiUrl ? (
+                <p className="design__links">
+                  <a href={aiUrl} target="_blank" rel="noopener noreferrer">
+                    Open AI photo
+                  </a>
+                  {' · '}
+                  <a href={aiUrl} download="priyabadal-ai-look.jpg">
+                    Download AI photo
+                  </a>
+                </p>
+              ) : null}
 
               <p className="design__links">
                 Need more detail?{' '}
@@ -598,18 +633,31 @@ export function DesignSpacePage() {
                 </li>
                 <li>{product.name}</li>
               </ul>
-              {whatsapp ? (
+              {whatsapp && aiUrl ? (
                 <a
                   className="whatsapp-quote-btn"
                   href={whatsapp}
                   target="_blank"
                   rel="noopener noreferrer"
                 >
-                  WhatsApp quote
+                  WhatsApp quote + AI photo
                 </a>
+              ) : whatsapp ? (
+                <button
+                  type="button"
+                  className="whatsapp-quote-btn whatsapp-quote-btn--muted"
+                  onClick={() =>
+                    setStatusMsg(
+                      'Generate AI room look first so the client gets the AI photo link with the quote.',
+                    )
+                  }
+                >
+                  WhatsApp quote + AI photo
+                </button>
               ) : null}
               <p className="design__disclaimer">
-                Estimate only. Final price after site measure, hardware, and finish confirmation.
+                Estimate only. Final price after site measure. WhatsApp includes your AI photo link
+                so the client sees the same look off the website.
               </p>
             </div>
           ) : (

@@ -367,6 +367,14 @@
   background: #185730;
 }
 
+.carcass__quote-actions .whatsapp-quote-btn--muted {
+  opacity: 0.72;
+  border: 0;
+  cursor: pointer;
+  font: inherit;
+  width: 100%;
+}
+
 .carcass__disclaimer {
   font-size: 0.78rem;
   color: var(--ink-soft);

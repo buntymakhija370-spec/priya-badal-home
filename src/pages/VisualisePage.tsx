@@ -139,6 +139,7 @@ export function VisualisePage() {
       colour,
       notes: notes.trim() || undefined,
       usedAi: Boolean(resultUrl),
+      aiImageUrl: resultUrl,
     })
 
   return (
@@ -313,7 +314,7 @@ export function VisualisePage() {
                 target="_blank"
                 rel="noopener noreferrer"
               >
-                WhatsApp this look for quote
+                WhatsApp quote + AI photo
               </a>
               <Link className="btn btn--outline" to={`/product/${product.id}`}>
                 Customise &amp; price

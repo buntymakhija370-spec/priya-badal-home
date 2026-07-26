@@ -412,6 +412,7 @@ export function buildCarcassWhatsAppUrl(input: {
   thicknessId: string
   notes?: string
   usedLiveAi?: boolean
+  aiImageUrl?: string | null
 }) {
   const title =
     input.category === 'kitchen' ? 'Kitchen carcass plan' : 'Wardrobe carcass plan'
@@ -423,9 +424,11 @@ export function buildCarcassWhatsAppUrl(input: {
     `Area: ${input.quote.sqft.toFixed(1)} sq ft`,
     `Layout: ${input.quote.baySummary}`,
     `Finish: ${getFinish(input.finishId).name} · ${getThickness(input.thicknessId).label}`,
-    input.usedLiveAi
-      ? 'Visual: Live-size AI carcass generated on the website'
-      : null,
+    input.aiImageUrl
+      ? `AI carcass photo (open this link): ${input.aiImageUrl}`
+      : input.usedLiveAi
+        ? 'Live-size AI carcass was generated on the website (photo link missing — please resend).'
+        : null,
     `Rates: shutter ${formatPrice(input.quote.shutterRate, 'INR')}/sq ft · carcass ${formatPrice(input.quote.carcassRate, 'INR')}/sq ft`,
     `Module add-ons: ${formatPrice(input.quote.moduleAddOn, 'INR')}`,
     `Estimated total: ${formatPrice(input.quote.unitPrice, 'INR')} (with carcass)`,

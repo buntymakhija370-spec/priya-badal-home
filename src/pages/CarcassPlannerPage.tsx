@@ -126,6 +126,7 @@ export function CarcassPlannerPage() {
     thicknessId,
     notes: prompt,
     usedLiveAi: Boolean(liveImageUrl),
+    aiImageUrl: liveImageUrl,
   })
 
   useEffect(() => {
@@ -430,20 +431,43 @@ export function CarcassPlannerPage() {
               </li>
             </ul>
             <div className="carcass__quote-actions">
-              <a
-                className="whatsapp-quote-btn"
-                href={whatsapp}
-                target="_blank"
-                rel="noopener noreferrer"
-              >
-                WhatsApp this plan
-              </a>
+              {liveImageUrl ? (
+                <a
+                  className="whatsapp-quote-btn"
+                  href={whatsapp}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                >
+                  WhatsApp plan + AI photo
+                </a>
+              ) : (
+                <button
+                  type="button"
+                  className="whatsapp-quote-btn whatsapp-quote-btn--muted"
+                  onClick={() =>
+                    setLiveMsg(
+                      'Generate live-size AI first — then WhatsApp will include the AI photo link.',
+                    )
+                  }
+                >
+                  WhatsApp plan + AI photo
+                </button>
+              )}
               {product ? (
                 <Link className="btn btn--outline" to={`/product/${product.id}`}>
                   View product
                 </Link>
               ) : null}
             </div>
+            {liveImageUrl ? (
+              <p className="carcass__ai-note">
+                AI photo link goes in WhatsApp so the client keeps the same look after leaving the
+                site.{' '}
+                <a href={liveImageUrl} target="_blank" rel="noopener noreferrer">
+                  Open AI photo
+                </a>
+              </p>
+            ) : null}
             <p className="carcass__disclaimer">
               Live-size AI is a visual guide for quotation. Final fit, hardware, and price are
               confirmed after site measure on WhatsApp.

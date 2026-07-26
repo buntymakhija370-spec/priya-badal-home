@@ -462,6 +462,13 @@
   margin-bottom: 0.75rem;
 }
 
+.whatsapp-quote-btn--muted {
+  opacity: 0.72;
+  border: 0;
+  cursor: pointer;
+  font: inherit;
+}
+
 .design__quote .whatsapp-quote-btn:hover,
 .design__nav .whatsapp-quote-btn:hover {
   background: #185730;

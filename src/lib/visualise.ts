@@ -187,6 +187,7 @@ export function buildVisualiseWhatsAppUrl(input: {
   colour: VisualiseColour
   notes?: string
   usedAi: boolean
+  aiImageUrl?: string | null
 }) {
   const lines = [
     'Hi Priyabadal Homes — Interior Visualise request:',
@@ -194,11 +195,16 @@ export function buildVisualiseWhatsAppUrl(input: {
     `Product: ${input.product.name}`,
     `Finish colour: ${input.colour.label}`,
     `Mode: ${input.usedAi ? 'Professional AI product-referenced render' : 'Need professional mockup'}`,
+    input.aiImageUrl
+      ? `AI photo (open this link): ${input.aiImageUrl}`
+      : input.usedAi
+        ? 'AI render was created on the website (photo link missing — please resend).'
+        : null,
     input.notes ? `Note: ${input.notes}` : '',
     '',
     `Product link: ${window.location.origin}/product/${input.product.id}`,
     '',
-    'I uploaded my room photo on the Visualise page. Please share the final look / quote.',
+    'Please share the final look / quote. Thank you.',
   ].filter(Boolean)
 
   return `https://wa.me/${WHATSAPP_QUOTE_NUMBER}?text=${encodeURIComponent(lines.join('\n'))}`

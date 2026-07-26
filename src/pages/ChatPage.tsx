@@ -1,6 +1,8 @@
 import { useEffect, useRef, useState, type FormEvent, type KeyboardEvent } from 'react'
 import { Link } from 'react-router-dom'
+import { useNavigate } from 'react-router-dom'
 import { askPriyaBadalAI } from '../lib/chatAI'
+import { CARCASS_ASSEMBLY_PATH } from '../data/carcassSpec'
 import {
   buildChatWhatsAppUrl,
   colourFromBrief,
@@ -28,6 +30,7 @@ type AttachMode = 'photo' | 'drawing'
 
 export function ChatPage() {
   useCurrency()
+  const navigate = useNavigate()
   const [messages, setMessages] = useState<ChatMessage[]>([createWelcomeMessage()])
   const [brief, setBrief] = useState<ConsultBrief>({})
   const [input, setInput] = useState('')
@@ -213,6 +216,28 @@ export function ChatPage() {
 
     // New messages should pin the thread to the latest reply
     stickToBottomRef.current = true
+
+    if (
+      /^(open )?carcass assembly guide$/i.test(trimmed) ||
+      /^assembly guide$/i.test(trimmed)
+    ) {
+      push(
+        { id: crypto.randomUUID(), role: 'user', text: trimmed },
+        {
+          id: crypto.randomUUID(),
+          role: 'assistant',
+          text: [
+            'Opening the carcass assembly guide — BWP plywood, both-side 1 mm laminate, 2 mm edge banding, install drawing, and QR for easy assembly.',
+            '',
+            `Path: ${CARCASS_ASSEMBLY_PATH}`,
+          ].join('\n'),
+          suggestions: ['What is carcass pricing?', 'Material specs', 'Suggest styles'],
+        },
+      )
+      setInput('')
+      navigate(CARCASS_ASSEMBLY_PATH)
+      return
+    }
 
     if (/^whatsapp quote$/i.test(trimmed)) {
       const url = buildChatWhatsAppUrl(brief)

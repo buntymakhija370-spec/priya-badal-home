@@ -1,4 +1,10 @@
 import { formatPrice, type Product } from '../data/catalog'
+import {
+  CARCASS_ASSEMBLY_PATH,
+  CARCASS_CONSTRUCTION_DETAIL,
+  CARCASS_CONSTRUCTION_SHORT,
+  CARCASS_SPEC_ROWS,
+} from '../data/carcassSpec'
 import { MATERIAL_POINTS } from '../data/materials'
 import { getAllProducts, getProductById } from './products'
 import { resolveProductPresentation } from './productSpecs'
@@ -278,6 +284,12 @@ export function answerCarcassQuestion(
   const general = [
     'Carcass = the cabinet box (sides, shelves, top/bottom). Shutter = the front doors/panels.',
     '',
+    `Our carcass construction standard: ${CARCASS_CONSTRUCTION_SHORT}.`,
+    CARCASS_CONSTRUCTION_DETAIL,
+    '',
+    ...CARCASS_SPEC_ROWS.map((r) => `• ${r.label}: ${r.value}`),
+    `• Assembly guide (drawing + QR): ${CARCASS_ASSEMBLY_PATH}`,
+    '',
     'How we price it on Priyabadal Homes:',
     '• Shutter only — fronts / doors at the catalog shutter rate.',
     '• With carcass — shutter rate + carcass rate (both added), when the product lists a carcass rate.',
@@ -297,8 +309,8 @@ export function answerCarcassQuestion(
         suggestions: [
           'Suggest styles',
           'Wardrobe 8x7 with carcass',
+          'Open carcass assembly guide',
           'Material specs',
-          'WhatsApp quote',
         ],
       },
     )

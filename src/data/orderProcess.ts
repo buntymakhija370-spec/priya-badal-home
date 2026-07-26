@@ -39,14 +39,14 @@ export const ORDER_STEPS: OrderStep[] = [
     title: 'Made to your order',
     summary: 'Your piece is crafted for your home — not stock.',
     detail:
-      'Shutters, doors, panels, and wardrobes are made to the confirmed size and finish. Timeline is shared on WhatsApp after confirmation.',
+      'Shutters and carcasses are made to the confirmed size. Carcass standard: BWP plywood, both-side 1 mm laminate, 2 mm edge banding. Timeline is shared on WhatsApp after confirmation.',
   },
   {
     id: 'install',
     title: 'Delivery & fitting',
-    summary: 'On-site carpenter assembly and install support.',
+    summary: 'On-site assembly with drawing + QR guide.',
     detail:
-      'We coordinate delivery and carpenter fitting so the piece sits true on your wall. After install, keep WhatsApp open for any finishing notes.',
+      'We coordinate delivery and carpenter fitting. Scan the carcass QR (or open /guides/carcass-assembly) for the installation drawing and step-by-step box assembly. After install, keep WhatsApp open for finishing notes.',
   },
 ]
 
@@ -62,5 +62,9 @@ export const ORDER_NOTES = [
   {
     title: 'Made in India',
     body: 'Priyabadal Homes builds made-to-measure interiors for Indian homes — shutters, doors, wall panels, and more.',
+  },
+  {
+    title: 'Carcass construction',
+    body: 'BWP plywood · both-side 1 mm laminate · 2 mm edge banding, with installation drawing and QR for easy assembly.',
   },
 ]

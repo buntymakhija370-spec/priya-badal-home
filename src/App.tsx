@@ -11,6 +11,7 @@ import { CartPage } from './pages/CartPage'
 import { VisualisePage } from './pages/VisualisePage'
 import { HowItWorksPage } from './pages/HowItWorksPage'
 import { CarcassPlannerPage } from './pages/CarcassPlannerPage'
+import { CarcassAssemblyPage } from './pages/CarcassAssemblyPage'
 import { DesignSpacePage } from './pages/DesignSpacePage'
 import './App.css'
 
@@ -28,6 +29,7 @@ export default function App() {
           <Route path="design" element={<DesignSpacePage />} />
           <Route path="visualise" element={<VisualisePage />} />
           <Route path="carcass" element={<CarcassPlannerPage />} />
+          <Route path="guides/carcass-assembly" element={<CarcassAssemblyPage />} />
           <Route path="how-it-works" element={<HowItWorksPage />} />
           <Route path="favorites" element={<FavoritesPage />} />
           <Route path="cart" element={<CartPage />} />

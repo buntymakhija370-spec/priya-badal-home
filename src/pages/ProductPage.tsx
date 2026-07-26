@@ -18,10 +18,12 @@ import { ProductGallery } from '../components/ProductGallery'
 import { ProductCard } from '../components/ProductCard'
 import { CustomizeButton } from '../components/PriceCalculator'
 import { FavoriteButton } from '../components/FavoriteButton'
+import { CarcassSpecCard } from '../components/CarcassSpecCard'
 import { useProductSeo } from '../hooks/useProductSeo'
 import { useCurrency } from '../hooks/useCurrency'
 import { shopPath } from '../lib/links'
 import { isApproxDisplayCurrency } from '../lib/currency'
+import { productUsesCarcassConstruction } from '../data/carcassSpec'
 import './ProductPage.css'
 
 type SectionId = 'details' | 'specs' | 'features'
@@ -78,6 +80,10 @@ export function ProductPage() {
   const minQty = getMinOrderQuantity(product)
   const isCommercial = product.categoryId === 'commercials'
   const customizable = isProductCustomizable(product)
+  const showCarcassSpec = productUsesCarcassConstruction(
+    product.categoryId,
+    product.carcassPrice != null,
+  )
 
   return (
     <main className="product-page page-pad">
@@ -245,6 +251,8 @@ export function ProductPage() {
           <p className="product-page__sku">Sku: {presentation.sku}</p>
         </div>
       </div>
+
+      {showCarcassSpec ? <CarcassSpecCard /> : null}
 
       <section className="product-page__panels" aria-label="Product information">
         <div className="product-page__tabs" role="tablist" aria-label="Product sections">

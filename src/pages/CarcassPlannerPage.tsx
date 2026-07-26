@@ -31,6 +31,7 @@ import {
 } from '../lib/carcassLive'
 import { formatPrice } from '../lib/currency'
 import { useCurrency } from '../hooks/useCurrency'
+import { CarcassSpecCard } from '../components/CarcassSpecCard'
 import './CarcassPlannerPage.css'
 
 type ViewMode = 'live-ai' | 'carcass' | 'exterior'
@@ -250,9 +251,12 @@ export function CarcassPlannerPage() {
         <h1>Carcass Planner</h1>
         <p>
           Set your wall size, pick a layout, then generate a <strong>live-size AI carcass</strong>{' '}
-          matched to your feet dimensions — with shutter + carcass price for WhatsApp.
+          matched to your feet dimensions — with shutter + carcass price for WhatsApp. All carcasses
+          use <strong>BWP plywood, both-side 1 mm laminate, 2 mm edge banding</strong>.
         </p>
       </header>
+
+      <CarcassSpecCard compact />
 
       <ol className="carcass__steps" aria-label="How to use">
         <li>

@@ -16,6 +16,7 @@ const utilityLinks = [
   { to: '/how-it-works', label: 'How it works' },
   { to: '/visualise', label: 'Visualise AI' },
   { to: '/carcass', label: 'Carcass Planner' },
+  { to: '/guides/carcass-assembly', label: 'Carcass assembly guide' },
   { to: '/favorites', label: 'Favorites' },
   { to: '/chat', label: 'Priya Badal AI' },
   { to: '/add-product', label: 'Add Product' },

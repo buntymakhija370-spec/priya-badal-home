@@ -4,6 +4,12 @@ import {
   type Product,
   type SpecRow,
 } from '../data/catalog'
+import {
+  CARCASS_ASSEMBLY_PATH,
+  CARCASS_CONSTRUCTION_SHORT,
+  CARCASS_SPEC_ROWS,
+  productUsesCarcassConstruction,
+} from '../data/carcassSpec'
 
 const FINISH_LABELS: Record<string, string> = {
   pu: 'PU finish',
@@ -170,19 +176,30 @@ export function resolveProductPresentation(product: Product) {
   const finish = finishLabel(product)
   const thickness = thicknessLabel(product)
 
+  const usesCarcass = productUsesCarcassConstruction(
+    product.categoryId,
+    product.carcassPrice != null,
+  )
+
   const defaultHighlights =
     product.highlights ??
     [
       product.pricingMode === 'per-sqft' ? 'Priced per sq ft — sized to your wall' : null,
       product.defaultFinishId ? finish : null,
       product.defaultThicknessId ? `${thickness} board` : null,
+      usesCarcass ? CARCASS_CONSTRUCTION_SHORT : null,
       'On-site carpenter assembly',
       'Made in India',
     ].filter(Boolean) as string[]
 
   const defaultDetails: SpecRow[] = [
     { label: 'Brand', value: brand },
-    { label: 'Assembly', value: 'Carpenter Assembly (on-site)' },
+    {
+      label: 'Assembly',
+      value: usesCarcass
+        ? `Carpenter assembly (on-site) · QR guide ${CARCASS_ASSEMBLY_PATH}`
+        : 'Carpenter Assembly (on-site)',
+    },
     { label: 'Collection', value: collection },
     {
       label: 'Dimensions',
@@ -200,10 +217,17 @@ export function resolveProductPresentation(product: Product) {
     },
     {
       label: 'Primary Material',
-      value: product.defaultThicknessId
-        ? `${thickness} engineered board with ${finish}`
-        : `Premium interiors materials · ${finish}`,
+      value: usesCarcass
+        ? `Carcass: ${CARCASS_CONSTRUCTION_SHORT}${
+            product.defaultThicknessId ? ` · Shutters: ${thickness} with ${finish}` : ''
+          }`
+        : product.defaultThicknessId
+          ? `${thickness} engineered board with ${finish}`
+          : `Premium interiors materials · ${finish}`,
     },
+    ...(usesCarcass
+      ? CARCASS_SPEC_ROWS.map((row) => ({ label: row.label, value: row.value }))
+      : []),
     { label: 'Product Rating', value: 'Made-to-order quality' },
     { label: 'Room Type', value: roomType(product) || category?.name || 'Home' },
     { label: 'Warranty', value: "12 Months' warranty on manufacturing defects" },
@@ -220,6 +244,26 @@ export function resolveProductPresentation(product: Product) {
   const defaultSpecifications: SpecRow[] = [
     { label: 'Colour / Finish', value: finish },
     { label: 'Board Thickness', value: thickness },
+    ...(usesCarcass
+      ? [
+          {
+            label: 'Carcass construction',
+            value: CARCASS_CONSTRUCTION_SHORT,
+          },
+          {
+            label: 'Carcass laminate',
+            value: '1 mm laminate — both sides',
+          },
+          {
+            label: 'Edge banding',
+            value: '2 mm edge banding',
+          },
+          {
+            label: 'Install drawing / QR',
+            value: `Scan QR or open ${CARCASS_ASSEMBLY_PATH}`,
+          },
+        ]
+      : []),
     { label: 'Category', value: category?.name ?? '—' },
     { label: 'Subcategory', value: subcategory?.name ?? '—' },
     {
@@ -245,13 +289,18 @@ export function resolveProductPresentation(product: Product) {
     product.features ??
     [
       `${finish} surfaces with a clean, modern look`,
-      product.defaultThicknessId
-        ? `Built on ${thickness} board for everyday durability`
-        : 'Built for everyday home use',
+      usesCarcass
+        ? `Carcass in BWP plywood with both-side 1 mm laminate and 2 mm edge banding`
+        : product.defaultThicknessId
+          ? `Built on ${thickness} board for everyday durability`
+          : 'Built for everyday home use',
+      usesCarcass
+        ? 'Installation drawing + QR code for easy carcass assembly'
+        : null,
       'Hardware and soft-close options available on customisation',
       'Storage layout can be tuned to your needs',
       'Low-maintenance surfaces for easy cleaning',
-    ]
+    ].filter(Boolean) as string[]
 
   const disclaimer =
     product.disclaimer ??

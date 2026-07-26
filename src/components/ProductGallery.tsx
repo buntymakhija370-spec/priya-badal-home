@@ -138,7 +138,16 @@ export function ProductGallery({ media, alt }: Props) {
                   </span>
                 </>
               ) : (
-                <img src={item.src} alt="" loading={index === 0 ? 'eager' : 'lazy'} />
+                <img
+                  src={item.src}
+                  alt=""
+                  loading={index === 0 ? 'eager' : 'lazy'}
+                  className={
+                    item.fit === 'contain'
+                      ? 'product-gallery__thumb-img--contain'
+                      : undefined
+                  }
+                />
               )}
             </button>
           ))}
@@ -146,7 +155,13 @@ export function ProductGallery({ media, alt }: Props) {
       )}
 
       <div className="product-gallery__main">
-        <div className="product-gallery__stage">
+        <div
+          className={
+            activeItem?.fit === 'contain'
+              ? 'product-gallery__stage is-drawing'
+              : 'product-gallery__stage'
+          }
+        >
           <div
             ref={trackRef}
             className="product-gallery__track"
@@ -156,7 +171,14 @@ export function ProductGallery({ media, alt }: Props) {
             aria-label={`${alt} media`}
           >
             {gallery.map((item, index) => (
-              <figure key={`${item.src}-${index}`} className="product-gallery__slide">
+              <figure
+                key={`${item.src}-${index}`}
+                className={
+                  item.fit === 'contain'
+                    ? 'product-gallery__slide is-drawing'
+                    : 'product-gallery__slide'
+                }
+              >
                 {item.type === 'video' ? (
                   <video
                     ref={(el) => {
@@ -183,6 +205,11 @@ export function ProductGallery({ media, alt }: Props) {
                     }
                     loading={index === 0 ? 'eager' : 'lazy'}
                     draggable={false}
+                    className={
+                      item.fit === 'contain'
+                        ? 'product-gallery__img--contain'
+                        : undefined
+                    }
                   />
                 )}
               </figure>

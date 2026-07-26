@@ -33,6 +33,13 @@
   object-fit: cover;
 }
 
+.product-gallery__thumb-img--contain {
+  object-fit: contain !important;
+  background: #fff;
+  padding: 0.15rem;
+  box-sizing: border-box;
+}
+
 .product-gallery__thumb-play {
   position: absolute;
   inset: auto 0.25rem 0.25rem auto;
@@ -119,6 +126,19 @@
 
 .product-gallery__slide img {
   pointer-events: none;
+}
+
+.product-gallery__img--contain,
+.product-gallery__slide.is-drawing img {
+  object-fit: contain;
+  object-position: center;
+  background: #fff;
+  padding: 0.35rem;
+  box-sizing: border-box;
+}
+
+.product-gallery__stage.is-drawing {
+  background: #fff;
 }
 
 .product-gallery__video {

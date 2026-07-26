@@ -6,6 +6,12 @@ export type MediaItem = {
   poster?: string
   /** Short label under the photograph (what this view shows) */
   caption?: string
+  /** Technical / dimension drawings — show full frame (no crop) */
+  fit?: 'cover' | 'contain'
+}
+
+export function isDimensionDrawingSrc(src: string) {
+  return /dim-(elevation|carcass)\.(svg|png|jpg|jpeg|webp)(\?|$)/i.test(src)
 }
 
 export function isVideoSrc(src: string) {
@@ -63,6 +69,7 @@ export function getProductMedia(product: Product): MediaItem[] {
       type: 'image' as const,
       src,
       caption: defaultImageCaption(product, index, images.length),
+      fit: isDimensionDrawingSrc(src) ? ('contain' as const) : ('cover' as const),
     }))
   }
 
@@ -87,6 +94,7 @@ export function getProductMedia(product: Product): MediaItem[] {
       type: 'image',
       src,
       caption: defaultImageCaption(product, imageIndex, images.length),
+      fit: isDimensionDrawingSrc(src) ? 'contain' : 'cover',
     })
     imageIndex += 1
   }

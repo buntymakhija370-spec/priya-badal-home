@@ -1,24 +1,18 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 800 680" role="img">
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 750 1000" width="750" height="1000" preserveAspectRatio="xMidYMid meet" role="img">
   <title>LED Oak Dressing Wardrobe — exterior dimension drawing</title>
-  <rect width="800" height="680" fill="#eef3f0"/>
-  <rect x="24" y="24" width="752" height="632" rx="16" fill="#fff" stroke="#c5d2cb"/>
-  <text x="48" y="58" font-family="Georgia, serif" font-size="22" fill="#152019">Dimension drawing 1 · Exterior elevation</text>
-  <text x="48" y="78" font-family="system-ui,sans-serif" font-size="13" fill="#5c6b62">LED Oak Dressing Wardrobe · Made to measure (reference size shown)</text>
-  <rect x="160" y="80" width="420" height="480" fill="#e8eeea" stroke="#4f6a58" stroke-width="2.5"/>
-  <rect x="164" y="88" width="132" height="464" rx="4" fill="#f3f6f4" stroke="#4f6a58" stroke-width="2"/><rect x="304" y="88" width="132" height="464" rx="4" fill="#f3f6f4" stroke="#4f6a58" stroke-width="2"/><rect x="444" y="88" width="132" height="464" rx="4" fill="#f3f6f4" stroke="#4f6a58" stroke-width="2"/>
-  <!-- Width dim -->
-  <line x1="160" y1="596" x2="580" y2="596" stroke="#9a7340" stroke-width="1.5" marker-start="url(#m)" marker-end="url(#m)"/>
-  <text x="370" y="618" text-anchor="middle" font-size="14" font-weight="700" fill="#152019">W = 7 ft</text>
-  <!-- Height dim -->
-  <line x1="616" y1="80" x2="616" y2="560" stroke="#9a7340" stroke-width="1.5"/>
-  <text x="632" y="320" font-size="14" font-weight="700" fill="#152019" transform="rotate(90 632 320)">H = 7.5 ft</text>
-  <!-- Depth note -->
-  <rect x="48" y="590" width="704" height="48" rx="10" fill="#f7faf8" stroke="#c5d2cb"/>
-  <text x="64" y="620" font-size="13" fill="#5c6b62">Depth D = 2 ft (typical) · Final W × H × D confirmed on site · BWP carcass · both-side 1 mm laminate · 2 mm edge banding</text>
-  <defs>
-    <marker id="m" markerWidth="6" markerHeight="6" refX="3" refY="3" orient="auto">
-      <circle cx="3" cy="3" r="2" fill="#9a7340"/>
-    </marker>
-  </defs>
+  <rect width="750" height="1000" fill="#ffffff"/>
+  <rect x="28" y="28" width="694" height="944" rx="18" fill="#fff" stroke="#c5d2cb" stroke-width="2"/>
+  <text x="52" y="72" font-family="Georgia, serif" font-size="26" fill="#152019">Dimension drawing 1</text>
+  <text x="52" y="102" font-family="system-ui,sans-serif" font-size="16" fill="#5c6b62">Exterior elevation · LED Oak Dressing Wardrobe</text>
+  <text x="52" y="126" font-family="system-ui,sans-serif" font-size="14" fill="#8a9690">Made to measure — reference size shown</text>
+  <rect x="90" y="140" width="480" height="620" fill="#e8eeea" stroke="#4f6a58" stroke-width="2.5"/>
+  <rect x="95" y="150" width="150" height="600" rx="5" fill="#f3f6f4" stroke="#4f6a58" stroke-width="2"/><rect x="255" y="150" width="150" height="600" rx="5" fill="#f3f6f4" stroke="#4f6a58" stroke-width="2"/><rect x="415" y="150" width="150" height="600" rx="5" fill="#f3f6f4" stroke="#4f6a58" stroke-width="2"/>
+  <line x1="90" y1="800" x2="570" y2="800" stroke="#9a7340" stroke-width="2"/>
+  <text x="330" y="828" text-anchor="middle" font-size="18" font-weight="700" fill="#152019">W = 7 ft</text>
+  <line x1="610" y1="140" x2="610" y2="760" stroke="#9a7340" stroke-width="2"/>
+  <text x="632" y="450" font-size="18" font-weight="700" fill="#152019" transform="rotate(90 632 450)">H = 7.5 ft</text>
+  <rect x="48" y="880" width="654" height="72" rx="12" fill="#f7faf8" stroke="#c5d2cb"/>
+  <text x="64" y="912" font-size="15" fill="#5c6b62">Depth D = 2 ft (typical)</text>
+  <text x="64" y="936" font-size="14" fill="#5c6b62">Final W × H × D confirmed on site · BWP · 1 mm laminate both sides · 2 mm edge banding</text>
 </svg>

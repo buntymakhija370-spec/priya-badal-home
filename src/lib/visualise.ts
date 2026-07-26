@@ -69,6 +69,7 @@ export type VisualiseStatus = {
   configured: boolean
   mode: string
   model?: string
+  refineModel?: string
 }
 
 /** Compress / resize room photo for upload + AI (higher res = better room fidelity) */

@@ -410,8 +410,8 @@ export function processConsultTurn(
           products: next.selectedProductId
             ? undefined
             : suggestProducts(next, text, 3),
-          suggestions: missing.includes('upload a room / wall photo')
-            ? ['I will upload a photo']
+          suggestions: missing.some((m) => m.includes('upload'))
+            ? ['Attach room photo', 'I have an architect drawing']
             : ['Suggest products'],
         },
       }
@@ -493,7 +493,7 @@ export function processConsultTurn(
       products,
       suggestions: next.roomPhotoDataUrl
         ? ['Visualise my look', 'Suggest other styles', 'WhatsApp quote']
-        : ['I will upload a photo', 'Visualise my look', 'Suggest other styles'],
+        : ['Attach room photo', 'Visualise my look', 'Suggest other styles'],
     },
   }
 }

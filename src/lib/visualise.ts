@@ -30,6 +30,9 @@ export type VisualiseRequest = {
   scopeLabel?: string
   /** Room photo vs architect drawing / plan / elevation */
   inputKind?: 'photo' | 'drawing'
+  /** Previous AI image to edit for follow-up change commands */
+  refineImageUrl?: string
+  changeRequest?: string
 }
 
 export type VisualiseResult = {
@@ -134,6 +137,8 @@ export async function generateVisualise(
         finishLabel: input.finishLabel,
         scopeLabel: input.scopeLabel,
         inputKind: input.inputKind ?? 'photo',
+        refineImageUrl: input.refineImageUrl,
+        changeRequest: input.changeRequest,
       }),
     })
 
@@ -151,11 +156,17 @@ export async function generateVisualise(
             (input.depthFt ? ` × ${input.depthFt}` : '') +
             ' ft (AI look is a guide — quote uses your exact size).'
           : ''
+      const refineHint = input.changeRequest?.trim()
+        ? ` Updated for your change: “${input.changeRequest.trim()}”.`
+        : ''
       return {
         imageUrl: data.imageUrl,
         source: 'ai',
         message:
-          'Professional AI render using your Priyabadal Homes product as reference.' +
+          (input.refineImageUrl
+            ? 'Revised visualisation from your change request.'
+            : 'Professional AI render using your Priyabadal Homes product as reference.') +
+          refineHint +
           sizeHint,
       }
     }

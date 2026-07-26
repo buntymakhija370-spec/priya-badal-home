@@ -17,6 +17,10 @@ type VisualiseBody = {
   scopeLabel?: string
   /** Customer room photo or architect drawing (plan / elevation / section) */
   inputKind?: 'photo' | 'drawing'
+  /** Previous AI visualisation URL/data — used to apply follow-up change commands */
+  refineImageUrl?: string
+  /** Specific change to apply on the current AI photo */
+  changeRequest?: string
 }
 
 type CarcassLiveBody = {
@@ -167,6 +171,7 @@ async function resolveImageUrl(
 function buildPrompt(body: VisualiseBody) {
   const space = body.categoryName.toLowerCase()
   const isDrawing = body.inputKind === 'drawing'
+  const isRefine = Boolean(body.refineImageUrl && body.changeRequest?.trim())
   const hasSize =
     Number(body.widthFt) > 0 && Number(body.heightFt) > 0
   const sizeLine = hasSize
@@ -189,6 +194,26 @@ function buildPrompt(body: VisualiseBody) {
     : isDrawing
       ? 'Read dimensions from the drawing if marked; otherwise scale the product naturally to the indicated wall / run.'
       : 'Scale the product naturally to the room opening visible in IMAGE 1.'
+
+  if (isRefine) {
+    return [
+      'You are a professional interior visualiser for Priyabadal Homes (India) doing a REVISION service.',
+      'IMAGE 1 = the CURRENT AI visualisation the customer is looking at — keep the same camera, room, overall composition, and furniture placement unless the change requires it.',
+      `IMAGE 2 = catalog style reference of "${body.productName}" from the Priyabadal Homes product list (use for finish / door / detail cues).`,
+      `CUSTOMER CHANGE REQUEST (apply this carefully): ${body.changeRequest!.trim()}`,
+      'Task: Edit IMAGE 1 to satisfy the change request. Do not ignore the request. Do not start a brand-new unrelated room.',
+      'Only change what the customer asked for (colour, handles, layout density, open/closed look, etc.). Preserve everything else from IMAGE 1.',
+      sizeLine,
+      `Finish colour cue if relevant: ${body.colourLabel} (${body.colour}).`,
+      body.finishLabel ? `Finish selection: ${body.finishLabel}.` : '',
+      'Do NOT invent a different product brand. Do NOT paste IMAGE 2 as a sticker.',
+      'No text, logos, dimension arrows, watermarks, or UI overlays in the output.',
+      'Output a single updated photorealistic interior photograph.',
+      body.notes ? `Other notes: ${body.notes}` : '',
+    ]
+      .filter(Boolean)
+      .join(' ')
+  }
 
   if (isDrawing) {
     return [
@@ -268,8 +293,13 @@ async function handleVisualise(req: IncomingMessage, res: ServerResponse) {
       return
     }
 
-    const [roomUrl, productUrl] = await Promise.all([
-      resolveImageUrl(falKey, body.roomDataUrl, 'room.jpg'),
+    const isRefine = Boolean(body.refineImageUrl && body.changeRequest?.trim())
+    const [baseUrl, productUrl] = await Promise.all([
+      resolveImageUrl(
+        falKey,
+        isRefine ? body.refineImageUrl! : body.roomDataUrl,
+        isRefine ? 'refine.jpg' : 'room.jpg',
+      ),
       resolveImageUrl(falKey, body.productImageUrl, 'product.jpg'),
     ])
 
@@ -289,7 +319,7 @@ async function handleVisualise(req: IncomingMessage, res: ServerResponse) {
       },
       body: JSON.stringify({
         prompt: buildPrompt(body),
-        image_urls: [roomUrl, productUrl],
+        image_urls: [baseUrl, productUrl],
         num_images: 1,
         aspect_ratio: aspect,
         output_format: 'jpeg',

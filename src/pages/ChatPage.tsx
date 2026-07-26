@@ -59,7 +59,7 @@ export function ChatPage() {
     setMessages((prev) => [...prev, ...next])
   }
 
-  const runVisualise = async (current: ConsultBrief) => {
+  const runVisualise = async (current: ConsultBrief, refine = false) => {
     const product = current.selectedProductId
       ? getProductById(current.selectedProductId)
       : undefined
@@ -72,6 +72,9 @@ export function ChatPage() {
       })
       return
     }
+
+    const shouldRefine =
+      refine && Boolean(current.aiImageUrl) && Boolean(current.lastChangeRequest?.trim())
 
     if (!aiConfigured) {
       setShowKey(true)
@@ -109,20 +112,37 @@ export function ChatPage() {
         heightFt: current.heightFt,
         depthFt: current.depthFt,
         inputKind: kind,
+        refineImageUrl: shouldRefine ? current.aiImageUrl ?? undefined : undefined,
+        changeRequest: shouldRefine
+          ? current.lastChangeRequest ?? undefined
+          : undefined,
       })
 
       if (result.source === 'ai' && result.imageUrl) {
-        const nextBrief = { ...current, aiImageUrl: result.imageUrl }
+        const nextBrief: ConsultBrief = {
+          ...current,
+          aiImageUrl: result.imageUrl,
+          // Keep last change visible in brief; next message can overwrite it
+          lastChangeRequest: shouldRefine ? current.lastChangeRequest : null,
+        }
         setBrief(nextBrief)
         push({
           id: crypto.randomUUID(),
           role: 'assistant',
-          text: `${result.message}\n\nVisualisation of ${product.name} from our product list${
-            kind === 'drawing' ? ', based on your architect drawing' : ', in your room'
-          }. Ask for changes, try another style, or WhatsApp the quote.`,
+          text: shouldRefine
+            ? `${result.message}\n\nUpdated look for ${product.name}. Tell me the next change on this photo (colour, handles, hanging, drawers…), or WhatsApp the quote.`
+            : `${result.message}\n\nVisualisation of ${product.name} from our product list${
+                kind === 'drawing' ? ', based on your architect drawing' : ', in your room'
+              }.\n\nNow you can command changes on this photo — e.g. “make it lighter”, “remove handles”, “more hanging” — and I’ll revise this same look.`,
           aiImageUrl: result.imageUrl,
           products: [product],
-          suggestions: ['WhatsApp quote', 'Suggest other styles', 'Attach room photo'],
+          suggestions: [
+            'Make it lighter',
+            'Make it darker',
+            'Add more hanging',
+            'Remove handles',
+            'WhatsApp quote',
+          ],
         })
       } else {
         if (result.code === 'MISSING_FAL_KEY') {
@@ -133,7 +153,7 @@ export function ChatPage() {
           id: crypto.randomUUID(),
           role: 'assistant',
           text: result.message,
-          suggestions: ['Try visualise again', 'Suggest other styles'],
+          suggestions: ['Try visualise again', 'Make it lighter', 'Suggest other styles'],
         })
       }
     } finally {
@@ -221,7 +241,7 @@ export function ChatPage() {
     inputRef.current?.focus()
 
     if (turn.shouldVisualise) {
-      await runVisualise(turn.brief)
+      await runVisualise(turn.brief, Boolean(turn.refine))
     }
   }
 
@@ -631,9 +651,16 @@ export function ChatPage() {
                 disabled={
                   busy || !brief.selectedProductId || !brief.roomPhotoDataUrl
                 }
-                onClick={() => void runVisualise(brief)}
+                onClick={() =>
+                  void runVisualise(
+                    brief,
+                    Boolean(brief.aiImageUrl && brief.lastChangeRequest),
+                  )
+                }
               >
-                Visualise
+                {brief.aiImageUrl && brief.lastChangeRequest
+                  ? 'Apply change'
+                  : 'Visualise'}
               </button>
               {whatsapp ? (
                 <a

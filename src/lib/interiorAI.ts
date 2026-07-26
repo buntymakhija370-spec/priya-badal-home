@@ -31,6 +31,16 @@ export type ConsultBrief = {
   attachmentKind?: 'photo' | 'drawing'
   selectedProductId?: string | null
   aiImageUrl?: string | null
+  /** Latest edit instruction to apply on the current AI photo */
+  lastChangeRequest?: string | null
+}
+
+export function isChangeRequest(text: string): boolean {
+  const t = text.trim()
+  if (!t) return false
+  return /\b(change|changes|update|edit|revise|modify|adjust|tweak|redo|make (it|the|them|this)|make doors|make colour|make color|lighter|darker|brighter|softer|warmer|cooler|remove|add more|without|instead|more hanging|more drawers|less drawers|no handles|different (colour|color|finish|style)|same (photo|image|look|visual)|on this (photo|image|look)|to this (photo|image)|please (make|change|update|edit)|can you (make|change|update|edit)|want(ed)? (it|them) )\b/i.test(
+    t,
+  )
 }
 
 const STYLE_WORDS = [
@@ -269,6 +279,8 @@ function briefSummary(brief: ConsultBrief): string {
     const p = getProductById(brief.selectedProductId)
     if (p) bits.push(`Selected: ${p.name}`)
   }
+  if (brief.aiImageUrl) bits.push('AI visualisation: ready — send change commands anytime')
+  if (brief.lastChangeRequest) bits.push(`Latest change: ${brief.lastChangeRequest}`)
   return bits.length ? bits.join('\n') : 'No details yet — tell me the room and size.'
 }
 
@@ -320,6 +332,8 @@ export type ConsultTurnResult = {
   reply: ChatMessage
   /** True when client should run Fal visualise next */
   shouldVisualise?: boolean
+  /** Edit the existing AI photo instead of starting from the room photo only */
+  refine?: boolean
 }
 
 export function processConsultTurn(
@@ -347,6 +361,73 @@ export function processConsultTurn(
 
   let next = mergeBriefFromText(brief, text)
 
+  const wantsVisualise =
+    /\b(visuali[sz]e|render|show (?:me )?(?:the )?look|ai (?:look|photo|image)|generate)\b/i.test(
+      text,
+    ) || lower === 'upload photo & visualise'
+
+  const wantsSuggest =
+    /\b(suggest|recommend|show (?:me )?options|ideas?|what (?:do you|can you) suggest|other styles|another style)\b/i.test(
+      text,
+    ) ||
+    Boolean(next.categoryId && (!brief.categoryId || brief.categoryId !== next.categoryId))
+
+  const wantsSummary = /\b(summary|what do you have|my details|brief)\b/i.test(text)
+
+  // After an AI photo exists, treat change commands as refine-and-revisualise service
+  const canRefine =
+    Boolean(brief.aiImageUrl) &&
+    Boolean(brief.selectedProductId) &&
+    Boolean(brief.roomPhotoDataUrl)
+
+  const politeOnly =
+    /^(ok|okay|thanks|thank you|cool|great|nice|yes|no|hmm|👍)\.?$/i.test(text)
+
+  if (
+    canRefine &&
+    !politeOnly &&
+    !wantsSuggest &&
+    !wantsSummary &&
+    (isChangeRequest(text) || (!wantsVisualise && text.length >= 8))
+  ) {
+    // Don't steal clear new-room intents that aren't change language
+    const newRoom = extractRoom(text)
+    const jumpingRoom =
+      newRoom?.categoryId &&
+      brief.categoryId &&
+      newRoom.categoryId !== brief.categoryId &&
+      !isChangeRequest(text)
+
+    if (!jumpingRoom) {
+      const changeText = text.trim()
+      next = {
+        ...next,
+        lastChangeRequest: changeText,
+        notes: [brief.notes, `Change request: ${changeText}`]
+          .filter(Boolean)
+          .join(' · ')
+          .slice(0, 500),
+      }
+      return {
+        brief: next,
+        shouldVisualise: true,
+        refine: true,
+        reply: {
+          id: crypto.randomUUID(),
+          role: 'assistant',
+          text: `Got it — updating your current visualisation with: “${changeText}”. Keeping the same photo/drawing base and applying this change now…`,
+          suggestions: [
+            'Make it lighter',
+            'Make it darker',
+            'Add more hanging',
+            'Remove handles',
+            'WhatsApp quote',
+          ],
+        },
+      }
+    }
+  }
+
   if (
     /\b(architect drawing|floor plan|elevation|i have (?:an? )?drawing|cad|blueprint)\b/i.test(
       lower,
@@ -370,19 +451,6 @@ export function processConsultTurn(
       },
     }
   }
-
-  const wantsVisualise =
-    /\b(visuali[sz]e|render|show (?:me )?(?:the )?look|ai (?:look|photo|image)|generate)\b/i.test(
-      text,
-    ) || lower === 'upload photo & visualise'
-
-  const wantsSuggest =
-    /\b(suggest|recommend|show (?:me )?options|ideas?|what (?:do you|can you) suggest)\b/i.test(
-      text,
-    ) ||
-    Boolean(next.categoryId && (!brief.categoryId || brief.categoryId !== next.categoryId))
-
-  const wantsSummary = /\b(summary|what do you have|my details|brief)\b/i.test(text)
 
   if (wantsSummary) {
     return {
@@ -416,13 +484,17 @@ export function processConsultTurn(
         },
       }
     }
+    const refineAgain = Boolean(next.aiImageUrl && next.lastChangeRequest?.trim())
     return {
       brief: next,
       shouldVisualise: true,
+      refine: refineAgain,
       reply: {
         id: crypto.randomUUID(),
         role: 'assistant',
-        text: 'Perfect — generating your AI visualisation with the selected Priyabadal product and your size…',
+        text: refineAgain
+          ? `Revising your current visualisation with: “${next.lastChangeRequest}”…`
+          : 'Perfect — generating your AI visualisation with the selected Priyabadal product and your size…',
       },
     }
   }

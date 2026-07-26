@@ -1,6 +1,5 @@
 import { useEffect, useRef, useState, type FormEvent, type KeyboardEvent } from 'react'
-import { Link } from 'react-router-dom'
-import { useNavigate } from 'react-router-dom'
+import { Link, useNavigate } from 'react-router-dom'
 import { askPriyaBadalAI } from '../lib/chatAI'
 import { CARCASS_ASSEMBLY_PATH } from '../data/carcassSpec'
 import {

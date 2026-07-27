@@ -55,6 +55,18 @@
   background: #111;
 }
 
+/* Full kitchen / drawing slides — never crop the façade */
+.img-scroller--contain {
+  background: #eef2ef;
+}
+
+.img-scroller__img--contain,
+.img-scroller--contain .img-scroller__slide img {
+  object-fit: contain;
+  object-position: center;
+  background: #eef2ef;
+}
+
 .img-scroller__video {
   object-fit: cover;
 }

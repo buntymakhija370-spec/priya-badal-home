@@ -75,7 +75,11 @@ export function getProductMedia(product: Product): MediaItem[] {
       type: 'image' as const,
       src,
       caption: defaultImageCaption(product, index, images.length),
-      fit: isDimensionDrawingSrc(src) ? ('contain' as const) : ('cover' as const),
+      // Kitchen photos + drawings: show the full façade (no crop)
+      fit:
+        isDimensionDrawingSrc(src) || product.categoryId === 'kitchen'
+          ? ('contain' as const)
+          : ('cover' as const),
     }))
   }
 
@@ -100,7 +104,10 @@ export function getProductMedia(product: Product): MediaItem[] {
       type: 'image',
       src,
       caption: defaultImageCaption(product, imageIndex, images.length),
-      fit: isDimensionDrawingSrc(src) ? 'contain' : 'cover',
+      fit:
+        isDimensionDrawingSrc(src) || product.categoryId === 'kitchen'
+          ? 'contain'
+          : 'cover',
     })
     imageIndex += 1
   }

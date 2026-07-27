@@ -35,10 +35,19 @@ export function ProductCard({ product }: Props) {
   const customizable = isProductCustomizable(product)
   const [added, setAdded] = useState(false)
 
+  const isKitchen = product.categoryId === 'kitchen'
+
   return (
-    <article className="product-card">
-      <div className="product-card__media">
-        <ProductImageScroller media={media} alt={product.name} to={href} />
+    <article className={`product-card${isKitchen ? ' product-card--kitchen' : ''}`}>
+      <div
+        className={`product-card__media${isKitchen ? ' product-card__media--full-front' : ''}`}
+      >
+        <ProductImageScroller
+          media={media}
+          alt={product.name}
+          to={href}
+          imageFit={isKitchen ? 'contain' : 'cover'}
+        />
         <FavoriteButton
           productId={product.id}
           className="fav-btn--icon fav-btn--on-media product-card__fav"

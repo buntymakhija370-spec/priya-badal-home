@@ -16,6 +16,8 @@ type Props = {
   className?: string
   /** When set, a clean tap (not a swipe) opens this product route */
   to?: string
+  /** Card image fit — kitchen uses contain so the full façade shows */
+  imageFit?: 'cover' | 'contain'
 }
 
 const TAP_MOVE_PX = 10
@@ -25,6 +27,7 @@ export function ProductImageScroller({
   alt,
   className = '',
   to,
+  imageFit = 'cover',
 }: Props) {
   const navigate = useNavigate()
   const location = useLocation()
@@ -176,7 +179,15 @@ export function ProductImageScroller({
   }
 
   return (
-    <div className={`img-scroller ${className}`.trim()}>
+    <div
+      className={[
+        'img-scroller',
+        imageFit === 'contain' ? 'img-scroller--contain' : '',
+        className,
+      ]
+        .filter(Boolean)
+        .join(' ')}
+    >
       <div
         ref={scrollerRef}
         className={
@@ -219,6 +230,11 @@ export function ProductImageScroller({
                 alt={index === 0 ? alt : `${alt} — photo ${index + 1}`}
                 loading={index === 0 ? 'eager' : 'lazy'}
                 draggable={false}
+                className={
+                  (item.fit ?? imageFit) === 'contain'
+                    ? 'img-scroller__img--contain'
+                    : undefined
+                }
               />
             )}
           </figure>

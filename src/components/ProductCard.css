@@ -25,6 +25,12 @@
   background: #dce6df;
 }
 
+/* Kitchen cards: soft frame + contain fit so the full façade shows on front */
+.product-card--kitchen .product-card__media--full-front {
+  aspect-ratio: 3 / 4;
+  background: #eef2ef;
+}
+
 .product-card__bulk {
   position: absolute;
   left: 0.55rem;

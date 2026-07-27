@@ -917,30 +917,6 @@ export const baseProducts: Product[] = [
       'Furniture, sconces, and room settings in images are for representation only. Final colour, cane tone, metal finish, and size are confirmed on WhatsApp before production.',
   },
   {
-    id: 'modular-kitchen-showcase',
-    name: 'Modular Kitchen Showcase',
-    categoryId: 'kitchen',
-    subcategoryId: 'modular',
-    price: 189999,
-    currency: 'INR',
-    brand: 'Priyabadal Homes',
-    collection: 'Kitchen',
-    sku: 'PBH-KIT-VIDEO-01',
-    description:
-      'Made-to-measure modular kitchen with clean cabinetry, soft lighting, and a practical layout — see the walkthrough video for the full look.',
-    style: ['modern', 'warm', 'minimal'],
-    rooms: ['kitchen'],
-    image: '/products/kitchen-modular-showcase.jpg',
-    images: ['/products/kitchen-modular-showcase.jpg'],
-    videos: ['/products/kitchen-modular-showcase.mp4'],
-    highlights: [
-      'Product walkthrough video',
-      'Modular made-to-measure layout',
-      'Customise size & finish',
-      'WhatsApp quote available',
-    ],
-  },
-  {
     id: 'light-grey-lattice-kitchen',
     name: 'Light Grey Lattice Kitchen',
     categoryId: 'kitchen',
@@ -1016,48 +992,6 @@ export const baseProducts: Product[] = [
       'Countertop, sink, faucet, and accessories in images are for representation only. Final colour, finish, size, and carcass scope are confirmed on WhatsApp before production.',
   },
   {
-    id: 'modular-l-kitchen',
-    name: 'Modular L-Shape Kitchen',
-    categoryId: 'kitchen',
-    subcategoryId: 'modular',
-    price: 189999,
-    currency: 'INR',
-    description:
-      'Complete L-shape modular kitchen shell — customise finish, thickness, and size.',
-    style: ['modern', 'warm', 'minimal'],
-    rooms: ['kitchen'],
-    image:
-      'https://images.unsplash.com/photo-1556912173-46c336c7fd55?auto=format&fit=crop&w=1200&q=80',
-  },
-{
-    id: 'tall-kitchen-cabinet',
-    name: 'Tall Kitchen Cabinet',
-    categoryId: 'kitchen',
-    subcategoryId: 'cabinets',
-    price: 34999,
-    currency: 'INR',
-    description:
-      'Floor-to-ceiling storage cabinet for pantry, appliances, and daily essentials.',
-    style: ['modern', 'classic', 'warm'],
-    rooms: ['kitchen'],
-    image:
-      'https://images.unsplash.com/photo-1556911220-bff31c8750ea?auto=format&fit=crop&w=1200&q=80',
-  },
-{
-    id: 'kitchen-island-unit',
-    name: 'Kitchen Island Unit',
-    categoryId: 'kitchen',
-    subcategoryId: 'island',
-    price: 67999,
-    currency: 'INR',
-    description:
-      'Centre island with storage and seating overhang — sized to your kitchen plan.',
-    style: ['modern', 'luxe', 'warm'],
-    rooms: ['kitchen'],
-    image:
-      'https://images.unsplash.com/photo-1600585154340-be6161a56a0c?auto=format&fit=crop&w=1200&q=80',
-  },
-{
     id: 'pink-lotus-arched-mandir',
     name: 'Pink Lotus Arched Mandir',
     categoryId: 'temple',

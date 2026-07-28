@@ -65,7 +65,7 @@ export function getCartQuantity(productId: string): number {
 
 /** Simple add using default finish/thickness/size and base price */
 export function addToCart(productId: string, quantity = 1, unitPrice?: number) {
-  const config = defaultConfig('wall-panels')
+  const config = defaultConfig('wardrobe')
   addConfiguredToCart({
     productId,
     quantity,

@@ -28,7 +28,7 @@ export function useProductSeo(product: Product | undefined) {
     if (!product) return
 
     const url = productShareUrl(product.id)
-    const title = `${product.name} | Priya Badal`
+    const title = `${product.name} | Priyabadal Homes`
     const description = `${product.description} From ₹${product.price.toLocaleString('en-IN')}.`
 
     const previousTitle = document.title

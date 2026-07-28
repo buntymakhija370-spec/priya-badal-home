@@ -1,39 +1,67 @@
-import { useEffect, useId, useMemo, useState } from 'react'
+import { useCallback, useEffect, useId, useMemo, useRef, useState } from 'react'
 import { createPortal } from 'react-dom'
-import { formatPrice, type Product } from '../data/catalog'
+import { formatPrice, getMinOrderQuantity, type Product } from '../data/catalog'
 import {
   calculatePrice,
   defaultConfig,
   describeConfig,
+  getCncCarveHdRate,
   getFinishOptionsForProduct,
   getSizeLimits,
+  getThickness,
   getThicknessOptionsForProduct,
+  isCncCarveHd,
+  productHasCarcass,
+  productSupportsCnc,
+  supportsBuildScope,
+  type BoardSupplyId,
+  type BuildScopeId,
   type PriceConfig,
 } from '../lib/pricing'
+import { addConfiguredToCart } from '../lib/cart'
 import { buildWhatsAppQuoteUrl } from '../lib/whatsapp'
+import { useCurrency } from '../hooks/useCurrency'
 import './PriceCalculator.css'
 
 type Props = {
   product: Product
+  className?: string
 }
 
-export function CustomizeButton({ product }: Props) {
+type PriceCategoryOption = {
+  id: string
+  label: string
+  unitPrice: number
+  patch: Partial<PriceConfig>
+}
+
+export function CustomizeButton({ product, className = '' }: Props) {
   const [open, setOpen] = useState(false)
+  const minQty = getMinOrderQuantity(product)
+  const label = minQty > 1 ? 'Bulk quote & cart' : 'Customise & Price'
+  const close = useCallback(() => {
+    // Blur so the browser does not scroll the trigger button into view on close
+    const active = document.activeElement
+    if (active instanceof HTMLElement) active.blur()
+    setOpen(false)
+  }, [])
 
   return (
     <>
       <button
         type="button"
-        className="btn btn--customise"
+        className={`btn btn--customise ${className}`.trim()}
         aria-haspopup="dialog"
         aria-expanded={open}
-        onClick={() => setOpen(true)}
+        onClick={(e) => {
+          e.preventDefault()
+          e.stopPropagation()
+          setOpen(true)
+        }}
       >
-        Customise &amp; Price
+        {label}
       </button>
-      {open && (
-        <CalculatorOverlay product={product} onClose={() => setOpen(false)} />
-      )}
+      {open && <CalculatorOverlay product={product} onClose={close} />}
     </>
   )
 }
@@ -44,44 +72,188 @@ type OverlayProps = {
 }
 
 function CalculatorOverlay({ product, onClose }: OverlayProps) {
+  useCurrency()
   const titleId = useId()
+  const minQty = getMinOrderQuantity(product)
   const [config, setConfig] = useState<PriceConfig>(() =>
     defaultConfig(product.categoryId, product),
   )
   const size = getSizeLimits(product.categoryId)
+  // Draft text so backspace can clear the field while typing
+  const [widthText, setWidthText] = useState(() =>
+    String(defaultConfig(product.categoryId, product).width),
+  )
+  const [heightText, setHeightText] = useState(() =>
+    String(defaultConfig(product.categoryId, product).height),
+  )
+  const [added, setAdded] = useState(false)
   const finishOptions = getFinishOptionsForProduct(product)
   const thicknessOptions = getThicknessOptionsForProduct(product)
+  const hasBuildScope = supportsBuildScope(product.categoryId)
+  const hasCarcass = productHasCarcass(product)
+  const hasCnc = productSupportsCnc(product.categoryId, product)
+  const cncMode = isCncCarveHd(config)
 
   const quote = useMemo(
     () => calculatePrice(product, config),
     [product, config],
   )
 
+  const priceCategories = useMemo((): PriceCategoryOption[] => {
+    const options: PriceCategoryOption[] = []
+    const leavingCnc = isCncCarveHd(config)
+    const finishedRestore: Partial<PriceConfig> = leavingCnc
+      ? {
+          ...(product.defaultThicknessId
+            ? { thicknessId: product.defaultThicknessId }
+            : {}),
+          ...(product.defaultFinishId
+            ? { finishId: product.defaultFinishId }
+            : {}),
+          includeHandlePair:
+            product.handlePairPrice != null &&
+            product.handlePairDefault !== false,
+        }
+      : {
+          includeHandlePair: Boolean(config.includeHandlePair),
+        }
+
+    if (hasBuildScope) {
+      const shutterPatch: Partial<PriceConfig> = {
+        boardSupply: 'finished',
+        buildScope: 'shutter',
+        ...finishedRestore,
+      }
+      // Row prices are board-only (no handle) so rates stay clear
+      options.push({
+        id: 'shutter',
+        label: hasCarcass ? 'Shutter only' : 'Doors only',
+        unitPrice: calculatePrice(product, {
+          ...config,
+          ...shutterPatch,
+          includeHandlePair: false,
+        }).boardPrice,
+        patch: shutterPatch,
+      })
+      if (hasCarcass) {
+        const carcassPatch: Partial<PriceConfig> = {
+          boardSupply: 'finished',
+          buildScope: 'with-carcass',
+          ...finishedRestore,
+        }
+        options.push({
+          id: 'with-carcass',
+          label: 'With carcass',
+          unitPrice: calculatePrice(product, {
+            ...config,
+            ...carcassPatch,
+            includeHandlePair: false,
+          }).boardPrice,
+          patch: carcassPatch,
+        })
+      }
+    } else if (hasCnc) {
+      const finishedPatch: Partial<PriceConfig> = {
+        boardSupply: 'finished',
+        ...finishedRestore,
+      }
+      options.push({
+        id: 'finished',
+        label: 'Finished',
+        unitPrice: calculatePrice(product, {
+          ...config,
+          ...finishedPatch,
+          includeHandlePair: false,
+        }).boardPrice,
+        patch: finishedPatch,
+      })
+    }
+
+    if (hasCnc) {
+      const cncPatch: Partial<PriceConfig> = {
+        boardSupply: 'cnc-carve-hd' as BoardSupplyId,
+        includeHandlePair: false,
+        ...(product.cncThicknessId
+          ? { thicknessId: product.cncThicknessId }
+          : {}),
+      }
+      options.push({
+        id: 'cnc-carve-hd',
+        label: 'CNC-Carve HD',
+        unitPrice: calculatePrice(product, { ...config, ...cncPatch }).boardPrice,
+        patch: cncPatch,
+      })
+    }
+
+    return options
+  }, [hasBuildScope, hasCarcass, hasCnc, product, config])
+
+  const selectedCategoryId = useMemo(() => {
+    if (cncMode) return 'cnc-carve-hd'
+    if (hasBuildScope) {
+      return (config.buildScope ?? 'shutter') as BuildScopeId
+    }
+    return 'finished'
+  }, [cncMode, hasBuildScope, config.buildScope])
+
+  const onCloseRef = useRef(onClose)
+  onCloseRef.current = onClose
+
   useEffect(() => {
-    const y = window.scrollY
-    const { overflow, position, top, width } = document.body.style
-    document.body.style.overflow = 'hidden'
-    document.body.style.position = 'fixed'
-    document.body.style.top = `-${y}px`
-    document.body.style.width = '100%'
+    // Overflow-only lock — avoid position:fixed + scrollTo restore (jumps page on close)
+    const html = document.documentElement
+    const body = document.body
+    const prevHtmlOverflow = html.style.overflow
+    const prevBodyOverflow = body.style.overflow
+    const prevBodyPaddingRight = body.style.paddingRight
+    const scrollbar = window.innerWidth - html.clientWidth
+    if (scrollbar > 0) body.style.paddingRight = `${scrollbar}px`
+    html.style.overflow = 'hidden'
+    body.style.overflow = 'hidden'
 
     const onKey = (e: KeyboardEvent) => {
-      if (e.key === 'Escape') onClose()
+      if (e.key === 'Escape') onCloseRef.current()
     }
     window.addEventListener('keydown', onKey)
 
     return () => {
-      document.body.style.overflow = overflow
-      document.body.style.position = position
-      document.body.style.top = top
-      document.body.style.width = width
-      window.scrollTo(0, y)
+      html.style.overflow = prevHtmlOverflow
+      body.style.overflow = prevBodyOverflow
+      body.style.paddingRight = prevBodyPaddingRight
       window.removeEventListener('keydown', onKey)
     }
-  }, [onClose])
+  }, [])
 
   const update = (patch: Partial<PriceConfig>) => {
     setConfig((prev) => ({ ...prev, ...patch }))
+  }
+
+  const onSizeChange = (axis: 'width' | 'height', raw: string) => {
+    if (axis === 'width') setWidthText(raw)
+    else setHeightText(raw)
+
+    // Allow empty / partial input while typing — don't force min (blocks backspace)
+    if (raw.trim() === '' || raw === '.' || raw === '-') return
+    const n = Number(raw)
+    if (!Number.isFinite(n)) return
+    const min = axis === 'width' ? size.minWidth : size.minHeight
+    const max = axis === 'width' ? size.maxWidth : size.maxHeight
+    if (n >= min && n <= max) {
+      update({ [axis]: Math.round(n * 10) / 10 })
+    }
+  }
+
+  const onSizeBlur = (axis: 'width' | 'height', raw: string) => {
+    const min = axis === 'width' ? size.minWidth : size.minHeight
+    const max = axis === 'width' ? size.maxWidth : size.maxHeight
+    const n = Number(raw)
+    const clamped =
+      Number.isFinite(n) && raw.trim() !== ''
+        ? Math.min(max, Math.max(min, Math.round(n * 10) / 10))
+        : min
+    update({ [axis]: clamped })
+    if (axis === 'width') setWidthText(String(clamped))
+    else setHeightText(String(clamped))
   }
 
   const whatsappHref = buildWhatsAppQuoteUrl(
@@ -91,8 +263,22 @@ function CalculatorOverlay({ product, onClose }: OverlayProps) {
   )
 
   const sqft =
+    cncMode || product.pricingMode === 'per-sqft'
+      ? Math.round(quote.sqft * 10) / 10
+      : null
+  const cncRate = getCncCarveHdRate(product)
+  const cncThickness = product.cncThicknessId
+    ? getThickness(product.cncThicknessId)
+    : null
+  const orderNotes = product.orderNotes ?? []
+  const showHandleToggle =
+    !cncMode && product.handlePairPrice != null && product.handlePairPrice > 0
+  const carcassBreakdown =
+    !cncMode &&
+    config.buildScope === 'with-carcass' &&
+    product.carcassPrice != null &&
     product.pricingMode === 'per-sqft'
-      ? Math.round(quote.config.width * quote.config.height * 10) / 10
+      ? `${formatPrice(product.price)} + ${formatPrice(product.carcassPrice)} carcass`
       : null
 
   return createPortal(
@@ -112,7 +298,9 @@ function CalculatorOverlay({ product, onClose }: OverlayProps) {
         <div className="calc-sheet__handle" aria-hidden="true" />
         <div className="calc-sheet__top">
           <div>
-            <p className="calc-sheet__eyebrow">Customise &amp; Price</p>
+            <p className="calc-sheet__eyebrow">
+              {minQty > 1 ? 'Bulk commercial' : 'Customise & Price'}
+            </p>
             <h2 id={titleId}>{product.name}</h2>
           </div>
           <button
@@ -125,66 +313,226 @@ function CalculatorOverlay({ product, onClose }: OverlayProps) {
           </button>
         </div>
 
-        <div className="calc-sheet__grid">
-          {finishOptions.length > 0 && (
+        {minQty > 1 ? (
+          <p className="calc-sheet__bulk-note">
+            Lowest commercial rate — we accept orders only for a minimum of{' '}
+            <strong>{minQty} identical packs</strong> (bulk manufacture).
+          </p>
+        ) : null}
+
+        {priceCategories.length > 0 ? (
+          <fieldset className="calc-sheet__price-cats">
+            <legend>Price</legend>
+            <div
+              className="calc-sheet__price-list"
+              role="radiogroup"
+              aria-label="Price category"
+            >
+              {priceCategories.map((option) => {
+                const selected = selectedCategoryId === option.id
+                return (
+                  <button
+                    key={option.id}
+                    type="button"
+                    role="radio"
+                    aria-checked={selected}
+                    className={`calc-sheet__price-row${selected ? ' is-selected' : ''}`}
+                    onClick={() => update(option.patch)}
+                  >
+                    <span className="calc-sheet__price-row-label">{option.label}</span>
+                    <span className="calc-sheet__price-row-value">
+                      {formatPrice(option.unitPrice)}
+                    </span>
+                  </button>
+                )
+              })}
+            </div>
+          </fieldset>
+        ) : null}
+
+        {cncMode ? (
+          <div className="calc-sheet__finish-row">
             <div className="calc-sheet__field">
               <span>Finish</span>
-              <p className="calc-sheet__locked">{finishOptions[0]!.name}</p>
+              <p className="calc-sheet__locked calc-sheet__locked--strong">
+                No paint · No finishing
+              </p>
             </div>
-          )}
-
-          {thicknessOptions.length > 0 && (
             <div className="calc-sheet__field">
-              <span>Thickness</span>
-              <p className="calc-sheet__locked">{thicknessOptions[0]!.label}</p>
+              <span>Board</span>
+              <p className="calc-sheet__locked calc-sheet__locked--strong">
+                CNC HD{cncThickness ? ` · ${cncThickness.label}` : ''}
+              </p>
             </div>
-          )}
+          </div>
+        ) : finishOptions.length > 0 || thicknessOptions.length > 0 ? (
+          <div className="calc-sheet__finish-row">
+            {finishOptions.length > 0 ? (
+              finishOptions.length === 1 ? (
+                <div className="calc-sheet__field">
+                  <span>Finish</span>
+                  <p className="calc-sheet__locked calc-sheet__locked--strong">
+                    {finishOptions[0]!.name}
+                  </p>
+                </div>
+              ) : (
+                <label className="calc-sheet__field">
+                  Finish
+                  <select
+                    value={config.finishId}
+                    onChange={(e) => update({ finishId: e.target.value })}
+                  >
+                    {finishOptions.map((finish) => (
+                      <option key={finish.id} value={finish.id}>
+                        {finish.name}
+                      </option>
+                    ))}
+                  </select>
+                </label>
+              )
+            ) : null}
+            {thicknessOptions.length > 0 ? (
+              thicknessOptions.length === 1 ? (
+                <div className="calc-sheet__field">
+                  <span>Thickness</span>
+                  <p className="calc-sheet__locked calc-sheet__locked--strong">
+                    {thicknessOptions[0]!.label}
+                  </p>
+                </div>
+              ) : (
+                <label className="calc-sheet__field">
+                  Thickness
+                  <select
+                    value={config.thicknessId}
+                    onChange={(e) => update({ thicknessId: e.target.value })}
+                  >
+                    {thicknessOptions.map((thickness) => (
+                      <option key={thickness.id} value={thickness.id}>
+                        {thickness.label}
+                      </option>
+                    ))}
+                  </select>
+                </label>
+              )
+            ) : null}
+          </div>
+        ) : null}
 
-          <label className="calc-sheet__field">
-            Width (ft)
-            <input
-              type="number"
-              min={size.minWidth}
-              max={size.maxWidth}
-              step={0.1}
-              value={config.width}
-              onChange={(e) => update({ width: Number(e.target.value) })}
-            />
-          </label>
+        {minQty <= 1 ? (
+          <div className="calc-sheet__size-row">
+            <label className="calc-sheet__field">
+              Width (ft)
+              <input
+                type="number"
+                inputMode="decimal"
+                min={size.minWidth}
+                max={size.maxWidth}
+                step={0.1}
+                value={widthText}
+                onChange={(e) => onSizeChange('width', e.target.value)}
+                onBlur={(e) => onSizeBlur('width', e.target.value)}
+              />
+            </label>
+            <label className="calc-sheet__field">
+              Height (ft)
+              <input
+                type="number"
+                inputMode="decimal"
+                min={size.minHeight}
+                max={size.maxHeight}
+                step={0.1}
+                value={heightText}
+                onChange={(e) => onSizeChange('height', e.target.value)}
+                onBlur={(e) => onSizeBlur('height', e.target.value)}
+              />
+            </label>
+          </div>
+        ) : (
+          <div className="calc-sheet__field calc-sheet__field--full">
+            <span>Order quantity</span>
+            <p className="calc-sheet__locked">Minimum {minQty} identical packs</p>
+          </div>
+        )}
 
-          <label className="calc-sheet__field">
-            Height (ft)
+        {showHandleToggle ? (
+          <label className="calc-sheet__addon">
             <input
-              type="number"
-              min={size.minHeight}
-              max={size.maxHeight}
-              step={0.1}
-              value={config.height}
-              onChange={(e) => update({ height: Number(e.target.value) })}
+              type="checkbox"
+              checked={Boolean(config.includeHandlePair)}
+              onChange={(e) => update({ includeHandlePair: e.target.checked })}
             />
+            <span>
+              Handle pair · {formatPrice(product.handlePairPrice!)}
+              <small>Back side laminated</small>
+            </span>
           </label>
-        </div>
+        ) : null}
+
+        {orderNotes.length > 0 ? (
+          <div className="calc-sheet__notes">
+            <p className="calc-sheet__notes-title">Order notes</p>
+            <ul>
+              {orderNotes.map((note) => (
+                <li key={note}>{note}</li>
+              ))}
+            </ul>
+          </div>
+        ) : null}
 
         <div className="calc-sheet__footer">
           <div className="calc-sheet__estimate">
             <p className="calc-sheet__estimate-label">Estimated price</p>
             <p className="calc-sheet__price">{formatPrice(quote.unitPrice)}</p>
+            {quote.handleAddOn > 0 ? (
+              <p className="calc-sheet__breakdown">
+                {formatPrice(quote.boardPrice)}
+                {cncMode ? ' board' : ' material'}
+                {' + '}
+                {formatPrice(quote.handleAddOn)} handle pair
+              </p>
+            ) : null}
             <p className="calc-sheet__meta">
               {describeConfig(product.categoryId, quote.config)}
               {sqft != null ? ` · ${sqft} sq ft` : ''}
-              {product.pricingMode === 'per-sqft'
-                ? ` · ${formatPrice(product.price)}/sq ft`
-                : ''}
+              {cncMode
+                ? ` · ${formatPrice(cncRate)}/sq ft`
+                : product.pricingMode === 'per-sqft'
+                  ? ` · ${formatPrice(quote.baseRate)}/sq ft`
+                  : ''}
+              {carcassBreakdown ? ` · (${carcassBreakdown})` : ''}
+              {minQty > 1 ? ` · min ${minQty} packs` : ''}
             </p>
           </div>
-          <a
-            className="whatsapp-quote-btn"
-            href={whatsappHref}
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            WhatsApp Quote
-          </a>
+          <div className="calc-sheet__cta">
+            <button
+              type="button"
+              className="btn btn--dark calc-sheet__add"
+              onClick={() => {
+                addConfiguredToCart({
+                  productId: product.id,
+                  quantity: minQty,
+                  config: quote.config,
+                  unitPrice: quote.unitPrice,
+                })
+                setAdded(true)
+                window.setTimeout(() => setAdded(false), 1400)
+              }}
+            >
+              {added
+                ? `Added ${minQty}+ to cart`
+                : minQty > 1
+                  ? `Add ${minQty} packs to cart`
+                  : 'Add to cart'}
+            </button>
+            <a
+              className="whatsapp-quote-btn"
+              href={whatsappHref}
+              target="_blank"
+              rel="noopener noreferrer"
+            >
+              WhatsApp Quote
+            </a>
+          </div>
         </div>
       </div>
     </div>,

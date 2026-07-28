@@ -144,8 +144,8 @@ export function HomePage() {
             <Link className="btn btn--primary" to="/design">
               Design my space
             </Link>
-            <Link className="btn btn--ghost" to="/shop">
-              Shop products
+            <Link className="btn btn--ghost" to="/install">
+              Get the App
             </Link>
           </div>
         </div>

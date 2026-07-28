@@ -13,6 +13,7 @@ import { InstallBanner } from './InstallBanner'
 import './Layout.css'
 
 const utilityLinks = [
+  { to: '/install', label: 'Get the App (iPhone & Android)' },
   { to: '/design', label: 'Design my space' },
   { to: '/shop', label: 'All products' },
   { to: '/how-it-works', label: 'How it works' },
@@ -147,6 +148,9 @@ export function Layout() {
           <div>
             <p className="footer__heading">Help</p>
             <ul>
+              <li>
+                <NavLink to="/install">Get the App</NavLink>
+              </li>
               <li>
                 <NavLink to="/how-it-works">How your order works</NavLink>
               </li>

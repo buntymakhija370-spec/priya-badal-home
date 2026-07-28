@@ -1,4 +1,5 @@
 import { useEffect, useState } from 'react'
+import { Link, useLocation } from 'react-router-dom'
 import './InstallBanner.css'
 
 type BeforeInstallPromptEvent = Event & {
@@ -9,10 +10,13 @@ type BeforeInstallPromptEvent = Event & {
 function isStandalone() {
   return (
     window.matchMedia('(display-mode: standalone)').matches ||
-    // iOS Safari
     ('standalone' in navigator &&
       Boolean((navigator as Navigator & { standalone?: boolean }).standalone))
   )
+}
+
+function isMobile() {
+  return /iphone|ipad|ipod|android/i.test(navigator.userAgent) || window.innerWidth < 960
 }
 
 function isIos() {
@@ -22,13 +26,16 @@ function isIos() {
 const DISMISS_KEY = 'pbh-install-dismissed'
 
 export function InstallBanner() {
+  const location = useLocation()
   const [deferred, setDeferred] = useState<BeforeInstallPromptEvent | null>(null)
   const [visible, setVisible] = useState(false)
   const [iosHint, setIosHint] = useState(false)
 
   useEffect(() => {
     if (isStandalone()) return
+    if (location.pathname === '/install') return
     if (sessionStorage.getItem(DISMISS_KEY) === '1') return
+    if (!isMobile()) return
 
     const onPrompt = (e: Event) => {
       e.preventDefault()
@@ -39,22 +46,18 @@ export function InstallBanner() {
 
     window.addEventListener('beforeinstallprompt', onPrompt)
 
-    // iOS has no beforeinstallprompt — show Add to Home Screen tip
-    if (isIos()) {
-      const t = window.setTimeout(() => {
-        setIosHint(true)
-        setVisible(true)
-      }, 1800)
-      return () => {
-        window.clearTimeout(t)
-        window.removeEventListener('beforeinstallprompt', onPrompt)
-      }
+    const t = window.setTimeout(() => {
+      if (isIos()) setIosHint(true)
+      setVisible(true)
+    }, 1200)
+
+    return () => {
+      window.clearTimeout(t)
+      window.removeEventListener('beforeinstallprompt', onPrompt)
     }
+  }, [location.pathname])
 
-    return () => window.removeEventListener('beforeinstallprompt', onPrompt)
-  }, [])
-
-  if (!visible) return null
+  if (!visible || location.pathname === '/install') return null
 
   const dismiss = () => {
     sessionStorage.setItem(DISMISS_KEY, '1')
@@ -72,19 +75,25 @@ export function InstallBanner() {
   return (
     <div className="install-banner" role="dialog" aria-label="Install Priyabadal Homes app">
       <div className="install-banner__copy">
-        <strong>Use like an app</strong>
+        <strong>Live on iPhone & Android</strong>
         <p>
           {iosHint
-            ? 'On iPhone: tap Share, then Add to Home Screen for a full-screen Priyabadal Homes app.'
-            : 'Install Priyabadal Homes on your phone for a faster, full-screen experience.'}
+            ? 'Safari → Share → Add to Home Screen for the full Priyabadal app.'
+            : deferred
+              ? 'Install now for a full-screen app on your phone.'
+              : 'Install Priyabadal Homes on your phone — iPhone and Android.'}
         </p>
       </div>
       <div className="install-banner__actions">
-        {!iosHint && deferred ? (
+        {deferred ? (
           <button type="button" className="btn btn--dark install-banner__btn" onClick={install}>
             Install
           </button>
-        ) : null}
+        ) : (
+          <Link className="btn btn--dark install-banner__btn" to="/install" onClick={dismiss}>
+            Get the App
+          </Link>
+        )}
         <button type="button" className="install-banner__dismiss" onClick={dismiss}>
           Not now
         </button>

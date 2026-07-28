@@ -1,6 +1,15 @@
 /* Priyabadal Homes — lightweight app shell cache for install / offline open */
-const CACHE = 'pbh-shell-v1'
-const SHELL = ['/', '/index.html', '/manifest.webmanifest', '/favicon.svg']
+const CACHE = 'pbh-shell-v2'
+const SHELL = [
+  '/',
+  '/index.html',
+  '/manifest.webmanifest',
+  '/favicon.svg',
+  '/apple-touch-icon.png',
+  '/icons/icon-192.png',
+  '/icons/icon-512.png',
+  '/install',
+]
 
 self.addEventListener('install', (event) => {
   event.waitUntil(

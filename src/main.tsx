@@ -11,19 +11,21 @@ function markStandalone() {
   document.documentElement.classList.toggle('is-standalone', standalone)
 }
 
-function registerServiceWorker() {
+async function registerServiceWorker() {
   if (!('serviceWorker' in navigator)) return
-  // Only register on production builds / preview — keep HMR simple in Vite
+  // Production / preview builds only (not Vite HMR dev)
   if (import.meta.env.DEV) return
-  window.addEventListener('load', () => {
-    navigator.serviceWorker.register('/sw.js').catch(() => {
-      /* offline install is best-effort */
-    })
-  })
+  try {
+    const reg = await navigator.serviceWorker.register('/sw.js', { scope: '/' })
+    // Pick up fresh event builds quickly
+    reg.update().catch(() => undefined)
+  } catch {
+    /* install is best-effort */
+  }
 }
 
 markStandalone()
-registerServiceWorker()
+void registerServiceWorker()
 
 createRoot(document.getElementById('root')!).render(
   <StrictMode>

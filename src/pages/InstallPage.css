@@ -1,0 +1,137 @@
+.install-page {
+  max-width: 52rem;
+}
+
+.install-page h1 {
+  font-family: var(--font-display);
+  font-size: clamp(1.85rem, 5vw, 2.75rem);
+  letter-spacing: -0.03em;
+  line-height: 1.15;
+  margin-bottom: 0.75rem;
+}
+
+.install-page__lede {
+  max-width: 40rem;
+  color: var(--ink-soft);
+  font-size: 1.05rem;
+  line-height: 1.55;
+  margin-bottom: 1.75rem;
+}
+
+.install-page__live {
+  display: grid;
+  gap: 0.65rem;
+  padding: 1.25rem 1.35rem;
+  border: 1px solid rgba(21, 32, 25, 0.12);
+  border-radius: 0.75rem;
+  background: #fff;
+}
+
+.install-page__live p {
+  color: var(--ink-soft);
+  line-height: 1.45;
+}
+
+.install-page__platforms {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 1rem;
+  margin-bottom: 1.75rem;
+}
+
+.install-card {
+  display: grid;
+  gap: 0.65rem;
+  align-content: start;
+  padding: 1.2rem 1.25rem 1.35rem;
+  border: 1px solid rgba(21, 32, 25, 0.1);
+  border-radius: 0.85rem;
+  background: rgba(255, 255, 255, 0.72);
+}
+
+.install-card--focus {
+  border-color: rgba(21, 32, 25, 0.35);
+  box-shadow: 0 10px 28px rgba(21, 32, 25, 0.08);
+  background: #fff;
+}
+
+.install-card__os {
+  margin: 0;
+  font-size: 0.72rem;
+  font-weight: 600;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: var(--moss);
+}
+
+.install-card h2 {
+  font-family: var(--font-display);
+  font-size: 1.35rem;
+  letter-spacing: -0.02em;
+}
+
+.install-card ol {
+  margin: 0;
+  padding-left: 1.15rem;
+  display: grid;
+  gap: 0.45rem;
+  color: var(--ink-soft);
+  line-height: 1.45;
+  font-size: 0.95rem;
+}
+
+.install-card__note,
+.install-card__status {
+  margin: 0;
+  font-size: 0.86rem;
+  line-height: 1.4;
+  color: var(--honey-deep);
+}
+
+.install-page__share {
+  display: grid;
+  gap: 0.65rem;
+  padding: 1.2rem 1.25rem;
+  border-radius: 0.85rem;
+  background: #152019;
+  color: rgba(238, 244, 239, 0.82);
+}
+
+.install-page__share h2 {
+  font-family: var(--font-display);
+  font-size: 1.25rem;
+  color: #eef4ef;
+}
+
+.install-page__url {
+  display: block;
+  padding: 0.75rem 0.85rem;
+  border-radius: 0.45rem;
+  background: rgba(244, 248, 245, 0.08);
+  color: #f4f8f5;
+  font-size: 0.9rem;
+  word-break: break-all;
+}
+
+.install-page__share-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.55rem;
+  margin-top: 0.25rem;
+}
+
+.install-page__share .btn--outline {
+  border-color: rgba(244, 248, 245, 0.35);
+  color: #f4f8f5;
+}
+
+.install-page__share .btn--dark {
+  background: #f4f8f5;
+  color: #152019;
+}
+
+@media (max-width: 720px) {
+  .install-page__platforms {
+    grid-template-columns: 1fr;
+  }
+}

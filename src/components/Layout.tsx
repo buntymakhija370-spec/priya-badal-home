@@ -8,6 +8,8 @@ import {
   WHATSAPP_DISPLAY,
 } from '../lib/whatsapp'
 import { CurrencySelect } from './CurrencySelect'
+import { BottomNav } from './BottomNav'
+import { InstallBanner } from './InstallBanner'
 import './Layout.css'
 
 const utilityLinks = [
@@ -75,7 +77,7 @@ export function Layout() {
         <div className="nav__end">
           <CurrencySelect compact className="nav__currency" />
           <NavLink className="nav__cart" to="/cart" onClick={close}>
-            Cart
+            <span className="nav__cart-label">Cart</span>
             {cartCount > 0 && <span className="nav__cart-count">{cartCount}</span>}
           </NavLink>
 
@@ -185,6 +187,9 @@ export function Layout() {
       >
         WhatsApp
       </a>
+
+      <BottomNav />
+      <InstallBanner />
     </div>
   )
 }

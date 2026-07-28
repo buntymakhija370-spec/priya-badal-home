@@ -385,7 +385,7 @@
   display: grid;
   gap: 1.15rem;
   position: sticky;
-  top: calc(var(--nav-h) + 0.75rem);
+  top: calc(var(--nav-h) + env(safe-area-inset-top, 0px) + 0.75rem);
 }
 
 .carcass__block h2 {

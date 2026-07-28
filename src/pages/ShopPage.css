@@ -1,5 +1,5 @@
 .shop.page-pad {
-  padding-top: calc(var(--nav-h) + 0.65rem);
+  padding-top: calc(var(--nav-h) + env(safe-area-inset-top, 0px) + 0.65rem);
   padding-bottom: 3rem;
 }
 
@@ -176,7 +176,7 @@
 
 @media (max-width: 720px) {
   .shop.page-pad {
-    padding-top: calc(var(--nav-h) + 0.45rem);
+    padding-top: calc(var(--nav-h) + env(safe-area-inset-top, 0px) + 0.45rem);
   }
 
   .shop__lede {

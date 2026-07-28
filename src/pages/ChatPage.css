@@ -5,10 +5,16 @@
   box-sizing: border-box;
   display: flex;
   flex-direction: column;
-  /* Sit below fixed site nav; lock to the remaining viewport */
-  margin-top: var(--nav-h);
-  height: calc(100dvh - var(--nav-h));
-  max-height: calc(100dvh - var(--nav-h));
+  /* Sit below fixed site nav; lock to the remaining viewport (above tab bar on phones) */
+  margin-top: calc(var(--nav-h) + env(safe-area-inset-top, 0px));
+  height: calc(
+    100dvh - var(--nav-h) - env(safe-area-inset-top, 0px) - var(--tabbar-h) -
+      env(safe-area-inset-bottom, 0px)
+  );
+  max-height: calc(
+    100dvh - var(--nav-h) - env(safe-area-inset-top, 0px) - var(--tabbar-h) -
+      env(safe-area-inset-bottom, 0px)
+  );
   min-height: 0;
   overflow: hidden;
   background:

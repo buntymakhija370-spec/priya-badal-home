@@ -27,7 +27,7 @@
 
 .product-page__info {
   position: sticky;
-  top: calc(var(--nav-h) + 0.75rem);
+  top: calc(var(--nav-h) + env(safe-area-inset-top, 0px) + 0.75rem);
   padding-top: 0.1rem;
 }
 

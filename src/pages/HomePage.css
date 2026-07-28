@@ -56,9 +56,9 @@
   z-index: 1;
   width: min(44rem, 100%);
   padding:
-    calc(var(--nav-h) + 1.5rem)
+    calc(var(--nav-h) + env(safe-area-inset-top, 0px) + 1.5rem)
     clamp(1.25rem, 4vw, 3rem)
-    clamp(2.75rem, 8vh, 4.5rem);
+    calc(clamp(2.75rem, 8vh, 4.5rem) + var(--tabbar-h) + env(safe-area-inset-bottom, 0px));
 }
 
 .hero__brand {

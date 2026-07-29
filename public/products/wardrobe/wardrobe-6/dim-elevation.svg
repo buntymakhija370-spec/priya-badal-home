@@ -1,49 +1,11 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 980 1280" width="980" height="1280" preserveAspectRatio="xMidYMid meet" role="img">
-  <title>Dark Wood Walk-in Wardrobe — exterior elevation shop drawing</title>
-  <rect width="980" height="1280" fill="#ffffff"/>
-  <rect x="20" y="20" width="940" height="1240" rx="8" fill="none" stroke="#c5d2cb" stroke-width="2"/>
-
-  <text x="44" y="54" font-family="Georgia, 'Times New Roman', serif" font-size="26" fill="#152019">Exterior elevation</text>
-  <text x="44" y="78" font-family="system-ui,sans-serif" font-size="15" fill="#5c6b62">Dark Wood Walk-in Wardrobe</text>
-  <text x="44" y="98" font-family="system-ui,sans-serif" font-size="12" fill="#8a9690">SKU PBH-WR-06 · Front elevation · 4 hinged shutter leaves</text>
-  <text x="44" y="116" font-family="system-ui,sans-serif" font-size="12" fill="#8a9690">Dark wood carcass · cream arched doors · gold hardware</text>
-
-  <rect x="730" y="36" width="206" height="90" rx="6" fill="#f7faf8" stroke="#c5d2cb"/>
-  <text x="742" y="58" font-size="11" font-weight="700" fill="#152019">OVERALL (reference)</text>
-  <text x="742" y="80" font-size="14" fill="#152019">W 12′ · H 8′ · D 2′</text>
-  <text x="742" y="100" font-size="11" fill="#5c6b62">3658 × 2438 mm</text>
-  <text x="742" y="116" font-size="11" fill="#5c6b62">Confirm on site measure</text>
-
-  <rect x="140" y="170" width="560" height="740" fill="#e8eeea" stroke="#3d5646" stroke-width="2.4"/>
-  <rect x="145" y="178" width="130" height="724" rx="3" fill="#ebe4da" stroke="#3d5646" stroke-width="1.7"/><rect x="154" y="192" width="112" height="266.4" fill="none" stroke="#9a7340" stroke-width="1.2"/><rect x="154" y="480.8" width="112" height="103.60000000000001" fill="none" stroke="#9a7340" stroke-width="1.2"/><rect x="154" y="614" width="112" height="207.20000000000002" fill="none" stroke="#9a7340" stroke-width="1.2"/><line x1="249.2" y1="451.2" x2="249.2" y2="599.2" stroke="#152019" stroke-width="4" stroke-linecap="round"/><rect x="285" y="178" width="130" height="724" rx="3" fill="#ebe4da" stroke="#3d5646" stroke-width="1.7"/><rect x="294" y="192" width="112" height="266.4" fill="none" stroke="#9a7340" stroke-width="1.2"/><rect x="294" y="480.8" width="112" height="103.60000000000001" fill="none" stroke="#9a7340" stroke-width="1.2"/><rect x="294" y="614" width="112" height="207.20000000000002" fill="none" stroke="#9a7340" stroke-width="1.2"/><line x1="389.2" y1="451.2" x2="389.2" y2="599.2" stroke="#152019" stroke-width="4" stroke-linecap="round"/><rect x="425" y="178" width="130" height="724" rx="3" fill="#ebe4da" stroke="#3d5646" stroke-width="1.7"/><rect x="434" y="192" width="112" height="266.4" fill="none" stroke="#9a7340" stroke-width="1.2"/><rect x="434" y="480.8" width="112" height="103.60000000000001" fill="none" stroke="#9a7340" stroke-width="1.2"/><rect x="434" y="614" width="112" height="207.20000000000002" fill="none" stroke="#9a7340" stroke-width="1.2"/><line x1="529.2" y1="451.2" x2="529.2" y2="599.2" stroke="#152019" stroke-width="4" stroke-linecap="round"/><rect x="565" y="178" width="130" height="724" rx="3" fill="#ebe4da" stroke="#3d5646" stroke-width="1.7"/><rect x="574" y="192" width="112" height="266.4" fill="none" stroke="#9a7340" stroke-width="1.2"/><rect x="574" y="480.8" width="112" height="103.60000000000001" fill="none" stroke="#9a7340" stroke-width="1.2"/><rect x="574" y="614" width="112" height="207.20000000000002" fill="none" stroke="#9a7340" stroke-width="1.2"/><line x1="669.2" y1="451.2" x2="669.2" y2="599.2" stroke="#152019" stroke-width="4" stroke-linecap="round"/>
-
-  <line x1="112" y1="170" x2="728" y2="170" stroke="#c5d2cb" stroke-dasharray="4 4"/>
-  <text x="114" y="162" font-size="11" fill="#8a9690">ceiling line</text>
-  <line x1="112" y1="910" x2="728" y2="910" stroke="#c5d2cb" stroke-dasharray="4 4"/>
-  <text x="114" y="926" font-size="11" fill="#8a9690">finished floor</text>
-
-  
-  <line x1="140" y1="946" x2="700" y2="946" stroke="#9a7340" stroke-width="1.3"/>
-  <line x1="140" y1="941" x2="140" y2="951" stroke="#9a7340" stroke-width="1.3"/>
-  <line x1="700" y1="941" x2="700" y2="951" stroke="#9a7340" stroke-width="1.3"/>
-  <text x="420" y="938" text-anchor="middle" font-size="12" font-weight="700" fill="#152019">Overall width = 12 ft (3658 mm)</text>
-  
-  <line x1="726" y1="170" x2="726" y2="910" stroke="#9a7340" stroke-width="1.3"/>
-  <line x1="721" y1="170" x2="731" y2="170" stroke="#9a7340" stroke-width="1.3"/>
-  <line x1="721" y1="910" x2="731" y2="910" stroke="#9a7340" stroke-width="1.3"/>
-  <text x="740" y="540" font-size="12" font-weight="700" fill="#152019" transform="rotate(90 740 540)">Height = 8 ft (2438 mm)</text>
-
-  <g transform="translate(48, 220)">
-    <polygon points="0,40 40,18 40,170 0,192" fill="#f3f6f4" stroke="#3d5646" stroke-width="1.2"/>
-    <text x="48" y="100" font-size="12" fill="#5c6b62">Depth</text>
-    <text x="48" y="118" font-size="13" font-weight="700" fill="#152019">D = 2 ft</text>
-    <text x="48" y="136" font-size="11" fill="#5c6b62">610 mm</text>
-  </g>
-
-  <rect x="40" y="1160" width="900" height="80" rx="8" fill="#f7faf8" stroke="#c5d2cb"/>
-  <text x="56" y="1186" font-size="13" font-weight="700" fill="#152019">Notes</text>
-  <text x="56" y="1206" font-size="12" fill="#5c6b62">Drawing 1 — façade / shutters · Drawing 2 — full carcass internals (shelves, rods, drawers, shoes, LED) from carcass photo</text>
-  <text x="56" y="1224" font-size="12" fill="#5c6b62">Carcass: BWP plywood · both-side 1 mm laminate · 2 mm edge banding · 18 mm panels</text>
-  <text x="56" y="1242" font-size="12" fill="#5c6b62">Sizes are reference — live wall size confirmed before production · 10-year manufacturing warranty</text>
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 980 1280" width="980" height="1280">
+  <rect width="980" height="1280" fill="#fff"/>
+  <text x="44" y="54" font-family="Georgia,serif" font-size="26" fill="#152019">Exterior elevation — shutter front</text>
+  <text x="44" y="78" font-family="system-ui,sans-serif" font-size="15" fill="#5c6b62">Walnut Cream Fluted Arch Wardrobe</text>
+  <text x="44" y="98" font-family="system-ui,sans-serif" font-size="12" fill="#8a9690">SKU PBH-WR-06 · 4 hinged shutter leaves · reference W 8′ × H 7′ × D 2′</text>
+  <text x="44" y="116" font-family="system-ui,sans-serif" font-size="12" fill="#8a9690">Walnut frames · cream arches · fluted glass ovals</text>
+  <rect x="120" y="160" width="740" height="920" fill="#e8eeea" stroke="#3d5646" stroke-width="2.4"/>
+  <rect x="124" y="168" width="177" height="904" rx="3" fill="#f4f1ea" stroke="#3d5646" stroke-width="1.7"/><circle cx="212.5" cy="574" r="48" fill="none" stroke="#9a7340" stroke-width="1.4"/><line x1="253.2" y1="509.6" x2="253.2" y2="666" stroke="#152019" stroke-width="3.5" stroke-linecap="round"/><rect x="309" y="168" width="177" height="904" rx="3" fill="#f4f1ea" stroke="#3d5646" stroke-width="1.7"/><circle cx="397.5" cy="574" r="48" fill="none" stroke="#9a7340" stroke-width="1.4"/><line x1="438.2" y1="509.6" x2="438.2" y2="666" stroke="#152019" stroke-width="3.5" stroke-linecap="round"/><rect x="494" y="168" width="177" height="904" rx="3" fill="#f4f1ea" stroke="#3d5646" stroke-width="1.7"/><circle cx="582.5" cy="574" r="48" fill="none" stroke="#9a7340" stroke-width="1.4"/><line x1="623.2" y1="509.6" x2="623.2" y2="666" stroke="#152019" stroke-width="3.5" stroke-linecap="round"/><rect x="679" y="168" width="177" height="904" rx="3" fill="#f4f1ea" stroke="#3d5646" stroke-width="1.7"/><circle cx="767.5" cy="574" r="48" fill="none" stroke="#9a7340" stroke-width="1.4"/><line x1="808.2" y1="509.6" x2="808.2" y2="666" stroke="#152019" stroke-width="3.5" stroke-linecap="round"/>
+  <text x="44" y="1232" font-size="12" fill="#5c6b62">Shutter / façade drawing · confirm live wall size on WhatsApp · BWP carcass · 10-year manufacturing warranty</text>
 </svg>

@@ -13,6 +13,7 @@ import { InstallBanner } from './InstallBanner'
 import './Layout.css'
 
 const utilityLinks = [
+  { to: '/workshop', label: 'Workshop Panel' },
   { to: '/install', label: 'Get the App (iPhone & Android)' },
   { to: '/design', label: 'Design my space' },
   { to: '/shop', label: 'All products' },

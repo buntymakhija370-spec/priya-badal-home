@@ -14,6 +14,14 @@ import { CarcassPlannerPage } from './pages/CarcassPlannerPage'
 import { CarcassAssemblyPage } from './pages/CarcassAssemblyPage'
 import { DesignSpacePage } from './pages/DesignSpacePage'
 import { InstallPage } from './pages/InstallPage'
+import { WorkshopLayout } from './workshop/WorkshopLayout'
+import { WorkshopDashboard } from './workshop/pages/WorkshopDashboard'
+import { WorkshopOrdersPage } from './workshop/pages/WorkshopOrdersPage'
+import { WorkshopNewOrderPage } from './workshop/pages/WorkshopNewOrderPage'
+import { WorkshopOrderDetailPage } from './workshop/pages/WorkshopOrderDetailPage'
+import { WorkshopDepartmentsPage } from './workshop/pages/WorkshopDepartmentsPage'
+import { WorkshopPartnersPage } from './workshop/pages/WorkshopPartnersPage'
+import { WorkshopDisplayPage } from './workshop/pages/WorkshopDisplayPage'
 import './App.css'
 
 export default function App() {
@@ -21,6 +29,16 @@ export default function App() {
     <BrowserRouter>
       <ScrollToTop />
       <Routes>
+        <Route path="workshop" element={<WorkshopLayout />}>
+          <Route index element={<WorkshopDashboard />} />
+          <Route path="orders" element={<WorkshopOrdersPage />} />
+          <Route path="orders/:orderId" element={<WorkshopOrderDetailPage />} />
+          <Route path="new-order" element={<WorkshopNewOrderPage />} />
+          <Route path="departments" element={<WorkshopDepartmentsPage />} />
+          <Route path="partners" element={<WorkshopPartnersPage />} />
+          <Route path="display" element={<WorkshopDisplayPage />} />
+        </Route>
+
         <Route element={<Layout />}>
           <Route index element={<HomePage />} />
           <Route path="shop" element={<ShopPage />} />

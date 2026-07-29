@@ -1,0 +1,16 @@
+{
+  "version": 1,
+  "nextOrderSeq": 1001,
+  "partners": [
+    {
+      "id": "partner-indore-01",
+      "name": "Indore Homes Partner",
+      "phone": "919876543210",
+      "city": "Indore",
+      "active": true,
+      "notes": "Sample channel partner — replace with real partners"
+    }
+  ],
+  "orders": [],
+  "reports": []
+}

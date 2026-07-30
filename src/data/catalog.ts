@@ -6709,58 +6709,6 @@ export const baseProducts: Product[] = [
       'Photos show style and stitch character. Final fabric, foam, and size are confirmed on WhatsApp before production.',
   },
 {
-    id: 'taupe-bevel-wall-grid-silai',
-    name: 'Taupe Bevel Wall Grid Silai',
-    categoryId: 'silaibunai',
-    subcategoryId: 'custom-stitch',
-    price: 14999,
-    currency: 'INR',
-    brand: 'Priyabadal Homes',
-    collection: 'Silai Bunai',
-    sku: 'PBH-SILAI-09',
-    description:
-      '3D taupe square padded wall cladding with perimeter stitch. Custom silai bunai measured to your piece — confirm fabric and stitch on WhatsApp.',
-    style: ['custom', 'soft', 'homely'],
-    rooms: ['living room', 'bedroom', 'lounge'],
-    image: '/products/silaibunai/silai-9/01.jpg',
-    images: [
-      '/products/silaibunai/silai-9/01.jpg',
-      '/products/silaibunai/silai-9/02.jpg',
-    ],
-    imageCaptions: [
-      'Product look — hero view.',
-      'Detail view 1 — stitch / finish as shown.',
-    ],
-    highlights: [
-      'Custom silai bunai finish',
-      'Fabric & stitch options',
-      'On-site measurement',
-      'Made to your piece',
-      'WhatsApp quote',
-    ],
-    details: [
-      { label: 'Brand', value: 'Priyabadal Homes' },
-      { label: 'Collection', value: 'Silai Bunai' },
-      { label: 'Sku', value: 'PBH-SILAI-09' },
-      { label: 'Service', value: 'Custom upholstery / soft furnishing stitch' },
-      { label: 'Warranty', value: "Workmanship warranty confirmed on order" },
-    ],
-    specifications: [
-      { label: 'Type', value: 'Silai Bunai / upholstery finish' },
-      { label: 'Category', value: 'Silai Bunai' },
-      { label: 'Pricing', value: 'From listed price · final quote on WhatsApp after measure' },
-      { label: 'Country of Origin', value: 'India' },
-      { label: 'Care', value: 'Vacuum soft brush; spot clean as per fabric' },
-    ],
-    features: [
-      'Soft furnishing stitch and padded finishes as shown',
-      'Fabric colour and pattern confirmed before work',
-      'Suitable for wardrobes, walls, headboards, and furniture refresh',
-    ],
-    disclaimer:
-      'Photos show style and stitch character. Final fabric, foam, and size are confirmed on WhatsApp before production.',
-  },
-{
     id: 'soft-touch-feature-panels-silai',
     name: 'Soft-Touch Feature Panels Silai',
     categoryId: 'silaibunai',

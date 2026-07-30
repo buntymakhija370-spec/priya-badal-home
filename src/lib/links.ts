@@ -3,9 +3,9 @@ export function productPath(productId: string) {
   return `/product/${productId}`
 }
 
-/** Absolute URL for Instagram / WhatsApp / bio links */
+/** Absolute URL for Instagram / WhatsApp / bio links (HashRouter-safe) */
 export function productShareUrl(productId: string, origin = window.location.origin) {
-  return `${origin.replace(/\/$/, '')}${productPath(productId)}`
+  return `${origin.replace(/\/$/, '')}/#${productPath(productId)}`
 }
 
 export function shopPath(categoryId?: string, subcategoryId?: string) {

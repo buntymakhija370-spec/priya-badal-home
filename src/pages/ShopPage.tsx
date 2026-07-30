@@ -4,7 +4,7 @@ import { categories, getCategory, getSubcategory } from '../data/catalog'
 import { getProductsByCategory, getAllProducts } from '../lib/products'
 import { ProductCard } from '../components/ProductCard'
 import { shopPath } from '../lib/links'
-import { WHATSAPP_CHAT_URL, WHATSAPP_DISPLAY } from '../lib/whatsapp'
+import { WHATSAPP_CHAT_URL } from '../lib/whatsapp'
 import './ShopPage.css'
 
 const SILAI_BUNAI_PDF = '/catalogs/priyabadal-silai-bunai.pdf'
@@ -113,8 +113,8 @@ export function ShopPage() {
         <aside className="shop__concept shop__concept--silai" aria-label="Silai Bunai WhatsApp catalogue">
           <p className="shop__concept-kicker">WhatsApp catalogue</p>
           <p>
-            Download the Silai Bunai lookbook PDF and send it on WhatsApp.
-            Quotes are shared after fabric choice and measure — {WHATSAPP_DISPLAY}.
+            Download the Silai Bunai photo lookbook (all angles, no rates) and send it on WhatsApp.
+            Quotes are shared after fabric choice and measure.
           </p>
           <div className="shop__pdf-actions">
             <a className="shop__pdf-btn" href={SILAI_BUNAI_PDF} download>

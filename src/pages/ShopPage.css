@@ -89,6 +89,34 @@
   background: var(--honey-deep);
 }
 
+.shop__pdf-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+  margin-top: 0.15rem;
+}
+
+.shop__pdf-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 2.4rem;
+  padding: 0.45rem 0.9rem;
+  border: 1px solid rgba(31, 26, 23, 0.18);
+  background: #1f1a17;
+  color: #f6f2ec;
+  font-size: 0.82rem;
+  font-weight: 600;
+  letter-spacing: 0.02em;
+  text-decoration: none;
+}
+
+.shop__pdf-btn--wa {
+  background: transparent;
+  color: var(--ink);
+  border-color: rgba(125, 92, 48, 0.35);
+}
+
 .shop__back {
   margin-top: 0.4rem;
   font-size: 0.8rem;

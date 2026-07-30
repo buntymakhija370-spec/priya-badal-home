@@ -4,7 +4,13 @@ import { categories, getCategory, getSubcategory } from '../data/catalog'
 import { getProductsByCategory, getAllProducts } from '../lib/products'
 import { ProductCard } from '../components/ProductCard'
 import { shopPath } from '../lib/links'
+import { WHATSAPP_CHAT_URL, WHATSAPP_DISPLAY } from '../lib/whatsapp'
 import './ShopPage.css'
+
+const SILAI_BUNAI_PDF = '/catalogs/priyabadal-silai-bunai.pdf'
+const SILAI_WA_TEXT = encodeURIComponent(
+  'Hi Priyabadal Homes, please share the Silai Bunai catalogue PDF and help me with a custom stitch / upholstery quote.',
+)
 
 type SortId = 'featured' | 'price-asc' | 'price-desc' | 'name'
 
@@ -100,6 +106,29 @@ export function ShopPage() {
             <li>Ask size and confirm the exact piece on WhatsApp</li>
             <li>Seaters, consoles, centre tables, ball stools &amp; basins</li>
           </ul>
+        </aside>
+      ) : null}
+
+      {category?.id === 'silaibunai' ? (
+        <aside className="shop__concept shop__concept--silai" aria-label="Silai Bunai WhatsApp catalogue">
+          <p className="shop__concept-kicker">WhatsApp catalogue</p>
+          <p>
+            Download the Silai Bunai lookbook PDF and send it on WhatsApp.
+            Quotes are shared after fabric choice and measure — {WHATSAPP_DISPLAY}.
+          </p>
+          <div className="shop__pdf-actions">
+            <a className="shop__pdf-btn" href={SILAI_BUNAI_PDF} download>
+              Download Silai Bunai PDF
+            </a>
+            <a
+              className="shop__pdf-btn shop__pdf-btn--wa"
+              href={`${WHATSAPP_CHAT_URL}?text=${SILAI_WA_TEXT}`}
+              target="_blank"
+              rel="noreferrer"
+            >
+              Open WhatsApp
+            </a>
+          </div>
         </aside>
       ) : null}
 

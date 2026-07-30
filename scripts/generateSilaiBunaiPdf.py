@@ -47,7 +47,7 @@ def register_fonts() -> tuple[str, str]:
     return "Helvetica", "Helvetica-Bold"
 
 
-def load_image(rel: str, max_w: int = 1400, max_h: int = 1400) -> Image.Image | None:
+def load_image(rel: str, max_w: int = 1000, max_h: int = 1000) -> Image.Image | None:
     path = PUBLIC / rel.lstrip("/")
     if not path.exists():
         return None
@@ -56,7 +56,7 @@ def load_image(rel: str, max_w: int = 1400, max_h: int = 1400) -> Image.Image | 
     return img
 
 
-def image_reader(img: Image.Image, quality: int = 72) -> ImageReader:
+def image_reader(img: Image.Image, quality: int = 58) -> ImageReader:
     buf = BytesIO()
     img.save(buf, format="JPEG", quality=quality, optimize=True)
     buf.seek(0)
@@ -126,7 +126,7 @@ def fit_draw(
     y: float,
     box_w: float,
     box_h: float,
-    quality: int = 72,
+    quality: int = 58,
 ) -> None:
     """Draw image centered in box, contain (no crop), on paper fill."""
     iw, ih = img.size
@@ -235,7 +235,7 @@ def cover(c: canvas.Canvas, products: list[dict], body: str, bold: str, page: in
 
     thumbs: list[Image.Image] = []
     for p in products:
-        img = load_image(p["image"], 700, 700)
+        img = load_image(p["image"], 520, 520)
         if img:
             thumbs.append(img)
 
@@ -250,7 +250,7 @@ def cover(c: canvas.Canvas, products: list[dict], body: str, bold: str, page: in
             col = i % cols
             x = left + col * (cell_w + gap)
             y = mosaic_top - (r + 1) * cell_h - r * gap
-            fit_draw(c, img, x, y, cell_w, cell_h, quality=70)
+            fit_draw(c, img, x, y, cell_w, cell_h, quality=58)
 
     c.setFillColor(INK_SOFT)
     c.setFont(body, 8.5)
@@ -317,13 +317,13 @@ def product_page(
     images = product.get("images") or ([product["image"]] if product.get("image") else [])
     loaded: list[Image.Image] = []
     for rel in images:
-        img = load_image(rel, 1200, 1200)
+        img = load_image(rel, 900, 900)
         if img:
             loaded.append(img)
 
     cells = photo_cells(len(loaded), margin, photo_bottom, photo_w, photo_h, gap=2.2 * mm)
     for cell, img in zip(cells, loaded):
-        fit_draw(c, img, *cell, quality=70)
+        fit_draw(c, img, *cell, quality=58)
 
     footer(c, page, total, body)
 

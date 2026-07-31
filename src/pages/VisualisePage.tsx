@@ -9,10 +9,29 @@ import {
   fileToDataUrl,
   generateVisualise,
   type VisualiseColour,
+  type VisualiseMode,
 } from '../lib/visualise'
 import { AiAccessBanner } from '../components/AiAccessBanner'
 import { useCurrency } from '../hooks/useCurrency'
 import './VisualisePage.css'
+
+const VISUALISE_MODES: { id: VisualiseMode; label: string; hint: string }[] = [
+  {
+    id: 'replace',
+    label: 'Replace existing',
+    hint: 'Swap the current kitchen / wardrobe with our product — same room photo.',
+  },
+  {
+    id: 'install',
+    label: 'Install in room',
+    hint: 'Place our product into your room on the right wall / niche.',
+  },
+  {
+    id: 'redesign',
+    label: 'Presentable redesign',
+    hint: 'Polished client-ready interior look with our product as the hero.',
+  },
+]
 
 export function VisualisePage() {
   useCurrency()
@@ -26,11 +45,14 @@ export function VisualisePage() {
   )
   const [colour, setColour] = useState<VisualiseColour>(VISUALISE_COLOURS[0]!)
   const [notes, setNotes] = useState('')
+  const [visualiseMode, setVisualiseMode] = useState<VisualiseMode>('replace')
   const [busy, setBusy] = useState(false)
   const [resultUrl, setResultUrl] = useState<string | null>(null)
   const [statusMsg, setStatusMsg] = useState<string | null>(null)
   const [aiConfigured, setAiConfigured] = useState(false)
-  const [aiModel, setAiModel] = useState('fal-ai/flux-2-pro/edit')
+  const [aiModel, setAiModel] = useState('fal-ai/nano-banana-pro/edit')
+  const [aiQuality, setAiQuality] = useState('2K')
+  const [aiEngine, setAiEngine] = useState('Priyabadal Interior AI')
 
   const product = productId ? getProductById(productId) : undefined
   const category = product ? getCategory(product.categoryId) : undefined
@@ -45,6 +67,8 @@ export function VisualisePage() {
     void fetchVisualiseStatus().then((s) => {
       setAiConfigured(s.configured)
       if (s.model) setAiModel(s.model)
+      if (s.quality) setAiQuality(s.quality)
+      if (s.engine) setAiEngine(s.engine)
     })
   }, [])
 
@@ -86,7 +110,7 @@ export function VisualisePage() {
 
     setBusy(true)
     setResultUrl(null)
-    setStatusMsg('Uploading photos and running professional AI edit…')
+    setStatusMsg('Creating a client-ready 2K interior visualisation…')
     try {
       const result = await generateVisualise({
         roomDataUrl,
@@ -94,6 +118,7 @@ export function VisualisePage() {
         colour,
         notes: notes.trim() || undefined,
         categoryName: category.name,
+        visualiseMode,
       })
 
       if (result.source === 'ai' && result.imageUrl) {
@@ -131,14 +156,14 @@ export function VisualisePage() {
         <p className="eyebrow">Professional AI</p>
         <h1>Visualise with our products</h1>
         <p>
-          Upload your kitchen or room photo. We use a paid AI model to redesign the
-          space with a real <strong>Priyabadal Homes</strong> product — not a sticker
-          collage.
+          Upload a clear room photo and visualise a real <strong>Priyabadal Homes</strong>{' '}
+          kitchen, wardrobe, or interior piece in place — precise enough to show clients
+          before they buy.
         </p>
         <p className={`visualise__mode ${aiConfigured ? 'is-live' : ''}`}>
           {aiConfigured
-            ? `Subscriber AI ready · ${aiModel}`
-            : 'Paid AI · unlock with access code (controlled Fal usage)'}
+            ? `${aiEngine} · ${aiQuality} · ready`
+            : 'Paid Interior AI · unlock with access code'}
         </p>
       </header>
 
@@ -149,6 +174,8 @@ export function VisualisePage() {
           )
           void fetchVisualiseStatus().then((st) => {
             if (st.model) setAiModel(st.model)
+            if (st.quality) setAiQuality(st.quality)
+            if (st.engine) setAiEngine(st.engine)
           })
         }}
       />
@@ -199,7 +226,26 @@ export function VisualisePage() {
             </div>
           ) : null}
 
-          <h2>3. Finish colour</h2>
+          <h2>3. Visualisation style</h2>
+          <div className="visualise__modes" role="radiogroup" aria-label="Visualisation style">
+            {VISUALISE_MODES.map((m) => (
+              <button
+                key={m.id}
+                type="button"
+                className={
+                  visualiseMode === m.id
+                    ? 'visualise__mode-card is-active'
+                    : 'visualise__mode-card'
+                }
+                onClick={() => setVisualiseMode(m.id)}
+              >
+                <strong>{m.label}</strong>
+                <span>{m.hint}</span>
+              </button>
+            ))}
+          </div>
+
+          <h2>4. Finish colour</h2>
           <div className="visualise__colours" role="listbox" aria-label="Finish colour">
             {VISUALISE_COLOURS.map((c) => (
               <button
@@ -225,7 +271,7 @@ export function VisualisePage() {
               rows={2}
               value={notes}
               onChange={(e) => setNotes(e.target.value)}
-              placeholder="e.g. change only lower cabinets; keep existing granite"
+              placeholder="e.g. replace only lower cabinets; keep granite; warmer lighting"
             />
           </label>
 
@@ -234,7 +280,7 @@ export function VisualisePage() {
             type="submit"
             disabled={busy || !aiConfigured}
           >
-            {busy ? 'Generating professional render…' : 'Generate with AI'}
+            {busy ? 'Rendering presentation image…' : 'Generate presentation AI'}
           </button>
           {!aiConfigured ? (
             <p className="visualise__status">
@@ -245,53 +291,72 @@ export function VisualisePage() {
         </section>
 
         <section className="visualise__result-panel">
-          <h2>Result</h2>
-          <div className="visualise__result">
-            {busy ? (
-              <div className="visualise__result-empty">
-                <strong>Working…</strong>
-                <span>
-                  Uploading your photos and running a professional AI edit. Usually
-                  20–60 seconds.
-                </span>
-              </div>
-            ) : null}
-            {!busy && resultUrl ? (
-              <img src={resultUrl} alt="Professional AI visualisation" />
-            ) : null}
-            {!busy && !resultUrl ? (
-              <div className="visualise__result-empty">
-                <strong>No sticker previews</strong>
-                <span>
-                  Your photorealistic room edit will appear here after professional AI
-                  generation.
-                </span>
-              </div>
-            ) : null}
-          </div>
+          <h2>Presentation result</h2>
+          {resultUrl && roomDataUrl ? (
+            <div className="visualise__compare" aria-label="Before and after">
+              <figure>
+                <img src={roomDataUrl} alt="Your room before" />
+                <figcaption>Your room</figcaption>
+              </figure>
+              <figure>
+                <img src={resultUrl} alt="Priyabadal AI visualisation" />
+                <figcaption>AI visualisation · {aiQuality}</figcaption>
+              </figure>
+            </div>
+          ) : (
+            <div className="visualise__result">
+              {busy ? (
+                <div className="visualise__result-empty">
+                  <strong>Creating presentation image…</strong>
+                  <span>
+                    Matching catalog product references into your room at {aiQuality}.
+                    Usually 20–70 seconds.
+                  </span>
+                </div>
+              ) : null}
+              {!busy && !resultUrl ? (
+                <div className="visualise__result-empty">
+                  <strong>Client-ready interior AI</strong>
+                  <span>
+                    Replace existing furniture with our products, install into a room, or
+                    create a presentable redesign — photoreal, not a sticker collage.
+                  </span>
+                </div>
+              ) : null}
+            </div>
+          )}
 
           {resultUrl && product && waHref ? (
-            <div className="visualise__actions">
-              <a
-                className="btn visualise__wa"
-                href={waHref}
-                target="_blank"
-                rel="noopener noreferrer"
-              >
-                WhatsApp quote + AI photo
-              </a>
-              <Link className="btn btn--outline" to={`/product/${product.id}`}>
-                Customise &amp; price
-              </Link>
-              <a
-                className="btn btn--outline"
-                href={resultUrl}
-                download="priyabadal-visualise.jpg"
-              >
-                Download image
-              </a>
-            </div>
+            <>
+              <p className="visualise__present-note">
+                Share this with your client as a design preview. Final size, finish, and
+                quote are confirmed on WhatsApp after site measure.
+              </p>
+              <div className="visualise__actions">
+                <a
+                  className="btn visualise__wa"
+                  href={waHref}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                >
+                  WhatsApp quote + AI photo
+                </a>
+                <Link className="btn btn--outline" to={`/product/${product.id}`}>
+                  Customise &amp; price
+                </Link>
+                <a
+                  className="btn btn--outline"
+                  href={resultUrl}
+                  download={`priyabadal-${product.id}-visualise.jpg`}
+                  target="_blank"
+                  rel="noreferrer"
+                >
+                  Download presentation image
+                </a>
+              </div>
+            </>
           ) : null}
+          <p className="visualise__engine-note">{aiModel}</p>
         </section>
       </form>
     </main>

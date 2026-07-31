@@ -17,6 +17,8 @@ export const VISUALISE_COLOURS: VisualiseColour[] = [
   { id: 'gloss-white', label: 'Gloss White', hex: '#ffffff' },
 ]
 
+export type VisualiseMode = 'replace' | 'install' | 'redesign'
+
 export type VisualiseRequest = {
   roomDataUrl: string
   product: Product
@@ -31,6 +33,8 @@ export type VisualiseRequest = {
   scopeLabel?: string
   /** Room photo vs architect drawing / plan / elevation */
   inputKind?: 'photo' | 'drawing'
+  /** replace existing furniture / install / full presentable redesign */
+  visualiseMode?: VisualiseMode
   /** Previous AI image to edit for follow-up change commands */
   refineImageUrl?: string
   changeRequest?: string
@@ -62,7 +66,11 @@ export function productReferencePaths(product: Product): {
     const mid = pool[1]!
     if (mid !== primary && !extras.includes(mid)) extras.push(mid)
   }
-  return { primary, extras: extras.slice(0, 2) }
+  if (pool.length > 3) {
+    const third = pool[2]!
+    if (third !== primary && !extras.includes(third)) extras.push(third)
+  }
+  return { primary, extras: extras.slice(0, 3) }
 }
 
 export type VisualiseResult = {
@@ -77,13 +85,15 @@ export type VisualiseStatus = {
   mode: string
   model?: string
   refineModel?: string
+  quality?: string
+  engine?: string
 }
 
 /** Compress / resize room photo for upload + AI (higher res = better room fidelity) */
 export async function fileToDataUrl(
   file: File,
-  maxSide = 2048,
-  quality = 0.9,
+  maxSide = 2400,
+  quality = 0.92,
 ): Promise<string> {
   const bitmap = await createImageBitmap(file)
   const scale = Math.min(1, maxSide / Math.max(bitmap.width, bitmap.height))
@@ -181,6 +191,7 @@ export async function generateVisualise(
         finishLabel: input.finishLabel,
         scopeLabel: input.scopeLabel,
         inputKind: input.inputKind ?? 'photo',
+        visualiseMode: input.visualiseMode ?? 'replace',
         refineImageUrl: input.refineImageUrl,
         changeRequest: input.changeRequest,
       }),
@@ -191,25 +202,35 @@ export async function generateVisualise(
       error?: string
       code?: string
       hint?: string
+      quality?: string
+      model?: string
     }
 
     if (res.ok && data.imageUrl) {
+      const quality = data.quality ? ` · ${data.quality}` : ''
       const sizeHint =
         input.widthFt && input.heightFt
-          ? ` Furniture sized toward ${input.widthFt} × ${input.heightFt}` +
+          ? ` Sized toward ${input.widthFt} × ${input.heightFt}` +
             (input.depthFt ? ` × ${input.depthFt}` : '') +
-            ' ft. AI is a visual guide — final quote uses your exact measure.'
-          : ' Tip: share exact feet size for a closer scale match.'
+            ' ft. Presentation guide — final quote uses site measure.'
+          : ' Tip: add exact feet size for tighter scale.'
       const refineHint = input.changeRequest?.trim()
         ? ` Updated for: “${input.changeRequest.trim()}”.`
         : ''
+      const modeHint =
+        input.visualiseMode === 'redesign'
+          ? ' Presentable redesign with your Priyabadal product as the hero.'
+          : input.visualiseMode === 'install'
+            ? ' Product installed into your room photo.'
+            : ' Existing furniture replaced with your Priyabadal product.'
       return {
         imageUrl: data.imageUrl,
         source: 'ai',
         message:
           (input.refineImageUrl
-            ? 'Revised look from your change request, matching catalog references.'
-            : 'Higher-accuracy render: your room framing kept, catalog exterior (+ detail) matched.') +
+            ? 'Precision revision from your change request.'
+            : `Client-ready interior visualisation${quality}.`) +
+          (input.refineImageUrl ? '' : modeHint) +
           refineHint +
           sizeHint,
       }

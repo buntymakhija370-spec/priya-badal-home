@@ -18,6 +18,8 @@ import {
 } from './aiSubscriberStore.ts'
 import type { AiKind } from './aiSubscriberStore.ts'
 
+type VisualiseMode = 'replace' | 'install' | 'redesign'
+
 type VisualiseBody = {
   roomDataUrl: string
   productImageUrl: string
@@ -36,6 +38,13 @@ type VisualiseBody = {
   scopeLabel?: string
   /** Customer room photo or architect drawing (plan / elevation / section) */
   inputKind?: 'photo' | 'drawing'
+  /**
+   * How to treat the room photo:
+   * replace = swap existing furniture with our product
+   * install = place our product into the room
+   * redesign = presentable full interior look with our product as hero
+   */
+  visualiseMode?: VisualiseMode
   /** Previous AI visualisation URL/data — used to apply follow-up change commands */
   refineImageUrl?: string
   /** Specific change to apply on the current AI photo */
@@ -58,10 +67,25 @@ type CarcassLiveBody = {
 /** Runtime key so owner can paste FAL_KEY without restarting */
 let runtimeFalKey = ''
 
-/** Multi-reference room + product install (create / carcass) */
-const DEFAULT_CREATE_MODEL = 'fal-ai/flux-2-pro/edit'
-/** Single-image targeted edits (chat “change something”) */
-const DEFAULT_REFINE_MODEL = 'fal-ai/flux-pro/kontext'
+/**
+ * Client-chargeable quality defaults:
+ * - Create / install: Nano Banana Pro Edit @ 2K (best photoreal interior restyle + multi refs)
+ * - Refine: FLUX.1 Kontext Max (precise follow-up edits, room consistency)
+ * Override with FAL_VISUALISE_MODEL / FAL_REFINE_MODEL if needed.
+ */
+const DEFAULT_CREATE_MODEL = 'fal-ai/nano-banana-pro/edit'
+const DEFAULT_REFINE_MODEL = 'fal-ai/flux-pro/kontext/max'
+const DEFAULT_RESOLUTION = '2K'
+
+const INTERIOR_SYSTEM_PROMPT = [
+  'You are a professional interior visualisation artist for Priyabadal Homes (India).',
+  'Create client-ready, photorealistic interior photographs suitable for paid design presentations.',
+  'Preserve the customer room’s camera angle, architecture, windows, doors, floor, and ceiling unless redesign is requested.',
+  'Match the catalog product reference images tightly: shutter layout, grooves, handles, edge profiles, materials, and proportions.',
+  'Integrate products with correct perspective, contact shadows, reflections, and matching room lighting — never a sticker/collage look.',
+  'Indian residential context: realistic scale, clean finishes, no watermarks, logos, text, arrows, or dimension labels.',
+  'Output one polished showroom-quality photograph.',
+].join(' ')
 
 /** Load .env into process.env — Vite may import this plugin before loadEnv runs */
 function hydrateFalEnv(mode = 'development') {
@@ -126,6 +150,19 @@ function getRefineModel() {
 
 function getCarcassModel() {
   return process.env.FAL_CARCASS_MODEL || getCreateModel()
+}
+
+function getVisualiseResolution() {
+  const r = (process.env.FAL_VISUALISE_RESOLUTION || DEFAULT_RESOLUTION).toUpperCase()
+  return r === '1K' || r === '4K' || r === '2K' ? r : DEFAULT_RESOLUTION
+}
+
+function modelFamily(model: string): 'nano-banana' | 'flux-2' | 'kontext' | 'other' {
+  const m = model.toLowerCase()
+  if (m.includes('nano-banana')) return 'nano-banana'
+  if (m.includes('kontext')) return 'kontext'
+  if (m.includes('flux-2') || m.includes('flux2')) return 'flux-2'
+  return 'other'
 }
 
 /** Conversational sales chatbot (Fal any-llm) */
@@ -296,50 +333,57 @@ function buildPrompt(body: VisualiseBody) {
   const space = body.categoryName.toLowerCase()
   const isDrawing = body.inputKind === 'drawing'
   const isRefine = Boolean(body.refineImageUrl && body.changeRequest?.trim())
-  const hasExtraProduct = Boolean(body.productImageUrls?.length)
-  const hasSize =
-    Number(body.widthFt) > 0 && Number(body.heightFt) > 0
+  const mode: VisualiseMode = body.visualiseMode || 'replace'
+  const extraCount = body.productImageUrls?.length ?? 0
+  const hasSize = Number(body.widthFt) > 0 && Number(body.heightFt) > 0
+
   const sizeLine = hasSize
     ? [
-        `INSTALL SIZE (feet, for the furniture only — do NOT change the photo aspect ratio): width ${body.widthFt} ft × height ${body.heightFt} ft` +
-          (Number(body.depthFt) > 0 ? ` × depth ${body.depthFt} ft` : '') +
+        `LIVE SIZE (furniture only, keep photo framing): ${body.widthFt} ft wide × ${body.heightFt} ft high` +
+          (Number(body.depthFt) > 0 ? ` × ${body.depthFt} ft deep` : '') +
           '.',
-        'Rescale the catalog product to this live size on the wall. Keep IMAGE 1 camera framing exactly.',
         space.includes('wardrobe')
-          ? `Wardrobe must read as about ${body.widthFt} ft wide and ${body.heightFt} ft tall on the wall (floor-to-near-ceiling if height is tall).`
+          ? `The wardrobe must read as a full wall unit ~${body.widthFt} ft wide and ~${body.heightFt} ft tall (near floor-to-ceiling if height is tall).`
           : space.includes('kitchen')
-            ? `Kitchen run must fit about ${body.widthFt} ft width and ${body.heightFt} ft shutter/cabinet height.`
-            : `Product must fit about ${body.widthFt} ft × ${body.heightFt} ft on the intended wall/niche.`,
+            ? `The kitchen run must fill ~${body.widthFt} ft of wall with ~${body.heightFt} ft shutter/cabinet height.`
+            : `Scale the product to about ${body.widthFt} × ${body.heightFt} ft on the intended wall.`,
       ].join(' ')
     : isDrawing
-      ? 'Read marked dimensions from the drawing when present; otherwise fit the product to the indicated wall run.'
-      : 'Scale the product to the natural wall opening in IMAGE 1.'
+      ? 'Respect marked dimensions on the drawing; otherwise fit the product to the indicated wall run.'
+      : 'Scale the product to the natural wall opening / furniture footprint in IMAGE 1.'
 
   const productMatch = [
-    `Product to match: "${body.productName}" (Priyabadal Homes catalog).`,
-    'IMAGE 2 = CLOSED EXTERIOR / façade reference — match door layout, panel grooves, handle style, edge profile, and finish as closely as possible.',
-    hasExtraProduct
-      ? 'IMAGE 3 = extra catalog detail or open carcass reference — use only for construction/detail cues; keep the closed look of IMAGE 2 unless the customer asked for open carcass.'
+    `Catalog product: "${body.productName}" (${body.categoryName}) by Priyabadal Homes.`,
+    'IMAGE 2 = hero CLOSED façade reference — match door layout, panel grooves, handle style, edge profile, colour, and material as closely as possible.',
+    extraCount > 0
+      ? `IMAGE 3${extraCount > 1 ? '+ ' : ' '} = additional catalog angle(s) for detail accuracy. Prefer the closed look from IMAGE 2 unless the customer asked for open carcass.`
       : '',
-    `Preferred finish cue: ${body.colourLabel} (${body.colour}).`,
+    `Finish cue: ${body.colourLabel} (${body.colour}).`,
     body.finishLabel ? `Finish: ${body.finishLabel}.` : '',
     body.scopeLabel ? `Scope: ${body.scopeLabel}.` : '',
   ]
     .filter(Boolean)
     .join(' ')
 
+  const modeTask =
+    mode === 'install'
+      ? `INSTALL mode: Place the Priyabadal ${space} product into IMAGE 1 on the correct wall/niche. Keep the rest of the room natural and believable.`
+      : mode === 'redesign'
+        ? `REDESIGN mode: Create a presentable, client-ready interior look of this ${space}. Keep room architecture from IMAGE 1, refresh styling around the new Priyabadal product so the result looks like a polished design proposal.`
+        : `REPLACE mode: Remove / replace the existing ${space} furniture or cabinets in IMAGE 1 with the Priyabadal catalog product. Keep walls, floor, ceiling, windows, and camera identical.`
+
   if (isRefine) {
     return [
-      'ACCURACY-FIRST revision for Priyabadal Homes (India).',
-      'Edit the attached visualisation photo. Preserve camera, room geometry, walls, floor, ceiling, windows, and lighting.',
-      `Keep the same Priyabadal catalog product identity: "${body.productName}" (${body.categoryName}).`,
-      `Preferred finish cue: ${body.colourLabel} (${body.colour}).`,
+      'Client-ready revision for a paid Priyabadal Homes interior visualisation.',
+      'Edit the attached visualisation. Preserve camera, room geometry, walls, floor, ceiling, windows, and overall lighting.',
+      `Keep product identity: "${body.productName}" (${body.categoryName}).`,
+      `Finish cue: ${body.colourLabel} (${body.colour}).`,
       body.finishLabel ? `Finish: ${body.finishLabel}.` : '',
-      `CHANGE REQUEST (must apply): ${body.changeRequest!.trim()}`,
-      'Edit only what the change asks. Do not invent a new room or a different product family.',
+      `CHANGE REQUEST (must apply precisely): ${body.changeRequest!.trim()}`,
+      'Change only what is asked. Do not invent a different product family or a new room.',
       sizeLine,
-      'Photorealistic interior photo only. No text, logos, arrows, or watermarks.',
-      body.notes ? `Notes: ${body.notes}` : '',
+      'Photoreal presentation quality. No text, logos, arrows, or watermarks.',
+      body.notes ? `Customer notes: ${body.notes}` : '',
     ]
       .filter(Boolean)
       .join(' ')
@@ -347,32 +391,80 @@ function buildPrompt(body: VisualiseBody) {
 
   if (isDrawing) {
     return [
-      'ACCURACY-FIRST interior architect visualisation for Priyabadal Homes (India).',
-      `IMAGE 1 = architect drawing for ${space} (plan/elevation/section/sketch). Respect wall runs, openings, and marked sizes.`,
+      'Client-ready architect-to-photo visualisation for Priyabadal Homes (India).',
+      `IMAGE 1 = architect drawing for ${space} (plan / elevation / section / sketch). Respect wall runs, openings, and marked sizes.`,
       productMatch,
-      'Task: Photoreal eye-level interior showing the catalog product installed per the drawing — not a CAD screenshot, not a random room.',
+      'Task: Produce a photoreal eye-level interior photo with the catalog product installed per the drawing — not a CAD screenshot.',
       sizeLine,
-      'Match IMAGE 2 product identity tightly (doors, grooves, handles, materials).',
-      'No text, logos, dimension arrows, or watermarks in the output.',
-      body.notes ? `Notes: ${body.notes}` : '',
+      'Match IMAGE 2 product identity tightly. Soft realistic lighting, correct scale, presentation quality.',
+      'No text, logos, dimension arrows, or watermarks.',
+      body.notes ? `Customer notes: ${body.notes}` : '',
     ]
       .filter(Boolean)
       .join(' ')
   }
 
   return [
-    'ACCURACY-FIRST interior product visualisation for Priyabadal Homes (India).',
-    `IMAGE 1 = customer’s real ${space} photograph. Keep THE SAME camera angle, perspective, walls, floor, ceiling, windows, doors, and lighting. Do not replace the room.`,
+    'Client-ready photoreal interior visualisation for Priyabadal Homes (India).',
+    `IMAGE 1 = customer’s real ${space} photograph.`,
+    modeTask,
     productMatch,
-    'Task: Install the Priyabadal catalog product onto the correct wall/surfaces in IMAGE 1 with correct perspective, contact shadows, and seamless lighting.',
+    'Blend the product with correct perspective, contact shadows, edge alignment, and room lighting. Never look like a pasted sticker or collage.',
     sizeLine,
-    'Do NOT paste IMAGE 2 as a sticker/collage. Do NOT invent another brand or a totally different design.',
-    'Do NOT leave a tiny sample-sized unit — fill the intended wall run at the given feet size.',
-    'Output one photorealistic interior photograph. No text, logos, arrows, or watermarks.',
-    body.notes ? `Notes: ${body.notes}` : '',
+    'Do not invent another brand or a totally different design language.',
+    'Fill the intended wall run at realistic Indian residential scale — not a tiny sample unit.',
+    'Output one polished presentation photograph. No text, logos, arrows, or watermarks.',
+    body.notes ? `Customer notes: ${body.notes}` : '',
   ]
     .filter(Boolean)
     .join(' ')
+}
+
+function buildFalPayload(opts: {
+  model: string
+  prompt: string
+  imageUrls: string[]
+  isRefine: boolean
+}): Record<string, unknown> {
+  const family = modelFamily(opts.model)
+  const resolution = getVisualiseResolution()
+
+  if (opts.isRefine || family === 'kontext') {
+    return {
+      prompt: opts.prompt,
+      image_url: opts.imageUrls[0],
+      num_images: 1,
+      output_format: 'jpeg',
+      guidance_scale: 4.0,
+      enhance_prompt: true,
+      safety_tolerance: '2',
+      aspect_ratio: 'auto',
+    }
+  }
+
+  if (family === 'nano-banana') {
+    return {
+      prompt: opts.prompt,
+      system_prompt: INTERIOR_SYSTEM_PROMPT,
+      image_urls: opts.imageUrls,
+      num_images: 1,
+      output_format: 'jpeg',
+      resolution,
+      aspect_ratio: 'auto',
+      safety_tolerance: '4',
+      limit_generations: true,
+    }
+  }
+
+  // FLUX.2 Pro / Max edit family
+  return {
+    prompt: opts.prompt,
+    image_urls: opts.imageUrls,
+    image_size: 'auto',
+    output_format: 'jpeg',
+    safety_tolerance: '2',
+    enable_safety_checker: true,
+  }
 }
 
 async function handleVisualise(req: IncomingMessage, res: ServerResponse) {
@@ -413,29 +505,29 @@ async function handleVisualise(req: IncomingMessage, res: ServerResponse) {
 
     let model: string
     let falPayload: Record<string, unknown>
+    let imageUrls: string[] = []
 
     if (isRefine) {
-      // Kontext: single image + text change (best for follow-up tweaks)
+      // Kontext Max: precise single-image follow-up edits
       const refineUrl = await resolveImageUrl(
         falKey,
         body.refineImageUrl!,
         'refine.jpg',
       )
       model = getRefineModel()
-      falPayload = {
+      imageUrls = [refineUrl]
+      falPayload = buildFalPayload({
+        model,
         prompt,
-        image_url: refineUrl,
-        num_images: 1,
-        output_format: 'jpeg',
-        guidance_scale: 3.5,
-        safety_tolerance: '2',
-      }
+        imageUrls,
+        isRefine: true,
+      })
     } else {
-      // FLUX.2 Pro Edit: room + exterior (+ optional detail) multi-ref
+      // Nano Banana Pro / FLUX.2: room + product façade (+ detail angles)
       const extraProductSrcs = (body.productImageUrls ?? [])
         .filter((u) => typeof u === 'string' && u.length > 0)
         .filter((u) => u !== body.productImageUrl)
-        .slice(0, 2)
+        .slice(0, 3)
 
       const [baseUrl, productUrl, ...extraProductUrls] = await Promise.all([
         resolveImageUrl(falKey, body.roomDataUrl, 'room.jpg'),
@@ -446,14 +538,13 @@ async function handleVisualise(req: IncomingMessage, res: ServerResponse) {
       ])
 
       model = getCreateModel()
-      falPayload = {
+      imageUrls = [baseUrl, productUrl, ...extraProductUrls]
+      falPayload = buildFalPayload({
+        model,
         prompt,
-        image_urls: [baseUrl, productUrl, ...extraProductUrls],
-        image_size: 'auto',
-        output_format: 'jpeg',
-        safety_tolerance: '2',
-        enable_safety_checker: true,
-      }
+        imageUrls,
+        isRefine: false,
+      })
     }
 
     const falRes = await fetch(`https://fal.run/${model}`, {
@@ -497,7 +588,9 @@ async function handleVisualise(req: IncomingMessage, res: ServerResponse) {
       imageUrl,
       provider: 'fal',
       model,
-      mode: 'product-referenced-pro',
+      mode: isRefine ? 'refine-precision' : 'interior-presentation',
+      quality: modelFamily(model) === 'nano-banana' ? getVisualiseResolution() : 'hd',
+      visualiseMode: body.visualiseMode || 'replace',
       access: statusForToken(gate.token),
     })
   } catch (err) {
@@ -632,6 +725,22 @@ async function handleCarcassLive(req: IncomingMessage, res: ServerResponse) {
     )
 
     const model = getCarcassModel()
+    const carcassPrompt = [
+      buildCarcassLivePrompt(body),
+      'Client-presentation quality. Photoreal open carcass for quotation — clean, sharp, believable scale.',
+    ].join(' ')
+    const falPayload = buildFalPayload({
+      model,
+      prompt: carcassPrompt,
+      imageUrls: [imageUrl],
+      isRefine: false,
+    })
+    if (modelFamily(model) === 'flux-2') {
+      falPayload.image_size = imageSizeFromFeet(
+        Number(body.widthFt),
+        Number(body.heightFt),
+      )
+    }
 
     const falRes = await fetch(`https://fal.run/${model}`, {
       method: 'POST',
@@ -639,17 +748,7 @@ async function handleCarcassLive(req: IncomingMessage, res: ServerResponse) {
         Authorization: `Key ${falKey}`,
         'Content-Type': 'application/json',
       },
-      body: JSON.stringify({
-        prompt: buildCarcassLivePrompt(body),
-        image_urls: [imageUrl],
-        image_size: imageSizeFromFeet(
-          Number(body.widthFt),
-          Number(body.heightFt),
-        ),
-        output_format: 'jpeg',
-        safety_tolerance: '2',
-        enable_safety_checker: true,
-      }),
+      body: JSON.stringify(falPayload),
     })
 
     const falJson = (await falRes.json()) as {
@@ -1024,6 +1123,8 @@ function attach(middlewares: Connect.Server) {
       model: getCreateModel(),
       refineModel: getRefineModel(),
       chatModel: getChatModel(),
+      quality: getVisualiseResolution(),
+      engine: 'Priyabadal Interior AI · Nano Banana Pro 2K + Kontext Max',
       requireSubscription: needsSub,
     })
   })

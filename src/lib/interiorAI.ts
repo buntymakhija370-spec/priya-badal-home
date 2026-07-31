@@ -297,20 +297,20 @@ export function createWelcomeMessage(): ChatMessage {
     id: crypto.randomUUID(),
     role: 'assistant',
     text: [
-      'Hi — I’m Priya Badal AI.',
+      'Hi — I’m Priya Badal AI, your interior chat for Priyabadal Homes.',
       '',
-      'Ask me anything about our catalog — any wardrobe, kitchen, temple, panel, price, carcass, material, finish, or which design fits your home.',
+      'Ask me about kitchens, wardrobes, temple walls, materials, finishes — and I’ll quote using our shutter + carcass rates (INR).',
       '',
-      'I speak naturally and answer from Priyabadal Homes product data (INR). Share size in feet for estimates, or attach a room photo to visualise.',
+      'Attach a room photo (or drawing), pick a product, then say “visualise” to see our product in your space — replace existing furniture, install, or a presentable redesign.',
       '',
       'What would you like to know?',
     ].join('\n'),
     suggestions: [
-      'Which wardrobe suits a small bedroom?',
-      'Carcass vs shutter price for 8x7',
-      'Compare temple wall designs',
+      'Carcass vs shutter price for 8×7',
       'What materials do you use?',
       'Suggest kitchen styles',
+      'Visualise my look',
+      'Which wardrobe suits a small bedroom?',
     ],
   }
 }
@@ -322,6 +322,29 @@ export type ConsultTurnResult = {
   shouldVisualise?: boolean
   /** Edit the existing AI photo instead of starting from the room photo only */
   refine?: boolean
+  /** Catalog price/carcass/materials answer — Chat should prefer this for rates */
+  catalogLocal?: boolean
+  /** Intent label when catalogLocal */
+  catalogIntent?: string
+  /** Preferred visualisation mode for runVisualise */
+  visualiseMode?: 'replace' | 'install' | 'redesign'
+}
+
+/** Detect replace / install / redesign wording for chat visualise */
+export function detectVisualiseMode(
+  text: string,
+): 'replace' | 'install' | 'redesign' {
+  const t = text.toLowerCase()
+  if (/\b(redesign|presentable|client[- ]ready|full look|makeover|restyle)\b/.test(t)) {
+    return 'redesign'
+  }
+  if (/\b(install|place|put|add (?:the |our )?product|into (?:my )?room)\b/.test(t)) {
+    return 'install'
+  }
+  if (/\b(replace|swap|change (?:the )?(?:existing|old)|instead of)\b/.test(t)) {
+    return 'replace'
+  }
+  return 'replace'
 }
 
 function productSuggestionMessage(
@@ -609,26 +632,33 @@ export function processConsultTurn(
   if (catalogIntent && !wantsVisualise && !wantsSuggest) {
     const reply = answerCatalogIntent(next, text, catalogIntent)
     if (reply) {
-      return { brief: next, reply }
+      return {
+        brief: next,
+        reply,
+        catalogLocal: true,
+        catalogIntent,
+      }
     }
   }
 
   // 4) Visualise on demand only
   if (wantsVisualise) {
     const missing = missingForVisualise(next)
+    const mode = detectVisualiseMode(text)
     if (missing.length) {
       return {
         brief: next,
+        visualiseMode: mode,
         reply: {
           id: crypto.randomUUID(),
           role: 'assistant',
-          text: `I can visualise — still need: ${missing.join(' and ')}.\n\n${briefSummary(next)}`,
+          text: `I can visualise in chat — still need: ${missing.join(' and ')}.\n\n${briefSummary(next)}`,
           products: next.selectedProductId
             ? undefined
             : suggestProducts(next, text, 3),
           suggestions: missing.some((m) => m.includes('upload'))
             ? ['Attach room photo', 'I have an architect drawing']
-            : ['Suggest styles'],
+            : ['Suggest styles', 'Price with carcass'],
         },
       }
     }
@@ -639,14 +669,15 @@ export function processConsultTurn(
       brief: next,
       shouldVisualise: true,
       refine: refineAgain,
+      visualiseMode: mode,
       reply: {
         id: crypto.randomUUID(),
         role: 'assistant',
         text: refineAgain
           ? `Revising your current visualisation with: “${next.lastChangeRequest}”…`
           : next.aiImageUrl
-            ? 'Generating a fresh visualisation from your photo/drawing and selected product…'
-            : 'Generating your AI visualisation with the selected Priyabadal product…',
+            ? `Generating a fresh ${mode} visualisation from your photo/drawing and selected product…`
+            : `Generating your ${mode} AI visualisation with the selected Priyabadal product…`,
       },
     }
   }

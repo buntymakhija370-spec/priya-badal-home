@@ -6,6 +6,7 @@ import {
   buildChatWhatsAppUrl,
   colourFromBrief,
   createWelcomeMessage,
+  detectVisualiseMode,
   looksLikeDrawingIntent,
   mergeBriefFromText,
   messageForPhotoAttached,
@@ -14,6 +15,8 @@ import {
   type ChatMessage,
   type ConsultBrief,
 } from '../lib/interiorAI'
+import { productHasCarcass } from '../lib/pricing'
+import type { VisualiseMode } from '../lib/visualise'
 import {
   fetchVisualiseStatus,
   fileToDataUrl,
@@ -95,7 +98,11 @@ export function ChatPage() {
     setMessages((prev) => [...prev, ...next])
   }
 
-  const runVisualise = async (current: ConsultBrief, refine = false) => {
+  const runVisualise = async (
+    current: ConsultBrief,
+    refine = false,
+    mode: VisualiseMode = 'replace',
+  ) => {
     const product = current.selectedProductId
       ? getProductById(current.selectedProductId)
       : undefined
@@ -103,7 +110,7 @@ export function ChatPage() {
       push({
         id: crypto.randomUUID(),
         role: 'assistant',
-        text: 'I need a product from our list plus a room photo or architect drawing before I can visualise.',
+        text: 'I need a product from our list plus a room photo or architect drawing before I can visualise in chat.',
         suggestions: ['Attach room photo', 'I have an architect drawing', 'Suggest products'],
       })
       return
@@ -117,8 +124,8 @@ export function ChatPage() {
       push({
         id: crypto.randomUUID(),
         role: 'assistant',
-        text: 'Paid AI subscription is required for visualisations. Unlock with your access code (AI button), or subscribe on WhatsApp via /ai.',
-        suggestions: ['Suggest other styles'],
+        text: 'Paid AI subscription is required for visualisations. Unlock with your access code (AI button), or subscribe on WhatsApp via /ai. Catalog price & carcass answers still work without unlock.',
+        suggestions: ['Price with carcass', 'What materials do you use?'],
       })
       return
     }
@@ -148,6 +155,7 @@ export function ChatPage() {
         heightFt: current.heightFt,
         depthFt: current.depthFt,
         inputKind: kind,
+        visualiseMode: mode,
         refineImageUrl: shouldRefine ? current.aiImageUrl ?? undefined : undefined,
         changeRequest: shouldRefine
           ? current.lastChangeRequest ?? undefined
@@ -313,36 +321,82 @@ export function ChatPage() {
 
     if (turn.shouldVisualise) {
       setMessages((prev) => [...prev, userMsg, turn.reply])
-      await runVisualise(turn.brief, Boolean(turn.refine))
+      await runVisualise(
+        turn.brief,
+        Boolean(turn.refine),
+        turn.visualiseMode || detectVisualiseMode(trimmed),
+      )
       return
     }
 
-    // Live LLM chat for everything else (any product / price / design question)
     const nextBrief = mergeBriefFromText(turn.brief, trimmed)
     setBrief(nextBrief)
     setBusy(true)
     setMessages((prev) => [...prev, userMsg])
+
+    // Price / carcass: always show authoritative catalog rates (free, exact).
+    // Optionally polish with paid LLM without changing numbers.
+    const isRateIntent =
+      turn.catalogLocal &&
+      (turn.catalogIntent === 'price' || turn.catalogIntent === 'carcass')
+    const isMaterialsIntent =
+      turn.catalogLocal &&
+      (turn.catalogIntent === 'materials' || turn.catalogIntent === 'specs')
 
     try {
       const history = [...messages, userMsg]
         .filter((m) => m.role === 'user' || m.role === 'assistant')
         .map((m) => ({ role: m.role, text: m.text }))
 
+      // Without subscription: free local catalog answers for price/materials
+      if (!aiConfigured && turn.catalogLocal) {
+        setMessages((prev) => [
+          ...prev,
+          {
+            ...turn.reply,
+            suggestions: [
+              ...(turn.reply.suggestions ?? []),
+              nextBrief.roomPhotoDataUrl && nextBrief.selectedProductId
+                ? 'Visualise my look'
+                : 'Attach room photo',
+            ].filter(Boolean) as string[],
+          },
+        ])
+        return
+      }
+
       const ai = await askPriyaBadalAI({
         message: trimmed,
         brief: nextBrief,
         history,
+        catalogAnswer: turn.catalogLocal ? turn.reply.text : undefined,
+        allowWebSearch: Boolean(isMaterialsIntent) || !isRateIntent,
       })
 
       if (!aiConfigured) setAiConfigured(true)
+
+      // For rate questions, prefer local numbers if LLM somehow drifts
+      const text =
+        isRateIntent && turn.reply.text
+          ? `${ai.text}\n\n—\nCatalog rates (source of truth):\n${turn.reply.text}`
+          : ai.text
+
+      const products =
+        ai.products.length > 0 ? ai.products : turn.reply.products
+
       setMessages((prev) => [
         ...prev,
         {
           id: crypto.randomUUID(),
           role: 'assistant',
-          text: ai.text,
-          products: ai.products.length ? ai.products : undefined,
-          suggestions: ai.suggestions,
+          text,
+          products: products?.length ? products : undefined,
+          suggestions: [
+            ...(ai.suggestions ?? []),
+            nextBrief.roomPhotoDataUrl && nextBrief.selectedProductId
+              ? 'Visualise my look'
+              : '',
+          ].filter(Boolean),
         },
       ])
     } catch (err) {
@@ -360,15 +414,20 @@ export function ChatPage() {
             id: crypto.randomUUID(),
             role: 'assistant',
             text: [
-              'Smart AI chat is for paid subscribers (controlled monthly limits).',
-              'Unlock with your access code above, or subscribe via /ai on WhatsApp.',
-              '',
-              'Meanwhile, here’s a free catalog answer:',
+              turn.catalogLocal
+                ? 'Here’s your catalog answer (shutter / carcass from our price list):'
+                : 'Smart AI chat needs a paid unlock for open interior conversation.',
               '',
               turn.reply.text,
+              '',
+              'Unlock AI above for live chat + room visualisation. Catalog price & carcass answers stay free.',
             ].join('\n'),
             products: turn.reply.products,
-            suggestions: ['Unlock AI', ...(turn.reply.suggestions ?? [])],
+            suggestions: [
+              'Unlock AI',
+              'Price with carcass',
+              ...(turn.reply.suggestions ?? []),
+            ],
           },
         ])
       } else {
@@ -492,7 +551,7 @@ export function ChatPage() {
           <div>
             <p className="pbai__title">Priya Badal AI</p>
             <p className="pbai__subtitle">
-              Live AI · any product · price · carcass · materials · visualise
+              Interior chat · shutter + carcass pricing · materials · visualise
             </p>
           </div>
         </div>
@@ -623,8 +682,13 @@ export function ChatPage() {
                             <div className="pbai-product__meta">
                               <strong>{product.name}</strong>
                               <em>
-                                from {formatPrice(product.price)}
+                                Shutter {formatPrice(product.price)}
                                 {product.pricingMode === 'per-sqft' ? '/sq ft' : ''}
+                                {productHasCarcass(product) && product.carcassPrice != null
+                                  ? ` · Carcass ${formatPrice(product.carcassPrice)}${
+                                      product.pricingMode === 'per-sqft' ? '/sq ft' : ''
+                                    }`
+                                  : ''}
                               </em>
                             </div>
                             <div className="pbai-product__actions">
@@ -778,6 +842,7 @@ export function ChatPage() {
                   void runVisualise(
                     brief,
                     Boolean(brief.aiImageUrl && brief.lastChangeRequest),
+                    detectVisualiseMode(input || 'replace existing'),
                   )
                 }
               >

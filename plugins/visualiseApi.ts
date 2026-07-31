@@ -17,6 +17,7 @@ import {
   unlockWithCode,
 } from './aiSubscriberStore.ts'
 import type { AiKind } from './aiSubscriberStore.ts'
+import { fetchInteriorWebContext } from './webContext.ts'
 
 type VisualiseMode = 'replace' | 'install' | 'redesign'
 
@@ -803,6 +804,10 @@ type ChatBody = {
   message?: string
   systemPrompt?: string
   knowledge?: string
+  /** Authoritative local catalog answer (prices) — LLM must not contradict */
+  catalogAnswer?: string
+  /** Fetch general materials/interior web context (never for pricing) */
+  allowWebSearch?: boolean
   brief?: Record<string, unknown>
   history?: Array<{ role?: string; text?: string }>
 }
@@ -852,11 +857,24 @@ async function handleChat(req: IncomingMessage, res: ServerResponse) {
           .join(', ')
       : ''
 
+    const webContext = body.allowWebSearch
+      ? await fetchInteriorWebContext(message)
+      : ''
+
     const systemPrompt = [
       body.systemPrompt?.trim() ||
         'You are Priya Badal AI for Priyabadal Homes. Answer helpfully using the catalog.',
       '',
       body.knowledge?.trim() || '',
+      '',
+      body.catalogAnswer?.trim()
+        ? [
+            'AUTHORITATIVE CATALOG ANSWER (use these shutter/carcass numbers exactly — do not invent rates):',
+            body.catalogAnswer.trim(),
+          ].join('\n')
+        : '',
+      '',
+      webContext,
     ]
       .filter(Boolean)
       .join('\n')
@@ -866,7 +884,11 @@ async function handleChat(req: IncomingMessage, res: ServerResponse) {
       briefBits ? `Brief snapshot: ${briefBits}\n` : '',
       `Client message: ${message}`,
       '',
-      'Reply as Priya Badal AI. End with PRODUCTS: and SUGGESTIONS: lines.',
+      body.catalogAnswer?.trim()
+        ? 'Rewrite the authoritative catalog answer warmly for the client. Keep every shutter/carcass/INR figure unchanged. Offer visualise or WhatsApp next steps when useful.'
+        : 'Reply as Priya Badal AI. Prefer catalog shutter + carcass rates. For general materials, you may use WEB CONTEXT if present. Never invent Priyabadal prices from the web.',
+      '',
+      'End with PRODUCTS: and SUGGESTIONS: lines.',
     ]
       .filter(Boolean)
       .join('\n')
@@ -881,10 +903,10 @@ async function handleChat(req: IncomingMessage, res: ServerResponse) {
       body: JSON.stringify({
         model,
         system_prompt: systemPrompt.slice(0, 120_000),
-        prompt: prompt.slice(0, 20_000),
-        temperature: 0.4,
+        prompt: prompt.slice(0, 24_000),
+        temperature: 0.35,
         priority: 'latency',
-        max_tokens: 900,
+        max_tokens: 1100,
       }),
     })
 

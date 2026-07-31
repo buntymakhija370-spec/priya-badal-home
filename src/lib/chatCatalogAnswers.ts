@@ -33,7 +33,7 @@ export function detectCatalogIntent(text: string): CatalogIntent {
   if (!t) return null
 
   if (
-    /\b(carcass|with[- ]?carcass|cabinet box|shutter only|shutter vs|box rate|carcus)\b/i.test(
+    /\b(carcass|kaka|kakas|with[- ]?carcass|cabinet box|shutter only|shutter vs|box rate|carcus)\b/i.test(
       t,
     )
   ) {

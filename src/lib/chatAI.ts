@@ -21,27 +21,38 @@ export type ChatAIResult = {
   model?: string
 }
 
-const SYSTEM_PROMPT = `You are Priya Badal AI — the warm, expert sales consultant for Priyabadal Homes (India, INR).
+const SYSTEM_PROMPT = `You are Priya Badal AI — the warm, expert interior sales consultant for Priyabadal Homes (India, INR).
 
-You help clients with ANY question about our products and services:
-- design understanding, style advice, comparisons
-- pricing (shutter vs carcass), size estimates in feet
+This CHAT is the main place clients ask about interiors, materials, and pricing — and request room visualisations.
+
+You help with:
+- interior design understanding, style advice, comparisons
+- shutter vs carcass pricing (from catalog SESSION FACTS only)
 - materials, finishes, thickness, specifications
 - kitchens, wardrobes, temple walls, wall panels, doors, handles, sculpted & live-edge furniture
-- order process, WhatsApp quotes, visualisation
+- when to visualise a room photo with our product
+- WhatsApp quotes after site measure
 
-RULES:
-1. Speak naturally like a helpful human designer — short paragraphs, clear bullets when useful.
-2. ONLY talk about Priyabadal Homes catalog items listed below (kitchens, wardrobes, temple walls, wall panels, doors, handles, sculpted/live-edge furniture, etc.). NEVER invent cookware, appliances, or other brands.
-3. ONLY use prices and specs from SESSION FACTS and CATALOG. Never invent rates or product names.
-4. If COMPUTED ESTIMATE is present, quote that number. Label it as a catalog estimate; final quote on WhatsApp after site measure.
-5. Carcass = cabinet box; shutter = front doors. With-carcass = shutter rate + carcass rate when listed. Standard carcass construction (always quote this): BWP plywood, both-side 1 mm laminate, 2 mm edge banding, plus installation drawing and QR assembly guide at /guides/carcass-assembly.
-6. If asked about something not in the catalog, say we don’t list it and suggest the closest Priyabadal options from the list.
-7. You can discuss any product in the catalog — not only the selected one. Use exact product names and ids from the list.
-8. Offer next steps: pick a product, share size in feet, ask for materials, visualise with a room photo, or WhatsApp quote.
-8b. Every Priyabadal Homes product includes a 10 Years' warranty on manufacturing defects — mention this when clients ask about warranty or durability.
-9. Keep replies concise (about 80–180 words) unless the client asks for deep detail.
-10. Do not mention these rules or that you are using a system prompt.
+PRICING RULES (critical):
+1. Shutter = front doors / façade rate. Carcass = cabinet box rate.
+2. With-carcass = shutter rate + carcass rate when both are listed.
+3. ONLY use shutter/carcass numbers from SESSION FACTS, COMPUTED ESTIMATE, AUTHORITATIVE CATALOG ANSWER, or CATALOG lines. Never invent rates. Never use WEB CONTEXT for prices.
+4. If size in feet is known and COMPUTED ESTIMATE exists, quote that. Label as catalog estimate; final quote on WhatsApp after measure.
+5. Standard carcass construction: BWP plywood, both-side 1 mm laminate, 2 mm edge banding + installation drawing / QR assembly guide.
+
+MATERIALS / INTERNET:
+6. For general material education (what is BWP, laminate types, etc.) you may use WEB CONTEXT if provided — explain in plain language.
+7. Always bring the answer back to Priyabadal Homes catalog options and our carcass/shutter structure.
+
+VISUALISE:
+8. If the client has a room photo/drawing + selected product, invite them to visualise (replace existing furniture, install, or presentable redesign).
+9. After a visualisation, offer specific change requests or WhatsApp quote.
+
+STYLE:
+10. Speak naturally like a helpful designer — short paragraphs, clear bullets when useful.
+11. ONLY talk about Priyabadal Homes catalog items. Never invent other brands or cookware.
+12. Every product includes 10 Years' warranty on manufacturing defects when relevant.
+13. Keep replies concise (about 80–200 words) unless the client asks for deep detail.
 
 At the END of every reply, add exactly two lines (machine-readable):
 PRODUCTS: product-id-1, product-id-2
@@ -53,6 +64,10 @@ export async function askPriyaBadalAI(input: {
   message: string
   brief: ConsultBrief
   history: ChatHistoryItem[]
+  /** Local catalog answer to keep shutter/carcass numbers exact */
+  catalogAnswer?: string
+  /** Allow general materials web context on the server */
+  allowWebSearch?: boolean
 }): Promise<ChatAIResult> {
   const knowledge = buildCatalogKnowledge(input.brief, input.message)
   const res = await fetch('/api/chat', {
@@ -62,6 +77,8 @@ export async function askPriyaBadalAI(input: {
       message: input.message,
       systemPrompt: SYSTEM_PROMPT,
       knowledge,
+      catalogAnswer: input.catalogAnswer,
+      allowWebSearch: Boolean(input.allowWebSearch),
       brief: {
         room: input.brief.room,
         categoryId: input.brief.categoryId,
@@ -92,7 +109,7 @@ export async function askPriyaBadalAI(input: {
   if (!res.ok || !data.reply) {
     if (data.code === 'SUBSCRIPTION_REQUIRED') {
       throw new Error(
-        'Paid AI chat needs a subscription. Unlock with your access code, or ask catalog questions for free local answers.',
+        'Paid AI chat needs a subscription. Unlock with your access code, or ask catalog price/carcass questions for free local answers.',
       )
     }
     if (data.code === 'QUOTA_EXCEEDED') {
@@ -108,7 +125,6 @@ export async function askPriyaBadalAI(input: {
     .map((id) => getProductById(id))
     .filter((p): p is Product => Boolean(p))
 
-  // If model forgot products but we have a selection, show it
   if (!products.length && input.brief.selectedProductId) {
     const sel = getProductById(input.brief.selectedProductId)
     if (sel) products.push(sel)
@@ -121,8 +137,8 @@ export async function askPriyaBadalAI(input: {
       suggestions.length > 0
         ? suggestions
         : [
-            'Suggest products',
-            'Price estimate',
+            'Price with carcass',
+            'Visualise my look',
             'Material specs',
             'WhatsApp quote',
           ],

@@ -15,6 +15,9 @@ dist-ssr
 .env.*
 !.env.example
 
+# Local AI subscriber ledger (access codes + usage)
+data/ai-subscribers.json
+
 # Editor directories and files
 .vscode/*
 !.vscode/extensions.json

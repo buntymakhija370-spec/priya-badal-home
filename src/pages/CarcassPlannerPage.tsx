@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useState, type FormEvent } from 'react'
+import { useEffect, useMemo, useState } from 'react'
 import { Link, useSearchParams } from 'react-router-dom'
 import { getCategory } from '../data/catalog'
 import { getAllProducts, getProductById } from '../lib/products'
@@ -25,13 +25,13 @@ import {
   type LayoutPresetId,
 } from '../lib/carcassPlanner'
 import {
-  connectCarcassAiKey,
   fetchCarcassAiStatus,
   generateLiveCarcass,
 } from '../lib/carcassLive'
 import { formatPrice } from '../lib/currency'
 import { useCurrency } from '../hooks/useCurrency'
 import { CarcassSpecCard } from '../components/CarcassSpecCard'
+import { AiAccessBanner } from '../components/AiAccessBanner'
 import './CarcassPlannerPage.css'
 
 type ViewMode = 'live-ai' | 'carcass' | 'exterior'
@@ -88,9 +88,6 @@ export function CarcassPlannerPage() {
   const [showBayEdit, setShowBayEdit] = useState(false)
 
   const [aiConfigured, setAiConfigured] = useState(false)
-  const [falKeyInput, setFalKeyInput] = useState('')
-  const [savingKey, setSavingKey] = useState(false)
-  const [keyMsg, setKeyMsg] = useState<string | null>(null)
   const [liveBusy, setLiveBusy] = useState(false)
   const [liveImageUrl, setLiveImageUrl] = useState<string | null>(null)
   const [liveMsg, setLiveMsg] = useState<string | null>(null)
@@ -196,23 +193,6 @@ export function CarcassPlannerPage() {
       prev.map((b) => (b.id === id ? { ...b, kind, label: bayMeta(kind).label } : b)),
     )
 
-  const onConnectKey = async (e: FormEvent) => {
-    e.preventDefault()
-    setSavingKey(true)
-    setKeyMsg(null)
-    setLiveMsg(null)
-    try {
-      const next = await connectCarcassAiKey(falKeyInput.trim())
-      setAiConfigured(next.configured)
-      setFalKeyInput('')
-      setKeyMsg('Live-size AI connected. You can generate now.')
-    } catch (err) {
-      setLiveMsg(err instanceof Error ? err.message : 'Could not save AI key.')
-    } finally {
-      setSavingKey(false)
-    }
-  }
-
   const onGenerateLive = async () => {
     if (!carcassImage || !product) {
       setLiveMsg('Select a style with a carcass photo first.')
@@ -237,7 +217,13 @@ export function CarcassPlannerPage() {
         setAiConfigured(true)
       } else {
         setLiveMsg(result.message)
-        if (result.code === 'MISSING_FAL_KEY') setAiConfigured(false)
+        if (
+          result.code === 'MISSING_FAL_KEY' ||
+          result.code === 'SUBSCRIPTION_REQUIRED' ||
+          result.code === 'QUOTA_EXCEEDED'
+        ) {
+          setAiConfigured(false)
+        }
       }
     } finally {
       setLiveBusy(false)
@@ -270,31 +256,14 @@ export function CarcassPlannerPage() {
         </li>
       </ol>
 
-      {!aiConfigured ? (
-        <div className="carcass__keybox">
-          <h2>Connect live-size AI</h2>
-          <p>
-            Uses the same Fal.ai professional model as Visualise. Paste your key once — then
-            generate carcass images at your exact size.
-          </p>
-          <form className="carcass__key-form" onSubmit={onConnectKey}>
-            <input
-              type="password"
-              value={falKeyInput}
-              onChange={(e) => setFalKeyInput(e.target.value)}
-              placeholder="Fal.ai API key"
-              autoComplete="off"
-              required
-            />
-            <button className="btn btn--dark" type="submit" disabled={savingKey}>
-              {savingKey ? 'Connecting…' : 'Connect AI'}
-            </button>
-          </form>
-          {keyMsg ? <p className="carcass__key-ok">{keyMsg}</p> : null}
-        </div>
-      ) : (
-        <p className="carcass__ai-ready">Live-size AI ready</p>
-      )}
+      <AiAccessBanner
+        onStatus={(s) =>
+          setAiConfigured(
+            Boolean(s.falConfigured && (!s.requireSubscription || s.subscribed)),
+          )
+        }
+      />
+      {aiConfigured ? <p className="carcass__ai-ready">Live-size AI ready</p> : null}
 
       <div className="carcass__tabs" role="tablist" aria-label="Carcass type">
         <button

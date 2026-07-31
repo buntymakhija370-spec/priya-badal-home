@@ -14,6 +14,8 @@ import { CarcassPlannerPage } from './pages/CarcassPlannerPage'
 import { CarcassAssemblyPage } from './pages/CarcassAssemblyPage'
 import { DesignSpacePage } from './pages/DesignSpacePage'
 import { InstallPage } from './pages/InstallPage'
+import { AiSubscribePage } from './pages/AiSubscribePage'
+import { AiAdminPage } from './pages/AiAdminPage'
 import './App.css'
 
 export default function App() {
@@ -33,6 +35,8 @@ export default function App() {
           <Route path="guides/carcass-assembly" element={<CarcassAssemblyPage />} />
           <Route path="how-it-works" element={<HowItWorksPage />} />
           <Route path="install" element={<InstallPage />} />
+          <Route path="ai" element={<AiSubscribePage />} />
+          <Route path="ai-admin" element={<AiAdminPage />} />
           <Route path="favorites" element={<FavoritesPage />} />
           <Route path="cart" element={<CartPage />} />
           <Route path="chat" element={<ChatPage />} />

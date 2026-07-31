@@ -15,11 +15,11 @@ import {
   type ConsultBrief,
 } from '../lib/interiorAI'
 import {
-  connectFalKey,
   fetchVisualiseStatus,
   fileToDataUrl,
   generateVisualise,
 } from '../lib/visualise'
+import { AiAccessBanner } from '../components/AiAccessBanner'
 import { getCategory, formatPrice, type Product } from '../data/catalog'
 import { getProductById } from '../lib/products'
 import { useCurrency } from '../hooks/useCurrency'
@@ -35,9 +35,6 @@ export function ChatPage() {
   const [input, setInput] = useState('')
   const [busy, setBusy] = useState(false)
   const [aiConfigured, setAiConfigured] = useState(false)
-  const [falKeyInput, setFalKeyInput] = useState('')
-  const [savingKey, setSavingKey] = useState(false)
-  const [keyMsg, setKeyMsg] = useState<string | null>(null)
   const [showKey, setShowKey] = useState(false)
   const [attachMode, setAttachMode] = useState<AttachMode>('photo')
   const [pendingFile, setPendingFile] = useState<{
@@ -120,7 +117,7 @@ export function ChatPage() {
       push({
         id: crypto.randomUUID(),
         role: 'assistant',
-        text: 'Connect the AI key (top right) so I can generate visualisations in this chat — same Fal key as Visualise.',
+        text: 'Paid AI subscription is required for visualisations. Unlock with your access code (AI button), or subscribe on WhatsApp via /ai.',
         suggestions: ['Suggest other styles'],
       })
       return
@@ -350,9 +347,10 @@ export function ChatPage() {
       ])
     } catch (err) {
       const msg = err instanceof Error ? err.message : 'try again'
-      const needsKey = /fal\.ai key|MISSING_FAL_KEY|not connected|unavailable/i.test(
-        msg,
-      )
+      const needsKey =
+        /subscription|access code|QUOTA|MISSING_FAL_KEY|not connected|unavailable|Paid AI/i.test(
+          msg,
+        )
       if (needsKey) {
         setShowKey(true)
         setAiConfigured(false)
@@ -362,15 +360,15 @@ export function ChatPage() {
             id: crypto.randomUUID(),
             role: 'assistant',
             text: [
-              'Live AI chat needs your Fal.ai key to answer freely about any product.',
-              'Paste the key above (AI key), tap Connect, then ask again.',
+              'Smart AI chat is for paid subscribers (controlled monthly limits).',
+              'Unlock with your access code above, or subscribe via /ai on WhatsApp.',
               '',
-              'Meanwhile, here’s a catalog answer:',
+              'Meanwhile, here’s a free catalog answer:',
               '',
               turn.reply.text,
             ].join('\n'),
             products: turn.reply.products,
-            suggestions: ['Connect AI key', ...(turn.reply.suggestions ?? [])],
+            suggestions: ['Unlock AI', ...(turn.reply.suggestions ?? [])],
           },
         ])
       } else {
@@ -473,23 +471,6 @@ export function ChatPage() {
     )
   }
 
-  const onConnectKey = async (e: FormEvent) => {
-    e.preventDefault()
-    setSavingKey(true)
-    setKeyMsg(null)
-    try {
-      const next = await connectFalKey(falKeyInput.trim())
-      setAiConfigured(next.configured)
-      setFalKeyInput('')
-      setKeyMsg('AI connected — visualise in chat anytime.')
-      setShowKey(false)
-    } catch (err) {
-      setKeyMsg(err instanceof Error ? err.message : 'Could not save AI key.')
-    } finally {
-      setSavingKey(false)
-    }
-  }
-
   const whatsapp = buildChatWhatsAppUrl(brief)
   const selected = brief.selectedProductId
     ? getProductById(brief.selectedProductId)
@@ -517,42 +498,30 @@ export function ChatPage() {
         </div>
         <div className="pbai__top-actions">
           <span className={`pbai__status ${aiConfigured ? 'is-live' : ''}`}>
-            {aiConfigured ? 'Visualise on' : 'Connect AI'}
+            {aiConfigured ? 'Paid AI on' : 'Subscribe AI'}
           </span>
           <button
             type="button"
             className="pbai__ghost"
             onClick={() => setShowKey((v) => !v)}
           >
-            {showKey ? 'Close' : 'AI key'}
+            {showKey ? 'Close' : 'AI access'}
           </button>
         </div>
       </header>
 
       {showKey || !aiConfigured ? (
-        <section className="pbai__key" aria-label="Connect AI">
-          <p>
-            Paste your Fal.ai key for live AI chat answers + visualisations (same key as
-            Visualise).{' '}
-            <a href="https://fal.ai/dashboard/billing" target="_blank" rel="noreferrer">
-              Billing
-            </a>
-          </p>
-          <form onSubmit={onConnectKey}>
-            <input
-              type="password"
-              value={falKeyInput}
-              onChange={(e) => setFalKeyInput(e.target.value)}
-              placeholder="Fal.ai API key"
-              autoComplete="off"
-              required
-            />
-            <button className="btn btn--dark" type="submit" disabled={savingKey}>
-              {savingKey ? 'Connecting…' : 'Connect'}
-            </button>
-          </form>
-          {keyMsg ? <p className="pbai__key-msg">{keyMsg}</p> : null}
-        </section>
+        <div className="pbai__key">
+          <AiAccessBanner
+            compact
+            onStatus={(s) => {
+              setAiConfigured(
+                Boolean(s.falConfigured && (!s.requireSubscription || s.subscribed)),
+              )
+              if (s.subscribed) setShowKey(false)
+            }}
+          />
+        </div>
       ) : null}
 
       <div className="pbai__brief-bar" aria-label="Session brief">

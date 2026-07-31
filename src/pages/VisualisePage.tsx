@@ -5,12 +5,12 @@ import { getAllProducts, getProductById } from '../lib/products'
 import {
   VISUALISE_COLOURS,
   buildVisualiseWhatsAppUrl,
-  connectFalKey,
   fetchVisualiseStatus,
   fileToDataUrl,
   generateVisualise,
   type VisualiseColour,
 } from '../lib/visualise'
+import { AiAccessBanner } from '../components/AiAccessBanner'
 import { useCurrency } from '../hooks/useCurrency'
 import './VisualisePage.css'
 
@@ -27,11 +27,8 @@ export function VisualisePage() {
   const [colour, setColour] = useState<VisualiseColour>(VISUALISE_COLOURS[0]!)
   const [notes, setNotes] = useState('')
   const [busy, setBusy] = useState(false)
-  const [savingKey, setSavingKey] = useState(false)
   const [resultUrl, setResultUrl] = useState<string | null>(null)
   const [statusMsg, setStatusMsg] = useState<string | null>(null)
-  const [keyMsg, setKeyMsg] = useState<string | null>(null)
-  const [falKeyInput, setFalKeyInput] = useState('')
   const [aiConfigured, setAiConfigured] = useState(false)
   const [aiModel, setAiModel] = useState('fal-ai/flux-2-pro/edit')
 
@@ -76,24 +73,6 @@ export function VisualisePage() {
     }
   }
 
-  const onConnectKey = async (e: FormEvent) => {
-    e.preventDefault()
-    setSavingKey(true)
-    setKeyMsg(null)
-    setStatusMsg(null)
-    try {
-      const next = await connectFalKey(falKeyInput.trim())
-      setAiConfigured(next.configured)
-      if (next.model) setAiModel(next.model)
-      setFalKeyInput('')
-      setKeyMsg('Professional AI connected. You can generate now.')
-    } catch (err) {
-      setStatusMsg(err instanceof Error ? err.message : 'Could not save AI key.')
-    } finally {
-      setSavingKey(false)
-    }
-  }
-
   const onGenerate = async (e?: FormEvent) => {
     e?.preventDefault()
     if (!roomDataUrl || !product || !category) {
@@ -101,7 +80,7 @@ export function VisualisePage() {
       return
     }
     if (!aiConfigured) {
-      setStatusMsg('Connect your Fal.ai key first for professional renders.')
+      setStatusMsg('Unlock paid AI with your access code first.')
       return
     }
 
@@ -123,7 +102,11 @@ export function VisualisePage() {
       } else {
         setResultUrl(null)
         setStatusMsg(result.message)
-        if (result.code === 'MISSING_FAL_KEY') {
+        if (
+          result.code === 'MISSING_FAL_KEY' ||
+          result.code === 'SUBSCRIPTION_REQUIRED' ||
+          result.code === 'QUOTA_EXCEEDED'
+        ) {
           setAiConfigured(false)
         }
       }
@@ -154,40 +137,21 @@ export function VisualisePage() {
         </p>
         <p className={`visualise__mode ${aiConfigured ? 'is-live' : ''}`}>
           {aiConfigured
-            ? `Professional AI ready · ${aiModel}`
-            : 'AI key required · connect Fal below (no fake previews)'}
+            ? `Subscriber AI ready · ${aiModel}`
+            : 'Paid AI · unlock with access code (controlled Fal usage)'}
         </p>
       </header>
 
-      {!aiConfigured ? (
-        <section className="visualise__keybox" aria-labelledby="connect-ai">
-          <h2 id="connect-ai">Connect professional AI</h2>
-          <p>
-            Get a paid key from{' '}
-            <a href="https://fal.ai/dashboard/keys" target="_blank" rel="noreferrer">
-              fal.ai/dashboard/keys
-            </a>
-            , then paste it here. We only show real AI renders — never a cheap overlay.
-          </p>
-          <form className="visualise__key-form" onSubmit={onConnectKey}>
-            <label className="visualise__field">
-              <span>Fal API key</span>
-              <input
-                type="password"
-                value={falKeyInput}
-                onChange={(e) => setFalKeyInput(e.target.value)}
-                placeholder="Paste Fal key"
-                autoComplete="off"
-                required
-              />
-            </label>
-            <button className="btn btn--dark" type="submit" disabled={savingKey}>
-              {savingKey ? 'Connecting…' : 'Connect AI'}
-            </button>
-          </form>
-          {keyMsg ? <p className="visualise__key-ok">{keyMsg}</p> : null}
-        </section>
-      ) : null}
+      <AiAccessBanner
+        onStatus={(s) => {
+          setAiConfigured(
+            Boolean(s.falConfigured && (!s.requireSubscription || s.subscribed)),
+          )
+          void fetchVisualiseStatus().then((st) => {
+            if (st.model) setAiModel(st.model)
+          })
+        }}
+      />
 
       <form className="visualise__layout" onSubmit={onGenerate}>
         <section className="visualise__panel">
@@ -274,7 +238,7 @@ export function VisualisePage() {
           </button>
           {!aiConfigured ? (
             <p className="visualise__status">
-              Connect your Fal key above to unlock generation.
+              Unlock paid AI above (or on the AI Subscribe page) to generate.
             </p>
           ) : null}
           {statusMsg ? <p className="visualise__status">{statusMsg}</p> : null}

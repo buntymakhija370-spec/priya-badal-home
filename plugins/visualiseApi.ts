@@ -2,6 +2,21 @@ import { loadEnv, type Connect, type Plugin } from 'vite'
 import type { IncomingMessage, ServerResponse } from 'node:http'
 import { existsSync, readFileSync } from 'node:fs'
 import { resolve } from 'node:path'
+import {
+  assertAdmin,
+  assertCanUse,
+  consumeUsage,
+  createSubscriber,
+  listPlans,
+  listSubscribers,
+  readAccessToken,
+  readAdminPin,
+  requireSubscription,
+  setSubscriberActive,
+  statusForToken,
+  unlockWithCode,
+} from './aiSubscriberStore.ts'
+import type { AiKind } from './aiSubscriberStore.ts'
 
 type VisualiseBody = {
   roomDataUrl: string
@@ -132,7 +147,39 @@ function readBody(req: IncomingMessage): Promise<string> {
 function sendJson(res: ServerResponse, status: number, data: unknown) {
   res.statusCode = status
   res.setHeader('Content-Type', 'application/json')
+  res.setHeader('Access-Control-Allow-Origin', '*')
   res.end(JSON.stringify(data))
+}
+
+function sendOptions(res: ServerResponse) {
+  res.statusCode = 204
+  res.setHeader('Access-Control-Allow-Origin', '*')
+  res.setHeader('Access-Control-Allow-Methods', 'GET, POST, OPTIONS')
+  res.setHeader(
+    'Access-Control-Allow-Headers',
+    'Content-Type, X-AI-Access, X-AI-Token, X-AI-Admin, Authorization',
+  )
+  res.end()
+}
+
+/** Gate Fal spend: require paid subscriber + remaining monthly quota */
+function gateAi(
+  req: IncomingMessage,
+  res: ServerResponse,
+  kind: AiKind,
+): { token: string | null } | null {
+  const token = readAccessToken(req)
+  const check = assertCanUse(token, kind)
+  if (!check.ok) {
+    sendJson(res, check.status, {
+      error: check.error,
+      code: check.code,
+      remaining: check.remaining ?? 0,
+      requireSubscription: requireSubscription(),
+    })
+    return null
+  }
+  return { token }
 }
 
 function parseDataUrl(dataUrl: string): { contentType: string; buffer: Buffer } | null {
@@ -330,11 +377,7 @@ function buildPrompt(body: VisualiseBody) {
 
 async function handleVisualise(req: IncomingMessage, res: ServerResponse) {
   if (req.method === 'OPTIONS') {
-    res.statusCode = 204
-    res.setHeader('Access-Control-Allow-Origin', '*')
-    res.setHeader('Access-Control-Allow-Methods', 'POST, OPTIONS')
-    res.setHeader('Access-Control-Allow-Headers', 'Content-Type')
-    res.end()
+    sendOptions(res)
     return
   }
 
@@ -343,12 +386,15 @@ async function handleVisualise(req: IncomingMessage, res: ServerResponse) {
     return
   }
 
+  const gate = gateAi(req, res, 'visualise')
+  if (!gate) return
+
   const falKey = getFalKey()
   if (!falKey) {
     sendJson(res, 503, {
       error: 'Professional AI is not connected yet',
       code: 'MISSING_FAL_KEY',
-      hint: 'Paste your Fal.ai API key on the Visualise page to enable real renders.',
+      hint: 'Owner must set FAL_KEY on the server. Subscribers do not paste Fal keys.',
     })
     return
   }
@@ -445,11 +491,14 @@ async function handleVisualise(req: IncomingMessage, res: ServerResponse) {
       return
     }
 
+    if (gate.token) consumeUsage(gate.token, 'visualise')
+
     sendJson(res, 200, {
       imageUrl,
       provider: 'fal',
       model,
       mode: 'product-referenced-pro',
+      access: statusForToken(gate.token),
     })
   } catch (err) {
     sendJson(res, 500, {
@@ -461,11 +510,7 @@ async function handleVisualise(req: IncomingMessage, res: ServerResponse) {
 
 async function handleConfig(req: IncomingMessage, res: ServerResponse) {
   if (req.method === 'OPTIONS') {
-    res.statusCode = 204
-    res.setHeader('Access-Control-Allow-Origin', '*')
-    res.setHeader('Access-Control-Allow-Methods', 'POST, OPTIONS')
-    res.setHeader('Access-Control-Allow-Headers', 'Content-Type')
-    res.end()
+    sendOptions(res)
     return
   }
 
@@ -476,7 +521,15 @@ async function handleConfig(req: IncomingMessage, res: ServerResponse) {
 
   try {
     const raw = await readBody(req)
-    const body = JSON.parse(raw) as { key?: string }
+    const body = JSON.parse(raw) as { key?: string; adminPin?: string }
+    const admin = assertAdmin(readAdminPin(req, body.adminPin))
+    if (!admin.ok) {
+      sendJson(res, admin.status, {
+        error: 'Only the owner can set the Fal key (admin PIN required)',
+        code: admin.code,
+      })
+      return
+    }
     const key = (body.key || '').trim()
     if (!key || key.length < 10) {
       sendJson(res, 400, { error: 'Paste a valid Fal.ai API key' })
@@ -535,11 +588,7 @@ function buildCarcassLivePrompt(body: CarcassLiveBody) {
 
 async function handleCarcassLive(req: IncomingMessage, res: ServerResponse) {
   if (req.method === 'OPTIONS') {
-    res.statusCode = 204
-    res.setHeader('Access-Control-Allow-Origin', '*')
-    res.setHeader('Access-Control-Allow-Methods', 'POST, OPTIONS')
-    res.setHeader('Access-Control-Allow-Headers', 'Content-Type')
-    res.end()
+    sendOptions(res)
     return
   }
 
@@ -548,12 +597,15 @@ async function handleCarcassLive(req: IncomingMessage, res: ServerResponse) {
     return
   }
 
+  const gate = gateAi(req, res, 'carcass')
+  if (!gate) return
+
   const falKey = getFalKey()
   if (!falKey) {
     sendJson(res, 503, {
       error: 'Professional AI is not connected yet',
       code: 'MISSING_FAL_KEY',
-      hint: 'Paste your Fal.ai API key to generate live-size carcass renders.',
+      hint: 'Owner must set FAL_KEY on the server.',
     })
     return
   }
@@ -626,11 +678,14 @@ async function handleCarcassLive(req: IncomingMessage, res: ServerResponse) {
       return
     }
 
+    if (gate.token) consumeUsage(gate.token, 'carcass')
+
     sendJson(res, 200, {
       imageUrl: outUrl,
       provider: 'fal',
       model,
       mode: 'live-size-carcass',
+      access: statusForToken(gate.token),
       size: {
         widthFt: body.widthFt,
         heightFt: body.heightFt,
@@ -655,11 +710,7 @@ type ChatBody = {
 
 async function handleChat(req: IncomingMessage, res: ServerResponse) {
   if (req.method === 'OPTIONS') {
-    res.statusCode = 204
-    res.setHeader('Access-Control-Allow-Origin', '*')
-    res.setHeader('Access-Control-Allow-Methods', 'POST, OPTIONS')
-    res.setHeader('Access-Control-Allow-Headers', 'Content-Type')
-    res.end()
+    sendOptions(res)
     return
   }
 
@@ -668,10 +719,13 @@ async function handleChat(req: IncomingMessage, res: ServerResponse) {
     return
   }
 
+  const gate = gateAi(req, res, 'chat')
+  if (!gate) return
+
   const falKey = getFalKey()
   if (!falKey) {
     sendJson(res, 503, {
-      error: 'Connect your Fal.ai key to enable live AI chat',
+      error: 'Live AI chat is not connected on the server',
       code: 'MISSING_FAL_KEY',
     })
     return
@@ -763,11 +817,14 @@ async function handleChat(req: IncomingMessage, res: ServerResponse) {
       return
     }
 
+    if (gate.token) consumeUsage(gate.token, 'chat')
+
     sendJson(res, 200, {
       reply,
       provider: 'fal',
       model,
       mode: 'sales-chat',
+      access: statusForToken(gate.token),
     })
   } catch (err) {
     sendJson(res, 500, {
@@ -777,7 +834,168 @@ async function handleChat(req: IncomingMessage, res: ServerResponse) {
   }
 }
 
+async function handleAiUnlock(req: IncomingMessage, res: ServerResponse) {
+  if (req.method === 'OPTIONS') {
+    sendOptions(res)
+    return
+  }
+  if (req.method !== 'POST') {
+    sendJson(res, 405, { error: 'Method not allowed' })
+    return
+  }
+  try {
+    const raw = await readBody(req)
+    const body = JSON.parse(raw) as { code?: string }
+    const result = unlockWithCode(body.code || '')
+    if (!result.ok) {
+      sendJson(res, 401, { error: result.error, code: result.code })
+      return
+    }
+    sendJson(res, 200, result)
+  } catch (err) {
+    sendJson(res, 500, {
+      error: err instanceof Error ? err.message : 'Unlock failed',
+    })
+  }
+}
+
+async function handleAiAccessStatus(req: IncomingMessage, res: ServerResponse) {
+  if (req.method === 'OPTIONS') {
+    sendOptions(res)
+    return
+  }
+  if (req.method !== 'GET' && req.method !== 'POST') {
+    sendJson(res, 405, { error: 'Method not allowed' })
+    return
+  }
+  let token = readAccessToken(req)
+  if (!token && req.method === 'POST') {
+    try {
+      const raw = await readBody(req)
+      const body = JSON.parse(raw || '{}') as { token?: string }
+      token = body.token || null
+    } catch {
+      token = null
+    }
+  }
+  sendJson(res, 200, {
+    falConfigured: Boolean(getFalKey()),
+    ...statusForToken(token),
+    plans: listPlans(),
+  })
+}
+
+async function handleAiAdmin(req: IncomingMessage, res: ServerResponse) {
+  if (req.method === 'OPTIONS') {
+    sendOptions(res)
+    return
+  }
+
+  try {
+    if (req.method === 'GET') {
+      const admin = assertAdmin(readAdminPin(req))
+      if (!admin.ok) {
+        sendJson(res, admin.status, { error: admin.error, code: admin.code })
+        return
+      }
+      sendJson(res, 200, {
+        subscribers: listSubscribers(),
+        plans: listPlans(),
+        falConfigured: Boolean(getFalKey()),
+        requireSubscription: requireSubscription(),
+      })
+      return
+    }
+
+    if (req.method !== 'POST') {
+      sendJson(res, 405, { error: 'Method not allowed' })
+      return
+    }
+
+    const raw = await readBody(req)
+    const body = JSON.parse(raw) as {
+      adminPin?: string
+      action?: string
+      planId?: string
+      name?: string
+      phone?: string
+      note?: string
+      code?: string
+      active?: boolean
+      limits?: { visualise?: number; chat?: number; carcass?: number }
+      falKey?: string
+    }
+
+    const admin = assertAdmin(readAdminPin(req, body.adminPin))
+    if (!admin.ok) {
+      sendJson(res, admin.status, { error: admin.error, code: admin.code })
+      return
+    }
+
+    const action = body.action || 'create'
+
+    if (action === 'create') {
+      const created = createSubscriber({
+        planId: body.planId || 'starter',
+        name: body.name,
+        phone: body.phone,
+        note: body.note,
+        limits: body.limits,
+        code: body.code,
+      })
+      sendJson(res, 200, { ok: true, ...created, subscribers: listSubscribers() })
+      return
+    }
+
+    if (action === 'set-active') {
+      const updated = setSubscriberActive(body.code || '', Boolean(body.active))
+      if (!updated) {
+        sendJson(res, 404, { error: 'Subscriber not found', code: 'NOT_FOUND' })
+        return
+      }
+      sendJson(res, 200, { ok: true, subscriber: updated, subscribers: listSubscribers() })
+      return
+    }
+
+    if (action === 'set-fal-key') {
+      const key = (body.falKey || '').trim()
+      if (!key || key.length < 10) {
+        sendJson(res, 400, { error: 'Valid Fal key required' })
+        return
+      }
+      runtimeFalKey = key
+      process.env.FAL_KEY = key
+      sendJson(res, 200, { ok: true, falConfigured: true })
+      return
+    }
+
+    if (action === 'list') {
+      sendJson(res, 200, {
+        subscribers: listSubscribers(),
+        plans: listPlans(),
+        falConfigured: Boolean(getFalKey()),
+      })
+      return
+    }
+
+    sendJson(res, 400, { error: 'Unknown action' })
+  } catch (err) {
+    sendJson(res, 500, {
+      error: err instanceof Error ? err.message : 'Admin request failed',
+    })
+  }
+}
+
 function attach(middlewares: Connect.Server) {
+  middlewares.use('/api/ai-unlock', (req, res, next) => {
+    void handleAiUnlock(req, res).catch(next)
+  })
+  middlewares.use('/api/ai-access', (req, res, next) => {
+    void handleAiAccessStatus(req, res).catch(next)
+  })
+  middlewares.use('/api/ai-admin', (req, res, next) => {
+    void handleAiAdmin(req, res).catch(next)
+  })
   middlewares.use('/api/visualise-config', (req, res, next) => {
     void handleConfig(req, res).catch(next)
   })
@@ -790,13 +1008,23 @@ function attach(middlewares: Connect.Server) {
   middlewares.use('/api/chat', (req, res, next) => {
     void handleChat(req, res).catch(next)
   })
-  middlewares.use('/api/visualise-status', (_req, res) => {
+  middlewares.use('/api/visualise-status', (req, res) => {
+    const token = readAccessToken(req)
+    const access = statusForToken(token)
+    const needsSub = requireSubscription()
     sendJson(res, 200, {
-      configured: Boolean(getFalKey()),
-      mode: getFalKey() ? 'paid-ai' : 'needs-key',
+      ...access,
+      configured: Boolean(getFalKey()) && (!needsSub || access.subscribed),
+      falConfigured: Boolean(getFalKey()),
+      mode: getFalKey()
+        ? access.subscribed || !needsSub
+          ? 'subscriber-ai'
+          : 'needs-subscription'
+        : 'needs-key',
       model: getCreateModel(),
       refineModel: getRefineModel(),
       chatModel: getChatModel(),
+      requireSubscription: needsSub,
     })
   })
 }

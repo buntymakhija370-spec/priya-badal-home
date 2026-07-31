@@ -1,0 +1,93 @@
+.ai-admin.page-pad {
+  padding-top: calc(var(--nav-h) + env(safe-area-inset-top, 0px) + 0.75rem);
+  padding-bottom: 3rem;
+  max-width: 44rem;
+}
+
+.ai-admin header h1 {
+  font-family: var(--font-display);
+  font-size: clamp(1.5rem, 4vw, 2.2rem);
+  margin: 0.2rem 0 0.45rem;
+}
+
+.ai-admin header p {
+  color: var(--ink-soft);
+  font-size: 0.92rem;
+  line-height: 1.45;
+  max-width: 42ch;
+}
+
+.ai-admin__card {
+  margin: 1rem 0;
+  padding: 1rem;
+  border: 1px solid rgba(31, 26, 23, 0.12);
+  background: #fff;
+}
+
+.ai-admin__card h2 {
+  margin: 0 0 0.65rem;
+  font-size: 1.05rem;
+}
+
+.ai-admin__form {
+  display: grid;
+  gap: 0.55rem;
+}
+
+.ai-admin__form label,
+.ai-admin__card > form > label {
+  display: grid;
+  gap: 0.25rem;
+}
+
+.ai-admin__form span,
+.ai-admin__card form span {
+  font-size: 0.78rem;
+  font-weight: 600;
+}
+
+.ai-admin input,
+.ai-admin select {
+  min-height: 2.4rem;
+  padding: 0.4rem 0.65rem;
+  border: 1px solid rgba(31, 26, 23, 0.18);
+  font: inherit;
+}
+
+.ai-admin__code {
+  margin: 0.8rem 0 0;
+  padding: 0.65rem 0.75rem;
+  background: #f7f3ec;
+  font-size: 1rem;
+}
+
+.ai-admin__list {
+  display: grid;
+  gap: 0.75rem;
+}
+
+.ai-admin__sub {
+  padding: 0.75rem;
+  border: 1px solid rgba(31, 26, 23, 0.1);
+  background: #faf7f2;
+}
+
+.ai-admin__sub p {
+  margin: 0 0 0.3rem;
+  font-size: 0.86rem;
+  line-height: 1.4;
+}
+
+.ai-admin__msg {
+  color: #7a3e2a;
+  font-size: 0.9rem;
+}
+
+.ai-admin__back {
+  margin-top: 1rem;
+  font-size: 0.85rem;
+}
+
+.ai-admin__back a {
+  color: var(--moss);
+}

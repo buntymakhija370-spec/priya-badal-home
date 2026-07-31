@@ -5,6 +5,7 @@ import {
   parseAiSuggestions,
   stripAiMeta,
 } from './catalogKnowledge'
+import { aiAuthHeaders } from './aiAccess'
 import { getProductById } from './products'
 import type { Product } from '../data/catalog'
 
@@ -56,7 +57,7 @@ export async function askPriyaBadalAI(input: {
   const knowledge = buildCatalogKnowledge(input.brief, input.message)
   const res = await fetch('/api/chat', {
     method: 'POST',
-    headers: { 'Content-Type': 'application/json' },
+    headers: aiAuthHeaders(),
     body: JSON.stringify({
       message: input.message,
       systemPrompt: SYSTEM_PROMPT,
@@ -89,6 +90,14 @@ export async function askPriyaBadalAI(input: {
   }
 
   if (!res.ok || !data.reply) {
+    if (data.code === 'SUBSCRIPTION_REQUIRED') {
+      throw new Error(
+        'Paid AI chat needs a subscription. Unlock with your access code, or ask catalog questions for free local answers.',
+      )
+    }
+    if (data.code === 'QUOTA_EXCEEDED') {
+      throw new Error('Monthly AI chat limit reached. Upgrade or wait for next month.')
+    }
     throw new Error(data.error || 'Chat AI is unavailable right now')
   }
 

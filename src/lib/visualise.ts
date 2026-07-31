@@ -1,4 +1,5 @@
 import type { Product } from '../data/catalog'
+import { aiAuthHeaders } from './aiAccess'
 import { WHATSAPP_QUOTE_NUMBER } from './whatsapp'
 
 export type VisualiseColour = {
@@ -121,7 +122,9 @@ export async function urlToDataUrl(url: string): Promise<string> {
 
 export async function fetchVisualiseStatus(): Promise<VisualiseStatus> {
   try {
-    const res = await fetch('/api/visualise-status')
+    const res = await fetch('/api/visualise-status', {
+      headers: aiAuthHeaders(),
+    })
     if (!res.ok) return { configured: false, mode: 'needs-key' }
     return (await res.json()) as VisualiseStatus
   } catch {
@@ -129,11 +132,17 @@ export async function fetchVisualiseStatus(): Promise<VisualiseStatus> {
   }
 }
 
-export async function connectFalKey(key: string): Promise<VisualiseStatus> {
+/** Owner-only: set Fal key with admin PIN (not for customers). */
+export async function connectFalKey(
+  key: string,
+  adminPin?: string,
+): Promise<VisualiseStatus> {
   const res = await fetch('/api/visualise-config', {
     method: 'POST',
-    headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify({ key }),
+    headers: aiAuthHeaders(
+      adminPin ? { 'X-AI-Admin': adminPin } : undefined,
+    ),
+    body: JSON.stringify({ key, adminPin }),
   })
   const data = (await res.json()) as VisualiseStatus & { error?: string }
   if (!res.ok) throw new Error(data.error || 'Could not connect AI key')
@@ -156,7 +165,7 @@ export async function generateVisualise(
 
     const res = await fetch('/api/visualise', {
       method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
+      headers: aiAuthHeaders(),
       body: JSON.stringify({
         roomDataUrl: input.roomDataUrl,
         productImageUrl: productDataUrl,
@@ -213,12 +222,16 @@ export async function generateVisualise(
       source: 'error',
       code: exhausted ? 'FAL_BALANCE' : data.code,
       message:
-        data.code === 'MISSING_FAL_KEY'
-          ? 'Connect your Fal.ai key below to generate professional room renders.'
-          : exhausted
-            ? 'Fal.ai balance is empty. Top up credits at fal.ai/dashboard/billing, then try again.'
-            : raw ||
-              'Professional AI could not generate this look. Try again or WhatsApp us.',
+        data.code === 'SUBSCRIPTION_REQUIRED'
+          ? 'Paid AI subscription required. Unlock with your access code on the AI Subscribe page.'
+          : data.code === 'QUOTA_EXCEEDED'
+            ? 'Monthly AI limit reached. Upgrade your plan or wait for next month.'
+            : data.code === 'MISSING_FAL_KEY'
+              ? 'AI is not connected on the server yet. Please try later or WhatsApp us.'
+              : exhausted
+                ? 'AI credits are temporarily unavailable. Please try later or WhatsApp us.'
+                : raw ||
+                  'Professional AI could not generate this look. Try again or WhatsApp us.',
     }
   } catch (err) {
     return {
@@ -226,7 +239,7 @@ export async function generateVisualise(
       message:
         err instanceof Error
           ? err.message
-          : 'Could not reach professional AI. Check your key / connection.',
+          : 'Could not reach professional AI. Check your connection.',
     }
   }
 }

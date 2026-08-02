@@ -859,7 +859,7 @@ export function ChatPage() {
               value={input}
               onChange={(e) => setInput(e.target.value)}
               onKeyDown={onKeyDown}
-              placeholder="Ask me anything about our products…"
+              placeholder="Ask price, carcass, materials, or visualise…"
               disabled={busy}
             />
             <div className="pbai__composer-tools">

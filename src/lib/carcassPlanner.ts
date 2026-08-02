@@ -322,6 +322,18 @@ export function ratesFromProduct(
     product.price > 0 &&
     product.price < 20000
 
+  // Carcass Selection listings price the box itself (not a shutter façade).
+  if (product.categoryId === 'carcass-selection') {
+    return {
+      shutterPerSqft: fallback.shutterPerSqft,
+      carcassPerSqft: useCatalogRates
+        ? product.price
+        : product.carcassPrice ?? fallback.carcassPerSqft,
+      finishId: product.defaultFinishId ?? fallback.finishId,
+      thicknessId: product.defaultThicknessId ?? fallback.thicknessId,
+    }
+  }
+
   return {
     shutterPerSqft: useCatalogRates ? product.price : fallback.shutterPerSqft,
     carcassPerSqft:

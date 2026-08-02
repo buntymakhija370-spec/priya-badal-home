@@ -72,7 +72,10 @@ export function ShopPage() {
           {subcategory?.name ?? (category ? category.name : 'All products')}
         </h1>
         {category?.caption &&
-        (category.id === 'commercials' || category.id === 'live-edge-furniture') ? (
+        (category.id === 'commercials' ||
+          category.id === 'live-edge-furniture' ||
+          category.id === 'carcass-selection' ||
+          category.id === 'liquid-stone') ? (
           <p className="shop__caption">{category.caption}</p>
         ) : null}
         <p className="shop__lede">{lede}</p>
@@ -129,6 +132,21 @@ export function ShopPage() {
               Open WhatsApp
             </a>
           </div>
+        </aside>
+      ) : null}
+
+      {category?.id === 'carcass-selection' && category.conceptNote ? (
+        <aside className="shop__concept" aria-label="Carcass Selection information">
+          <p className="shop__concept-kicker">How carcass selection works</p>
+          <p>{category.conceptNote}</p>
+          <ul>
+            <li>BWP plywood core for wardrobe &amp; kitchen boxes</li>
+            <li>1 mm laminate on both sides · 2 mm edge banding</li>
+            <li>Install drawing + QR for easy carpenter assembly</li>
+            <li>
+              <Link to="/carcass">Open Carcass Planner</Link> for bay layouts
+            </li>
+          </ul>
         </aside>
       ) : null}
 

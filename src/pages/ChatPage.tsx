@@ -1,5 +1,5 @@
 import { useEffect, useRef, useState, type FormEvent, type KeyboardEvent } from 'react'
-import { Link, useNavigate } from 'react-router-dom'
+import { Link, useNavigate, useSearchParams } from 'react-router-dom'
 import { askPriyaBadalAI } from '../lib/chatAI'
 import { CARCASS_ASSEMBLY_PATH } from '../data/carcassSpec'
 import {
@@ -33,6 +33,7 @@ type AttachMode = 'photo' | 'drawing'
 export function ChatPage() {
   useCurrency()
   const navigate = useNavigate()
+  const [searchParams, setSearchParams] = useSearchParams()
   const [messages, setMessages] = useState<ChatMessage[]>([createWelcomeMessage()])
   const [brief, setBrief] = useState<ConsultBrief>({})
   const [input, setInput] = useState('')
@@ -44,6 +45,7 @@ export function ChatPage() {
     dataUrl: string
     kind: AttachMode
   } | null>(null)
+  const bootstrappedRef = useRef(false)
   const endRef = useRef<HTMLDivElement>(null)
   const scrollRef = useRef<HTMLDivElement>(null)
   const stickToBottomRef = useRef(true)
@@ -86,6 +88,61 @@ export function ChatPage() {
       if (!s.configured) setShowKey(false)
     })
   }, [])
+
+  /** Deep links from shop / old Design·Visualise·Carcass URLs */
+  useEffect(() => {
+    if (bootstrappedRef.current) return
+    const productId = searchParams.get('product')
+    const intent = (searchParams.get('intent') || searchParams.get('type') || '').toLowerCase()
+    if (!productId && !intent) return
+    bootstrappedRef.current = true
+
+    const product = productId ? getProductById(productId) : undefined
+    const extras: ChatMessage[] = []
+    let nextBrief: ConsultBrief = {}
+
+    if (product) {
+      nextBrief = {
+        selectedProductId: product.id,
+        categoryId: product.categoryId,
+        room: product.rooms[0],
+      }
+      setBrief((prev) => ({ ...prev, ...nextBrief }))
+      extras.push(messageForProductSelected(product, nextBrief))
+    }
+
+    if (intent.includes('carcass') || intent === 'kitchen' || intent === 'wardrobe') {
+      extras.push({
+        id: crypto.randomUUID(),
+        role: 'assistant',
+        text: [
+          'Carcass help is right here in chat.',
+          '',
+          'Ask shutter vs carcass rates, share size in feet (e.g. 8×7), or say “open carcass assembly guide” for BWP · 1 mm laminate both sides · 2 mm edge banding.',
+        ].join('\n'),
+        suggestions: [
+          'What is carcass pricing?',
+          'Price with carcass for 8×7',
+          'Open carcass assembly guide',
+          'What materials do you use?',
+        ],
+      })
+    } else if (intent.includes('visual') || intent.includes('design')) {
+      extras.push({
+        id: crypto.randomUUID(),
+        role: 'assistant',
+        text: [
+          'Visualisation lives in this chat now.',
+          '',
+          'Attach a room photo (paperclip), pick a product if you haven’t, then say “visualise” — replace, install, or redesign.',
+        ].join('\n'),
+        suggestions: ['Attach room photo', 'Visualise my look', 'Suggest styles'],
+      })
+    }
+
+    if (extras.length) setMessages((prev) => [...prev, ...extras])
+    setSearchParams({}, { replace: true })
+  }, [searchParams, setSearchParams])
 
   const onThreadScroll = () => {
     const el = scrollRef.current
@@ -263,7 +320,7 @@ export function ChatPage() {
       push(userMsg, {
         id: crypto.randomUUID(),
         role: 'assistant',
-        text: 'Opening WhatsApp with your Priya Badal AI consultation.',
+        text: 'Opening WhatsApp with your chat consultation.',
         suggestions: ['Visualise my look', 'Suggest other styles'],
       })
       setInput('')
@@ -549,9 +606,9 @@ export function ChatPage() {
             className="pbai__logo"
           />
           <div>
-            <p className="pbai__title">Priya Badal AI</p>
+            <p className="pbai__title">Chat</p>
             <p className="pbai__subtitle">
-              Interior chat · shutter + carcass pricing · materials · visualise
+              Price · carcass · materials · products · visualise
             </p>
           </div>
         </div>
@@ -616,11 +673,11 @@ export function ChatPage() {
                 alt="Priyabadal Homes"
                 className="pbai__hero-logo"
               />
-              <h1>Priya Badal AI</h1>
+              <h1>Chat with Priyabadal</h1>
               <p>
-                Ask anything about any Priyabadal product — design, price, carcass,
-                materials. I’ll answer in natural conversation from our catalog. Attach a
-                photo when you want to visualise.
+                One chatbot for everything — pricing, carcass help, materials, product
+                info, and room visualisation. Type naturally; attach a photo when you want
+                to see the look.
               </p>
             </div>
           ) : null}
@@ -634,7 +691,7 @@ export function ChatPage() {
               ) : null}
               <div className="pbai-msg__body">
                 {msg.role === 'assistant' ? (
-                  <p className="pbai-msg__label">Priya Badal AI</p>
+                  <p className="pbai-msg__label">Priyabadal Chat</p>
                 ) : null}
                 <div className="pbai-msg__bubble">
                   <p className="pbai-msg__text">{msg.text}</p>
@@ -723,7 +780,7 @@ export function ChatPage() {
                 PB
               </div>
               <div className="pbai-msg__body">
-                <p className="pbai-msg__label">Priya Badal AI</p>
+                <p className="pbai-msg__label">Priyabadal Chat</p>
                 <div className="pbai-msg__bubble pbai-msg__bubble--typing">
                   <span />
                   <span />

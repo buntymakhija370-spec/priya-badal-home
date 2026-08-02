@@ -297,20 +297,22 @@ export function createWelcomeMessage(): ChatMessage {
     id: crypto.randomUUID(),
     role: 'assistant',
     text: [
-      'Hi — I’m Priya Badal AI, your interior chat for Priyabadal Homes.',
+      'Hi — I’m your Priyabadal Homes chat. One conversation for everything:',
       '',
-      'Ask me about kitchens, wardrobes, temple walls, materials, finishes — and I’ll quote using our shutter + carcass rates (INR).',
+      '• Pricing — shutter & carcass rates from our catalog (INR)',
+      '• Carcass help — BWP boxes, laminate, edge banding, assembly',
+      '• Materials & finishes — what’s in the product',
+      '• Product info — styles for kitchen, wardrobe, temple, panels & more',
+      '• Visualisation — attach a room photo and say “visualise”',
       '',
-      'Attach a room photo (or drawing), pick a product, then say “visualise” to see our product in your space — replace existing furniture, install, or a presentable redesign.',
-      '',
-      'What would you like to know?',
+      'Just type naturally — like WhatsApp. What do you need?',
     ].join('\n'),
     suggestions: [
-      'Carcass vs shutter price for 8×7',
+      'Price wardrobe 8×7 with carcass',
+      'What is carcass construction?',
       'What materials do you use?',
       'Suggest kitchen styles',
       'Visualise my look',
-      'Which wardrobe suits a small bedroom?',
     ],
   }
 }
@@ -784,7 +786,7 @@ export function buildChatWhatsAppUrl(brief: ConsultBrief): string | null {
 
   const estimate = chatEstimateSummary(brief)
   const lines = [
-    'Hi Priyabadal Homes — Priya Badal AI consultation:',
+    'Hi Priyabadal Homes — chat consultation:',
     '',
     brief.room ? `Space: ${brief.room}` : null,
     `Product: ${product.name}`,

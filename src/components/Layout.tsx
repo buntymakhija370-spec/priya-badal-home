@@ -14,14 +14,11 @@ import './Layout.css'
 
 const utilityLinks = [
   { to: '/install', label: 'Get the App (iPhone & Android)' },
-  { to: '/design', label: 'Design my space' },
   { to: '/shop', label: 'All products' },
   { to: '/how-it-works', label: 'How it works' },
-  { to: '/visualise', label: 'Visualise AI' },
-  { to: '/carcass', label: 'Carcass Planner' },
+  { to: '/chat', label: 'Chat' },
   { to: '/guides/carcass-assembly', label: 'Carcass assembly guide' },
   { to: '/favorites', label: 'Favorites' },
-  { to: '/chat', label: 'Priya Badal AI' },
   { to: '/add-product', label: 'Add Product' },
 ]
 
@@ -64,11 +61,8 @@ export function Layout() {
               {cat.name}
             </NavLink>
           ))}
-          <NavLink to="/design" onClick={close}>
-            Design
-          </NavLink>
-          <NavLink to="/visualise" onClick={close}>
-            Visualise
+          <NavLink to="/chat" onClick={close}>
+            Chat
           </NavLink>
           <NavLink to="/shop" onClick={close}>
             All
@@ -161,16 +155,7 @@ export function Layout() {
                 <NavLink to="/favorites">Favorites</NavLink>
               </li>
               <li>
-                <NavLink to="/design">Design my space</NavLink>
-              </li>
-              <li>
-                <NavLink to="/visualise">Visualise AI</NavLink>
-              </li>
-              <li>
-                <NavLink to="/carcass">Carcass Planner</NavLink>
-              </li>
-              <li>
-                <NavLink to="/chat">Priya Badal AI</NavLink>
+                <NavLink to="/chat">Chat</NavLink>
               </li>
               <li>
                 <a href={WHATSAPP_CHAT_URL} target="_blank" rel="noopener noreferrer">

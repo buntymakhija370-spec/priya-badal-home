@@ -338,7 +338,7 @@ export const categories: Category[] = [
       'Choose wardrobe, kitchen, and module carcass boxes — BWP plywood, both-side 1 mm laminate, 2 mm edge banding.',
     caption: 'BWP · 1 mm laminate both sides · 2 mm edge banding',
     conceptNote:
-      'Carcass Selection is for the cabinet box only (sides, shelves, top/bottom). Standard construction: BWP plywood, 1 mm laminate on both sides, 2 mm edge banding on exposed edges. Pair with shutters from Wardrobe / Kitchen, or open Carcass Planner for bay layouts and WhatsApp quotes.',
+      'Carcass Selection is for the cabinet box only (sides, shelves, top/bottom). Standard construction: BWP plywood, 1 mm laminate on both sides, 2 mm edge banding on exposed edges. Pair with shutters from Wardrobe / Kitchen, or ask in Chat for bay layouts and WhatsApp quotes.',
     image: '/products/categories/carcass-selection.jpg',
     subcategories: [
       {
@@ -7810,7 +7810,7 @@ export const baseProducts: Product[] = [
       '/products/carcass-selection/wardrobe/02.jpg',
     ],
     orderNotes: [
-      'Carcass box only — pair with wardrobe shutters separately, or open Carcass Planner for bay layouts.',
+      'Carcass box only — pair with wardrobe shutters separately, or ask Chat for bay layouts.',
       'Includes install drawing + QR for easy assembly.',
     ],
     highlights: [
@@ -7838,7 +7838,7 @@ export const baseProducts: Product[] = [
     ],
     features: [
       'Standard Priyabadal carcass construction for wardrobe boxes',
-      'Shelves, hanging, and drawer bays planned in Carcass Planner',
+      'Shelves, hanging, and drawer bays planned in Chat',
       'Shutter façade selected from Wardrobe collection',
     ],
     disclaimer:
@@ -7871,7 +7871,7 @@ export const baseProducts: Product[] = [
     ],
     orderNotes: [
       'Carcass boxes only — kitchen shutters and counters quoted separately.',
-      'Use Carcass Planner (kitchen mode) for bay layouts and module add-ons.',
+      'Ask Chat for kitchen bay layouts and module add-ons.',
     ],
     highlights: [
       'BWP kitchen boxes',
@@ -7959,7 +7959,7 @@ export const baseProducts: Product[] = [
     features: [
       'Adds folded storage inside wardrobe or kitchen carcass bays',
       'Bay width and drawer count confirmed before production',
-      'Use with Carcass Planner drawer-bank layouts',
+      'Use with Chat for drawer-bank layout estimates',
     ],
     disclaimer:
       'Unit price is a starting estimate. Final module quote depends on bay width, drawer count, and slide grade.',

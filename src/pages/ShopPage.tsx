@@ -144,7 +144,7 @@ export function ShopPage() {
             <li>1 mm laminate on both sides · 2 mm edge banding</li>
             <li>Install drawing + QR for easy carpenter assembly</li>
             <li>
-              <Link to="/carcass">Open Carcass Planner</Link> for bay layouts
+              <Link to="/chat?intent=carcass">Ask Chat</Link> for bay layouts &amp; carcass rates
             </li>
           </ul>
         </aside>

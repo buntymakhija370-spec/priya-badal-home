@@ -159,7 +159,7 @@ function rateLines(product: Product): string[] {
     )
   } else if (supportsBuildScope(product.categoryId)) {
     lines.push(
-      '• Carcass: not listed separately on this product — ask WhatsApp for carcass scope, or use Carcass Planner for layout rates.',
+      '• Carcass: not listed separately on this product — ask WhatsApp for carcass scope, or ask me for layout rates in this chat.',
     )
   }
   return lines
@@ -295,7 +295,7 @@ export function answerCarcassQuestion(
     '• With carcass — shutter rate + carcass rate (both added), when the product lists a carcass rate.',
     '• Many wardrobes & temple walls are priced per sq ft for each rate.',
     '',
-    'For bay layouts (hanging + drawers + shelves), open Carcass Planner — it adds module extras on top of carcass rates.',
+    'For bay layouts (hanging + drawers + shelves), tell me your width and preferred modules — I’ll estimate carcass rates plus typical module add-ons.',
   ]
 
   if (!product) {
@@ -326,7 +326,7 @@ export function answerCarcassQuestion(
       ? estimateBlock(product, brief, scopeFromText(text) ?? 'with-carcass')
       : [
           'This product doesn’t list a separate carcass rate in the catalog.',
-          'Use Design my space / Carcass Planner, or WhatsApp us for a full unit quote.',
+          'Ask me here for a size-based estimate, or WhatsApp us for a full unit quote.',
         ]),
   ]
 

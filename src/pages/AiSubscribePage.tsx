@@ -134,8 +134,7 @@ export function AiSubscribePage() {
       <section className="ai-sub__help">
         <p>
           WhatsApp {WHATSAPP_DISPLAY} ·{' '}
-          <Link to="/visualise">Visualise</Link> · <Link to="/chat">Chat</Link> ·{' '}
-          <Link to="/ai-admin">Owner admin</Link>
+          <Link to="/chat">Chat</Link> · <Link to="/ai-admin">Owner admin</Link>
         </p>
       </section>
     </main>

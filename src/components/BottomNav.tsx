@@ -42,30 +42,8 @@ const tabs = [
     ),
   },
   {
-    to: '/design',
-    label: 'Design',
-    icon: (
-      <svg viewBox="0 0 24 24" aria-hidden="true">
-        <path
-          d="M4.5 16.5 14.2 6.8a2.1 2.1 0 0 1 3 3L7.5 19.5H4.5v-3Z"
-          fill="none"
-          stroke="currentColor"
-          strokeWidth="1.7"
-          strokeLinejoin="round"
-        />
-        <path
-          d="M12.5 8.5 15.5 11.5"
-          fill="none"
-          stroke="currentColor"
-          strokeWidth="1.7"
-          strokeLinecap="round"
-        />
-      </svg>
-    ),
-  },
-  {
     to: '/chat',
-    label: 'AI Chat',
+    label: 'Chat',
     icon: (
       <svg viewBox="0 0 24 24" aria-hidden="true">
         <path

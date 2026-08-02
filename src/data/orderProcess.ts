@@ -25,7 +25,7 @@ export const ORDER_STEPS: OrderStep[] = [
     title: 'Request a WhatsApp quote',
     summary: 'Send your selection — we confirm the final price.',
     detail:
-      'Add items to cart and tap WhatsApp quote, or message us from any product. Share room photos or Visualise AI looks so we can refine the estimate.',
+      'Add items to cart and tap WhatsApp quote, or ask in Chat from any product. Share room photos or chat visualisations so we can refine the estimate.',
   },
   {
     id: 'measure',

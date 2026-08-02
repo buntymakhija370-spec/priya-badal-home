@@ -205,31 +205,10 @@ export function ProductPage() {
           </div>
           <Link
             className="btn btn--outline product-page__visualise"
-            to={`/visualise?product=${product.id}`}
+            to={`/chat?product=${product.id}`}
           >
-            Visualise in my room (AI)
+            Ask in Chat — price, carcass & visualise
           </Link>
-          <Link
-            className="btn btn--outline product-page__visualise"
-            to="/design"
-          >
-            Design my space & quote
-          </Link>
-          {product.categoryId === 'wardrobe' ||
-          product.categoryId === 'kitchen' ||
-          product.categoryId === 'carcass-selection' ? (
-            <Link
-              className="btn btn--outline product-page__visualise"
-              to={`/carcass?type=${
-                product.subcategoryId === 'kitchen-carcass' ||
-                product.categoryId === 'kitchen'
-                  ? 'kitchen'
-                  : 'wardrobe'
-              }&product=${product.id}`}
-            >
-              Plan carcass & price
-            </Link>
-          ) : null}
           {customizable ? (
             <Link className="product-page__how" to="/how-it-works">
               How your custom order works

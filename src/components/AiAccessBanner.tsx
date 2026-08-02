@@ -76,10 +76,10 @@ export function AiAccessBanner({ onStatus, compact }: Props) {
 
   return (
     <aside className={`ai-access ai-access--locked ${compact ? 'ai-access--compact' : ''}`}>
-      <p className="ai-access__kicker">Paid AI · subscribers only</p>
+      <p className="ai-access__kicker">AI unlock · subscribers only</p>
       <p>
-        Professional Fal AI (visualise / live carcass / smart chat) is controlled with monthly
-        limits so we don’t burn credits. Free catalog chat still works without AI.
+        Unlock for room visualisation and smarter chat. Price, carcass, and material answers
+        still work without unlock.
       </p>
       <form className="ai-access__form" onSubmit={onUnlock}>
         <label>
@@ -101,7 +101,7 @@ export function AiAccessBanner({ onStatus, compact }: Props) {
       </div>
       {msg ? <p className="ai-access__msg">{msg}</p> : null}
       {!status.falConfigured ? (
-        <p className="ai-access__msg">Server AI is not connected yet — owner must set Fal key.</p>
+        <p className="ai-access__msg">AI isn’t connected on the server yet — please try later.</p>
       ) : null}
     </aside>
   )

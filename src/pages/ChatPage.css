@@ -1,20 +1,16 @@
-/* Priya Badal AI — locked viewport shell; only the thread scrolls */
+/* Chat — fixed shell so the thread scrolls and the composer never leaves the screen */
 
 .pbai {
   --pbai-max: 48rem;
   box-sizing: border-box;
+  position: fixed;
+  top: calc(var(--nav-h) + env(safe-area-inset-top, 0px));
+  left: 0;
+  right: 0;
+  bottom: calc(var(--tabbar-h) + env(safe-area-inset-bottom, 0px));
+  z-index: 30;
   display: flex;
   flex-direction: column;
-  /* Sit below fixed site nav; lock to the remaining viewport (above tab bar on phones) */
-  margin-top: calc(var(--nav-h) + env(safe-area-inset-top, 0px));
-  height: calc(
-    100dvh - var(--nav-h) - env(safe-area-inset-top, 0px) - var(--tabbar-h) -
-      env(safe-area-inset-bottom, 0px)
-  );
-  max-height: calc(
-    100dvh - var(--nav-h) - env(safe-area-inset-top, 0px) - var(--tabbar-h) -
-      env(safe-area-inset-bottom, 0px)
-  );
   min-height: 0;
   overflow: hidden;
   background:
@@ -22,10 +18,11 @@
     linear-gradient(180deg, #eef3f0 0%, var(--paper) 42%, #f3f6f4 100%);
 }
 
-/* Hide site chrome that would push the chat page and fight scroll */
+/* Hide site chrome that would cover or fight the chat */
 body:has(.pbai) .footer,
-body:has(.pbai) .wa-fab {
-  display: none;
+body:has(.pbai) .wa-fab,
+body:has(.pbai) .install-banner {
+  display: none !important;
 }
 
 .pbai__top {
@@ -110,17 +107,20 @@ body:has(.pbai) .wa-fab {
 }
 
 .pbai__key {
-  margin: 0.65rem clamp(1rem, 3vw, 1.75rem) 0;
-  padding: 0.85rem 1rem;
+  margin: 0.5rem clamp(1rem, 3vw, 1.75rem) 0;
+  padding: 0.75rem 0.9rem;
   border: 1px solid rgba(154, 115, 64, 0.28);
   border-radius: 0.75rem;
   background: linear-gradient(180deg, #fff9f0, #fff);
   display: grid;
-  gap: 0.55rem;
+  gap: 0.45rem;
   max-width: var(--pbai-max);
   width: min(100% - 2rem, var(--pbai-max));
   margin-inline: auto;
   flex-shrink: 0;
+  max-height: min(36vh, 14rem);
+  overflow-y: auto;
+  overscroll-behavior: contain;
 }
 
 .pbai__key p {
@@ -200,8 +200,7 @@ body:has(.pbai) .wa-fab {
 
 .pbai__hero {
   text-align: center;
-  padding: 1.75rem 1rem 0.5rem;
-  animation: pbai-fade 0.55s var(--ease-out);
+  padding: 1.25rem 1rem 0.35rem;
 }
 
 .pbai__hero-logo {
@@ -228,7 +227,7 @@ body:has(.pbai) .wa-fab {
   display: flex;
   gap: 0.75rem;
   align-items: flex-start;
-  animation: pbai-fade 0.35s var(--ease-out);
+  animation: pbai-fade 0.28s var(--ease-out);
 }
 
 .pbai-msg--user {
@@ -600,11 +599,9 @@ body:has(.pbai) .wa-fab {
 @keyframes pbai-fade {
   from {
     opacity: 0;
-    transform: translateY(0.35rem);
   }
   to {
     opacity: 1;
-    transform: none;
   }
 }
 

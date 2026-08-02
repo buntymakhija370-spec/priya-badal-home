@@ -30,6 +30,28 @@ import './ChatPage.css'
 
 type AttachMode = 'photo' | 'drawing'
 
+/** Keep assistant replies plain — never surface API codes or raw server text */
+function friendlyChatError(raw: string | undefined, kind: 'visualise' | 'chat'): string {
+  const t = (raw || '').trim()
+  if (/subscription|access code|unlock|SUBSCRIPTION/i.test(t)) {
+    return 'AI unlock is needed for that step. Tap AI access above — or keep asking about price, carcass, and materials.'
+  }
+  if (/QUOTA|limit|monthly/i.test(t)) {
+    return 'This month’s AI looks are used up. You can still ask price and carcass questions, or WhatsApp us.'
+  }
+  if (/MISSING_FAL|not connected|Fal|balance|credit/i.test(t)) {
+    return kind === 'visualise'
+      ? 'Visualisation isn’t available right now. Try again later, or WhatsApp us with your photo.'
+      : 'Live chat isn’t available right now. I’ve kept catalog answers ready — send again in a moment.'
+  }
+  if (t && t.length < 160 && !/[A-Z_]{3,}/.test(t) && !/[{}[\]|]/.test(t)) {
+    return t
+  }
+  return kind === 'visualise'
+    ? 'I couldn’t make that look just now. Try a clearer photo, or WhatsApp us.'
+    : 'Something went quiet on my side. Send again in a moment — price and carcass still work.'
+}
+
 export function ChatPage() {
   useCurrency()
   const navigate = useNavigate()
@@ -53,33 +75,21 @@ export function ChatPage() {
   const inputRef = useRef<HTMLTextAreaElement>(null)
 
   /** Scroll only the chat thread — never the whole page */
-  const scrollThreadToBottom = (smooth = false) => {
+  const scrollThreadToBottom = () => {
     const el = scrollRef.current
     if (!el) return
-    const top = el.scrollHeight
-    if (smooth && typeof el.scrollTo === 'function') {
-      el.scrollTo({ top, behavior: 'smooth' })
-    } else {
-      el.scrollTop = top
-    }
+    // Double rAF waits for layout so we don’t leap mid-render
+    requestAnimationFrame(() => {
+      requestAnimationFrame(() => {
+        if (!scrollRef.current || !stickToBottomRef.current) return
+        scrollRef.current.scrollTop = scrollRef.current.scrollHeight
+      })
+    })
   }
 
   useEffect(() => {
-    // Lock page scroll while chatting so only the thread moves
-    const prevHtml = document.documentElement.style.overflow
-    const prevBody = document.body.style.overflow
-    document.documentElement.style.overflow = 'hidden'
-    document.body.style.overflow = 'hidden'
-    return () => {
-      document.documentElement.style.overflow = prevHtml
-      document.body.style.overflow = prevBody
-    }
-  }, [])
-
-  useEffect(() => {
     if (!stickToBottomRef.current) return
-    // Instant on send; smooth only for short assistant updates feels jumpy — keep instant
-    scrollThreadToBottom(false)
+    scrollThreadToBottom()
   }, [messages, busy, pendingFile])
 
   useEffect(() => {
@@ -181,7 +191,7 @@ export function ChatPage() {
       push({
         id: crypto.randomUUID(),
         role: 'assistant',
-        text: 'Paid AI subscription is required for visualisations. Unlock with your access code (AI button), or subscribe on WhatsApp via /ai. Catalog price & carcass answers still work without unlock.',
+        text: 'Room visualisation needs AI unlock first — tap AI access above, or ask me for price, carcass, and materials anytime (those stay free).',
         suggestions: ['Price with carcass', 'What materials do you use?'],
       })
       return
@@ -253,8 +263,8 @@ export function ChatPage() {
         push({
           id: crypto.randomUUID(),
           role: 'assistant',
-          text: result.message,
-          suggestions: ['Try visualise again', 'Make it lighter', 'Suggest other styles'],
+          text: friendlyChatError(result.message, 'visualise'),
+          suggestions: ['Try visualise again', 'Price with carcass', 'Suggest other styles'],
         })
       }
     } finally {
@@ -457,9 +467,9 @@ export function ChatPage() {
         },
       ])
     } catch (err) {
-      const msg = err instanceof Error ? err.message : 'try again'
+      const msg = err instanceof Error ? err.message : ''
       const needsKey =
-        /subscription|access code|QUOTA|MISSING_FAL_KEY|not connected|unavailable|Paid AI/i.test(
+        /subscription|access code|QUOTA|MISSING_FAL_KEY|not connected|unavailable|Paid AI|unlock/i.test(
           msg,
         )
       if (needsKey) {
@@ -472,16 +482,15 @@ export function ChatPage() {
             role: 'assistant',
             text: [
               turn.catalogLocal
-                ? 'Here’s your catalog answer (shutter / carcass from our price list):'
-                : 'Smart AI chat needs a paid unlock for open interior conversation.',
+                ? 'Here’s what our catalog says:'
+                : 'I can still help from the catalog.',
               '',
               turn.reply.text,
               '',
-              'Unlock AI above for live chat + room visualisation. Catalog price & carcass answers stay free.',
+              'For live AI chat and room looks, tap AI access above. Price and carcass answers stay free.',
             ].join('\n'),
             products: turn.reply.products,
             suggestions: [
-              'Unlock AI',
               'Price with carcass',
               ...(turn.reply.suggestions ?? []),
             ],
@@ -495,7 +504,7 @@ export function ChatPage() {
             text: [
               turn.reply.text,
               '',
-              `(Live AI hiccup: ${msg}. Showing catalog answer — try again in a moment.)`,
+              'Live chat is busy right now — I’ve answered from our catalog. You can send again in a moment.',
             ].join('\n'),
           },
         ])
@@ -626,7 +635,7 @@ export function ChatPage() {
         </div>
       </header>
 
-      {showKey || !aiConfigured ? (
+      {showKey ? (
         <div className="pbai__key">
           <AiAccessBanner
             compact
@@ -801,7 +810,6 @@ export function ChatPage() {
                 key={s}
                 type="button"
                 className="pbai-chip"
-                disabled={busy}
                 onClick={() => void send(s)}
               >
                 {s}
@@ -860,14 +868,12 @@ export function ChatPage() {
               onChange={(e) => setInput(e.target.value)}
               onKeyDown={onKeyDown}
               placeholder="Ask price, carcass, materials, or visualise…"
-              disabled={busy}
             />
             <div className="pbai__composer-tools">
               <div className="pbai__attach-group" role="group" aria-label="Attach">
                 <button
                   type="button"
                   className={attachMode === 'photo' ? 'is-on' : ''}
-                  disabled={busy}
                   title="Room photo"
                   onClick={() => {
                     setAttachMode('photo')
@@ -879,7 +885,6 @@ export function ChatPage() {
                 <button
                   type="button"
                   className={attachMode === 'drawing' ? 'is-on' : ''}
-                  disabled={busy}
                   title="Architect drawing"
                   onClick={() => {
                     setAttachMode('drawing')

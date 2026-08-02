@@ -223,13 +223,14 @@ export async function generateVisualise(
           : input.visualiseMode === 'install'
             ? ' Product installed into your room photo.'
             : ' Existing furniture replaced with your Priyabadal product.'
+      void quality
       return {
         imageUrl: data.imageUrl,
         source: 'ai',
         message:
           (input.refineImageUrl
-            ? 'Precision revision from your change request.'
-            : `Client-ready interior visualisation${quality}.`) +
+            ? 'Here’s the updated look from your change.'
+            : 'Here’s your room look with the Priyabadal product.') +
           (input.refineImageUrl ? '' : modeHint) +
           refineHint +
           sizeHint,
@@ -244,23 +245,19 @@ export async function generateVisualise(
       code: exhausted ? 'FAL_BALANCE' : data.code,
       message:
         data.code === 'SUBSCRIPTION_REQUIRED'
-          ? 'Paid AI subscription required. Unlock with your access code on the AI Subscribe page.'
+          ? 'AI unlock needed'
           : data.code === 'QUOTA_EXCEEDED'
-            ? 'Monthly AI limit reached. Upgrade your plan or wait for next month.'
+            ? 'Monthly AI limit reached'
             : data.code === 'MISSING_FAL_KEY'
-              ? 'AI is not connected on the server yet. Please try later or WhatsApp us.'
+              ? 'AI not connected'
               : exhausted
-                ? 'AI credits are temporarily unavailable. Please try later or WhatsApp us.'
-                : raw ||
-                  'Professional AI could not generate this look. Try again or WhatsApp us.',
+                ? 'AI credits unavailable'
+                : 'Visualise unavailable',
     }
-  } catch (err) {
+  } catch {
     return {
       source: 'error',
-      message:
-        err instanceof Error
-          ? err.message
-          : 'Could not reach professional AI. Check your connection.',
+      message: 'Visualise unavailable',
     }
   }
 }

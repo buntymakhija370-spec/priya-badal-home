@@ -108,14 +108,12 @@ export async function askPriyaBadalAI(input: {
 
   if (!res.ok || !data.reply) {
     if (data.code === 'SUBSCRIPTION_REQUIRED') {
-      throw new Error(
-        'Paid AI chat needs a subscription. Unlock with your access code, or ask catalog price/carcass questions for free local answers.',
-      )
+      throw new Error('AI unlock needed')
     }
     if (data.code === 'QUOTA_EXCEEDED') {
-      throw new Error('Monthly AI chat limit reached. Upgrade or wait for next month.')
+      throw new Error('Monthly AI limit reached')
     }
-    throw new Error(data.error || 'Chat AI is unavailable right now')
+    throw new Error('Chat unavailable')
   }
 
   const raw = data.reply

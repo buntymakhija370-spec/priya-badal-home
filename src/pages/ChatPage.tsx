@@ -636,36 +636,51 @@ export function ChatPage() {
       </header>
 
       {showKey ? (
-        <div className="pbai__key">
-          <AiAccessBanner
-            compact
-            onStatus={(s) => {
-              setAiConfigured(
-                Boolean(s.falConfigured && (!s.requireSubscription || s.subscribed)),
-              )
-              if (s.subscribed) setShowKey(false)
-            }}
+        <div
+          className="pbai__sheet"
+          role="dialog"
+          aria-modal="true"
+          aria-label="AI unlock"
+        >
+          <button
+            type="button"
+            className="pbai__sheet-backdrop"
+            aria-label="Close AI unlock"
+            onClick={() => setShowKey(false)}
           />
+          <div className="pbai__sheet-card">
+            <AiAccessBanner
+              compact
+              onStatus={(s) => {
+                setAiConfigured(
+                  Boolean(s.falConfigured && (!s.requireSubscription || s.subscribed)),
+                )
+                if (s.subscribed) setShowKey(false)
+              }}
+            />
+          </div>
         </div>
       ) : null}
 
-      <div className="pbai__brief-bar" aria-label="Session brief">
-        <span>{brief.room ?? 'Space?'}</span>
-        <span>
-          {brief.widthFt != null && brief.heightFt != null
-            ? `${brief.widthFt}×${brief.heightFt}${brief.depthFt != null ? `×${brief.depthFt}` : ''} ft`
-            : 'Size?'}
-        </span>
-        <span>{selected?.name ?? 'Product?'}</span>
-        <span>
-          {brief.roomPhotoDataUrl
-            ? brief.attachmentKind === 'drawing'
-              ? 'Drawing'
-              : 'Photo'
-            : 'Attach?'}
-        </span>
-        <span>{brief.aiImageUrl ? 'AI ready' : 'No AI yet'}</span>
-      </div>
+      {!showKey ? (
+        <div className="pbai__brief-bar" aria-label="Session brief">
+          <span>{brief.room ?? 'Space?'}</span>
+          <span>
+            {brief.widthFt != null && brief.heightFt != null
+              ? `${brief.widthFt}×${brief.heightFt}${brief.depthFt != null ? `×${brief.depthFt}` : ''} ft`
+              : 'Size?'}
+          </span>
+          <span>{selected?.name ?? 'Product?'}</span>
+          <span>
+            {brief.roomPhotoDataUrl
+              ? brief.attachmentKind === 'drawing'
+                ? 'Drawing'
+                : 'Photo'
+              : 'Attach?'}
+          </span>
+          <span>{brief.aiImageUrl ? 'AI ready' : 'No AI yet'}</span>
+        </div>
+      ) : null}
 
       <div
         className="pbai__scroll"
@@ -803,7 +818,7 @@ export function ChatPage() {
       </div>
 
       <footer className="pbai__composer-wrap">
-        {latestSuggestions.length > 0 ? (
+        {!showKey && latestSuggestions.length > 0 ? (
           <div className="pbai__chips">
             {latestSuggestions.map((s) => (
               <button

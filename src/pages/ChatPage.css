@@ -35,7 +35,8 @@ body:has(.pbai) .install-banner {
   background: rgba(247, 250, 248, 0.96);
   backdrop-filter: blur(10px);
   position: relative;
-  z-index: 5;
+  /* Above unlock sheet so Close / AI access stay tappable */
+  z-index: 50;
   flex-shrink: 0;
 }
 
@@ -106,67 +107,61 @@ body:has(.pbai) .install-banner {
   background: rgba(21, 32, 25, 0.05);
 }
 
-.pbai__key {
-  margin: 0.5rem clamp(1rem, 3vw, 1.75rem) 0;
-  padding: 0.75rem 0.9rem;
-  border: 1px solid rgba(154, 115, 64, 0.28);
-  border-radius: 0.75rem;
-  background: linear-gradient(180deg, #fff9f0, #fff);
-  display: grid;
-  gap: 0.45rem;
-  max-width: var(--pbai-max);
-  width: min(100% - 2rem, var(--pbai-max));
-  margin-inline: auto;
-  flex-shrink: 0;
-  max-height: min(36vh, 14rem);
+/* Full-screen unlock sheet — sits over chat so pills/chips never collide */
+.pbai__sheet {
+  position: absolute;
+  inset: 0;
+  z-index: 40;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 1rem;
+  box-sizing: border-box;
+}
+
+.pbai__sheet-backdrop {
+  position: absolute;
+  inset: 0;
+  border: 0;
+  padding: 0;
+  margin: 0;
+  background: rgba(18, 24, 20, 0.55);
+  cursor: pointer;
+}
+
+.pbai__sheet-card {
+  position: relative;
+  z-index: 1;
+  width: min(100%, 24rem);
+  max-height: min(78dvh, 32rem);
   overflow-y: auto;
   overscroll-behavior: contain;
-}
-
-.pbai__key p {
-  margin: 0;
-  font-size: 0.86rem;
-  color: var(--ink-soft);
-  line-height: 1.4;
-}
-
-.pbai__key a {
-  color: var(--moss);
-  text-decoration: underline;
-  text-underline-offset: 0.12em;
-}
-
-.pbai__key form {
-  display: grid;
-  grid-template-columns: 1fr auto;
-  gap: 0.5rem;
-}
-
-.pbai__key input {
-  min-height: 2.55rem;
-  padding: 0.5rem 0.75rem;
-  border: 1px solid rgba(21, 32, 25, 0.16);
-  border-radius: 0.45rem;
-  background: #fff;
-}
-
-.pbai__key-msg {
-  margin: 0;
-  font-size: 0.84rem;
-  font-weight: 600;
-  color: var(--moss);
+  padding: 1rem 1.05rem;
+  border-radius: 1rem;
+  border: 1px solid rgba(154, 115, 64, 0.28);
+  background: linear-gradient(180deg, #fff9f0, #fff);
+  box-shadow: 0 18px 40px rgba(18, 24, 20, 0.28);
 }
 
 .pbai__brief-bar {
   display: flex;
-  flex-wrap: wrap;
+  flex-wrap: nowrap;
   gap: 0.4rem;
-  justify-content: center;
-  padding: 0.65rem clamp(1rem, 3vw, 1.5rem) 0.15rem;
+  justify-content: flex-start;
+  padding: 0.55rem clamp(1rem, 3vw, 1.5rem);
   flex-shrink: 0;
+  overflow-x: auto;
+  overscroll-behavior-x: contain;
+  -webkit-overflow-scrolling: touch;
+  scrollbar-width: none;
+}
+
+.pbai__brief-bar::-webkit-scrollbar {
+  display: none;
 }
 
 .pbai__brief-bar span {
+  flex: 0 0 auto;
   font-size: 0.72rem;
   font-weight: 650;
   letter-spacing: 0.03em;
@@ -176,6 +171,7 @@ body:has(.pbai) .install-banner {
   border: 1px solid rgba(21, 32, 25, 0.08);
   border-radius: 999px;
   padding: 0.28rem 0.65rem;
+  white-space: nowrap;
 }
 
 .pbai__scroll {
@@ -419,12 +415,22 @@ body:has(.pbai) .install-banner {
   width: min(100%, var(--pbai-max));
   margin: 0 auto 0.55rem;
   display: flex;
-  flex-wrap: wrap;
+  flex-wrap: nowrap;
   gap: 0.4rem;
-  justify-content: center;
+  justify-content: flex-start;
+  overflow-x: auto;
+  overscroll-behavior-x: contain;
+  -webkit-overflow-scrolling: touch;
+  scrollbar-width: none;
+  padding-bottom: 0.1rem;
+}
+
+.pbai__chips::-webkit-scrollbar {
+  display: none;
 }
 
 .pbai-chip {
+  flex: 0 0 auto;
   border: 1px solid rgba(21, 32, 25, 0.12);
   background: rgba(255, 255, 255, 0.9);
   border-radius: 999px;
@@ -432,6 +438,7 @@ body:has(.pbai) .install-banner {
   font-size: 0.82rem;
   font-weight: 500;
   color: var(--ink-soft);
+  white-space: nowrap;
   transition: border-color 0.2s var(--ease-out), color 0.2s var(--ease-out);
 }
 
@@ -623,8 +630,21 @@ body:has(.pbai) .install-banner {
     display: none;
   }
 
-  .pbai__key form {
-    grid-template-columns: 1fr;
+  /* Brief pills leap into unlock/composer on short phones — hide while chatting */
+  .pbai__brief-bar {
+    display: none;
+  }
+
+  .pbai__sheet {
+    align-items: flex-end;
+    padding: 0;
+  }
+
+  .pbai__sheet-card {
+    width: 100%;
+    max-height: min(70dvh, 28rem);
+    border-radius: 1.1rem 1.1rem 0 0;
+    padding: 1.1rem 1.1rem calc(1.1rem + env(safe-area-inset-bottom, 0px));
   }
 
   .pbai-product {
@@ -637,10 +657,6 @@ body:has(.pbai) .install-banner {
 
   .pbai__pending {
     grid-template-columns: 3.6rem 1fr;
-  }
-
-  .pbai__send {
-    margin-left: 0;
   }
 
   .pbai__composer-tools {

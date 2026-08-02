@@ -215,10 +215,17 @@ export function ProductPage() {
           >
             Design my space & quote
           </Link>
-          {product.categoryId === 'wardrobe' || product.categoryId === 'kitchen' ? (
+          {product.categoryId === 'wardrobe' ||
+          product.categoryId === 'kitchen' ||
+          product.categoryId === 'carcass-selection' ? (
             <Link
               className="btn btn--outline product-page__visualise"
-              to={`/carcass?type=${product.categoryId}&product=${product.id}`}
+              to={`/carcass?type=${
+                product.subcategoryId === 'kitchen-carcass' ||
+                product.categoryId === 'kitchen'
+                  ? 'kitchen'
+                  : 'wardrobe'
+              }&product=${product.id}`}
             >
               Plan carcass & price
             </Link>

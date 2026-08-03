@@ -186,8 +186,13 @@ export function ChatPage() {
       return
     }
 
-    const shouldRefine =
-      refine && Boolean(current.aiImageUrl) && Boolean(current.lastChangeRequest?.trim())
+    // Corrections must edit the current AI image — never jump back to the room photo
+    const changeText =
+      current.lastChangeRequest?.trim() ||
+      (refine
+        ? 'Keep this same visualisation — polish lighting and realism only; do not change the product or room.'
+        : '')
+    const shouldRefine = Boolean(refine && current.aiImageUrl && changeText)
 
     if (!aiConfigured) {
       setShowKey(true)
@@ -218,11 +223,15 @@ export function ChatPage() {
         kind === 'drawing'
           ? 'Input is an interior architect drawing (plan / elevation / sketch). Follow the drawing layout; install Priyabadal catalog product style.'
           : undefined
+      // On refine, do not re-send piled preference notes — only the change request
+      const notes = shouldRefine
+        ? sizeNote
+        : [drawingNote, sizeNote, current.notes].filter(Boolean).join('. ')
       const result = await generateVisualise({
         roomDataUrl: current.roomPhotoDataUrl,
         product,
         colour,
-        notes: [drawingNote, sizeNote, current.notes].filter(Boolean).join('. '),
+        notes,
         categoryName: category?.name ?? product.categoryId,
         widthFt: current.widthFt,
         heightFt: current.heightFt,
@@ -230,27 +239,25 @@ export function ChatPage() {
         inputKind: kind,
         visualiseMode: mode,
         refineImageUrl: shouldRefine ? current.aiImageUrl ?? undefined : undefined,
-        changeRequest: shouldRefine
-          ? current.lastChangeRequest ?? undefined
-          : undefined,
+        changeRequest: shouldRefine ? changeText : undefined,
       })
 
       if (result.source === 'ai' && result.imageUrl) {
         const nextBrief: ConsultBrief = {
           ...current,
           aiImageUrl: result.imageUrl,
-          // Keep last change visible in brief; next message can overwrite it
-          lastChangeRequest: shouldRefine ? current.lastChangeRequest : null,
+          // Keep the last correction so the next edit chains from this image
+          lastChangeRequest: shouldRefine ? changeText : null,
         }
         setBrief(nextBrief)
         push({
           id: crypto.randomUUID(),
           role: 'assistant',
           text: shouldRefine
-            ? `${result.message}\n\nUpdated look for ${product.name}. Say another clear change (e.g. “make it lighter”), keep chatting, or WhatsApp the quote.`
+            ? `${result.message}\n\nUpdated your current look for ${product.name}. Say another change (e.g. “make it lighter”) to keep editing this same image — or say “start over from photo” for a fresh one.`
             : `${result.message}\n\nVisualisation of ${product.name}${
                 kind === 'drawing' ? ' from your architect drawing' : ' in your room photo'
-              }.\n\nIf something is off, tell me a specific change — or attach a clearer straight-on wall photo and visualise again for better accuracy.`,
+              }.\n\nIf something is off, tell me a specific change and I’ll edit this same image — I won’t regenerate from scratch unless you ask.` ,
           aiImageUrl: result.imageUrl,
           products: [product],
           suggestions: [
@@ -270,7 +277,9 @@ export function ChatPage() {
           id: crypto.randomUUID(),
           role: 'assistant',
           text: friendlyChatError(result.message, 'visualise'),
-          suggestions: ['Try visualise again', 'Price with carcass', 'Suggest other styles'],
+          suggestions: shouldRefine
+            ? ['Make it lighter', 'Make it darker', 'Start over from photo']
+            : ['Try visualise again', 'Price with carcass', 'Suggest other styles'],
         })
       }
     } finally {
@@ -534,7 +543,14 @@ export function ChatPage() {
 
   const onPickProduct = (product: Product) => {
     if (busy) return
-    const next = { ...brief, selectedProductId: product.id, aiImageUrl: null }
+    // Only clear the AI look when switching to a different product
+    const sameProduct = brief.selectedProductId === product.id
+    const next = {
+      ...brief,
+      selectedProductId: product.id,
+      aiImageUrl: sameProduct ? brief.aiImageUrl : null,
+      lastChangeRequest: sameProduct ? brief.lastChangeRequest : null,
+    }
     setBrief(next)
     push(
       {
@@ -925,17 +941,27 @@ export function ChatPage() {
                 disabled={
                   busy || !brief.selectedProductId || !brief.roomPhotoDataUrl
                 }
-                onClick={() =>
+                onClick={() => {
+                  const typed = input.trim()
+                  const editExisting = Boolean(brief.aiImageUrl)
+                  const nextBrief: ConsultBrief = {
+                    ...brief,
+                    lastChangeRequest: editExisting
+                      ? typed ||
+                        brief.lastChangeRequest ||
+                        'Keep this same visualisation — polish lighting and realism only; do not change the product or room.'
+                      : brief.lastChangeRequest,
+                  }
+                  if (editExisting) setBrief(nextBrief)
+                  if (typed) setInput('')
                   void runVisualise(
-                    brief,
-                    Boolean(brief.aiImageUrl && brief.lastChangeRequest),
-                    detectVisualiseMode(input || 'replace existing'),
+                    nextBrief,
+                    editExisting,
+                    detectVisualiseMode(typed || 'replace existing'),
                   )
-                }
+                }}
               >
-                {brief.aiImageUrl && brief.lastChangeRequest
-                  ? 'Apply change'
-                  : 'Visualise'}
+                {brief.aiImageUrl ? 'Apply change' : 'Visualise'}
               </button>
               {whatsapp ? (
                 <a

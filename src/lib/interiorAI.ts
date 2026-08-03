@@ -41,11 +41,20 @@ export type ConsultBrief = {
   lastChangeRequest?: string | null
 }
 
-/** Strict: only clear edit-the-AI-photo commands (not general chitchat) */
+/** Clear edit-the-AI-photo commands (not general chitchat) */
 export function isChangeRequest(text: string): boolean {
   const t = text.trim()
   if (!t) return false
-  return /\b(change (the|this|it|colour|color|finish|doors?|handles?)|changes?:|update (the|this|it)|edit (the|this|it)|revise|modify|adjust|tweak|redo (the|this|it)|make (it|the|them|this|doors?|colour|color) |make it |lighter|darker|brighter|softer|warmer|cooler|remove (the )?handles?|add more (hanging|drawers|shelves)|no handles|more hanging|more drawers|less drawers|different (colour|color|finish)|on this (photo|image|look|visual)|apply (this )?change)\b/i.test(
+  return /\b(change(s|d)?|update(d)?|edit(ed)?|revise(d)?|revision|modify|adjust|tweak|redo|correct(ion)?|fix (this|it|the look)|make (it|the|them|this|doors?|colour|color|handles?|shutters?) |make it |lighter|darker|brighter|softer|warmer|cooler|whiter|cream(ier)?|remove (the )?handles?|add (more )?(hanging|drawers|shelves|handles?)|no handles|more hanging|more drawers|less drawers|different (colour|color|finish|handle)|on this (photo|image|look|visual)|apply (this )?change|instead of|rather than|too (dark|light|bright|small|big|heavy)|a bit more|a bit less|slightly)\b/i.test(
+    t,
+  )
+}
+
+/** Explicit request to regenerate from the original room photo (not edit current AI) */
+export function isFreshVisualiseRequest(text: string): boolean {
+  const t = text.trim().toLowerCase()
+  if (!t) return false
+  return /\b(start over|from scratch|new visual|fresh visual|from (my |the )?(room )?photo again|regenerate from (room )?photo|ignore (the )?previous|discard (the )?(ai|previous) (look|image|photo)|visuali[sz]e again from (the )?(room )?photo)\b/i.test(
     t,
   )
 }
@@ -549,21 +558,24 @@ export function processConsultTurn(
       lower,
     )
 
-  // 1) Explicit photo edit only — never treat normal chat as refine
+  // 1) Edit the CURRENT AI photo — do not regenerate from the room photo
   const canRefine =
     Boolean(brief.aiImageUrl) &&
     Boolean(brief.selectedProductId) &&
     Boolean(brief.roomPhotoDataUrl)
+  const wantsFresh = isFreshVisualiseRequest(text)
 
-  if (canRefine && isChangeRequest(text) && !wantsSuggest && !wantsSummary) {
+  if (
+    canRefine &&
+    !wantsFresh &&
+    isChangeRequest(text) &&
+    !wantsSuggest &&
+    !wantsSummary
+  ) {
     const changeText = text.trim()
     next = {
       ...next,
       lastChangeRequest: changeText,
-      notes: [brief.notes, `Change request: ${changeText}`]
-        .filter(Boolean)
-        .join(' · ')
-        .slice(0, 500),
     }
     return {
       brief: next,
@@ -572,7 +584,7 @@ export function processConsultTurn(
       reply: {
         id: crypto.randomUUID(),
         role: 'assistant',
-        text: `Understood — revising your current AI photo for: “${changeText}”.`,
+        text: `Understood — editing your current AI look for: “${changeText}”.`,
         suggestions: [
           'Make it lighter',
           'Make it darker',
@@ -643,7 +655,7 @@ export function processConsultTurn(
     }
   }
 
-  // 4) Visualise on demand only
+  // 4) Visualise on demand
   if (wantsVisualise) {
     const missing = missingForVisualise(next)
     const mode = detectVisualiseMode(text)
@@ -664,9 +676,24 @@ export function processConsultTurn(
         },
       }
     }
-    const refineAgain = Boolean(
-      next.aiImageUrl && next.lastChangeRequest?.trim() && isChangeRequest(text),
-    )
+
+    // Prefer editing the current AI image unless the user asks to start over
+    const refineAgain =
+      Boolean(next.aiImageUrl) &&
+      !wantsFresh &&
+      (isChangeRequest(text) || Boolean(next.lastChangeRequest?.trim()))
+
+    if (refineAgain && isChangeRequest(text)) {
+      next = { ...next, lastChangeRequest: text.trim() }
+    }
+    if (refineAgain && !next.lastChangeRequest?.trim()) {
+      next = {
+        ...next,
+        lastChangeRequest:
+          'Keep this same visualisation — polish lighting and realism only; do not change the product or room.',
+      }
+    }
+
     return {
       brief: next,
       shouldVisualise: true,
@@ -676,9 +703,13 @@ export function processConsultTurn(
         id: crypto.randomUUID(),
         role: 'assistant',
         text: refineAgain
-          ? `Revising your current visualisation with: “${next.lastChangeRequest}”…`
-          : next.aiImageUrl
-            ? `Generating a fresh ${mode} visualisation from your photo/drawing and selected product…`
+          ? `Editing your current AI look${
+              next.lastChangeRequest
+                ? ` for: “${next.lastChangeRequest}”`
+                : ''
+            }…`
+          : wantsFresh && next.aiImageUrl
+            ? `Starting a fresh ${mode} visualisation from your original photo/drawing…`
             : `Generating your ${mode} AI visualisation with the selected Priyabadal product…`,
       },
     }

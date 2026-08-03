@@ -18,6 +18,15 @@ import {
 import { productHasCarcass } from '../lib/pricing'
 import type { VisualiseMode } from '../lib/visualise'
 import { fileToDataUrl, generateVisualise } from '../lib/visualise'
+import { generateLiveCarcass } from '../lib/carcassLive'
+import {
+  defaultSize,
+  getProductCarcassImage,
+  quoteCarcass,
+  ratesFromProduct,
+  resolveCarcassCategory,
+  suggestLayout,
+} from '../lib/carcassPlanner'
 import { AiAccessBanner } from '../components/AiAccessBanner'
 import { fetchAiAccessStatus } from '../lib/aiAccess'
 import { getCategory, formatPrice, type Product } from '../data/catalog'
@@ -28,21 +37,27 @@ import './ChatPage.css'
 type AttachMode = 'photo' | 'drawing'
 
 /** Keep assistant replies plain — never surface API codes or raw server text */
-function friendlyChatError(raw: string | undefined, kind: 'visualise' | 'chat'): string {
+function friendlyChatError(
+  raw: string | undefined,
+  kind: 'visualise' | 'carcass' | 'chat',
+): string {
   const t = (raw || '').trim()
   if (/subscription|access code|unlock|SUBSCRIPTION/i.test(t)) {
-    return 'AI unlock is needed for that step. Tap AI access above — or keep asking about price, carcass, and materials.'
+    return 'AI unlock is needed for that step. Tap Unlock above — or keep asking about price, carcass, and materials.'
   }
   if (/QUOTA|limit|monthly/i.test(t)) {
     return 'This month’s AI looks are used up. You can still ask price and carcass questions, or WhatsApp us.'
   }
   if (/MISSING_FAL|not connected|Fal|balance|credit/i.test(t)) {
-    return kind === 'visualise'
-      ? 'Visualisation isn’t available right now. Try again later, or WhatsApp us with your photo.'
+    return kind === 'visualise' || kind === 'carcass'
+      ? 'Visualisation isn’t available right now. Try again later, or WhatsApp us.'
       : 'Live chat isn’t available right now. I’ve kept catalog answers ready — send again in a moment.'
   }
   if (t && t.length < 160 && !/[A-Z_]{3,}/.test(t) && !/[{}[\]|]/.test(t)) {
     return t
+  }
+  if (kind === 'carcass') {
+    return 'I couldn’t make that open carcass just now. Try again, or WhatsApp us.'
   }
   return kind === 'visualise'
     ? 'I couldn’t make that look just now. Try a clearer photo, or WhatsApp us.'
@@ -102,6 +117,12 @@ export function ChatPage() {
     })
   }, [])
 
+  /** Full-screen chat chrome (fallback if :has() is unavailable) */
+  useEffect(() => {
+    document.body.classList.add('pbai-open')
+    return () => document.body.classList.remove('pbai-open')
+  }, [])
+
   /** Deep links from shop / old Design·Visualise·Carcass URLs */
   useEffect(() => {
     if (bootstrappedRef.current) return
@@ -131,12 +152,12 @@ export function ChatPage() {
         text: [
           'Carcass help is right here in chat.',
           '',
-          'Ask shutter vs carcass rates, share size in feet (e.g. 8×7), or say “open carcass assembly guide” for BWP · 1 mm laminate both sides · 2 mm edge banding.',
+          'Ask shutter vs carcass rates, share size in feet (e.g. 8×7), say “Visualise carcass” for a live-size open carcass elevation, or ask for the BWP · 1 mm laminate both sides · 2 mm edge banding assembly guide.',
         ].join('\n'),
         suggestions: [
+          'Visualise carcass',
           'What is carcass pricing?',
           'Price with carcass for 8×7',
-          'Open carcass assembly guide',
           'What materials do you use?',
         ],
       })
@@ -166,6 +187,135 @@ export function ChatPage() {
 
   const push = (...next: ChatMessage[]) => {
     setMessages((prev) => [...prev, ...next])
+  }
+
+  const runCarcassVisualise = async (current: ConsultBrief) => {
+    const product = current.selectedProductId
+      ? getProductById(current.selectedProductId)
+      : undefined
+    const category = resolveCarcassCategory(product, current.categoryId)
+    const carcassImage = getProductCarcassImage(product)
+
+    if (!product || !category || !carcassImage) {
+      push({
+        id: crypto.randomUUID(),
+        role: 'assistant',
+        text: 'Pick a wardrobe, kitchen, or carcass style from our list first — then say “Visualise carcass” for the open interior elevation.',
+        suggestions: ['Suggest wardrobe styles', 'Suggest kitchen styles', 'Price with carcass'],
+      })
+      return
+    }
+
+    if (current.widthFt == null || current.heightFt == null) {
+      push({
+        id: crypto.randomUUID(),
+        role: 'assistant',
+        text: 'Share the live size in feet (e.g. 8×6) and I’ll generate the open carcass at that size.',
+        suggestions: ['Wardrobe 8×6', 'Kitchen 10×8'],
+      })
+      return
+    }
+
+    if (!aiConfigured) {
+      setShowKey(true)
+      if (!unlockNagRef.current) {
+        unlockNagRef.current = true
+        push({
+          id: crypto.randomUUID(),
+          role: 'assistant',
+          text: 'Open carcass visualisation needs AI unlock first — enter your access code, or keep asking about price and materials anytime.',
+          suggestions: ['Price with carcass', 'What materials do you use?'],
+        })
+      }
+      return
+    }
+
+    const limits = defaultSize(category)
+    const width = current.widthFt
+    const height = current.heightFt
+    const depth = current.depthFt ?? limits.defaultDepth
+    const rates = ratesFromProduct(category, product)
+    const bays = suggestLayout(category, width, 'balanced')
+    const quote = quoteCarcass({
+      category,
+      width,
+      height,
+      depth,
+      bays,
+      rates,
+      finishId: rates.finishId,
+      thicknessId: rates.thicknessId,
+    })
+
+    setBusy(true)
+    try {
+      const result = await generateLiveCarcass({
+        carcassImagePath: carcassImage,
+        productName: product.name,
+        category,
+        quote,
+        finishId: rates.finishId,
+        thicknessId: rates.thicknessId,
+        notes: current.notes || undefined,
+      })
+
+      if (result.source === 'ai' && result.imageUrl) {
+        const nextBrief: ConsultBrief = {
+          ...current,
+          aiImageUrl: result.imageUrl,
+          depthFt: depth,
+          lastChangeRequest: null,
+        }
+        setBrief(nextBrief)
+        push({
+          id: crypto.randomUUID(),
+          role: 'assistant',
+          text: [
+            result.message,
+            '',
+            `Open carcass for ${product.name} at ${width} × ${height} × ${depth} ft.`,
+            `Layout: ${quote.baySummary}`,
+            `BWP plywood · both-side 1 mm laminate · 2 mm edge banding.`,
+            '',
+            `Catalog estimate (with carcass): ${formatPrice(quote.unitPrice, 'INR')} — final on WhatsApp after measure.`,
+            '',
+            'Want the shuttered room look next? Attach a photo and say “Visualise my look”.',
+          ].join('\n'),
+          aiImageUrl: result.imageUrl,
+          products: [product],
+          suggestions: [
+            'Price estimate',
+            'What is BWP plywood?',
+            'Visualise my look',
+            'WhatsApp quote',
+          ],
+        })
+      } else {
+        if (
+          result.code === 'MISSING_FAL_KEY' ||
+          result.code === 'SUBSCRIPTION_REQUIRED' ||
+          result.code === 'QUOTA_EXCEEDED'
+        ) {
+          setAiConfigured(false)
+          setShowKey(true)
+        }
+        push({
+          id: crypto.randomUUID(),
+          role: 'assistant',
+          text: friendlyChatError(result.message, 'carcass'),
+          suggestions: ['Price with carcass', 'WhatsApp quote'],
+        })
+      }
+    } catch {
+      push({
+        id: crypto.randomUUID(),
+        role: 'assistant',
+        text: 'I couldn’t reach carcass visualisation just now. Try again in a moment.',
+        suggestions: ['Price with carcass', 'WhatsApp quote'],
+      })
+    } finally {
+      setBusy(false)
+    }
   }
 
   const runVisualise = async (
@@ -400,6 +550,12 @@ export function ChatPage() {
     setBrief(turn.brief)
     setInput('')
     inputRef.current?.focus()
+
+    if (turn.shouldCarcassVisualise) {
+      setMessages((prev) => [...prev, userMsg, turn.reply])
+      await runCarcassVisualise(turn.brief)
+      return
+    }
 
     if (turn.shouldVisualise) {
       setMessages((prev) => [...prev, userMsg, turn.reply])
@@ -914,7 +1070,7 @@ export function ChatPage() {
               value={input}
               onChange={(e) => setInput(e.target.value)}
               onKeyDown={onKeyDown}
-              placeholder="Ask price, carcass, materials, or visualise…"
+              placeholder="Ask price, carcass visualise, materials…"
             />
             <div className="pbai__composer-tools">
               <div className="pbai__attach-group" role="group" aria-label="Attach">

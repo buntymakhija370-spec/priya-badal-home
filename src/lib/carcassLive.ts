@@ -74,14 +74,14 @@ export async function generateLiveCarcass(input: {
       code: exhausted ? 'FAL_BALANCE' : data.code,
       message:
         data.code === 'SUBSCRIPTION_REQUIRED'
-          ? 'Paid AI subscription required. Unlock with your access code first.'
+          ? 'AI unlock is needed for carcass visualisation. Enter your access code first.'
           : data.code === 'QUOTA_EXCEEDED'
-            ? 'Monthly carcass AI limit reached. Upgrade or wait for next month.'
+            ? 'This month’s carcass AI looks are used up. Try again next month or WhatsApp us.'
             : data.code === 'MISSING_FAL_KEY'
-              ? 'AI is not connected on the server yet. Please try later.'
+              ? 'Carcass visualisation isn’t available right now. Please try later.'
               : exhausted
                 ? 'AI credits are temporarily unavailable. Please try later.'
-                : raw || 'Live-size AI could not generate this carcass. Try again.',
+                : raw || 'Could not generate the open carcass just now. Try again.',
     }
   } catch (err) {
     return {

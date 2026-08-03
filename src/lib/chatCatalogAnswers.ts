@@ -32,6 +32,14 @@ export function detectCatalogIntent(text: string): CatalogIntent {
   const t = text.trim().toLowerCase()
   if (!t) return null
 
+  // Visualisation requests are handled by the chat router — not catalog Q&A
+  if (
+    /\bvisuali[sz](?:e|es|ed|ing|ation|ations)\b/i.test(t) ||
+    /\b(open[- ]?carcass|live[- ]?size carcass)\b/i.test(t)
+  ) {
+    return null
+  }
+
   if (
     /\b(carcass|kaka|kakas|with[- ]?carcass|cabinet box|shutter only|shutter vs|box rate|carcus)\b/i.test(
       t,

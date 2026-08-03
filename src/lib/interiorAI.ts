@@ -312,18 +312,59 @@ export function createWelcomeMessage(): ChatMessage {
       '• Carcass help — BWP boxes, laminate, edge banding, assembly',
       '• Materials & finishes — what’s in the product',
       '• Product info — styles for kitchen, wardrobe, temple, panels & more',
-      '• Visualisation — attach a room photo and say “visualise”',
+      '• Open carcass visualisation — live-size interior elevation (no shutters)',
+      '• Room visualisation — attach a photo and say “visualise”',
       '',
       'Just type naturally — like WhatsApp. What do you need?',
     ].join('\n'),
     suggestions: [
       'Price wardrobe 8×7 with carcass',
+      'Visualise carcass',
       'What is carcass construction?',
-      'What materials do you use?',
       'Suggest kitchen styles',
       'Visualise my look',
     ],
   }
+}
+
+/** Open carcass / live-size carcass elevation (not room photo with shutters) */
+export function isCarcassVisualiseRequest(text: string): boolean {
+  const t = text.trim().toLowerCase()
+  if (!t) return false
+  // visualise / visualize / visualisation / visualization (+ common endings)
+  const viz = String.raw`visuali[sz](?:e|es|ed|ing|ation|ations)`
+  if (new RegExp(`^${viz}\\s+carcass$`, 'i').test(t)) return true
+  if (
+    /\b(open[- ]?carcass|live[- ]?size carcass|carcass (elevation|interior|inside|structure|box|assembly guide))\b/i.test(
+      t,
+    )
+  ) {
+    return true
+  }
+  if (
+    new RegExp(String.raw`\bcarcass\b.{0,28}\b${viz}\b`, 'i').test(t) ||
+    new RegExp(String.raw`\b${viz}\b.{0,28}\bcarcass\b`, 'i').test(t)
+  ) {
+    return true
+  }
+  if (
+    /\b(show|make|generate|render|create)(?:\s+\w+){0,4}\s+carcass\b/i.test(t) &&
+    new RegExp(String.raw`\b(${viz}|image|photo|look|render|elevation|open)\b`, 'i').test(t)
+  ) {
+    return true
+  }
+  return false
+}
+
+function missingForCarcassVisualise(brief: ConsultBrief): string[] {
+  const missing: string[] = []
+  if (!brief.selectedProductId) {
+    missing.push('pick a wardrobe, kitchen, or carcass style from our list')
+  }
+  if (brief.widthFt == null || brief.heightFt == null) {
+    missing.push('size in feet (e.g. 8×6)')
+  }
+  return missing
 }
 
 export type ConsultTurnResult = {
@@ -331,6 +372,8 @@ export type ConsultTurnResult = {
   reply: ChatMessage
   /** True when client should run Fal visualise next */
   shouldVisualise?: boolean
+  /** Live-size open carcass elevation (no room photo required) */
+  shouldCarcassVisualise?: boolean
   /** Edit the existing AI photo instead of starting from the room photo only */
   refine?: boolean
   /** Catalog price/carcass/materials answer — Chat should prefer this for rates */
@@ -538,10 +581,14 @@ export function processConsultTurn(
     Boolean(next.categoryId) &&
     (!before.categoryId || before.categoryId !== next.categoryId)
 
+  const wantsCarcassVisualise = isCarcassVisualiseRequest(text)
+
   const wantsVisualise =
-    /\b(visuali[sz]e|render|show (?:me )?(?:the )?look|generate (?:again|look|image|visual))\b/i.test(
+    !wantsCarcassVisualise &&
+    (/\b(visuali[sz]e|render|show (?:me )?(?:the )?look|generate (?:again|look|image|visual))\b/i.test(
       text,
-    ) || /^visualise my look$/i.test(lower)
+    ) ||
+      /^visualise my look$/i.test(lower))
 
   const wantsSuggest =
     /\b(suggest|recommend|show (?:me )?options|ideas?|other styles|another style|what (?:do you|can you) suggest|product list|styles)\b/i.test(
@@ -556,7 +603,55 @@ export function processConsultTurn(
   const wantsDrawingHelp =
     /\b(architect drawing|floor plan|elevation|i have (?:an? )?drawing|cad|blueprint)\b/i.test(
       lower,
-    )
+    ) && !wantsCarcassVisualise
+
+  // 0) Open carcass / live-size carcass visualisation (no room photo)
+  if (wantsCarcassVisualise) {
+    const missing = missingForCarcassVisualise(next)
+    if (missing.length) {
+      return {
+        brief: next,
+        reply: {
+          id: crypto.randomUUID(),
+          role: 'assistant',
+          text: [
+            'Yes — I can generate an open carcass visualisation (live-size interior elevation, no shutters).',
+            `Still need: ${missing.join(' and ')}.`,
+            '',
+            briefSummary(next),
+          ].join('\n'),
+          products: next.selectedProductId
+            ? undefined
+            : suggestProducts(
+                {
+                  ...next,
+                  categoryId:
+                    next.categoryId === 'kitchen' || next.categoryId === 'wardrobe'
+                      ? next.categoryId
+                      : next.categoryId ?? 'wardrobe',
+                },
+                text,
+                3,
+              ),
+          suggestions: missing.some((m) => m.includes('size'))
+            ? ['Wardrobe 8×6', 'Kitchen 10×8', 'Suggest styles']
+            : ['Suggest wardrobe styles', 'Suggest kitchen styles', 'Price with carcass'],
+        },
+      }
+    }
+
+    return {
+      brief: next,
+      shouldCarcassVisualise: true,
+      reply: {
+        id: crypto.randomUUID(),
+        role: 'assistant',
+        text: `Generating your open carcass visualisation at ${next.widthFt} × ${next.heightFt}${
+          next.depthFt != null ? ` × ${next.depthFt}` : ''
+        } ft — interior elevation only (no shutters)…`,
+      },
+    }
+  }
 
   // 1) Edit the CURRENT AI photo — do not regenerate from the room photo
   const canRefine =
@@ -643,7 +738,7 @@ export function processConsultTurn(
 
   // 3b) Catalog sales Q&A — price, carcass, specs, materials, design
   const catalogIntent = detectCatalogIntent(text)
-  if (catalogIntent && !wantsVisualise && !wantsSuggest) {
+  if (catalogIntent && !wantsVisualise && !wantsSuggest && !wantsCarcassVisualise) {
     const reply = answerCatalogIntent(next, text, catalogIntent)
     if (reply) {
       return {
@@ -787,17 +882,20 @@ export function messageForProductSelected(product: Product, brief: ConsultBrief)
       '',
       briefSummary(withProduct),
       '',
-      'Ask me: price estimate · carcass pricing · material specs · tell me about this design',
+      'Ask me: price estimate · carcass pricing · material specs · open carcass visualisation · tell me about this design',
       missing.length
-        ? `To visualise: ${missing.join(' and ')}.`
-        : 'Ready to visualise anytime.',
+        ? `To room-visualise: ${missing.join(' and ')}.`
+        : 'Ready to room-visualise anytime.',
+      productHasCarcass(product)
+        ? 'Or say “Visualise carcass” for a live-size open carcass elevation (no room photo needed).'
+        : null,
     ]
       .filter((line) => line != null)
       .join('\n'),
     products: [product],
     suggestions: [
       'Price estimate',
-      productHasCarcass(product) ? 'Explain carcass pricing' : 'Material specs',
+      productHasCarcass(product) ? 'Visualise carcass' : 'Material specs',
       'Tell me about this design',
       needAttach ? 'Attach room photo' : 'Visualise my look',
     ],

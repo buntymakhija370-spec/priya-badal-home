@@ -631,28 +631,34 @@ export function ChatPage() {
     <main className="pbai">
       <header className="pbai__top">
         <div className="pbai__brand">
+          <Link className="pbai__back" to="/" aria-label="Back to home">
+            ←
+          </Link>
           <img
             src="/brand/priyabadal-homes-logo.svg"
             alt=""
             className="pbai__logo"
           />
-          <div>
+          <div className="pbai__brand-text">
             <p className="pbai__title">Chat</p>
             <p className="pbai__subtitle">
-              Price · carcass · materials · products · visualise
+              Price · carcass · materials · visualise
             </p>
           </div>
         </div>
         <div className="pbai__top-actions">
-          <span className={`pbai__status ${aiConfigured ? 'is-live' : ''}`}>
-            {aiConfigured ? 'Paid AI on' : 'Subscribe AI'}
+          <span
+            className={`pbai__status ${aiConfigured ? 'is-live' : ''}`}
+            title={aiConfigured ? 'Paid AI on' : 'AI subscription'}
+          >
+            {aiConfigured ? 'AI on' : 'AI'}
           </span>
           <button
             type="button"
             className="pbai__ghost"
             onClick={() => setShowKey((v) => !v)}
           >
-            {showKey ? 'Close' : 'AI access'}
+            {showKey ? 'Close' : 'Unlock'}
           </button>
         </div>
       </header>

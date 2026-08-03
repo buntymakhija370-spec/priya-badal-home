@@ -88,3 +88,7 @@
   font-size: 0.82rem !important;
   color: #7a3e2a !important;
 }
+
+.ai-access__msg--ok {
+  color: var(--moss, #4f6a58) !important;
+}

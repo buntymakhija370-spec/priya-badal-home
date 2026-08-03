@@ -35,13 +35,20 @@ export function AiAccessBanner({ onStatus, compact }: Props) {
     setBusy(true)
     setMsg(null)
     try {
-      const next = await unlockAiAccess(code)
+      await unlockAiAccess(code)
+      const next = await fetchAiAccessStatus()
       setStatus(next)
       onStatus?.(next)
       setCode('')
-      setMsg('AI unlocked for this device.')
+      if (next.falConfigured && next.subscribed) {
+        setMsg('AI unlocked on this device.')
+      } else if (next.subscribed && !next.falConfigured) {
+        setMsg('Code accepted. Visualisation will work once server AI is connected.')
+      } else {
+        setMsg('AI unlocked on this device.')
+      }
     } catch (err) {
-      setMsg(err instanceof Error ? err.message : 'Unlock failed')
+      setMsg(err instanceof Error ? err.message : 'Could not unlock')
     } finally {
       setBusy(false)
     }
@@ -53,7 +60,13 @@ export function AiAccessBanner({ onStatus, compact }: Props) {
     void refresh()
   }
 
-  if (!status) return null
+  if (!status) {
+    return (
+      <aside className={`ai-access ${compact ? 'ai-access--compact' : ''}`}>
+        <p className="ai-access__kicker">Checking AI…</p>
+      </aside>
+    )
+  }
 
   const ready =
     status.falConfigured &&
@@ -70,6 +83,7 @@ export function AiAccessBanner({ onStatus, compact }: Props) {
             Sign out AI
           </button>
         </div>
+        {msg ? <p className="ai-access__msg ai-access__msg--ok">{msg}</p> : null}
       </aside>
     )
   }
@@ -78,8 +92,8 @@ export function AiAccessBanner({ onStatus, compact }: Props) {
     <aside className={`ai-access ai-access--locked ${compact ? 'ai-access--compact' : ''}`}>
       <p className="ai-access__kicker">AI unlock · subscribers only</p>
       <p>
-        Unlock for room visualisation and smarter chat. Price, carcass, and material answers
-        still work without unlock.
+        Enter your access code for room visualisation and smarter chat. Price, carcass, and
+        material answers still work without unlock.
       </p>
       <form className="ai-access__form" onSubmit={onUnlock}>
         <label>
@@ -101,7 +115,10 @@ export function AiAccessBanner({ onStatus, compact }: Props) {
       </div>
       {msg ? <p className="ai-access__msg">{msg}</p> : null}
       {!status.falConfigured ? (
-        <p className="ai-access__msg">AI isn’t connected on the server yet — please try later.</p>
+        <p className="ai-access__msg">
+          Server AI is offline right now. You can still save your access code — visualisation
+          turns on when the owner reconnects AI.
+        </p>
       ) : null}
     </aside>
   )

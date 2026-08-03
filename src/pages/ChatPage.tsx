@@ -17,12 +17,9 @@ import {
 } from '../lib/interiorAI'
 import { productHasCarcass } from '../lib/pricing'
 import type { VisualiseMode } from '../lib/visualise'
-import {
-  fetchVisualiseStatus,
-  fileToDataUrl,
-  generateVisualise,
-} from '../lib/visualise'
+import { fileToDataUrl, generateVisualise } from '../lib/visualise'
 import { AiAccessBanner } from '../components/AiAccessBanner'
+import { fetchAiAccessStatus } from '../lib/aiAccess'
 import { getCategory, formatPrice, type Product } from '../data/catalog'
 import { getProductById } from '../lib/products'
 import { useCurrency } from '../hooks/useCurrency'
@@ -60,6 +57,7 @@ export function ChatPage() {
   const [brief, setBrief] = useState<ConsultBrief>({})
   const [input, setInput] = useState('')
   const [busy, setBusy] = useState(false)
+  /** True when Fal is on the server AND this device is unlocked */
   const [aiConfigured, setAiConfigured] = useState(false)
   const [showKey, setShowKey] = useState(false)
   const [attachMode, setAttachMode] = useState<AttachMode>('photo')
@@ -68,6 +66,7 @@ export function ChatPage() {
     kind: AttachMode
   } | null>(null)
   const bootstrappedRef = useRef(false)
+  const unlockNagRef = useRef(false)
   const endRef = useRef<HTMLDivElement>(null)
   const scrollRef = useRef<HTMLDivElement>(null)
   const stickToBottomRef = useRef(true)
@@ -93,9 +92,13 @@ export function ChatPage() {
   }, [messages, busy, pendingFile])
 
   useEffect(() => {
-    void fetchVisualiseStatus().then((s) => {
-      setAiConfigured(s.configured)
-      if (!s.configured) setShowKey(false)
+    void fetchAiAccessStatus().then((s) => {
+      const ready = Boolean(
+        s.falConfigured && (!s.requireSubscription || s.subscribed),
+      )
+      setAiConfigured(ready)
+      // Never auto-open the unlock sheet — only on Visualise or AI access tap
+      if (ready) setShowKey(false)
     })
   }, [])
 
@@ -188,12 +191,15 @@ export function ChatPage() {
 
     if (!aiConfigured) {
       setShowKey(true)
-      push({
-        id: crypto.randomUUID(),
-        role: 'assistant',
-        text: 'Room visualisation needs AI unlock first — tap AI access above, or ask me for price, carcass, and materials anytime (those stay free).',
-        suggestions: ['Price with carcass', 'What materials do you use?'],
-      })
+      if (!unlockNagRef.current) {
+        unlockNagRef.current = true
+        push({
+          id: crypto.randomUUID(),
+          role: 'assistant',
+          text: 'Room visualisation needs AI unlock first — enter your access code above, or ask me for price, carcass, and materials anytime (those stay free).',
+          suggestions: ['Price with carcass', 'What materials do you use?'],
+        })
+      }
       return
     }
 
@@ -652,10 +658,14 @@ export function ChatPage() {
             <AiAccessBanner
               compact
               onStatus={(s) => {
-                setAiConfigured(
-                  Boolean(s.falConfigured && (!s.requireSubscription || s.subscribed)),
+                const ready = Boolean(
+                  s.falConfigured && (!s.requireSubscription || s.subscribed),
                 )
-                if (s.subscribed) setShowKey(false)
+                setAiConfigured(ready)
+                if (ready) {
+                  unlockNagRef.current = false
+                  setShowKey(false)
+                }
               }}
             />
           </div>

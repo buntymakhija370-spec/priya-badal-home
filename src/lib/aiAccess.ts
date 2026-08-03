@@ -104,12 +104,13 @@ export async function unlockAiAccess(code: string): Promise<AiAccessStatus & { t
     throw new Error(data.error || 'Could not unlock AI')
   }
   setAiAccessToken(data.token)
+  // Re-check server so falConfigured reflects reality (don’t assume Fal is on)
+  const status = await fetchAiAccessStatus()
   return {
-    falConfigured: true,
+    ...status,
     subscribed: true,
-    requireSubscription: true,
-    subscriber: data.subscriber,
-    plans: data.plans || [],
+    subscriber: data.subscriber ?? status.subscriber,
+    plans: data.plans || status.plans || [],
     token: data.token,
   }
 }

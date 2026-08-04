@@ -237,27 +237,34 @@ export async function generateVisualise(
       }
     }
 
-    const raw = data.error || data.hint || ''
+    const raw = (data.error || data.hint || '').trim()
     const exhausted =
       /exhausted balance|top up your balance|locked/i.test(raw)
+    const code = exhausted ? 'FAL_BALANCE' : data.code
+    const message =
+      code === 'SUBSCRIPTION_REQUIRED'
+        ? 'AI unlock is needed for visualisation. Tap Unlock and enter your access code.'
+        : code === 'QUOTA_EXCEEDED'
+          ? 'This month’s visualisation limit is reached. Upgrade or wait for next month.'
+          : code === 'MISSING_FAL_KEY'
+            ? 'Visualisation isn’t connected on the server yet. Please try later.'
+            : exhausted
+              ? 'AI credits are temporarily unavailable. Please try later.'
+              : raw && raw.length < 220
+                ? raw
+                : 'I couldn’t update that look just now. Try again, or say “start over from photo”.'
     return {
       source: 'error',
-      code: exhausted ? 'FAL_BALANCE' : data.code,
-      message:
-        data.code === 'SUBSCRIPTION_REQUIRED'
-          ? 'AI unlock needed'
-          : data.code === 'QUOTA_EXCEEDED'
-            ? 'Monthly AI limit reached'
-            : data.code === 'MISSING_FAL_KEY'
-              ? 'AI not connected'
-              : exhausted
-                ? 'AI credits unavailable'
-                : 'Visualise unavailable',
+      code,
+      message,
     }
-  } catch {
+  } catch (err) {
     return {
       source: 'error',
-      message: 'Visualise unavailable',
+      message:
+        err instanceof Error && err.message.trim()
+          ? err.message.trim().slice(0, 220)
+          : 'Could not reach visualisation. Check your connection and try again.',
     }
   }
 }

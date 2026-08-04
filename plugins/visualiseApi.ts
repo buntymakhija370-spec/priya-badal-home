@@ -329,8 +329,21 @@ async function resolveImageUrl(
   }
 
   if (/^https?:\/\//i.test(src)) {
-    const { contentType, buffer } = await fetchAsBuffer(src)
-    return uploadToFal(falKey, contentType, buffer, fileName)
+    // Prior AI / CDN URLs are already usable by Fal — re-download often fails on tunnels
+    if (
+      /(?:fal\.media|fal\.run|fal\.ai|googleapis\.com\/download|r2\.cloudflarestorage\.com)/i.test(
+        src,
+      )
+    ) {
+      return src
+    }
+    try {
+      const { contentType, buffer } = await fetchAsBuffer(src)
+      return await uploadToFal(falKey, contentType, buffer, fileName)
+    } catch {
+      // Last resort: pass the public URL through (Kontext / Banana accept https)
+      return src
+    }
   }
 
   throw new Error('Unsupported image source')

@@ -390,7 +390,7 @@ export function ChatPage() {
         shouldRefine && pose === 'ajar' && changeText
           ? `${changeText.trim()}. Slightly ajar only (20–35°) on 1–2 shutters; keep closed façade identity; do not fully open all doors.`
           : changeText
-      const result = await generateVisualise({
+      const requestPayload = {
         roomDataUrl: current.roomPhotoDataUrl,
         product,
         colour,
@@ -403,24 +403,48 @@ export function ChatPage() {
         visualiseMode: mode,
         refineImageUrl: shouldRefine ? current.aiImageUrl ?? undefined : undefined,
         changeRequest: shouldRefine ? refinedChange : undefined,
-      })
+      }
+
+      let result = await generateVisualise(requestPayload)
+      let usedRefine = shouldRefine
+
+      // If edit-on-current-image fails, rebuild from the room photo with the change baked in
+      if (
+        shouldRefine &&
+        result.source === 'error' &&
+        result.code !== 'SUBSCRIPTION_REQUIRED' &&
+        result.code !== 'QUOTA_EXCEEDED' &&
+        result.code !== 'MISSING_FAL_KEY'
+      ) {
+        result = await generateVisualise({
+          ...requestPayload,
+          notes: [drawingNote, sizeNote, current.notes, ajarNote, refinedChange]
+            .filter(Boolean)
+            .join('. '),
+          refineImageUrl: undefined,
+          changeRequest: undefined,
+        })
+        usedRefine = false
+      }
 
       if (result.source === 'ai' && result.imageUrl) {
         const nextBrief: ConsultBrief = {
           ...current,
           aiImageUrl: result.imageUrl,
           // Keep the last correction so the next edit chains from this image
-          lastChangeRequest: shouldRefine ? changeText : null,
+          lastChangeRequest: changeText || null,
         }
         setBrief(nextBrief)
         push({
           id: crypto.randomUUID(),
           role: 'assistant',
-          text: shouldRefine
+          text: usedRefine
             ? `${result.message}\n\nUpdated your current look for ${product.name}. Say another change (e.g. “make it lighter”) to keep editing this same image — or say “start over from photo” for a fresh one.`
-            : `${result.message}\n\nVisualisation of ${product.name}${
-                kind === 'drawing' ? ' from your architect drawing' : ' in your room photo'
-              }.\n\nIf something is off, tell me a specific change and I’ll edit this same image — I won’t regenerate from scratch unless you ask.` ,
+            : shouldRefine
+              ? `${result.message}\n\nI rebuilt the look with your change for ${product.name} (slightly open / edit applied from your room photo).\n\nTell me another tweak anytime, or say “start over from photo”.`
+              : `${result.message}\n\nVisualisation of ${product.name}${
+                  kind === 'drawing' ? ' from your architect drawing' : ' in your room photo'
+                }.\n\nIf something is off, tell me a specific change and I’ll edit this same image — I won’t regenerate from scratch unless you ask.`,
           aiImageUrl: result.imageUrl,
           products: [product],
           suggestions: [
@@ -432,7 +456,11 @@ export function ChatPage() {
           ],
         })
       } else {
-        if (result.code === 'MISSING_FAL_KEY') {
+        if (
+          result.code === 'MISSING_FAL_KEY' ||
+          result.code === 'SUBSCRIPTION_REQUIRED' ||
+          result.code === 'QUOTA_EXCEEDED'
+        ) {
           setAiConfigured(false)
           setShowKey(true)
         }
@@ -445,6 +473,14 @@ export function ChatPage() {
             : ['Try visualise again', 'Price with carcass', 'Suggest other styles'],
         })
       }
+    } catch {
+      push({
+        id: crypto.randomUUID(),
+        role: 'assistant',
+        text: 'Something interrupted that visualise step. Try once more — or Unlock again if AI access expired.',
+        suggestions: ['Slightly open shutters', 'Start over from photo', 'Price with carcass'],
+      })
+      setShowKey(true)
     } finally {
       setBusy(false)
     }

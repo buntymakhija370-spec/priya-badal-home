@@ -22,7 +22,7 @@ export function detectShutterPose(...texts: Array<string | undefined | null>): S
   }
 
   if (
-    /\b(slightly open|soft open|ajar|half[- ]?open|partly open|partially open|little open|bit open|a bit open|doors? (a )?bit|peek (inside|in)|show (the )?inside|glimpse (of )?(the )?inside|open (one|a|1) (door|shutter)|one (door|shutter) open|two doors? (slightly )?open|showroom open|catalogue open|catalog open)\b/i.test(
+    /\b(slightly open|soft open|ajar|half[- ]?open|partly open|partially open|little open|bit open|a bit open|make slightly|doors? (a )?bit|peek (inside|in)|show (the )?inside|glimpse (of )?(the )?inside|open (one|a|1) (door|shutter)|one (door|shutter) open|two doors? (slightly )?open|showroom open|catalogue open|catalog open)\b/i.test(
       t,
     )
   ) {

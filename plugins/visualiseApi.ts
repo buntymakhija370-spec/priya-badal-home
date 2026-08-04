@@ -18,6 +18,11 @@ import {
 } from './aiSubscriberStore.ts'
 import type { AiKind } from './aiSubscriberStore.ts'
 import { fetchInteriorWebContext } from './webContext.ts'
+import {
+  detectShutterPose,
+  shutterPosePromptBlock,
+  type ShutterPose,
+} from '../src/lib/shutterPose.ts'
 
 type VisualiseMode = 'replace' | 'install' | 'redesign'
 
@@ -84,6 +89,7 @@ const INTERIOR_SYSTEM_PROMPT = [
   'Preserve the customer room’s camera angle, architecture, windows, doors, floor, and ceiling unless redesign is requested.',
   'Match the catalog product reference images tightly: shutter layout, grooves, handles, edge profiles, materials, and proportions.',
   'Integrate products with correct perspective, contact shadows, reflections, and matching room lighting — never a sticker/collage look.',
+  'When slightly-open / ajar shutters are requested: keep the closed façade identity, open only 1–2 doors a little (20–35°), never warp doors or turn the unit into a full open carcass.',
   'Indian residential context: realistic scale, clean finishes, no watermarks, logos, text, arrows, or dimension labels.',
   'Output one polished showroom-quality photograph.',
 ].join(' ')
@@ -330,6 +336,10 @@ async function resolveImageUrl(
   throw new Error('Unsupported image source')
 }
 
+function resolveShutterPose(body: VisualiseBody): ShutterPose {
+  return detectShutterPose(body.changeRequest, body.notes)
+}
+
 function buildPrompt(body: VisualiseBody) {
   const space = body.categoryName.toLowerCase()
   const isDrawing = body.inputKind === 'drawing'
@@ -337,6 +347,8 @@ function buildPrompt(body: VisualiseBody) {
   const mode: VisualiseMode = body.visualiseMode || 'replace'
   const extraCount = body.productImageUrls?.length ?? 0
   const hasSize = Number(body.widthFt) > 0 && Number(body.heightFt) > 0
+  const shutterPose = resolveShutterPose(body)
+  const poseBlock = shutterPosePromptBlock(shutterPose, body.categoryName)
 
   const sizeLine = hasSize
     ? [
@@ -353,15 +365,23 @@ function buildPrompt(body: VisualiseBody) {
       ? 'Respect marked dimensions on the drawing; otherwise fit the product to the indicated wall run.'
       : 'Scale the product to the natural wall opening / furniture footprint in IMAGE 1.'
 
+  const extraRefLine =
+    extraCount > 0
+      ? shutterPose === 'ajar'
+        ? `IMAGE 3${extraCount > 1 ? '+ ' : ' '} = interior / detail reference ONLY for the small ajar peek (materials, shelves). Keep façade identity from IMAGE 2 — do not rebuild the whole unit as open carcass.`
+        : shutterPose === 'open-carcass'
+          ? `IMAGE 3${extraCount > 1 ? '+ ' : ' '} = open carcass / interior reference — use for inside layout while keeping size and finish language.`
+          : `IMAGE 3${extraCount > 1 ? '+ ' : ' '} = additional catalog angle(s) for detail accuracy. Prefer the closed look from IMAGE 2.`
+      : ''
+
   const productMatch = [
     `Catalog product: "${body.productName}" (${body.categoryName}) by Priyabadal Homes.`,
     'IMAGE 2 = hero CLOSED façade reference — match door layout, panel grooves, handle style, edge profile, colour, and material as closely as possible.',
-    extraCount > 0
-      ? `IMAGE 3${extraCount > 1 ? '+ ' : ' '} = additional catalog angle(s) for detail accuracy. Prefer the closed look from IMAGE 2 unless the customer asked for open carcass.`
-      : '',
+    extraRefLine,
     `Finish cue: ${body.colourLabel} (${body.colour}).`,
     body.finishLabel ? `Finish: ${body.finishLabel}.` : '',
     body.scopeLabel ? `Scope: ${body.scopeLabel}.` : '',
+    poseBlock,
   ]
     .filter(Boolean)
     .join(' ')
@@ -381,7 +401,10 @@ function buildPrompt(body: VisualiseBody) {
       `Finish cue: ${body.colourLabel} (${body.colour}).`,
       body.finishLabel ? `Finish: ${body.finishLabel}.` : '',
       `CHANGE REQUEST (must apply precisely): ${body.changeRequest!.trim()}`,
-      'Change only what is asked. Do not invent a different product family or a new room.',
+      poseBlock,
+      shutterPose === 'ajar'
+        ? 'Apply ajar shutters on THIS same wardrobe/cabinet only — do not redesign the product, do not fully open every door, do not change the room.'
+        : 'Change only what is asked. Do not invent a different product family or a new room.',
       sizeLine,
       'Photoreal presentation quality. No text, logos, arrows, or watermarks.',
       body.notes ? `Customer notes: ${body.notes}` : '',
@@ -426,9 +449,12 @@ function buildFalPayload(opts: {
   prompt: string
   imageUrls: string[]
   isRefine: boolean
+  shutterPose?: ShutterPose
 }): Record<string, unknown> {
   const family = modelFamily(opts.model)
   const resolution = getVisualiseResolution()
+  const precisePose =
+    opts.shutterPose === 'ajar' || opts.shutterPose === 'open-carcass'
 
   if (opts.isRefine || family === 'kontext') {
     return {
@@ -436,8 +462,9 @@ function buildFalPayload(opts: {
       image_url: opts.imageUrls[0],
       num_images: 1,
       output_format: 'jpeg',
-      guidance_scale: 4.0,
-      enhance_prompt: true,
+      // Slightly higher guidance + no rewrite for ajar — Kontext often drifted before
+      guidance_scale: precisePose ? 5.0 : 4.0,
+      enhance_prompt: !precisePose,
       safety_tolerance: '2',
       aspect_ratio: 'auto',
     }
@@ -502,6 +529,7 @@ async function handleVisualise(req: IncomingMessage, res: ServerResponse) {
     }
 
     const isRefine = Boolean(body.refineImageUrl && body.changeRequest?.trim())
+    const shutterPose = resolveShutterPose(body)
     const prompt = buildPrompt(body)
 
     let model: string
@@ -522,6 +550,7 @@ async function handleVisualise(req: IncomingMessage, res: ServerResponse) {
         prompt,
         imageUrls,
         isRefine: true,
+        shutterPose,
       })
     } else {
       // Nano Banana Pro / FLUX.2: room + product façade (+ detail angles)
@@ -545,6 +574,7 @@ async function handleVisualise(req: IncomingMessage, res: ServerResponse) {
         prompt,
         imageUrls,
         isRefine: false,
+        shutterPose,
       })
     }
 

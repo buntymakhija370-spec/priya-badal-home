@@ -18,6 +18,7 @@ import {
 import { productHasCarcass } from '../lib/pricing'
 import type { VisualiseMode } from '../lib/visualise'
 import { fileToDataUrl, generateVisualise } from '../lib/visualise'
+import { detectShutterPose } from '../lib/shutterPose'
 import { generateLiveCarcass } from '../lib/carcassLive'
 import {
   defaultSize,
@@ -374,9 +375,20 @@ export function ChatPage() {
           ? 'Input is an interior architect drawing (plan / elevation / sketch). Follow the drawing layout; install Priyabadal catalog product style.'
           : undefined
       // On refine, do not re-send piled preference notes — only the change request
+      const pose = detectShutterPose(changeText, current.notes)
+      const ajarNote =
+        pose === 'ajar'
+          ? 'Slightly open shutters showroom style: only 1–2 doors ajar 20–35°, keep façade match, not full open carcass.'
+          : pose === 'open-carcass'
+            ? 'Open carcass pose: show interior layout clearly.'
+            : undefined
       const notes = shouldRefine
-        ? sizeNote
-        : [drawingNote, sizeNote, current.notes].filter(Boolean).join('. ')
+        ? [sizeNote, ajarNote].filter(Boolean).join('. ')
+        : [drawingNote, sizeNote, current.notes, ajarNote].filter(Boolean).join('. ')
+      const refinedChange =
+        shouldRefine && pose === 'ajar' && changeText
+          ? `${changeText.trim()}. Slightly ajar only (20–35°) on 1–2 shutters; keep closed façade identity; do not fully open all doors.`
+          : changeText
       const result = await generateVisualise({
         roomDataUrl: current.roomPhotoDataUrl,
         product,
@@ -389,7 +401,7 @@ export function ChatPage() {
         inputKind: kind,
         visualiseMode: mode,
         refineImageUrl: shouldRefine ? current.aiImageUrl ?? undefined : undefined,
-        changeRequest: shouldRefine ? changeText : undefined,
+        changeRequest: shouldRefine ? refinedChange : undefined,
       })
 
       if (result.source === 'ai' && result.imageUrl) {
@@ -411,9 +423,9 @@ export function ChatPage() {
           aiImageUrl: result.imageUrl,
           products: [product],
           suggestions: [
+            'Slightly open shutters',
             'Make it lighter',
             'Make it darker',
-            'Add more hanging',
             'Remove handles',
             'WhatsApp quote',
           ],
@@ -428,7 +440,7 @@ export function ChatPage() {
           role: 'assistant',
           text: friendlyChatError(result.message, 'visualise'),
           suggestions: shouldRefine
-            ? ['Make it lighter', 'Make it darker', 'Start over from photo']
+            ? ['Slightly open shutters', 'Make it lighter', 'Start over from photo']
             : ['Try visualise again', 'Price with carcass', 'Suggest other styles'],
         })
       }

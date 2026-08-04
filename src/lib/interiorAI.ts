@@ -45,7 +45,7 @@ export type ConsultBrief = {
 export function isChangeRequest(text: string): boolean {
   const t = text.trim()
   if (!t) return false
-  return /\b(change(s|d)?|update(d)?|edit(ed)?|revise(d)?|revision|modify|adjust|tweak|redo|correct(ion)?|fix (this|it|the look)|make (it|the|them|this|doors?|colour|color|handles?|shutters?) |make it |lighter|darker|brighter|softer|warmer|cooler|whiter|cream(ier)?|remove (the )?handles?|add (more )?(hanging|drawers|shelves|handles?)|no handles|more hanging|more drawers|less drawers|different (colour|color|finish|handle)|on this (photo|image|look|visual)|apply (this )?change|instead of|rather than|too (dark|light|bright|small|big|heavy)|a bit more|a bit less|slightly)\b/i.test(
+  return /\b(change(s|d)?|update(d)?|edit(ed)?|revise(d)?|revision|modify|adjust|tweak|redo|correct(ion)?|fix (this|it|the look)|make (it|the|them|this|doors?|colour|color|handles?|shutters?) |make it |lighter|darker|brighter|softer|warmer|cooler|whiter|cream(ier)?|remove (the )?handles?|add (more )?(hanging|drawers|shelves|handles?)|no handles|more hanging|more drawers|less drawers|different (colour|color|finish|handle)|on this (photo|image|look|visual)|apply (this )?change|instead of|rather than|too (dark|light|bright|small|big|heavy)|a bit more|a bit less|slightly|ajar|half[- ]?open|partly open|partially open|(slightly |soft )?open (the )?(shutter|shutters|door|doors)|show (the )?inside|peek inside)\b/i.test(
     t,
   )
 }
@@ -681,9 +681,9 @@ export function processConsultTurn(
         role: 'assistant',
         text: `Understood — editing your current AI look for: “${changeText}”.`,
         suggestions: [
+          'Slightly open shutters',
           'Make it lighter',
           'Make it darker',
-          'Add more hanging',
           'Remove handles',
           'WhatsApp quote',
         ],

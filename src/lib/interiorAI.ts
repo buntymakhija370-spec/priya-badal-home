@@ -198,7 +198,7 @@ function scoreProduct(product: Product, brief: ConsultBrief, text: string) {
   return score
 }
 
-export function suggestProducts(brief: ConsultBrief, text = '', limit = 3): Product[] {
+export function suggestProducts(brief: ConsultBrief, text = '', limit = 6): Product[] {
   const products = getAllProducts()
   const scored = products
     .map((product) => ({ product, score: scoreProduct(product, brief, text) }))
@@ -406,18 +406,18 @@ function productSuggestionMessage(
   text: string,
   intro: string,
 ): ChatMessage {
-  const products = suggestProducts(brief, text, 3)
+  const products = suggestProducts(brief, text, 6)
   const sizeLine =
     brief.widthFt != null && brief.heightFt != null
       ? `Size on file: ${brief.widthFt} × ${brief.heightFt}${
           brief.depthFt != null ? ` × ${brief.depthFt}` : ''
         } ft.`
-      : 'Share size in feet anytime (e.g. 8 x 7).'
+      : null
   const photoLine = brief.roomPhotoDataUrl
     ? brief.attachmentKind === 'drawing'
       ? 'Architect drawing is attached.'
       : 'Room photo is attached.'
-    : 'You can attach a room photo or architect drawing when ready.'
+    : null
 
   return {
     id: crypto.randomUUID(),
@@ -425,29 +425,30 @@ function productSuggestionMessage(
     text: [
       intro,
       '',
-      ...products.map((p, i) => {
-        const carcass =
-          productHasCarcass(p) && p.carcassPrice != null
-            ? ` · carcass ${formatPrice(p.carcassPrice)}${
-                p.pricingMode === 'per-sqft' ? '/sq ft' : ''
-              }`
-            : ''
-        return `${i + 1}. ${p.name} — shutter from ${formatPrice(p.price)}${
-          p.pricingMode === 'per-sqft' ? '/sq ft' : ''
-        }${carcass}`
-      }),
-      '',
+      'Swipe the style cards below and tap one to continue — price, carcass, materials, or visualise next.',
       sizeLine,
       photoLine,
-      'Tap Use this, then ask price / carcass / material specs, or visualise.',
-    ].join('\n'),
+    ]
+      .filter(Boolean)
+      .join('\n'),
     products,
     suggestions: brief.aiImageUrl
-      ? ['Price estimate', 'Material specs', 'WhatsApp quote']
+      ? ['Suggest other styles', 'Price estimate', 'WhatsApp quote']
       : brief.roomPhotoDataUrl
-        ? ['Visualise my look', 'Price estimate', 'Material specs']
-        : ['Price estimate', 'What is carcass pricing?', 'Attach room photo'],
+        ? ['Suggest other styles', 'Visualise my look', 'Price estimate']
+        : ['Suggest other styles', 'Attach room photo', 'Price estimate'],
   }
+}
+
+/** Drop numbered product dumps when the UI already shows image cards */
+export function cleanChatProductText(text: string, hasProducts: boolean): string {
+  if (!hasProducts || !text.trim()) return text
+  return text
+    .replace(/^PRODUCTS:\s*.+$/gim, '')
+    .replace(/^SUGGESTIONS:\s*.+$/gim, '')
+    .replace(/^\s*[-*•]?\s*\d+[.)]\s+.+$/gm, '')
+    .replace(/\n{3,}/g, '\n\n')
+    .trim()
 }
 
 /** Normal chitchat reply — listens and continues the consultation without forcing a new visual */
@@ -631,7 +632,7 @@ export function processConsultTurn(
                       : next.categoryId ?? 'wardrobe',
                 },
                 text,
-                3,
+                6,
               ),
           suggestions: missing.some((m) => m.includes('size'))
             ? ['Wardrobe 8×6', 'Kitchen 10×8', 'Suggest styles']
@@ -764,7 +765,7 @@ export function processConsultTurn(
           text: `I can visualise in chat — still need: ${missing.join(' and ')}.\n\n${briefSummary(next)}`,
           products: next.selectedProductId
             ? undefined
-            : suggestProducts(next, text, 3),
+            : suggestProducts(next, text, 6),
           suggestions: missing.some((m) => m.includes('upload'))
             ? ['Attach room photo', 'I have an architect drawing']
             : ['Suggest styles', 'Price with carcass'],
@@ -834,20 +835,26 @@ export function processConsultTurn(
 export function messageForPhotoAttached(brief: ConsultBrief): ChatMessage {
   const products = brief.selectedProductId
     ? undefined
-    : suggestProducts(brief, brief.room ?? '', 3)
+    : suggestProducts(brief, brief.room ?? '', 6)
   const isDrawing = brief.attachmentKind === 'drawing'
   return {
     id: crypto.randomUUID(),
     role: 'assistant',
     text: brief.selectedProductId
-      ? `${isDrawing ? 'Drawing' : 'Photo'} received. I have your selected Priyabadal style ready.\n\n${briefSummary(brief)}\n\nSay “Visualise my look” — I’ll build a photoreal look from our product list${isDrawing ? ' following your architect drawing' : ' in your room'}.`
-      : `${isDrawing ? 'Architect drawing received — I’ll read the layout, wall runs, and openings.' : 'Room photo received — thanks.'} ${
-          brief.room ? `Planning for ${brief.room}. ` : ''
-        }Pick a product from our list below (or tell me room/size), then we’ll visualise.`,
+      ? `${isDrawing ? 'Drawing' : 'Photo'} received. Your selected style is ready.\n\n${briefSummary(brief)}\n\nSay “Visualise my look” when you want the photoreal room render.`
+      : [
+          isDrawing
+            ? 'Architect drawing received — I’ll follow the layout and openings.'
+            : 'Room photo received — thanks.',
+          brief.room ? `Planning for ${brief.room}.` : null,
+          'Pick a style card below, then we can price, check carcass, or visualise.',
+        ]
+          .filter(Boolean)
+          .join(' '),
     products,
     suggestions: brief.selectedProductId
       ? ['Visualise my look', 'Suggest other styles']
-      : ['Kitchen remodel', 'Bedroom wardrobe 8x7', 'Temple wall modern'],
+      : ['Suggest wardrobe styles', 'Suggest kitchen styles', 'Bedroom wardrobe 8x7'],
   }
 }
 
@@ -856,48 +863,45 @@ export function messageForProductSelected(product: Product, brief: ConsultBrief)
   const needAttach = missing.some((m) => m.includes('upload'))
   const withProduct = { ...brief, selectedProductId: product.id }
   const estimate = chatEstimateSummary(withProduct)
-  const carcassHint = productHasCarcass(product)
-    ? `Carcass listed at ${formatPrice(product.carcassPrice!)}${
-        product.pricingMode === 'per-sqft' ? '/sq ft' : ''
-      } (plus shutter).`
+  const blurb = product.description?.trim()
+    ? product.description.trim().slice(0, 160) +
+      (product.description.trim().length > 160 ? '…' : '')
     : null
 
   return {
     id: crypto.randomUUID(),
     role: 'assistant',
     text: [
-      `Selected: ${product.name}.`,
-      product.description?.trim()
-        ? product.description.trim().slice(0, 220) +
-          (product.description.trim().length > 220 ? '…' : '')
-        : null,
+      `Nice choice — ${product.name} is selected for this chat.`,
+      blurb,
       '',
-      ...[
-        `Shutter / catalog: ${formatPrice(product.price)}${
+      [
+        `Shutter ${formatPrice(product.price)}${
           product.pricingMode === 'per-sqft' ? '/sq ft' : ''
         }`,
-        carcassHint,
-        estimate,
-      ].filter(Boolean),
+        productHasCarcass(product) && product.carcassPrice != null
+          ? `carcass ${formatPrice(product.carcassPrice)}${
+              product.pricingMode === 'per-sqft' ? '/sq ft' : ''
+            }`
+          : null,
+      ]
+        .filter(Boolean)
+        .join(' · '),
+      estimate,
       '',
-      briefSummary(withProduct),
-      '',
-      'Ask me: price estimate · carcass pricing · material specs · open carcass visualisation · tell me about this design',
-      missing.length
-        ? `To room-visualise: ${missing.join(' and ')}.`
-        : 'Ready to room-visualise anytime.',
-      productHasCarcass(product)
-        ? 'Or say “Visualise carcass” for a live-size open carcass elevation (no room photo needed).'
-        : null,
+      'What next? Tap a chip below — or ask anything about this style.',
+      needAttach
+        ? 'Attach a room photo when you want a room visualisation.'
+        : 'Ready to visualise in your photo anytime.',
     ]
-      .filter((line) => line != null)
+      .filter((line) => line != null && line !== '')
       .join('\n'),
     products: [product],
     suggestions: [
+      needAttach ? 'Attach room photo' : 'Visualise my look',
       'Price estimate',
       productHasCarcass(product) ? 'Visualise carcass' : 'Material specs',
-      'Tell me about this design',
-      needAttach ? 'Attach room photo' : 'Visualise my look',
+      'Suggest other styles',
     ],
   }
 }

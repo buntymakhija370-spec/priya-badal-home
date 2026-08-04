@@ -303,6 +303,10 @@ body.pbai-open .tabbar {
   min-width: 0;
 }
 
+.pbai-msg__body--picker {
+  max-width: min(100%, 44rem);
+}
+
 .pbai-msg--user .pbai-msg__body {
   max-width: min(100%, 32rem);
 }
@@ -402,58 +406,217 @@ body.pbai-open .tabbar {
   animation-delay: 0.3s;
 }
 
-.pbai-products {
-  display: grid;
-  gap: 0.65rem;
-  margin-top: 0.9rem;
+/* Image-first style picker — swipe cards, tap to continue chat */
+.pbai-picker {
+  margin-top: 0.65rem;
+  padding: 0.7rem 0.55rem 0.55rem;
+  border-radius: 1rem;
+  background:
+    linear-gradient(180deg, rgba(255, 255, 255, 0.92), rgba(241, 246, 243, 0.96)),
+    radial-gradient(90% 80% at 10% 0%, rgba(157, 180, 184, 0.2), transparent 55%);
+  border: 1px solid rgba(21, 32, 25, 0.08);
+  animation: pbai-fade 0.32s var(--ease-out);
 }
 
-.pbai-product {
-  display: grid;
-  grid-template-columns: 3.6rem 1fr;
-  gap: 0.45rem 0.7rem;
-  padding: 0.55rem;
-  border-radius: 0.65rem;
-  background: var(--fog);
-  border: 1px solid transparent;
-}
-
-.pbai-product.is-on {
-  border-color: rgba(79, 106, 88, 0.45);
-  background: #e7eee9;
-}
-
-.pbai-product img {
-  width: 3.6rem;
-  height: 3.6rem;
-  object-fit: cover;
-  border-radius: 0.4rem;
-  grid-row: span 2;
-}
-
-.pbai-product__meta strong {
-  display: block;
-  font-size: 0.9rem;
-  line-height: 1.25;
-}
-
-.pbai-product__meta em {
-  font-style: normal;
-  color: var(--honey-deep);
-  font-size: 0.84rem;
-}
-
-.pbai-product__actions {
-  grid-column: 2;
+.pbai-picker__head {
   display: flex;
-  flex-wrap: wrap;
-  gap: 0.4rem;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 0.75rem;
+  padding: 0 0.35rem 0.55rem;
 }
 
-.pbai-product__actions .btn {
+.pbai-picker__head > span:first-child {
+  font-family: var(--font-display, Georgia, serif);
+  font-size: 1.05rem;
+  font-weight: 600;
+  color: var(--ink);
+  letter-spacing: -0.01em;
+}
+
+.pbai-picker__count {
+  font-size: 0.72rem;
+  font-weight: 600;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  color: var(--moss);
+  white-space: nowrap;
+}
+
+.pbai-picker__scroller {
+  display: flex;
+  gap: 0.7rem;
+  overflow-x: auto;
+  overscroll-behavior-x: contain;
+  -webkit-overflow-scrolling: touch;
+  scroll-snap-type: x mandatory;
+  scrollbar-width: none;
+  padding: 0.15rem 0.25rem 0.35rem;
+}
+
+.pbai-picker__scroller::-webkit-scrollbar {
+  display: none;
+}
+
+.pbai-picker--single .pbai-picker__scroller {
+  overflow: visible;
+}
+
+.pbai-picker--single .pbai-pick {
+  width: min(100%, 18rem);
+  max-width: 100%;
+  flex: 1 1 auto;
+}
+
+.pbai-pick {
+  flex: 0 0 auto;
+  width: min(72vw, 13.5rem);
+  scroll-snap-align: start;
+  display: flex;
+  flex-direction: column;
+  border-radius: 0.9rem;
+  background: #fff;
+  border: 1px solid rgba(21, 32, 25, 0.08);
+  overflow: hidden;
+  transition:
+    border-color 0.2s var(--ease-out),
+    box-shadow 0.2s var(--ease-out),
+    transform 0.2s var(--ease-out);
+}
+
+.pbai-pick.is-on {
+  border-color: rgba(58, 74, 64, 0.55);
+  box-shadow: 0 0 0 2px rgba(79, 106, 88, 0.22);
+}
+
+.pbai-pick__hit {
+  display: block;
+  width: 100%;
+  padding: 0;
+  border: 0;
+  background: transparent;
+  text-align: left;
+  cursor: pointer;
+  color: inherit;
+  font: inherit;
+}
+
+.pbai-pick__hit:disabled {
+  cursor: wait;
+  opacity: 0.72;
+}
+
+.pbai-pick__media {
+  position: relative;
+  display: block;
+  aspect-ratio: 4 / 3;
+  background: #d9e0db;
+  overflow: hidden;
+}
+
+.pbai-pick__media img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  display: block;
+  transition: transform 0.35s var(--ease-out);
+}
+
+.pbai-pick__hit:hover .pbai-pick__media img {
+  transform: scale(1.03);
+}
+
+.pbai-pick__badge {
+  position: absolute;
+  left: 0.45rem;
+  bottom: 0.45rem;
+  padding: 0.22rem 0.55rem;
+  border-radius: 999px;
+  font-size: 0.68rem;
+  font-weight: 700;
+  letter-spacing: 0.03em;
+  color: #f4f8f5;
+  background: rgba(28, 42, 34, 0.88);
+  backdrop-filter: blur(4px);
+}
+
+.pbai-pick__badge--ghost {
+  color: #1c2a22;
+  background: rgba(247, 250, 248, 0.9);
+}
+
+.pbai-pick.is-on .pbai-pick__badge--ghost {
+  display: none;
+}
+
+.pbai-pick__meta {
+  display: block;
+  padding: 0.65rem 0.7rem 0.35rem;
+}
+
+.pbai-pick__meta strong {
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+  font-size: 0.88rem;
+  line-height: 1.25;
+  min-height: 2.2em;
+}
+
+.pbai-pick__meta em {
+  display: block;
+  margin-top: 0.28rem;
+  font-style: normal;
+  font-size: 0.78rem;
+  color: var(--honey-deep);
+  line-height: 1.3;
+}
+
+.pbai-pick__foot {
+  display: flex;
+  align-items: center;
+  gap: 0.45rem;
+  padding: 0.35rem 0.65rem 0.7rem;
+}
+
+.pbai-pick__cta {
+  flex: 1;
   min-height: 2.15rem;
-  padding: 0.3rem 0.7rem;
-  font-size: 0.8rem;
+  border: 0;
+  border-radius: 0.55rem;
+  padding: 0.35rem 0.65rem;
+  font-size: 0.78rem;
+  font-weight: 700;
+  letter-spacing: 0.01em;
+  color: #f4f8f5;
+  background: linear-gradient(145deg, #3a4a40, #1c2a22);
+  cursor: pointer;
+}
+
+.pbai-pick__cta.is-on {
+  background: linear-gradient(145deg, #4f6a58, #2f4538);
+}
+
+.pbai-pick__cta:disabled {
+  opacity: 0.65;
+  cursor: wait;
+}
+
+.pbai-pick__link {
+  flex-shrink: 0;
+  font-size: 0.76rem;
+  font-weight: 600;
+  color: var(--moss);
+  text-decoration: underline;
+  text-underline-offset: 0.12em;
+  padding: 0.25rem 0.2rem;
+}
+
+.pbai-picker__hint {
+  margin: 0.35rem 0.35rem 0;
+  font-size: 0.74rem;
+  color: var(--ink-soft);
 }
 
 .pbai__composer-wrap {
@@ -740,12 +903,27 @@ body.pbai-open .tabbar {
     padding: 1.1rem 1.1rem calc(1.1rem + env(safe-area-inset-bottom, 0px));
   }
 
-  .pbai-product {
-    grid-template-columns: 3.2rem 1fr;
+  .pbai-picker {
+    margin-top: 0.55rem;
+    padding: 0.55rem 0.4rem 0.45rem;
+    border-radius: 0.85rem;
   }
 
-  .pbai-product__actions {
-    grid-column: 1 / -1;
+  .pbai-picker__head > span:first-child {
+    font-size: 0.98rem;
+  }
+
+  .pbai-pick {
+    width: min(78vw, 12.5rem);
+  }
+
+  .pbai-pick__meta strong {
+    font-size: 0.84rem;
+  }
+
+  .pbai-pick__cta {
+    min-height: 2rem;
+    font-size: 0.74rem;
   }
 
   .pbai__pending {

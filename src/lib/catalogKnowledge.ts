@@ -196,7 +196,7 @@ export function parseAiProductIds(text: string): string[] {
     .split(/[,|]/)
     .map((s) => s.trim())
     .filter(Boolean)
-    .slice(0, 4)
+    .slice(0, 6)
 }
 
 export function parseAiSuggestions(text: string): string[] {

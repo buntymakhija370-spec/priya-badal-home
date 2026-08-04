@@ -11,6 +11,7 @@ import {
   mergeBriefFromText,
   messageForPhotoAttached,
   messageForProductSelected,
+  cleanChatProductText,
   processConsultTurn,
   type ChatMessage,
   type ConsultBrief,
@@ -724,7 +725,7 @@ export function ChatPage() {
       {
         id: crypto.randomUUID(),
         role: 'user',
-        text: `Use ${product.name}`,
+        text: `Selected: ${product.name}`,
       },
       messageForProductSelected(product, next),
     )
@@ -899,26 +900,38 @@ export function ChatPage() {
               />
               <h1>Chat with Priyabadal</h1>
               <p>
-                One chatbot for everything — pricing, carcass help, materials, product
-                info, and room visualisation. Type naturally; attach a photo when you want
-                to see the look.
+                Ask for wardrobe or kitchen options — tap a photo card to select, then
+                continue with price, carcass, or visualisation.
               </p>
             </div>
           ) : null}
 
-          {messages.map((msg) => (
+          {messages.map((msg) => {
+            const productCards = msg.products ?? []
+            const displayText = cleanChatProductText(
+              msg.text,
+              productCards.length > 0,
+            )
+            const multiPick = productCards.length > 1
+            return (
             <article key={msg.id} className={`pbai-msg pbai-msg--${msg.role}`}>
               {msg.role === 'assistant' ? (
                 <div className="pbai-msg__avatar" aria-hidden="true">
                   PB
                 </div>
               ) : null}
-              <div className="pbai-msg__body">
+              <div
+                className={`pbai-msg__body${
+                  productCards.length ? ' pbai-msg__body--picker' : ''
+                }`}
+              >
                 {msg.role === 'assistant' ? (
                   <p className="pbai-msg__label">Priyabadal Chat</p>
                 ) : null}
                 <div className="pbai-msg__bubble">
-                  <p className="pbai-msg__text">{msg.text}</p>
+                  {displayText ? (
+                    <p className="pbai-msg__text">{displayText}</p>
+                  ) : null}
                   {msg.imageUrl ? (
                     <figure className="pbai-msg__media">
                       <img
@@ -950,39 +963,80 @@ export function ChatPage() {
                       </div>
                     </figure>
                   ) : null}
-                  {msg.products && msg.products.length > 0 ? (
-                    <div className="pbai-products">
-                      {msg.products.map((product) => {
+                </div>
+
+                {productCards.length > 0 ? (
+                  <div
+                    className={`pbai-picker${multiPick ? '' : ' pbai-picker--single'}`}
+                  >
+                    <div className="pbai-picker__head">
+                      <span>{multiPick ? 'Choose a style' : 'Selected style'}</span>
+                      {multiPick ? (
+                        <span className="pbai-picker__count">
+                          {productCards.length} options · swipe
+                        </span>
+                      ) : null}
+                    </div>
+                    <div
+                      className="pbai-picker__scroller"
+                      role="list"
+                      aria-label={multiPick ? 'Style options' : 'Selected style'}
+                    >
+                      {productCards.map((product) => {
                         const on = brief.selectedProductId === product.id
+                        const unit =
+                          product.pricingMode === 'per-sqft' ? '/sq ft' : ''
                         return (
                           <div
                             key={product.id}
-                            className={`pbai-product ${on ? 'is-on' : ''}`}
+                            className={`pbai-pick${on ? ' is-on' : ''}`}
+                            role="listitem"
                           >
-                            <img src={product.image} alt="" />
-                            <div className="pbai-product__meta">
-                              <strong>{product.name}</strong>
-                              <em>
-                                Shutter {formatPrice(product.price)}
-                                {product.pricingMode === 'per-sqft' ? '/sq ft' : ''}
-                                {productHasCarcass(product) && product.carcassPrice != null
-                                  ? ` · Carcass ${formatPrice(product.carcassPrice)}${
-                                      product.pricingMode === 'per-sqft' ? '/sq ft' : ''
-                                    }`
-                                  : ''}
-                              </em>
-                            </div>
-                            <div className="pbai-product__actions">
+                            <button
+                              type="button"
+                              className="pbai-pick__hit"
+                              disabled={busy}
+                              onClick={() => onPickProduct(product)}
+                              aria-pressed={on}
+                              aria-label={
+                                on
+                                  ? `${product.name} selected`
+                                  : `Select ${product.name}`
+                              }
+                            >
+                              <span className="pbai-pick__media">
+                                <img src={product.image} alt="" loading="lazy" />
+                                {on ? (
+                                  <span className="pbai-pick__badge">Selected</span>
+                                ) : (
+                                  <span className="pbai-pick__badge pbai-pick__badge--ghost">
+                                    Tap to select
+                                  </span>
+                                )}
+                              </span>
+                              <span className="pbai-pick__meta">
+                                <strong>{product.name}</strong>
+                                <em>
+                                  Shutter {formatPrice(product.price)}
+                                  {unit}
+                                  {productHasCarcass(product) &&
+                                  product.carcassPrice != null
+                                    ? ` · Carcass ${formatPrice(product.carcassPrice)}${unit}`
+                                    : ''}
+                                </em>
+                              </span>
+                            </button>
+                            <div className="pbai-pick__foot">
                               <button
                                 type="button"
-                                className="btn btn--dark"
+                                className={`pbai-pick__cta${on ? ' is-on' : ''}`}
                                 disabled={busy}
                                 onClick={() => onPickProduct(product)}
                               >
-                                {on ? 'Selected' : 'Use this'}
+                                {on ? 'Selected for chat' : 'Select for chat'}
                               </button>
                               <Link
-                                className="btn btn--outline"
+                                className="pbai-pick__link"
                                 to={`/product/${product.id}`}
                               >
                                 Details
@@ -992,11 +1046,17 @@ export function ChatPage() {
                         )
                       })}
                     </div>
-                  ) : null}
-                </div>
+                    {multiPick ? (
+                      <p className="pbai-picker__hint">
+                        Tap a card to lock it for the next chat step
+                      </p>
+                    ) : null}
+                  </div>
+                ) : null}
               </div>
             </article>
-          ))}
+            )
+          })}
 
           {busy ? (
             <article className="pbai-msg pbai-msg--assistant">

@@ -3281,8 +3281,14 @@ export const baseProducts: Product[] = [
     style: ['modern', 'feature', 'luxe'],
     rooms: ['living room', 'bedroom', 'hallway', 'office', 'retail', 'wall panels'],
     image: '/products/wall-panels/g-series/g01-01.jpg',
-    images: ['/products/wall-panels/g-series/g01-01.jpg'],
-    imageCaptions: ['Capsule Grid Panel — lifestyle install.'],
+    images: [
+      '/products/wall-panels/g-series/g01-01.jpg',
+      '/products/wall-panels/g-series/g01-02.jpg',
+    ],
+    imageCaptions: [
+      'Capsule Grid Panel — lifestyle install.',
+      'Capsule Grid Panel — panel detail zoom.',
+    ]
     highlights: [
       '₹600 / sq ft',
       '6 mm engineered wood',
@@ -3346,8 +3352,14 @@ export const baseProducts: Product[] = [
     style: ['modern', 'feature', 'luxe'],
     rooms: ['living room', 'bedroom', 'hallway', 'office', 'retail', 'wall panels'],
     image: '/products/wall-panels/g-series/g02-01.jpg',
-    images: ['/products/wall-panels/g-series/g02-01.jpg'],
-    imageCaptions: ['Sage Arch Stack Panel — lifestyle install.'],
+    images: [
+      '/products/wall-panels/g-series/g02-01.jpg',
+      '/products/wall-panels/g-series/g02-02.jpg',
+    ],
+    imageCaptions: [
+      'Sage Arch Stack Panel — lifestyle install.',
+      'Sage Arch Stack Panel — panel detail zoom.',
+    ]
     highlights: [
       '₹600 / sq ft',
       '6 mm engineered wood',
@@ -3411,8 +3423,14 @@ export const baseProducts: Product[] = [
     style: ['modern', 'feature', 'luxe'],
     rooms: ['living room', 'bedroom', 'hallway', 'office', 'retail', 'wall panels'],
     image: '/products/wall-panels/g-series/g03-01.jpg',
-    images: ['/products/wall-panels/g-series/g03-01.jpg'],
-    imageCaptions: ['Metallic Spade Lattice Panel — lifestyle install.'],
+    images: [
+      '/products/wall-panels/g-series/g03-01.jpg',
+      '/products/wall-panels/g-series/g03-02.jpg',
+    ],
+    imageCaptions: [
+      'Metallic Spade Lattice Panel — lifestyle install.',
+      'Metallic Spade Lattice Panel — panel detail zoom.',
+    ]
     highlights: [
       '₹600 / sq ft',
       '6 mm engineered wood',
@@ -3480,8 +3498,14 @@ export const baseProducts: Product[] = [
     style: ['modern', 'feature', 'luxe'],
     rooms: ['living room', 'bedroom', 'hallway', 'office', 'retail', 'wall panels'],
     image: '/products/wall-panels/g-series/g04-01.jpg',
-    images: ['/products/wall-panels/g-series/g04-01.jpg'],
-    imageCaptions: ['Diamond Hex Relief Panel — lifestyle install.'],
+    images: [
+      '/products/wall-panels/g-series/g04-01.jpg',
+      '/products/wall-panels/g-series/g04-02.jpg',
+    ],
+    imageCaptions: [
+      'Diamond Hex Relief Panel — lifestyle install.',
+      'Diamond Hex Relief Panel — panel detail zoom.',
+    ]
     highlights: [
       '₹600 / sq ft',
       '6 mm engineered wood',
@@ -3545,8 +3569,14 @@ export const baseProducts: Product[] = [
     style: ['modern', 'feature', 'luxe'],
     rooms: ['living room', 'bedroom', 'hallway', 'office', 'retail', 'wall panels'],
     image: '/products/wall-panels/g-series/g05-01.jpg',
-    images: ['/products/wall-panels/g-series/g05-01.jpg'],
-    imageCaptions: ['Recessed Capsule Panel — lifestyle install.'],
+    images: [
+      '/products/wall-panels/g-series/g05-01.jpg',
+      '/products/wall-panels/g-series/g05-02.jpg',
+    ],
+    imageCaptions: [
+      'Recessed Capsule Panel — lifestyle install.',
+      'Recessed Capsule Panel — panel detail zoom.',
+    ]
     highlights: [
       '₹600 / sq ft',
       '6 mm engineered wood',
@@ -3610,8 +3640,14 @@ export const baseProducts: Product[] = [
     style: ['modern', 'feature', 'luxe'],
     rooms: ['living room', 'bedroom', 'hallway', 'office', 'retail', 'wall panels'],
     image: '/products/wall-panels/g-series/g06-01.jpg',
-    images: ['/products/wall-panels/g-series/g06-01.jpg'],
-    imageCaptions: ['Frame Grid Boutique Panel — lifestyle install.'],
+    images: [
+      '/products/wall-panels/g-series/g06-01.jpg',
+      '/products/wall-panels/g-series/g06-02.jpg',
+    ],
+    imageCaptions: [
+      'Frame Grid Boutique Panel — lifestyle install.',
+      'Frame Grid Boutique Panel — panel detail zoom.',
+    ]
     highlights: [
       '₹600 / sq ft',
       '6 mm engineered wood',
@@ -3675,8 +3711,14 @@ export const baseProducts: Product[] = [
     style: ['modern', 'feature', 'luxe'],
     rooms: ['living room', 'bedroom', 'hallway', 'office', 'retail', 'wall panels'],
     image: '/products/wall-panels/g-series/g07-01.jpg',
-    images: ['/products/wall-panels/g-series/g07-01.jpg'],
-    imageCaptions: ['Hex House-Frame Panel — lifestyle install.'],
+    images: [
+      '/products/wall-panels/g-series/g07-01.jpg',
+      '/products/wall-panels/g-series/g07-02.jpg',
+    ],
+    imageCaptions: [
+      'Hex House-Frame Panel — lifestyle install.',
+      'Hex House-Frame Panel — panel detail zoom.',
+    ]
     highlights: [
       '₹600 / sq ft',
       '6 mm engineered wood',
@@ -3740,8 +3782,14 @@ export const baseProducts: Product[] = [
     style: ['modern', 'feature', 'luxe'],
     rooms: ['living room', 'bedroom', 'hallway', 'office', 'retail', 'wall panels'],
     image: '/products/wall-panels/g-series/g08-01.jpg',
-    images: ['/products/wall-panels/g-series/g08-01.jpg'],
-    imageCaptions: ['Rose-Gold Rain Strip Panel — lifestyle install.'],
+    images: [
+      '/products/wall-panels/g-series/g08-01.jpg',
+      '/products/wall-panels/g-series/g08-02.jpg',
+    ],
+    imageCaptions: [
+      'Rose-Gold Rain Strip Panel — lifestyle install.',
+      'Rose-Gold Rain Strip Panel — panel detail zoom.',
+    ]
     highlights: [
       '₹600 / sq ft',
       '6 mm engineered wood',
@@ -3809,8 +3857,14 @@ export const baseProducts: Product[] = [
     style: ['modern', 'feature', 'luxe'],
     rooms: ['living room', 'bedroom', 'hallway', 'office', 'retail', 'wall panels'],
     image: '/products/wall-panels/g-series/g09-01.jpg',
-    images: ['/products/wall-panels/g-series/g09-01.jpg'],
-    imageCaptions: ['Vertical Metal Channel Panel — lifestyle install.'],
+    images: [
+      '/products/wall-panels/g-series/g09-01.jpg',
+      '/products/wall-panels/g-series/g09-02.jpg',
+    ],
+    imageCaptions: [
+      'Vertical Metal Channel Panel — lifestyle install.',
+      'Vertical Metal Channel Panel — panel detail zoom.',
+    ]
     highlights: [
       '₹600 / sq ft',
       '6 mm engineered wood',
@@ -3878,8 +3932,14 @@ export const baseProducts: Product[] = [
     style: ['modern', 'feature', 'luxe'],
     rooms: ['living room', 'bedroom', 'hallway', 'office', 'retail', 'wall panels'],
     image: '/products/wall-panels/g-series/g10-01.jpg',
-    images: ['/products/wall-panels/g-series/g10-01.jpg'],
-    imageCaptions: ['Terracotta Wheat Lattice Panel — lifestyle install.'],
+    images: [
+      '/products/wall-panels/g-series/g10-01.jpg',
+      '/products/wall-panels/g-series/g10-02.jpg',
+    ],
+    imageCaptions: [
+      'Terracotta Wheat Lattice Panel — lifestyle install.',
+      'Terracotta Wheat Lattice Panel — panel detail zoom.',
+    ]
     highlights: [
       '₹600 / sq ft',
       '6 mm engineered wood',
@@ -3943,8 +4003,14 @@ export const baseProducts: Product[] = [
     style: ['modern', 'feature', 'luxe'],
     rooms: ['living room', 'bedroom', 'hallway', 'office', 'retail', 'wall panels'],
     image: '/products/wall-panels/g-series/g11-01.jpg',
-    images: ['/products/wall-panels/g-series/g11-01.jpg'],
-    imageCaptions: ['Chevron Groove Panel — lifestyle install.'],
+    images: [
+      '/products/wall-panels/g-series/g11-01.jpg',
+      '/products/wall-panels/g-series/g11-02.jpg',
+    ],
+    imageCaptions: [
+      'Chevron Groove Panel — lifestyle install.',
+      'Chevron Groove Panel — panel detail zoom.',
+    ]
     highlights: [
       '₹600 / sq ft',
       '6 mm engineered wood',
@@ -4008,8 +4074,14 @@ export const baseProducts: Product[] = [
     style: ['modern', 'feature', 'luxe'],
     rooms: ['living room', 'bedroom', 'hallway', 'office', 'retail', 'wall panels'],
     image: '/products/wall-panels/g-series/g12-01.jpg',
-    images: ['/products/wall-panels/g-series/g12-01.jpg'],
-    imageCaptions: ['Fluted Arch Dual Panel — lifestyle install.'],
+    images: [
+      '/products/wall-panels/g-series/g12-01.jpg',
+      '/products/wall-panels/g-series/g12-02.jpg',
+    ],
+    imageCaptions: [
+      'Fluted Arch Dual Panel — lifestyle install.',
+      'Fluted Arch Dual Panel — panel detail zoom.',
+    ]
     highlights: [
       '₹600 / sq ft',
       '6 mm engineered wood',
@@ -4073,8 +4145,14 @@ export const baseProducts: Product[] = [
     style: ['modern', 'feature', 'luxe'],
     rooms: ['living room', 'bedroom', 'hallway', 'office', 'retail', 'wall panels'],
     image: '/products/wall-panels/g-series/g13-01.jpg',
-    images: ['/products/wall-panels/g-series/g13-01.jpg'],
-    imageCaptions: ['Gold Facet Geometry Panel — lifestyle install.'],
+    images: [
+      '/products/wall-panels/g-series/g13-01.jpg',
+      '/products/wall-panels/g-series/g13-02.jpg',
+    ],
+    imageCaptions: [
+      'Gold Facet Geometry Panel — lifestyle install.',
+      'Gold Facet Geometry Panel — panel detail zoom.',
+    ]
     highlights: [
       '₹600 / sq ft',
       '6 mm engineered wood',
@@ -4142,8 +4220,14 @@ export const baseProducts: Product[] = [
     style: ['modern', 'feature', 'luxe'],
     rooms: ['living room', 'bedroom', 'hallway', 'office', 'retail', 'wall panels'],
     image: '/products/wall-panels/g-series/g14-01.jpg',
-    images: ['/products/wall-panels/g-series/g14-01.jpg'],
-    imageCaptions: ['Terracotta Arch Module Panel — lifestyle install.'],
+    images: [
+      '/products/wall-panels/g-series/g14-01.jpg',
+      '/products/wall-panels/g-series/g14-02.jpg',
+    ],
+    imageCaptions: [
+      'Terracotta Arch Module Panel — lifestyle install.',
+      'Terracotta Arch Module Panel — panel detail zoom.',
+    ]
     highlights: [
       '₹600 / sq ft',
       '6 mm engineered wood',
@@ -4207,8 +4291,14 @@ export const baseProducts: Product[] = [
     style: ['modern', 'feature', 'luxe'],
     rooms: ['living room', 'bedroom', 'hallway', 'office', 'retail', 'wall panels'],
     image: '/products/wall-panels/g-series/g15-01.jpg',
-    images: ['/products/wall-panels/g-series/g15-01.jpg'],
-    imageCaptions: ['Wheat Stalk Relief Panel — lifestyle install.'],
+    images: [
+      '/products/wall-panels/g-series/g15-01.jpg',
+      '/products/wall-panels/g-series/g15-02.jpg',
+    ],
+    imageCaptions: [
+      'Wheat Stalk Relief Panel — lifestyle install.',
+      'Wheat Stalk Relief Panel — panel detail zoom.',
+    ]
     highlights: [
       '₹600 / sq ft',
       '6 mm engineered wood',
@@ -4272,8 +4362,14 @@ export const baseProducts: Product[] = [
     style: ['modern', 'feature', 'luxe'],
     rooms: ['living room', 'bedroom', 'hallway', 'office', 'retail', 'wall panels'],
     image: '/products/wall-panels/g-series/g16-01.jpg',
-    images: ['/products/wall-panels/g-series/g16-01.jpg'],
-    imageCaptions: ['Fluted Gold Insert Panel — lifestyle install.'],
+    images: [
+      '/products/wall-panels/g-series/g16-01.jpg',
+      '/products/wall-panels/g-series/g16-02.jpg',
+    ],
+    imageCaptions: [
+      'Fluted Gold Insert Panel — lifestyle install.',
+      'Fluted Gold Insert Panel — panel detail zoom.',
+    ]
     highlights: [
       '₹600 / sq ft',
       '6 mm engineered wood',
@@ -4341,8 +4437,14 @@ export const baseProducts: Product[] = [
     style: ['modern', 'feature', 'luxe'],
     rooms: ['living room', 'bedroom', 'hallway', 'office', 'retail', 'wall panels'],
     image: '/products/wall-panels/g-series/g17-01.jpg',
-    images: ['/products/wall-panels/g-series/g17-01.jpg'],
-    imageCaptions: ['Metallic Trio Motif Panel — lifestyle install.'],
+    images: [
+      '/products/wall-panels/g-series/g17-01.jpg',
+      '/products/wall-panels/g-series/g17-02.jpg',
+    ],
+    imageCaptions: [
+      'Metallic Trio Motif Panel — lifestyle install.',
+      'Metallic Trio Motif Panel — panel detail zoom.',
+    ]
     highlights: [
       '₹600 / sq ft',
       '6 mm engineered wood',
@@ -4410,8 +4512,14 @@ export const baseProducts: Product[] = [
     style: ['modern', 'feature', 'luxe'],
     rooms: ['living room', 'bedroom', 'hallway', 'office', 'retail', 'wall panels'],
     image: '/products/wall-panels/g-series/g18-01.jpg',
-    images: ['/products/wall-panels/g-series/g18-01.jpg'],
-    imageCaptions: ['Terracotta Flute Panel — lifestyle install.'],
+    images: [
+      '/products/wall-panels/g-series/g18-01.jpg',
+      '/products/wall-panels/g-series/g18-02.jpg',
+    ],
+    imageCaptions: [
+      'Terracotta Flute Panel — lifestyle install.',
+      'Terracotta Flute Panel — panel detail zoom.',
+    ]
     highlights: [
       '₹600 / sq ft',
       '6 mm engineered wood',
@@ -4475,8 +4583,14 @@ export const baseProducts: Product[] = [
     style: ['modern', 'feature', 'luxe'],
     rooms: ['living room', 'bedroom', 'hallway', 'office', 'retail', 'wall panels'],
     image: '/products/wall-panels/g-series/g19-01.jpg',
-    images: ['/products/wall-panels/g-series/g19-01.jpg'],
-    imageCaptions: ['Star Groove Panel — lifestyle install.'],
+    images: [
+      '/products/wall-panels/g-series/g19-01.jpg',
+      '/products/wall-panels/g-series/g19-02.jpg',
+    ],
+    imageCaptions: [
+      'Star Groove Panel — lifestyle install.',
+      'Star Groove Panel — panel detail zoom.',
+    ]
     highlights: [
       '₹600 / sq ft',
       '6 mm engineered wood',
@@ -4540,8 +4654,14 @@ export const baseProducts: Product[] = [
     style: ['modern', 'feature', 'luxe'],
     rooms: ['living room', 'bedroom', 'hallway', 'office', 'retail', 'wall panels'],
     image: '/products/wall-panels/g-series/g20-01.jpg',
-    images: ['/products/wall-panels/g-series/g20-01.jpg'],
-    imageCaptions: ['Faceted Triangle Grid Panel — lifestyle install.'],
+    images: [
+      '/products/wall-panels/g-series/g20-01.jpg',
+      '/products/wall-panels/g-series/g20-02.jpg',
+    ],
+    imageCaptions: [
+      'Faceted Triangle Grid Panel — lifestyle install.',
+      'Faceted Triangle Grid Panel — panel detail zoom.',
+    ]
     highlights: [
       '₹600 / sq ft',
       '6 mm engineered wood',

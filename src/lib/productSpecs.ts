@@ -33,6 +33,7 @@ const FINISH_LABELS: Record<string, string> = {
   oxidised: 'Oxidised finish',
   'iron-metallic': 'Iron metallic coating',
   metallic: 'Metallic finish',
+  'pu-metallic-both': 'PU metallic · both sides',
 }
 
 function finishLabel(product: Product) {

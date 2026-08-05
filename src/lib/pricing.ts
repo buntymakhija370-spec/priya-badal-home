@@ -252,6 +252,11 @@ const FINISH_LOOKUP: Record<string, FinishOption> = {
     multiplier: 1,
   },
   metallic: { id: 'metallic', name: 'Metallic', multiplier: 1 },
+  'pu-metallic-both': {
+    id: 'pu-metallic-both',
+    name: 'PU metallic · both sides',
+    multiplier: 1,
+  },
 }
 
 const THICKNESS_LOOKUP: Record<string, ThicknessOption> = {

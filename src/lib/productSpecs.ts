@@ -16,6 +16,7 @@ const FINISH_LABELS: Record<string, string> = {
   pu: 'PU finish',
   laminated: 'Laminated finish',
   'pu-front-laminate-back': 'Front PU · back laminated',
+  'laminate-pu-border': 'Laminated · PU border · back laminated',
   'laminate-solid-wood': 'Laminate + solid wood',
   laminate: 'Laminate finish',
   veneer: 'Veneer finish',

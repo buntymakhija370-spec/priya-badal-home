@@ -212,6 +212,11 @@ const FINISH_LOOKUP: Record<string, FinishOption> = {
     name: 'Front PU · back laminated',
     multiplier: 1,
   },
+  'laminate-pu-border': {
+    id: 'laminate-pu-border',
+    name: 'Laminated · PU border · back laminated',
+    multiplier: 1,
+  },
   'laminate-solid-wood': {
     id: 'laminate-solid-wood',
     name: 'Laminate + solid wood',

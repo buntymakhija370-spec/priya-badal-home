@@ -3895,7 +3895,7 @@ export const baseProducts: Product[] = [
     collection: 'Kitchen',
     sku: 'PBH-KIT-10',
     description:
-      'Handleless taupe modular run with pill-arch recessed pulls and a light oak carcass interior. Handle-less · 25 mm HDHMR · both-side PU.',
+      'Handle-less taupe modular run with pill-arch recessed pulls and a light oak carcass interior — 25 mm HDHMR shutters with both-side PU.',
     style: ['modern', 'minimal'],
     rooms: ['kitchen'],
     image: '/products/kitchen/kitchen-10/01.png',

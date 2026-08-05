@@ -833,7 +833,7 @@ export function ChatPage() {
   const showWelcomeHero = messages.length <= 1 && !busy
 
   return (
-    <main className="pbai">
+    <main className={`pbai${showKey ? ' pbai--unlock' : ''}`}>
       <header className="pbai__top">
         <div className="pbai__brand">
           <Link className="pbai__back" to="/" aria-label="Back to home">
@@ -868,37 +868,6 @@ export function ChatPage() {
         </div>
       </header>
 
-      {showKey ? (
-        <div
-          className="pbai__sheet"
-          role="dialog"
-          aria-modal="true"
-          aria-label="AI unlock"
-        >
-          <button
-            type="button"
-            className="pbai__sheet-backdrop"
-            aria-label="Close AI unlock"
-            onClick={() => setShowKey(false)}
-          />
-          <div className="pbai__sheet-card">
-            <AiAccessBanner
-              compact
-              onStatus={(s) => {
-                const ready = Boolean(
-                  s.falConfigured && (!s.requireSubscription || s.subscribed),
-                )
-                setAiConfigured(ready)
-                if (ready) {
-                  unlockNagRef.current = false
-                  setShowKey(false)
-                }
-              }}
-            />
-          </div>
-        </div>
-      ) : null}
-
       {!showKey ? (
         <div className="pbai__brief-bar" aria-label="Session brief">
           <span>{brief.room ?? 'Space?'}</span>
@@ -924,6 +893,7 @@ export function ChatPage() {
         ref={scrollRef}
         role="log"
         aria-live="polite"
+        aria-hidden={showKey || undefined}
         onScroll={onThreadScroll}
       >
         <div className="pbai__thread">
@@ -1113,7 +1083,10 @@ export function ChatPage() {
         </div>
       </div>
 
-      <footer className="pbai__composer-wrap">
+      <footer
+        className="pbai__composer-wrap"
+        aria-hidden={showKey || undefined}
+      >
         {!showKey && latestSuggestions.length > 0 ? (
           <div className="pbai__chips">
             {latestSuggestions.map((s) => (
@@ -1267,6 +1240,37 @@ export function ChatPage() {
           </p>
         </form>
       </footer>
+
+      {showKey ? (
+        <div
+          className="pbai__sheet"
+          role="dialog"
+          aria-modal="true"
+          aria-label="AI unlock"
+        >
+          <button
+            type="button"
+            className="pbai__sheet-backdrop"
+            aria-label="Close AI unlock"
+            onClick={() => setShowKey(false)}
+          />
+          <div className="pbai__sheet-card">
+            <AiAccessBanner
+              compact
+              onStatus={(s) => {
+                const ready = Boolean(
+                  s.falConfigured && (!s.requireSubscription || s.subscribed),
+                )
+                setAiConfigured(ready)
+                if (ready) {
+                  unlockNagRef.current = false
+                  setShowKey(false)
+                }
+              }}
+            />
+          </div>
+        </div>
+      ) : null}
     </main>
   )
 }

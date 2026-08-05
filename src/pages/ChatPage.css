@@ -196,6 +196,14 @@ body.pbai-open .tabbar {
   box-shadow: 0 18px 40px rgba(18, 24, 20, 0.28);
 }
 
+/* Dimmed chat stays underneath and cannot steal taps while unlock is open */
+.pbai--unlock .pbai__scroll,
+.pbai--unlock .pbai__composer-wrap,
+.pbai--unlock .pbai__brief-bar {
+  pointer-events: none;
+  user-select: none;
+}
+
 .pbai__brief-bar {
   display: flex;
   flex-wrap: nowrap;
@@ -621,6 +629,7 @@ body.pbai-open .tabbar {
 
 .pbai__composer-wrap {
   position: relative;
+  z-index: 1;
   flex-shrink: 0;
   padding: 0.35rem 0.65rem 0.55rem;
   background: linear-gradient(180deg, rgba(247, 250, 248, 0.35), var(--paper) 40%);

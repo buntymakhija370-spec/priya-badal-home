@@ -3288,7 +3288,7 @@ export const baseProducts: Product[] = [
     imageCaptions: [
       'Capsule Grid Panel — lifestyle install.',
       'Capsule Grid Panel — panel detail zoom.',
-    ]
+    ],
     highlights: [
       '₹600 / sq ft',
       '6 mm engineered wood',
@@ -3359,7 +3359,7 @@ export const baseProducts: Product[] = [
     imageCaptions: [
       'Sage Arch Stack Panel — lifestyle install.',
       'Sage Arch Stack Panel — panel detail zoom.',
-    ]
+    ],
     highlights: [
       '₹600 / sq ft',
       '6 mm engineered wood',
@@ -3430,7 +3430,7 @@ export const baseProducts: Product[] = [
     imageCaptions: [
       'Metallic Spade Lattice Panel — lifestyle install.',
       'Metallic Spade Lattice Panel — panel detail zoom.',
-    ]
+    ],
     highlights: [
       '₹600 / sq ft',
       '6 mm engineered wood',
@@ -3505,7 +3505,7 @@ export const baseProducts: Product[] = [
     imageCaptions: [
       'Diamond Hex Relief Panel — lifestyle install.',
       'Diamond Hex Relief Panel — panel detail zoom.',
-    ]
+    ],
     highlights: [
       '₹600 / sq ft',
       '6 mm engineered wood',
@@ -3576,7 +3576,7 @@ export const baseProducts: Product[] = [
     imageCaptions: [
       'Recessed Capsule Panel — lifestyle install.',
       'Recessed Capsule Panel — panel detail zoom.',
-    ]
+    ],
     highlights: [
       '₹600 / sq ft',
       '6 mm engineered wood',
@@ -3647,7 +3647,7 @@ export const baseProducts: Product[] = [
     imageCaptions: [
       'Frame Grid Boutique Panel — lifestyle install.',
       'Frame Grid Boutique Panel — panel detail zoom.',
-    ]
+    ],
     highlights: [
       '₹600 / sq ft',
       '6 mm engineered wood',
@@ -3718,7 +3718,7 @@ export const baseProducts: Product[] = [
     imageCaptions: [
       'Hex House-Frame Panel — lifestyle install.',
       'Hex House-Frame Panel — panel detail zoom.',
-    ]
+    ],
     highlights: [
       '₹600 / sq ft',
       '6 mm engineered wood',
@@ -3789,7 +3789,7 @@ export const baseProducts: Product[] = [
     imageCaptions: [
       'Rose-Gold Rain Strip Panel — lifestyle install.',
       'Rose-Gold Rain Strip Panel — panel detail zoom.',
-    ]
+    ],
     highlights: [
       '₹600 / sq ft',
       '6 mm engineered wood',
@@ -3864,7 +3864,7 @@ export const baseProducts: Product[] = [
     imageCaptions: [
       'Vertical Metal Channel Panel — lifestyle install.',
       'Vertical Metal Channel Panel — panel detail zoom.',
-    ]
+    ],
     highlights: [
       '₹600 / sq ft',
       '6 mm engineered wood',
@@ -3939,7 +3939,7 @@ export const baseProducts: Product[] = [
     imageCaptions: [
       'Terracotta Wheat Lattice Panel — lifestyle install.',
       'Terracotta Wheat Lattice Panel — panel detail zoom.',
-    ]
+    ],
     highlights: [
       '₹600 / sq ft',
       '6 mm engineered wood',
@@ -4010,7 +4010,7 @@ export const baseProducts: Product[] = [
     imageCaptions: [
       'Chevron Groove Panel — lifestyle install.',
       'Chevron Groove Panel — panel detail zoom.',
-    ]
+    ],
     highlights: [
       '₹600 / sq ft',
       '6 mm engineered wood',
@@ -4081,7 +4081,7 @@ export const baseProducts: Product[] = [
     imageCaptions: [
       'Fluted Arch Dual Panel — lifestyle install.',
       'Fluted Arch Dual Panel — panel detail zoom.',
-    ]
+    ],
     highlights: [
       '₹600 / sq ft',
       '6 mm engineered wood',
@@ -4152,7 +4152,7 @@ export const baseProducts: Product[] = [
     imageCaptions: [
       'Gold Facet Geometry Panel — lifestyle install.',
       'Gold Facet Geometry Panel — panel detail zoom.',
-    ]
+    ],
     highlights: [
       '₹600 / sq ft',
       '6 mm engineered wood',
@@ -4227,7 +4227,7 @@ export const baseProducts: Product[] = [
     imageCaptions: [
       'Terracotta Arch Module Panel — lifestyle install.',
       'Terracotta Arch Module Panel — panel detail zoom.',
-    ]
+    ],
     highlights: [
       '₹600 / sq ft',
       '6 mm engineered wood',
@@ -4298,7 +4298,7 @@ export const baseProducts: Product[] = [
     imageCaptions: [
       'Wheat Stalk Relief Panel — lifestyle install.',
       'Wheat Stalk Relief Panel — panel detail zoom.',
-    ]
+    ],
     highlights: [
       '₹600 / sq ft',
       '6 mm engineered wood',
@@ -4369,7 +4369,7 @@ export const baseProducts: Product[] = [
     imageCaptions: [
       'Fluted Gold Insert Panel — lifestyle install.',
       'Fluted Gold Insert Panel — panel detail zoom.',
-    ]
+    ],
     highlights: [
       '₹600 / sq ft',
       '6 mm engineered wood',
@@ -4444,7 +4444,7 @@ export const baseProducts: Product[] = [
     imageCaptions: [
       'Metallic Trio Motif Panel — lifestyle install.',
       'Metallic Trio Motif Panel — panel detail zoom.',
-    ]
+    ],
     highlights: [
       '₹600 / sq ft',
       '6 mm engineered wood',
@@ -4519,7 +4519,7 @@ export const baseProducts: Product[] = [
     imageCaptions: [
       'Terracotta Flute Panel — lifestyle install.',
       'Terracotta Flute Panel — panel detail zoom.',
-    ]
+    ],
     highlights: [
       '₹600 / sq ft',
       '6 mm engineered wood',
@@ -4590,7 +4590,7 @@ export const baseProducts: Product[] = [
     imageCaptions: [
       'Star Groove Panel — lifestyle install.',
       'Star Groove Panel — panel detail zoom.',
-    ]
+    ],
     highlights: [
       '₹600 / sq ft',
       '6 mm engineered wood',
@@ -4661,7 +4661,7 @@ export const baseProducts: Product[] = [
     imageCaptions: [
       'Faceted Triangle Grid Panel — lifestyle install.',
       'Faceted Triangle Grid Panel — panel detail zoom.',
-    ]
+    ],
     highlights: [
       '₹600 / sq ft',
       '6 mm engineered wood',

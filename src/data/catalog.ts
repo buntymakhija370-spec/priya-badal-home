@@ -3971,7 +3971,7 @@ export const baseProducts: Product[] = [
     collection: 'Kitchen',
     sku: 'PBH-KIT-11',
     description:
-      'Seamless taupe cabinetry with elongated oval recessed grips and a full marble-look backsplash. Handle-less · 25 mm HDHMR · both-side PU.',
+      'Seamless taupe cabinetry with elongated oval recessed grips and a full marble-look backsplash — handle-less, 25 mm HDHMR shutters with both-side PU.',
     style: ['modern', 'minimal'],
     rooms: ['kitchen'],
     image: '/products/kitchen/kitchen-11/01.png',

@@ -14,7 +14,7 @@ import './Layout.css'
 
 const utilityLinks = [
   { to: '/install', label: 'Get the App (iPhone & Android)' },
-  { to: '/shop', label: 'All products' },
+  { to: '/shop', label: 'Collections' },
   { to: '/how-it-works', label: 'How it works' },
   { to: '/chat', label: 'Chat' },
   { to: '/guides/carcass-assembly', label: 'Carcass assembly guide' },

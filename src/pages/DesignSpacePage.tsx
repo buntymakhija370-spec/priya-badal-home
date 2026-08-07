@@ -440,7 +440,7 @@ export function DesignSpacePage() {
                     return
                   }
                   if (!aiConfigured) {
-                    setStatusMsg('Connect your Fal.ai key above first (and top up credits).')
+                    setStatusMsg('Connect your Gemini API key in /ai-admin first.')
                     return
                   }
                   void onGenerate()

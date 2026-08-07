@@ -54,6 +54,17 @@
   font: inherit;
 }
 
+.ai-admin__hint {
+  margin: 0.65rem 0 0;
+  font-size: 0.8rem;
+  color: var(--ink-soft);
+  line-height: 1.4;
+}
+
+.ai-admin__hint a {
+  color: var(--moss, #4f6a58);
+}
+
 .ai-admin__code {
   margin: 0.8rem 0 0;
   padding: 0.65rem 0.75rem;

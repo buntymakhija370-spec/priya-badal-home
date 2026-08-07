@@ -1,7 +1,5 @@
-import { loadEnv, type Connect, type Plugin } from 'vite'
+import { type Connect, type Plugin } from 'vite'
 import type { IncomingMessage, ServerResponse } from 'node:http'
-import { existsSync, readFileSync } from 'node:fs'
-import { resolve } from 'node:path'
 import {
   assertAdmin,
   assertCanUse,
@@ -23,6 +21,16 @@ import {
   shutterPosePromptBlock,
   type ShutterPose,
 } from '../src/lib/shutterPose.ts'
+import {
+  geminiChat,
+  geminiEditImage,
+  getChatModel,
+  getGeminiKey,
+  getImageModel,
+  hydrateGeminiEnv,
+  loadInlineImage,
+  setGeminiKey,
+} from './geminiAi.ts'
 
 type VisualiseMode = 'replace' | 'install' | 'redesign'
 
@@ -70,19 +78,6 @@ type CarcassLiveBody = {
   notes?: string
 }
 
-/** Runtime key so owner can paste FAL_KEY without restarting */
-let runtimeFalKey = ''
-
-/**
- * Client-chargeable quality defaults:
- * - Create / install: Nano Banana Pro Edit @ 2K (best photoreal interior restyle + multi refs)
- * - Refine: FLUX.1 Kontext Max (precise follow-up edits, room consistency)
- * Override with FAL_VISUALISE_MODEL / FAL_REFINE_MODEL if needed.
- */
-const DEFAULT_CREATE_MODEL = 'fal-ai/nano-banana-pro/edit'
-const DEFAULT_REFINE_MODEL = 'fal-ai/flux-pro/kontext/max'
-const DEFAULT_RESOLUTION = '2K'
-
 const INTERIOR_SYSTEM_PROMPT = [
   'You are a professional interior visualisation artist for Priyabadal Homes (India).',
   'Create client-ready, photorealistic interior photographs suitable for paid design presentations.',
@@ -94,89 +89,11 @@ const INTERIOR_SYSTEM_PROMPT = [
   'Output one polished showroom-quality photograph.',
 ].join(' ')
 
-/** Load .env into process.env — Vite may import this plugin before loadEnv runs */
-function hydrateFalEnv(mode = 'development') {
-  try {
-    const env = loadEnv(mode, process.cwd(), '')
-    for (const [key, value] of Object.entries(env)) {
-      if (value != null && value !== '' && !process.env[key]) {
-        process.env[key] = value
-      }
-    }
-  } catch {
-    // fall through to manual .env parse
-  }
+hydrateGeminiEnv(process.env.NODE_ENV === 'production' ? 'production' : 'development')
 
-  for (const name of ['.env.local', '.env']) {
-    const file = resolve(process.cwd(), name)
-    if (!existsSync(file)) continue
-    try {
-      for (const line of readFileSync(file, 'utf8').split('\n')) {
-        const trimmed = line.trim()
-        if (!trimmed || trimmed.startsWith('#')) continue
-        const eq = trimmed.indexOf('=')
-        if (eq <= 0) continue
-        const key = trimmed.slice(0, eq).trim()
-        let value = trimmed.slice(eq + 1).trim()
-        if (
-          (value.startsWith('"') && value.endsWith('"')) ||
-          (value.startsWith("'") && value.endsWith("'"))
-        ) {
-          value = value.slice(1, -1)
-        }
-        if (key && value && !process.env[key]) process.env[key] = value
-      }
-    } catch {
-      /* ignore */
-    }
-  }
-
-  if (!runtimeFalKey) {
-    runtimeFalKey = process.env.FAL_KEY || process.env.VITE_FAL_KEY || ''
-  }
-}
-
-hydrateFalEnv(process.env.NODE_ENV === 'production' ? 'production' : 'development')
-
-function getFalKey() {
-  return (
-    runtimeFalKey ||
-    process.env.FAL_KEY ||
-    process.env.VITE_FAL_KEY ||
-    ''
-  )
-}
-
-function getCreateModel() {
-  return process.env.FAL_VISUALISE_MODEL || DEFAULT_CREATE_MODEL
-}
-
-function getRefineModel() {
-  return process.env.FAL_REFINE_MODEL || DEFAULT_REFINE_MODEL
-}
-
-function getCarcassModel() {
-  return process.env.FAL_CARCASS_MODEL || getCreateModel()
-}
-
-function getVisualiseResolution() {
-  const r = (process.env.FAL_VISUALISE_RESOLUTION || DEFAULT_RESOLUTION).toUpperCase()
-  return r === '1K' || r === '4K' || r === '2K' ? r : DEFAULT_RESOLUTION
-}
-
-function modelFamily(model: string): 'nano-banana' | 'flux-2' | 'kontext' | 'other' {
-  const m = model.toLowerCase()
-  if (m.includes('nano-banana')) return 'nano-banana'
-  if (m.includes('kontext')) return 'kontext'
-  if (m.includes('flux-2') || m.includes('flux2')) return 'flux-2'
-  return 'other'
-}
-
-/** Conversational sales chatbot (Fal any-llm) */
-const DEFAULT_CHAT_MODEL = 'google/gemini-2.5-flash'
-
-function getChatModel() {
-  return process.env.FAL_CHAT_MODEL || DEFAULT_CHAT_MODEL
+/** @deprecated name kept for API compatibility — means Gemini key is set */
+function aiConfigured() {
+  return Boolean(getGeminiKey())
 }
 
 function readBody(req: IncomingMessage): Promise<string> {
@@ -224,129 +141,6 @@ function gateAi(
     return null
   }
   return { token }
-}
-
-function parseDataUrl(dataUrl: string): { contentType: string; buffer: Buffer } | null {
-  const match = /^data:([^;]+);base64,(.+)$/s.exec(dataUrl)
-  if (!match) return null
-  return {
-    contentType: match[1] || 'image/jpeg',
-    buffer: Buffer.from(match[2] || '', 'base64'),
-  }
-}
-
-async function fetchAsBuffer(url: string): Promise<{ contentType: string; buffer: Buffer }> {
-  const res = await fetch(url)
-  if (!res.ok) throw new Error(`Could not fetch image (${res.status})`)
-  const contentType = res.headers.get('content-type') || 'image/jpeg'
-  const buffer = Buffer.from(await res.arrayBuffer())
-  return { contentType, buffer }
-}
-
-/**
- * Upload to Fal CDN v3 (token + raw PUT/POST).
- * Tunnel / localhost URLs are not readable by Fal models.
- */
-async function uploadToFal(
-  falKey: string,
-  contentType: string,
-  buffer: Buffer,
-  fileName: string,
-): Promise<string> {
-  const tokenRes = await fetch(
-    'https://rest.alpha.fal.ai/storage/auth/token?storage_type=fal-cdn-v3',
-    {
-      method: 'POST',
-      headers: {
-        Authorization: `Key ${falKey}`,
-        Accept: 'application/json',
-        'Content-Type': 'application/json',
-      },
-      body: '{}',
-    },
-  )
-
-  const tokenText = await tokenRes.text()
-  let tokenJson: { token?: string; base_upload_url?: string; detail?: string } = {}
-  try {
-    tokenJson = JSON.parse(tokenText) as typeof tokenJson
-  } catch {
-    throw new Error(`Fal upload auth failed: ${tokenText.slice(0, 200)}`)
-  }
-
-  if (!tokenRes.ok || !tokenJson.token) {
-    throw new Error(tokenJson.detail || `Fal upload auth failed (${tokenRes.status})`)
-  }
-
-  const base = (tokenJson.base_upload_url || 'https://v3.fal.media').replace(/\/$/, '')
-  const uploadRes = await fetch(`${base}/files/upload`, {
-    method: 'POST',
-    headers: {
-      Authorization: `Bearer ${tokenJson.token}`,
-      'Content-Type': contentType,
-      'X-Fal-File-Name': fileName,
-    },
-    body: buffer,
-  })
-
-  const uploadText = await uploadRes.text()
-  let uploadJson: {
-    url?: string
-    file_url?: string
-    access_url?: string
-    detail?: string
-  } = {}
-  try {
-    uploadJson = JSON.parse(uploadText) as typeof uploadJson
-  } catch {
-    throw new Error(`Fal file upload failed: ${uploadText.slice(0, 200)}`)
-  }
-
-  if (!uploadRes.ok) {
-    throw new Error(uploadJson.detail || `Fal file upload failed (${uploadRes.status})`)
-  }
-
-  const url = uploadJson.access_url || uploadJson.url || uploadJson.file_url
-  if (!url) throw new Error('Fal upload returned no URL')
-  return url
-}
-
-async function resolveImageUrl(
-  falKey: string,
-  src: string,
-  fileName: string,
-): Promise<string> {
-  if (src.startsWith('data:')) {
-    const parsed = parseDataUrl(src)
-    if (!parsed) throw new Error('Invalid image data')
-    try {
-      return await uploadToFal(falKey, parsed.contentType, parsed.buffer, fileName)
-    } catch {
-      // Fal models also accept data URIs when under size limits
-      if (src.length < 4_500_000) return src
-      throw new Error('Could not upload room/product image to Fal storage')
-    }
-  }
-
-  if (/^https?:\/\//i.test(src)) {
-    // Prior AI / CDN URLs are already usable by Fal — re-download often fails on tunnels
-    if (
-      /(?:fal\.media|fal\.run|fal\.ai|googleapis\.com\/download|r2\.cloudflarestorage\.com)/i.test(
-        src,
-      )
-    ) {
-      return src
-    }
-    try {
-      const { contentType, buffer } = await fetchAsBuffer(src)
-      return await uploadToFal(falKey, contentType, buffer, fileName)
-    } catch {
-      // Last resort: pass the public URL through (Kontext / Banana accept https)
-      return src
-    }
-  }
-
-  throw new Error('Unsupported image source')
 }
 
 function resolveShutterPose(body: VisualiseBody): ShutterPose {
@@ -457,57 +251,6 @@ function buildPrompt(body: VisualiseBody) {
     .join(' ')
 }
 
-function buildFalPayload(opts: {
-  model: string
-  prompt: string
-  imageUrls: string[]
-  isRefine: boolean
-  shutterPose?: ShutterPose
-}): Record<string, unknown> {
-  const family = modelFamily(opts.model)
-  const resolution = getVisualiseResolution()
-  const precisePose =
-    opts.shutterPose === 'ajar' || opts.shutterPose === 'open-carcass'
-
-  if (opts.isRefine || family === 'kontext') {
-    return {
-      prompt: opts.prompt,
-      image_url: opts.imageUrls[0],
-      num_images: 1,
-      output_format: 'jpeg',
-      // Slightly higher guidance + no rewrite for ajar — Kontext often drifted before
-      guidance_scale: precisePose ? 5.0 : 4.0,
-      enhance_prompt: !precisePose,
-      safety_tolerance: '2',
-      aspect_ratio: 'auto',
-    }
-  }
-
-  if (family === 'nano-banana') {
-    return {
-      prompt: opts.prompt,
-      system_prompt: INTERIOR_SYSTEM_PROMPT,
-      image_urls: opts.imageUrls,
-      num_images: 1,
-      output_format: 'jpeg',
-      resolution,
-      aspect_ratio: 'auto',
-      safety_tolerance: '4',
-      limit_generations: true,
-    }
-  }
-
-  // FLUX.2 Pro / Max edit family
-  return {
-    prompt: opts.prompt,
-    image_urls: opts.imageUrls,
-    image_size: 'auto',
-    output_format: 'jpeg',
-    safety_tolerance: '2',
-    enable_safety_checker: true,
-  }
-}
-
 async function handleVisualise(req: IncomingMessage, res: ServerResponse) {
   if (req.method === 'OPTIONS') {
     sendOptions(res)
@@ -522,12 +265,11 @@ async function handleVisualise(req: IncomingMessage, res: ServerResponse) {
   const gate = gateAi(req, res, 'visualise')
   if (!gate) return
 
-  const falKey = getFalKey()
-  if (!falKey) {
+  if (!aiConfigured()) {
     sendJson(res, 503, {
       error: 'Professional AI is not connected yet',
       code: 'MISSING_FAL_KEY',
-      hint: 'Owner must set FAL_KEY on the server. Subscribers do not paste Fal keys.',
+      hint: 'Owner must set GEMINI_API_KEY on the server (or paste it in /ai-admin). Subscribers do not paste keys.',
     })
     return
   }
@@ -544,98 +286,42 @@ async function handleVisualise(req: IncomingMessage, res: ServerResponse) {
     const isRefine = Boolean(body.refineImageUrl && body.changeRequest?.trim())
     const shutterPose = resolveShutterPose(body)
     const prompt = buildPrompt(body)
+    const model = getImageModel()
 
-    let model: string
-    let falPayload: Record<string, unknown>
-    let imageUrls: string[] = []
-
+    let images
     if (isRefine) {
-      // Kontext Max: precise single-image follow-up edits
-      const refineUrl = await resolveImageUrl(
-        falKey,
-        body.refineImageUrl!,
-        'refine.jpg',
-      )
-      model = getRefineModel()
-      imageUrls = [refineUrl]
-      falPayload = buildFalPayload({
-        model,
-        prompt,
-        imageUrls,
-        isRefine: true,
-        shutterPose,
-      })
+      images = [await loadInlineImage(body.refineImageUrl!)]
     } else {
-      // Nano Banana Pro / FLUX.2: room + product façade (+ detail angles)
       const extraProductSrcs = (body.productImageUrls ?? [])
         .filter((u) => typeof u === 'string' && u.length > 0)
         .filter((u) => u !== body.productImageUrl)
         .slice(0, 3)
 
-      const [baseUrl, productUrl, ...extraProductUrls] = await Promise.all([
-        resolveImageUrl(falKey, body.roomDataUrl, 'room.jpg'),
-        resolveImageUrl(falKey, body.productImageUrl, 'product-exterior.jpg'),
-        ...extraProductSrcs.map((src, i) =>
-          resolveImageUrl(falKey, src, `product-detail-${i + 1}.jpg`),
-        ),
+      images = await Promise.all([
+        loadInlineImage(body.roomDataUrl),
+        loadInlineImage(body.productImageUrl),
+        ...extraProductSrcs.map((src) => loadInlineImage(src)),
       ])
-
-      model = getCreateModel()
-      imageUrls = [baseUrl, productUrl, ...extraProductUrls]
-      falPayload = buildFalPayload({
-        model,
-        prompt,
-        imageUrls,
-        isRefine: false,
-        shutterPose,
-      })
     }
 
-    const falRes = await fetch(`https://fal.run/${model}`, {
-      method: 'POST',
-      headers: {
-        Authorization: `Key ${falKey}`,
-        'Content-Type': 'application/json',
-      },
-      body: JSON.stringify(falPayload),
+    const result = await geminiEditImage({
+      images,
+      prompt,
+      system: INTERIOR_SYSTEM_PROMPT,
+      model,
     })
-
-    const falJson = (await falRes.json()) as {
-      images?: Array<{ url?: string }>
-      image?: { url?: string }
-      detail?: string
-      error?: string
-      message?: string
-    }
-
-    if (!falRes.ok) {
-      sendJson(res, 502, {
-        error:
-          falJson.detail ||
-          falJson.error ||
-          falJson.message ||
-          'Professional AI generation failed',
-        code: 'FAL_ERROR',
-      })
-      return
-    }
-
-    const imageUrl = falJson.images?.[0]?.url || falJson.image?.url || null
-    if (!imageUrl) {
-      sendJson(res, 502, { error: 'AI returned no image', code: 'EMPTY_RESULT' })
-      return
-    }
 
     if (gate.token) consumeUsage(gate.token, 'visualise')
 
     sendJson(res, 200, {
-      imageUrl,
-      provider: 'fal',
-      model,
+      imageUrl: result.dataUrl,
+      provider: 'gemini',
+      model: result.model,
       mode: isRefine ? 'refine-precision' : 'interior-presentation',
-      quality: modelFamily(model) === 'nano-banana' ? getVisualiseResolution() : 'hd',
+      quality: 'flash-image',
       visualiseMode: body.visualiseMode || 'replace',
       access: statusForToken(gate.token),
+      shutterPose,
     })
   } catch (err) {
     sendJson(res, 500, {
@@ -662,39 +348,29 @@ async function handleConfig(req: IncomingMessage, res: ServerResponse) {
     const admin = assertAdmin(readAdminPin(req, body.adminPin))
     if (!admin.ok) {
       sendJson(res, admin.status, {
-        error: 'Only the owner can set the Fal key (admin PIN required)',
+        error: 'Only the owner can set the Gemini key (admin PIN required)',
         code: admin.code,
       })
       return
     }
     const key = (body.key || '').trim()
     if (!key || key.length < 10) {
-      sendJson(res, 400, { error: 'Paste a valid Fal.ai API key' })
+      sendJson(res, 400, { error: 'Paste a valid Gemini API key' })
       return
     }
-    runtimeFalKey = key
-    process.env.FAL_KEY = key
+    setGeminiKey(key)
     sendJson(res, 200, {
       configured: true,
       mode: 'paid-ai',
-      model: getCreateModel(),
-      refineModel: getRefineModel(),
+      model: getImageModel(),
+      refineModel: getImageModel(),
+      provider: 'gemini',
     })
   } catch (err) {
     sendJson(res, 500, {
       error: err instanceof Error ? err.message : 'Could not save key',
     })
   }
-}
-
-/** Map furniture feet to FLUX.2 Pro Edit image_size presets */
-function imageSizeFromFeet(widthFt: number, heightFt: number): string {
-  const ratio = widthFt / Math.max(heightFt, 0.1)
-  if (ratio >= 1.7) return 'landscape_16_9'
-  if (ratio >= 1.25) return 'landscape_4_3'
-  if (ratio >= 0.95) return 'square_hd'
-  if (ratio >= 0.7) return 'portrait_4_3'
-  return 'portrait_16_9'
 }
 
 function buildCarcassLivePrompt(body: CarcassLiveBody) {
@@ -737,12 +413,11 @@ async function handleCarcassLive(req: IncomingMessage, res: ServerResponse) {
   const gate = gateAi(req, res, 'carcass')
   if (!gate) return
 
-  const falKey = getFalKey()
-  if (!falKey) {
+  if (!aiConfigured()) {
     sendJson(res, 503, {
       error: 'Professional AI is not connected yet',
       code: 'MISSING_FAL_KEY',
-      hint: 'Owner must set FAL_KEY on the server.',
+      hint: 'Owner must set GEMINI_API_KEY on the server.',
     })
     return
   }
@@ -762,71 +437,25 @@ async function handleCarcassLive(req: IncomingMessage, res: ServerResponse) {
       return
     }
 
-    const imageUrl = await resolveImageUrl(
-      falKey,
-      body.carcassImageUrl,
-      'carcass-ref.jpg',
-    )
-
-    const model = getCarcassModel()
+    const model = getImageModel()
     const carcassPrompt = [
       buildCarcassLivePrompt(body),
       'Client-presentation quality. Photoreal open carcass for quotation — clean, sharp, believable scale.',
     ].join(' ')
-    const falPayload = buildFalPayload({
-      model,
+
+    const result = await geminiEditImage({
+      images: [await loadInlineImage(body.carcassImageUrl)],
       prompt: carcassPrompt,
-      imageUrls: [imageUrl],
-      isRefine: false,
+      system: INTERIOR_SYSTEM_PROMPT,
+      model,
     })
-    if (modelFamily(model) === 'flux-2') {
-      falPayload.image_size = imageSizeFromFeet(
-        Number(body.widthFt),
-        Number(body.heightFt),
-      )
-    }
-
-    const falRes = await fetch(`https://fal.run/${model}`, {
-      method: 'POST',
-      headers: {
-        Authorization: `Key ${falKey}`,
-        'Content-Type': 'application/json',
-      },
-      body: JSON.stringify(falPayload),
-    })
-
-    const falJson = (await falRes.json()) as {
-      images?: Array<{ url?: string }>
-      image?: { url?: string }
-      detail?: string
-      error?: string
-      message?: string
-    }
-
-    if (!falRes.ok) {
-      sendJson(res, 502, {
-        error:
-          falJson.detail ||
-          falJson.error ||
-          falJson.message ||
-          'Live-size carcass AI failed',
-        code: 'FAL_ERROR',
-      })
-      return
-    }
-
-    const outUrl = falJson.images?.[0]?.url || falJson.image?.url || null
-    if (!outUrl) {
-      sendJson(res, 502, { error: 'AI returned no image', code: 'EMPTY_RESULT' })
-      return
-    }
 
     if (gate.token) consumeUsage(gate.token, 'carcass')
 
     sendJson(res, 200, {
-      imageUrl: outUrl,
-      provider: 'fal',
-      model,
+      imageUrl: result.dataUrl,
+      provider: 'gemini',
+      model: result.model,
       mode: 'live-size-carcass',
       access: statusForToken(gate.token),
       size: {
@@ -869,8 +498,7 @@ async function handleChat(req: IncomingMessage, res: ServerResponse) {
   const gate = gateAi(req, res, 'chat')
   if (!gate) return
 
-  const falKey = getFalKey()
-  if (!falKey) {
+  if (!aiConfigured()) {
     sendJson(res, 503, {
       error: 'Live AI chat is not connected on the server',
       code: 'MISSING_FAL_KEY',
@@ -936,58 +564,18 @@ async function handleChat(req: IncomingMessage, res: ServerResponse) {
       .filter(Boolean)
       .join('\n')
 
-    const model = getChatModel()
-    const falRes = await fetch('https://fal.run/fal-ai/any-llm', {
-      method: 'POST',
-      headers: {
-        Authorization: `Key ${falKey}`,
-        'Content-Type': 'application/json',
-      },
-      body: JSON.stringify({
-        model,
-        system_prompt: systemPrompt.slice(0, 120_000),
-        prompt: prompt.slice(0, 24_000),
-        temperature: 0.35,
-        priority: 'latency',
-        max_tokens: 1100,
-      }),
+    const { reply, model } = await geminiChat({
+      system: systemPrompt.slice(0, 120_000),
+      prompt: prompt.slice(0, 24_000),
+      model: getChatModel(),
     })
-
-    const falJson = (await falRes.json()) as {
-      output?: string
-      error?: string
-      detail?: string
-      message?: string
-    }
-
-    if (!falRes.ok) {
-      sendJson(res, 502, {
-        error:
-          falJson.error ||
-          falJson.detail ||
-          falJson.message ||
-          'Chat AI request failed',
-        code: 'FAL_CHAT_ERROR',
-      })
-      return
-    }
-
-    const reply = (falJson.output || '').trim()
-    if (!reply) {
-      sendJson(res, 502, {
-        error: 'Chat AI returned an empty reply',
-        code: 'EMPTY_REPLY',
-      })
-      return
-    }
 
     if (gate.token) consumeUsage(gate.token, 'chat')
 
     sendJson(res, 200, {
       reply,
-      provider: 'fal',
+      provider: 'gemini',
       model,
-      mode: 'sales-chat',
       access: statusForToken(gate.token),
     })
   } catch (err) {
@@ -1043,7 +631,7 @@ async function handleAiAccessStatus(req: IncomingMessage, res: ServerResponse) {
     }
   }
   sendJson(res, 200, {
-    falConfigured: Boolean(getFalKey()),
+    falConfigured: aiConfigured(),
     ...statusForToken(token),
     plans: listPlans(),
   })
@@ -1065,7 +653,7 @@ async function handleAiAdmin(req: IncomingMessage, res: ServerResponse) {
       sendJson(res, 200, {
         subscribers: listSubscribers(),
         plans: listPlans(),
-        falConfigured: Boolean(getFalKey()),
+        falConfigured: aiConfigured(),
         requireSubscription: requireSubscription(),
       })
       return
@@ -1088,6 +676,7 @@ async function handleAiAdmin(req: IncomingMessage, res: ServerResponse) {
       active?: boolean
       limits?: { visualise?: number; chat?: number; carcass?: number }
       falKey?: string
+      geminiKey?: string
     }
 
     const admin = assertAdmin(readAdminPin(req, body.adminPin))
@@ -1121,15 +710,14 @@ async function handleAiAdmin(req: IncomingMessage, res: ServerResponse) {
       return
     }
 
-    if (action === 'set-fal-key') {
-      const key = (body.falKey || '').trim()
+    if (action === 'set-fal-key' || action === 'set-gemini-key') {
+      const key = (body.falKey || body.geminiKey || '').trim()
       if (!key || key.length < 10) {
-        sendJson(res, 400, { error: 'Valid Fal key required' })
+        sendJson(res, 400, { error: 'Valid Gemini API key required' })
         return
       }
-      runtimeFalKey = key
-      process.env.FAL_KEY = key
-      sendJson(res, 200, { ok: true, falConfigured: true })
+      setGeminiKey(key)
+      sendJson(res, 200, { ok: true, falConfigured: true, provider: 'gemini' })
       return
     }
 
@@ -1137,7 +725,7 @@ async function handleAiAdmin(req: IncomingMessage, res: ServerResponse) {
       sendJson(res, 200, {
         subscribers: listSubscribers(),
         plans: listPlans(),
-        falConfigured: Boolean(getFalKey()),
+        falConfigured: aiConfigured(),
       })
       return
     }
@@ -1178,18 +766,19 @@ function attach(middlewares: Connect.Server) {
     const needsSub = requireSubscription()
     sendJson(res, 200, {
       ...access,
-      configured: Boolean(getFalKey()) && (!needsSub || access.subscribed),
-      falConfigured: Boolean(getFalKey()),
-      mode: getFalKey()
+      configured: aiConfigured() && (!needsSub || access.subscribed),
+      falConfigured: aiConfigured(),
+      mode: aiConfigured()
         ? access.subscribed || !needsSub
           ? 'subscriber-ai'
           : 'needs-subscription'
         : 'needs-key',
-      model: getCreateModel(),
-      refineModel: getRefineModel(),
+      model: getImageModel(),
+      refineModel: getImageModel(),
       chatModel: getChatModel(),
-      quality: getVisualiseResolution(),
-      engine: 'Priyabadal Interior AI · Nano Banana Pro 2K + Kontext Max',
+      quality: 'flash-image',
+      engine: 'Priyabadal Interior AI · Google Gemini Flash Image',
+      provider: 'gemini',
       requireSubscription: needsSub,
     })
   })
@@ -1200,14 +789,14 @@ export function visualiseApiPlugin(): Plugin {
   return {
     name: 'priyabadal-visualise-api',
     configResolved(config) {
-      hydrateFalEnv(config.mode)
+      hydrateGeminiEnv(config.mode)
     },
     configureServer(server) {
-      hydrateFalEnv(server.config.mode)
+      hydrateGeminiEnv(server.config.mode)
       attach(server.middlewares)
     },
     configurePreviewServer(server) {
-      hydrateFalEnv(server.config.mode)
+      hydrateGeminiEnv(server.config.mode)
       attach(server.middlewares)
     },
   }

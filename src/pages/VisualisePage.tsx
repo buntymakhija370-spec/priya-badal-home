@@ -50,7 +50,7 @@ export function VisualisePage() {
   const [resultUrl, setResultUrl] = useState<string | null>(null)
   const [statusMsg, setStatusMsg] = useState<string | null>(null)
   const [aiConfigured, setAiConfigured] = useState(false)
-  const [aiModel, setAiModel] = useState('fal-ai/nano-banana-pro/edit')
+  const [aiModel, setAiModel] = useState('gemini-2.5-flash-image')
   const [aiQuality, setAiQuality] = useState('2K')
   const [aiEngine, setAiEngine] = useState('Priyabadal Interior AI')
 

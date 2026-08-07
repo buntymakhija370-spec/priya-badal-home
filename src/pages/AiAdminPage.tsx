@@ -142,12 +142,12 @@ export function AiAdminPage() {
         }),
       })
       const data = (await res.json()) as { error?: string; falConfigured?: boolean }
-      if (!res.ok) throw new Error(data.error || 'Could not set Fal key')
+      if (!res.ok) throw new Error(data.error || 'Could not set Gemini key')
       setFalConfigured(Boolean(data.falConfigured))
       setFalKey('')
-      setMsg('Fal key saved on server (not shown to customers).')
+      setMsg('Gemini key saved on server (not shown to customers).')
     } catch (err) {
-      setMsg(err instanceof Error ? err.message : 'Fal key update failed')
+      setMsg(err instanceof Error ? err.message : 'Gemini key update failed')
     } finally {
       setBusy(false)
     }
@@ -159,8 +159,8 @@ export function AiAdminPage() {
         <p className="eyebrow">Owner only</p>
         <h1>AI subscriber admin</h1>
         <p>
-          Issue monthly access codes after WhatsApp/UPI payment. Customers never see your Fal key.
-          Default admin PIN is in server env <code>AI_ADMIN_PIN</code>.
+          Issue monthly access codes after WhatsApp/UPI payment. Customers never see your Gemini
+          key. Default admin PIN is in server env <code>AI_ADMIN_PIN</code>.
         </p>
       </header>
 
@@ -182,23 +182,30 @@ export function AiAdminPage() {
       ) : (
         <>
           <section className="ai-admin__card">
-            <h2>Server Fal key</h2>
-            <p>Status: {falConfigured ? 'Connected' : 'Not connected'}</p>
+            <h2>Server Gemini key</h2>
+            <p>Status: {falConfigured ? 'Connected (Gemini)' : 'Not connected'}</p>
             <form onSubmit={onSetFal} className="ai-admin__form">
               <label>
-                <span>Set / replace Fal key</span>
+                <span>Set / replace Gemini API key</span>
                 <input
                   type="password"
                   value={falKey}
                   onChange={(e) => setFalKey(e.target.value)}
-                  placeholder="fal key"
+                  placeholder="AIza…"
                   autoComplete="off"
                 />
               </label>
               <button className="btn btn--dark" type="submit" disabled={busy || !falKey}>
-                Save Fal key
+                Save Gemini key
               </button>
             </form>
+            <p className="ai-admin__hint">
+              Get a free/cheap key at{' '}
+              <a href="https://aistudio.google.com/apikey" target="_blank" rel="noreferrer">
+                aistudio.google.com/apikey
+              </a>
+              . Customers never see this key.
+            </p>
           </section>
 
           <section className="ai-admin__card">

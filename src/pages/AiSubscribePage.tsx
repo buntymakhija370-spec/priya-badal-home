@@ -65,7 +65,7 @@ export function AiSubscribePage() {
         <p className="eyebrow">Controlled AI</p>
         <h1>Paid AI for subscribers</h1>
         <p>
-          Visualise, live carcass, and smart chat use Fal AI credits. To keep costs controlled,
+          Visualise, live carcass, and smart chat use Gemini AI credits. To keep costs controlled,
           these tools unlock only with a monthly access code after payment.
         </p>
       </header>

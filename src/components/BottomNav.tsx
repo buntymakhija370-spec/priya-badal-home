@@ -77,6 +77,22 @@ const tabs = [
       </svg>
     ),
   },
+  {
+    to: '/favorites',
+    label: 'Check',
+    icon: (
+      <svg viewBox="0 0 24 24" aria-hidden="true">
+        <path
+          d="M5 12.2 9.4 16.5 19 6.5"
+          fill="none"
+          stroke="currentColor"
+          strokeWidth="1.9"
+          strokeLinecap="round"
+          strokeLinejoin="round"
+        />
+      </svg>
+    ),
+  },
 ] as const
 
 export function BottomNav() {

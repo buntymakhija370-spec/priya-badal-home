@@ -206,7 +206,7 @@ export function HomePage() {
           ) : (
             <Link className="home-cats__next home-cats__next--done" to="/shop">
               <span className="home-cats__next-label">Browse</span>
-              <strong>All products</strong>
+              <strong>All collections</strong>
             </Link>
           )}
         </div>

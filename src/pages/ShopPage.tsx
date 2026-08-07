@@ -1,7 +1,7 @@
 import { Link, useParams } from 'react-router-dom'
 import { useEffect, useMemo, useState } from 'react'
 import { categories, getCategory, getSubcategory } from '../data/catalog'
-import { getProductsByCategory, getAllProducts } from '../lib/products'
+import { getProductsByCategory } from '../lib/products'
 import { ProductCard } from '../components/ProductCard'
 import { shopPath } from '../lib/links'
 import { WHATSAPP_CHAT_URL } from '../lib/whatsapp'
@@ -33,7 +33,7 @@ export function ShopPage() {
   }, [categoryId, subcategoryId])
 
   const baseProducts = useMemo(() => {
-    if (!categoryId) return getAllProducts()
+    if (!categoryId) return []
     if (subcategoryId) return getProductsByCategory(categoryId, subcategoryId)
     return getProductsByCategory(categoryId)
   }, [categoryId, subcategoryId])
@@ -62,7 +62,51 @@ export function ShopPage() {
   const lede =
     subcategory?.description ??
     category?.description ??
-    'Customise sizes and request WhatsApp quotes.'
+    'Pick a collection to see products, sizes, and WhatsApp quotes.'
+
+  // Shop entry: ask which collection — do not dump every product.
+  if (!categoryId) {
+    return (
+      <main className="shop page-pad shop--landing">
+        <header className="shop__header">
+          <p className="eyebrow">Shop</p>
+          <h1>Choose a collection</h1>
+          <p className="shop__lede">{lede}</p>
+        </header>
+
+        <aside className="shop__pick-banner" aria-label="How to shop">
+          <p className="shop__pick-banner-kicker">Start here</p>
+          <p>
+            Tap a category banner below. Products open only after you choose a
+            collection — so you see the right shutters, panels, or furniture first.
+          </p>
+        </aside>
+
+        <div className="shop__pick" aria-label="Shop collections">
+          {categories.map((cat) => (
+            <Link
+              key={cat.id}
+              className="shop__pick-card"
+              to={shopPath(cat.id)}
+              aria-label={`Open ${cat.name}`}
+            >
+              <span className="shop__pick-media" aria-hidden="true">
+                <img src={cat.image} alt="" loading="lazy" />
+              </span>
+              <span className="shop__pick-copy">
+                <strong>{cat.name}</strong>
+                <span>
+                  {cat.caption ??
+                    cat.description.split(/[.!?]/)[0]?.trim() ??
+                    'View products'}
+                </span>
+              </span>
+            </Link>
+          ))}
+        </div>
+      </main>
+    )
+  }
 
   return (
     <main className={`shop page-pad ${category?.id === 'commercials' ? 'shop--commercials' : ''}`}>
@@ -79,11 +123,9 @@ export function ShopPage() {
           <p className="shop__caption">{category.caption}</p>
         ) : null}
         <p className="shop__lede">{lede}</p>
-        {category ? (
-          <p className="shop__back">
-            <Link to="/shop">← All collections</Link>
-          </p>
-        ) : null}
+        <p className="shop__back">
+          <Link to="/shop">← All collections</Link>
+        </p>
       </header>
 
       {category?.id === 'commercials' && category.conceptNote ? (
@@ -152,8 +194,8 @@ export function ShopPage() {
 
       {!hideCategoryChips ? (
         <div className="shop__cats" aria-label="Categories">
-          <Link className={`chip ${!categoryId ? 'chip--active' : ''}`} to="/shop">
-            All
+          <Link className="chip" to="/shop">
+            Collections
           </Link>
           {categories.map((cat) => (
             <Link
@@ -194,7 +236,7 @@ export function ShopPage() {
             type="search"
             value={query}
             onChange={(e) => setQuery(e.target.value)}
-            placeholder="Search products…"
+            placeholder="Search this collection…"
           />
         </label>
         <label className="shop__sort">

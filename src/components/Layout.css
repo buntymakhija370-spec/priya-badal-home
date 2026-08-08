@@ -107,7 +107,7 @@
   }
 
   .nav__brand {
-    max-width: min(48vw, 26rem);
+    max-width: min(42vw, 18rem);
   }
 }
 
@@ -274,7 +274,7 @@
 
 .footer__logo {
   display: block;
-  width: min(34rem, 100%);
+  width: min(22rem, 100%);
   max-width: 100%;
   height: auto;
   object-fit: contain;

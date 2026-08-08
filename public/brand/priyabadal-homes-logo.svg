@@ -1,34 +1,45 @@
-<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 900 72" role="img" aria-label="Priyabadal Homes — Shutters, Doors, Wall Panels">
-  <!-- Single row: brand + three titles, flowing left→right with no overflow -->
-  <text
-    x="6"
-    y="48"
-    text-anchor="start"
-    xml:space="preserve"
-  >
-    <tspan
-      fill="#2f3133"
-      font-family="Arial Black, Arial, Helvetica, sans-serif"
-      font-size="34"
-      font-weight="700"
-      letter-spacing="1.8"
-    >PRIYABADAL</tspan>
-    <tspan
-      dx="12"
-      fill="#8b5a3c"
-      font-family="Arial Black, Arial, Helvetica, sans-serif"
-      font-size="34"
-      font-weight="700"
-      letter-spacing="1.8"
-    >HOMES</tspan>
-    <tspan
-      dx="20"
-      fill="#3d2b6b"
-      font-family="Arial, Helvetica, sans-serif"
-      font-size="13"
-      font-weight="600"
-      letter-spacing="1.5"
-      dy="-1"
-    >SHUTTERS | DOORS | WALL PANELS</tspan>
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 720 120" role="img" aria-label="Priyabadal Homes — Shutters, Doors, Wall Panels">
+  <defs>
+    <style>
+      .wm {
+        font-family: "Arial Black", Arial, Helvetica, sans-serif;
+        font-weight: 700;
+        letter-spacing: 0.06em;
+      }
+      .tag {
+        font-family: Arial, Helvetica, sans-serif;
+        font-weight: 600;
+        letter-spacing: 0.28em;
+        text-transform: uppercase;
+      }
+    </style>
+  </defs>
+
+  <!-- Wordmark -->
+  <text class="wm" x="360" y="58" text-anchor="middle" font-size="42">
+    <tspan fill="#2f3133">PRIYABADAL</tspan>
+    <tspan dx="14" fill="#8b5a3c">HOMES</tspan>
   </text>
+
+  <!-- Accent rule under brand -->
+  <line
+    x1="118"
+    y1="72"
+    x2="602"
+    y2="72"
+    stroke="#8b5a3c"
+    stroke-width="1.5"
+    stroke-linecap="round"
+    opacity="0.55"
+  />
+
+  <!-- Category line: Shutters-Doors-Wall panels -->
+  <text
+    class="tag"
+    x="360"
+    y="98"
+    text-anchor="middle"
+    fill="#3d2b6b"
+    font-size="15"
+  >SHUTTERS — DOORS — WALL PANELS</text>
 </svg>

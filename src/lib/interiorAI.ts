@@ -315,23 +315,22 @@ export function createWelcomeMessage(): ChatMessage {
     id: crypto.randomUUID(),
     role: 'assistant',
     text: [
-      'Hi — I’m your Priyabadal Homes chat. One conversation for everything:',
+      'Hi — I’m your Priyabadal Homes salesperson in chat. One conversation for everything:',
       '',
+      '• Economic ranges — e.g. wall panels with poly / HDR finishes & tentative prices',
       '• Pricing — shutter & carcass rates from our catalog (INR)',
+      '• Finishes & thickness — what’s available on each product',
       '• Carcass help — BWP boxes, laminate, edge banding, assembly',
-      '• Materials & finishes — what’s in the product',
-      '• Product info — styles for kitchen, wardrobe, temple, panels & more',
-      '• Open carcass visualisation — live-size interior elevation (no shutters)',
       '• Room visualisation — attach a photo and say “visualise”',
+      '• WhatsApp quotation — after we lock size, design, and rates',
       '',
-      'Just type naturally — like WhatsApp. What do you need?',
+      'Tell me what you need — like “give me economic wall panel range”.',
     ].join('\n'),
     suggestions: [
+      'Economic wall panel range',
       'Price wardrobe 8×7 with carcass',
-      'Visualise carcass',
-      'What is carcass construction?',
-      'Suggest kitchen styles',
       'Visualise my look',
+      'Suggest kitchen styles',
     ],
   }
 }
@@ -753,13 +752,27 @@ export function processConsultTurn(
     }
   }
 
-  // 3b) Catalog sales Q&A — price, carcass, specs, materials, design
+  // 3b) Catalog sales Q&A — price, carcass, specs, materials, design, ranges
   const catalogIntent = detectCatalogIntent(text)
   if (catalogIntent && !wantsVisualise && !wantsSuggest && !wantsCarcassVisualise) {
     const reply = answerCatalogIntent(next, text, catalogIntent)
     if (reply) {
+      const briefOut =
+        catalogIntent === 'range' &&
+        (/\bwall panels?\b/i.test(text) ||
+          /\bg[- ]?series\b/i.test(text) ||
+          /\bpanel\b/i.test(text) ||
+          (!/\b(kitchen|wardrobe|temple|door)\b/i.test(text) &&
+            next.categoryId !== 'kitchen' &&
+            next.categoryId !== 'wardrobe'))
+          ? {
+              ...next,
+              categoryId: next.categoryId ?? ('wall-panels' as const),
+              room: next.room ?? 'wall panels',
+            }
+          : next
       return {
-        brief: next,
+        brief: briefOut,
         reply,
         catalogLocal: true,
         catalogIntent,

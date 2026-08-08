@@ -45,7 +45,16 @@ export type ConsultBrief = {
 export function isChangeRequest(text: string): boolean {
   const t = text.trim()
   if (!t) return false
-  return /\b(change(s|d)?|update(d)?|edit(ed)?|revise(d)?|revision|modify|adjust|tweak|redo|correct(ion)?|fix (this|it|the look)|make (it|the|them|this|doors?|colour|color|handles?|shutters?) |make it |lighter|darker|brighter|softer|warmer|cooler|whiter|cream(ier)?|remove (the )?handles?|add (more )?(hanging|drawers|shelves|handles?)|no handles|more hanging|more drawers|less drawers|different (colour|color|finish|handle)|on this (photo|image|look|visual)|apply (this )?change|instead of|rather than|too (dark|light|bright|small|big|heavy)|a bit more|a bit less|slightly|ajar|half[- ]?open|partly open|partially open|(slightly |soft )?open (the )?(shutter|shutters|door|doors)|show (the )?inside|peek inside)\b/i.test(
+  return /\b(change(s|d)?|update(d)?|edit(ed)?|revise(d)?|revision|modify|adjust|tweak|redo|correct(ion)?|fix (this|it|the look)|make (it|the|them|this|doors?|colour|color|handles?|shutters?) |make it |lighter|darker|brighter|softer|warmer|cooler|whiter|cream(ier)?|remove (the )?handles?|add (more )?(hanging|drawers|shelves|handles?)|no handles|more hanging|more drawers|less drawers|different (colour|color|finish|handle)|on this (photo|image|look|visual)|apply (this )?change|instead of|rather than|too (dark|light|bright|small|big|heavy)|a bit more|a bit less|slightly|ajar|half[- ]?open|partly open|partially open|(slightly |soft )?open (the )?(shutter|shutters|door|doors)|show (the )?inside|peek inside|same (look|image|photo|visual)? ?(?:but|with|without)|keep (this|the same)|continue (with |on )?(this|the )?(look|image|visual)|try again|do (it )?again|one more (time|edit)|another (edit|tweak|change)|also |now (make|change|add|remove|open|close))\b/i.test(
+    t,
+  )
+}
+
+/** Short “keep going on this same AI look” phrasing (not a brand-new job) */
+export function isContinueSameLookRequest(text: string): boolean {
+  const t = text.trim().toLowerCase()
+  if (!t) return false
+  return /^(again|same again|same look|continue|keep going|next change|update this|edit this|apply|apply change|do again|try again|one more|one more time|please update|please change)$/i.test(
     t,
   )
 }
@@ -660,15 +669,20 @@ export function processConsultTurn(
     Boolean(brief.selectedProductId) &&
     Boolean(brief.roomPhotoDataUrl)
   const wantsFresh = isFreshVisualiseRequest(text)
+  const continueSameLook = isContinueSameLookRequest(text)
 
   if (
     canRefine &&
     !wantsFresh &&
-    isChangeRequest(text) &&
     !wantsSuggest &&
-    !wantsSummary
+    !wantsSummary &&
+    !wantsCarcassVisualise &&
+    (isChangeRequest(text) || continueSameLook)
   ) {
-    const changeText = text.trim()
+    const changeText = continueSameLook
+      ? brief.lastChangeRequest?.trim() ||
+        'Keep this same visualisation — polish lighting and realism only; do not change the product or room.'
+      : text.trim()
     next = {
       ...next,
       lastChangeRequest: changeText,
@@ -680,7 +694,9 @@ export function processConsultTurn(
       reply: {
         id: crypto.randomUUID(),
         role: 'assistant',
-        text: `Understood — editing your current AI look for: “${changeText}”.`,
+        text: continueSameLook
+          ? 'Continuing on your current AI look — editing this same image (not starting a new job)…'
+          : `Understood — editing your current AI look for: “${changeText}”.`,
         suggestions: [
           'Slightly open shutters',
           'Make it lighter',
@@ -773,14 +789,19 @@ export function processConsultTurn(
       }
     }
 
-    // Prefer editing the current AI image unless the user asks to start over
-    const refineAgain =
-      Boolean(next.aiImageUrl) &&
-      !wantsFresh &&
-      (isChangeRequest(text) || Boolean(next.lastChangeRequest?.trim()))
+    // Prefer editing the current AI image unless the user asks to start over.
+    // Saying “Visualise my look” again after a render must CONTINUE the same look,
+    // not kick off a brand-new job from the room photo.
+    const refineAgain = Boolean(next.aiImageUrl) && !wantsFresh
 
-    if (refineAgain && isChangeRequest(text)) {
-      next = { ...next, lastChangeRequest: text.trim() }
+    if (refineAgain && (isChangeRequest(text) || continueSameLook)) {
+      next = {
+        ...next,
+        lastChangeRequest: continueSameLook
+          ? next.lastChangeRequest?.trim() ||
+            'Keep this same visualisation — polish lighting and realism only; do not change the product or room.'
+          : text.trim(),
+      }
     }
     if (refineAgain && !next.lastChangeRequest?.trim()) {
       next = {
@@ -799,9 +820,9 @@ export function processConsultTurn(
         id: crypto.randomUUID(),
         role: 'assistant',
         text: refineAgain
-          ? `Editing your current AI look${
+          ? `Continuing your current AI look${
               next.lastChangeRequest
-                ? ` for: “${next.lastChangeRequest}”`
+                ? ` — “${next.lastChangeRequest}”`
                 : ''
             }…`
           : wantsFresh && next.aiImageUrl

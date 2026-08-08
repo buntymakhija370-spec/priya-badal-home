@@ -74,6 +74,11 @@ export function ChatPage() {
   const [brief, setBrief] = useState<ConsultBrief>({})
   const [input, setInput] = useState('')
   const [busy, setBusy] = useState(false)
+  /** What the spinner / wait window is for */
+  const [busyKind, setBusyKind] = useState<'chat' | 'visualise' | 'carcass' | null>(
+    null,
+  )
+  const [busySeconds, setBusySeconds] = useState(0)
   /** True when Fal is on the server AND this device is unlocked */
   const [aiConfigured, setAiConfigured] = useState(false)
   const [showKey, setShowKey] = useState(false)
@@ -106,7 +111,19 @@ export function ChatPage() {
   useEffect(() => {
     if (!stickToBottomRef.current) return
     scrollThreadToBottom()
-  }, [messages, busy, pendingFile])
+  }, [messages, busy, pendingFile, busyKind])
+
+  useEffect(() => {
+    if (!busy || !busyKind) {
+      setBusySeconds(0)
+      return
+    }
+    setBusySeconds(0)
+    const id = window.setInterval(() => {
+      setBusySeconds((s) => s + 1)
+    }, 1000)
+    return () => window.clearInterval(id)
+  }, [busy, busyKind])
 
   useEffect(() => {
     void fetchAiAccessStatus().then((s) => {
@@ -249,6 +266,7 @@ export function ChatPage() {
       thicknessId: rates.thicknessId,
     })
 
+    setBusyKind('carcass')
     setBusy(true)
     try {
       const result = await generateLiveCarcass({
@@ -266,7 +284,8 @@ export function ChatPage() {
           ...current,
           aiImageUrl: result.imageUrl,
           depthFt: depth,
-          lastChangeRequest: null,
+          lastChangeRequest:
+            'Open carcass look ready — next edits continue on this same image.',
         }
         setBrief(nextBrief)
         push({
@@ -317,6 +336,7 @@ export function ChatPage() {
       })
     } finally {
       setBusy(false)
+      setBusyKind(null)
     }
   }
 
@@ -360,6 +380,7 @@ export function ChatPage() {
       return
     }
 
+    setBusyKind('visualise')
     setBusy(true)
     try {
       const category = getCategory(product.categoryId)
@@ -431,20 +452,23 @@ export function ChatPage() {
         const nextBrief: ConsultBrief = {
           ...current,
           aiImageUrl: result.imageUrl,
-          // Keep the last correction so the next edit chains from this image
-          lastChangeRequest: changeText || null,
+          // Keep a chain marker so the next follow-up continues this same look
+          lastChangeRequest:
+            changeText ||
+            current.lastChangeRequest ||
+            'Base look ready — apply the next change on this same image.',
         }
         setBrief(nextBrief)
         push({
           id: crypto.randomUUID(),
           role: 'assistant',
           text: usedRefine
-            ? `${result.message}\n\nUpdated your current look for ${product.name}. Say another change (e.g. “make it lighter”) to keep editing this same image — or say “start over from photo” for a fresh one.`
+            ? `${result.message}\n\nUpdated your current look for ${product.name}. This chat is still on the same job — say another change (e.g. “make it lighter”) and I’ll edit this same image. Say “start over from photo” only if you want a fresh render.`
             : shouldRefine
-              ? `${result.message}\n\nI rebuilt the look with your change for ${product.name} (slightly open / edit applied from your room photo).\n\nTell me another tweak anytime, or say “start over from photo”.`
+              ? `${result.message}\n\nI rebuilt the look with your change for ${product.name}.\n\nWe’re still on the same visualisation — tell me another tweak anytime, or say “start over from photo”.`
               : `${result.message}\n\nVisualisation of ${product.name}${
                   kind === 'drawing' ? ' from your architect drawing' : ' in your room photo'
-                }.\n\nIf something is off, tell me a specific change and I’ll edit this same image — I won’t regenerate from scratch unless you ask.`,
+                }.\n\nNext messages continue this same look — tell me a change and I’ll edit this image (I won’t start a new job unless you ask).`,
           aiImageUrl: result.imageUrl,
           products: [product],
           suggestions: [
@@ -483,6 +507,7 @@ export function ChatPage() {
       setShowKey(true)
     } finally {
       setBusy(false)
+      setBusyKind(null)
     }
   }
 
@@ -618,6 +643,7 @@ export function ChatPage() {
 
     const nextBrief = mergeBriefFromText(turn.brief, trimmed)
     setBrief(nextBrief)
+    setBusyKind('chat')
     setBusy(true)
     setMessages((prev) => [...prev, userMsg])
 
@@ -631,9 +657,43 @@ export function ChatPage() {
       (turn.catalogIntent === 'materials' || turn.catalogIntent === 'specs')
 
     try {
-      const history = [...messages, userMsg]
-        .filter((m) => m.role === 'user' || m.role === 'assistant')
-        .map((m) => ({ role: m.role, text: m.text }))
+      const sessionNotes: string[] = []
+      if (nextBrief.selectedProductId) {
+        const p = getProductById(nextBrief.selectedProductId)
+        if (p) sessionNotes.push(`Selected product in this chat: ${p.name} (${p.id}).`)
+      }
+      if (nextBrief.aiImageUrl) {
+        sessionNotes.push(
+          'An AI visualisation is already ready in this chat — continue the same look; do not restart as a new job.',
+        )
+      }
+      if (nextBrief.lastChangeRequest) {
+        sessionNotes.push(`Latest change on that look: ${nextBrief.lastChangeRequest}`)
+      }
+      if (nextBrief.roomPhotoDataUrl) {
+        sessionNotes.push(
+          `Client attached a ${nextBrief.attachmentKind === 'drawing' ? 'drawing' : 'room photo'} for visualisation.`,
+        )
+      }
+
+      const history = [
+        ...[...messages, userMsg]
+          .filter((m) => m.role === 'user' || m.role === 'assistant')
+          .map((m) => ({
+            role: m.role as 'user' | 'assistant',
+            text: m.aiImageUrl
+              ? `${m.text}\n[AI visualisation image was shown in chat]`
+              : m.text,
+          })),
+        ...(sessionNotes.length
+          ? [
+              {
+                role: 'assistant' as const,
+                text: `Session continuity:\n${sessionNotes.join('\n')}`,
+              },
+            ]
+          : []),
+      ]
 
       // Without subscription: free local catalog answers for price/materials
       if (!aiConfigured && turn.catalogLocal) {
@@ -731,6 +791,7 @@ export function ChatPage() {
       }
     } finally {
       setBusy(false)
+      setBusyKind(null)
     }
   }
 
@@ -832,8 +893,15 @@ export function ChatPage() {
       ?.suggestions ?? []
   const showWelcomeHero = messages.length <= 1 && !busy
 
+  const showWorkOverlay =
+    busy && (busyKind === 'visualise' || busyKind === 'carcass')
+
   return (
-    <main className={`pbai${showKey ? ' pbai--unlock' : ''}`}>
+    <main
+      className={`pbai${showKey ? ' pbai--unlock' : ''}${
+        showWorkOverlay ? ' pbai--working' : ''
+      }`}
+    >
       <header className="pbai__top">
         <div className="pbai__brand">
           <Link className="pbai__back" to="/" aria-label="Back to home">
@@ -1064,7 +1132,7 @@ export function ChatPage() {
             )
           })}
 
-          {busy ? (
+          {busy && busyKind === 'chat' ? (
             <article className="pbai-msg pbai-msg--assistant">
               <div className="pbai-msg__avatar" aria-hidden="true">
                 PB
@@ -1082,6 +1150,41 @@ export function ChatPage() {
           <div ref={endRef} />
         </div>
       </div>
+
+      {showWorkOverlay ? (
+        <div
+          className="pbai__work"
+          role="status"
+          aria-live="polite"
+          aria-busy="true"
+        >
+          <div className="pbai__work-card">
+            <div className="pbai__work-spinner" aria-hidden="true" />
+            <p className="pbai__work-kicker">Please wait</p>
+            <h2 className="pbai__work-title">
+              {busyKind === 'carcass'
+                ? 'Open carcass in progress'
+                : 'Visualisation in progress'}
+            </h2>
+            <p className="pbai__work-body">
+              {busyKind === 'carcass'
+                ? 'Building your live-size open carcass elevation. Stay on this chat — usually 15–40 seconds.'
+                : brief.aiImageUrl
+                  ? 'Updating your current look (same chat job). Stay on this screen while AI finishes.'
+                  : 'Creating your room look from the photo/drawing you sent. Stay on this screen while AI works.'}
+            </p>
+            <p className="pbai__work-timer">
+              Working… {busySeconds}s
+              {busySeconds >= 20 ? ' — almost there' : ''}
+            </p>
+            <div className="pbai-msg__bubble pbai-msg__bubble--typing" aria-hidden>
+              <span />
+              <span />
+              <span />
+            </div>
+          </div>
+        </div>
+      ) : null}
 
       <footer
         className="pbai__composer-wrap"
@@ -1185,6 +1288,7 @@ export function ChatPage() {
                   busy || !brief.selectedProductId || !brief.roomPhotoDataUrl
                 }
                 onClick={() => {
+                  if (busy) return
                   const typed = input.trim()
                   const editExisting = Boolean(brief.aiImageUrl)
                   const nextBrief: ConsultBrief = {
@@ -1195,8 +1299,31 @@ export function ChatPage() {
                         'Keep this same visualisation — polish lighting and realism only; do not change the product or room.'
                       : brief.lastChangeRequest,
                   }
-                  if (editExisting) setBrief(nextBrief)
+                  setBrief(nextBrief)
                   if (typed) setInput('')
+                  const userLine = typed
+                    ? typed
+                    : editExisting
+                      ? 'Apply change on this same look'
+                      : 'Visualise my look'
+                  push(
+                    {
+                      id: crypto.randomUUID(),
+                      role: 'user',
+                      text: userLine,
+                    },
+                    {
+                      id: crypto.randomUUID(),
+                      role: 'assistant',
+                      text: editExisting
+                        ? `Continuing your current AI look${
+                            nextBrief.lastChangeRequest
+                              ? ` — “${nextBrief.lastChangeRequest}”`
+                              : ''
+                          }. Please wait while the image updates…`
+                        : 'Generating your AI visualisation. Please wait — this can take about 15–40 seconds…',
+                    },
+                  )
                   void runVisualise(
                     nextBrief,
                     editExisting,

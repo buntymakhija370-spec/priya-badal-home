@@ -144,12 +144,17 @@ async function generateContent(opts: {
   parts: GeminiPart[]
   system?: string
   imageOutput?: boolean
+  /** Optional prior turns for multi-turn chat (Gemini roles: user | model) */
+  history?: Array<{ role: 'user' | 'model'; parts: GeminiPart[] }>
 }): Promise<GeminiResponse> {
   const key = getGeminiKey()
   if (!key) throw new Error('GEMINI_API_KEY is not set')
 
   const body: Record<string, unknown> = {
-    contents: [{ role: 'user', parts: opts.parts }],
+    contents: [
+      ...(opts.history ?? []),
+      { role: 'user', parts: opts.parts },
+    ],
   }
 
   if (opts.system?.trim()) {
@@ -233,18 +238,36 @@ export async function geminiEditImage(opts: {
   )
 }
 
-/** Text chat with Gemini Flash */
+/** Text chat with Gemini Flash (optional multi-turn history) */
 export async function geminiChat(opts: {
   system: string
   prompt: string
   model?: string
+  history?: Array<{ role: 'user' | 'assistant'; text: string }>
 }): Promise<{ reply: string; model: string }> {
   const model = opts.model || getChatModel()
+  // Gemini requires alternating user/model turns — merge consecutive same roles
+  const history: Array<{ role: 'user' | 'model'; parts: GeminiPart[] }> = []
+  for (const h of (opts.history ?? []).filter((x) => x.text?.trim()).slice(-20)) {
+    const role = (h.role === 'assistant' ? 'model' : 'user') as 'user' | 'model'
+    const text = h.text.trim().slice(0, 1400)
+    const last = history[history.length - 1]
+    if (last && last.role === role) {
+      const prev = last.parts[0] && 'text' in last.parts[0] ? last.parts[0].text : ''
+      last.parts = [{ text: `${prev}\n\n${text}`.slice(0, 2800) }]
+    } else {
+      history.push({ role, parts: [{ text }] })
+    }
+  }
+  // History must start with user if present
+  while (history.length && history[0].role !== 'user') history.shift()
+
   const json = await generateContent({
     model,
     parts: [{ text: opts.prompt }],
     system: opts.system,
     imageOutput: false,
+    history,
   })
 
   const reply = (json.candidates?.[0]?.content?.parts ?? [])

@@ -515,11 +515,16 @@ async function handleChat(req: IncomingMessage, res: ServerResponse) {
       return
     }
 
-    const history = (body.history ?? [])
-      .filter((h) => h.text && (h.role === 'user' || h.role === 'assistant'))
-      .slice(-12)
-      .map((h) => `${h.role === 'assistant' ? 'Assistant' : 'Client'}: ${h.text}`)
-      .join('\n')
+    const historyItems = (body.history ?? [])
+      .filter(
+        (h): h is { role: 'user' | 'assistant'; text: string } =>
+          Boolean(h.text) && (h.role === 'user' || h.role === 'assistant'),
+      )
+      .slice(-20)
+      .map((h) => ({
+        role: h.role,
+        text: String(h.text).slice(0, 1400),
+      }))
 
     const briefBits = body.brief
       ? Object.entries(body.brief)
@@ -528,6 +533,11 @@ async function handleChat(req: IncomingMessage, res: ServerResponse) {
           .join(', ')
       : ''
 
+    const hasAiImage = Boolean(
+      body.brief &&
+        (body.brief.hasAiImage === true || body.brief.hasAiImage === 'true'),
+    )
+
     const webContext = body.allowWebSearch
       ? await fetchInteriorWebContext(message)
       : ''
@@ -535,6 +545,8 @@ async function handleChat(req: IncomingMessage, res: ServerResponse) {
     const systemPrompt = [
       body.systemPrompt?.trim() ||
         'You are Priya Badal AI for Priyabadal Homes. Answer helpfully using the catalog.',
+      '',
+      'SESSION RULE: Continue the same chat job. Use conversation history. If an AI look already exists, treat follow-ups as edits/questions on that look — do not restart from zero.',
       '',
       body.knowledge?.trim() || '',
       '',
@@ -551,13 +563,15 @@ async function handleChat(req: IncomingMessage, res: ServerResponse) {
       .join('\n')
 
     const prompt = [
-      history ? `Recent conversation:\n${history}\n` : '',
-      briefBits ? `Brief snapshot: ${briefBits}\n` : '',
+      briefBits ? `Brief snapshot: ${briefBits}` : '',
+      hasAiImage
+        ? 'Session note: An AI visualisation is already ready in this chat. Continue from that look unless the client asks to start over from the photo.'
+        : '',
       `Client message: ${message}`,
       '',
       body.catalogAnswer?.trim()
         ? 'Rewrite the authoritative catalog answer warmly for the client. Keep every shutter/carcass/INR figure unchanged. Offer visualise or WhatsApp next steps when useful.'
-        : 'Reply as Priya Badal AI. Prefer catalog shutter + carcass rates. For general materials, you may use WEB CONTEXT if present. Never invent Priyabadal prices from the web.',
+        : 'Reply as Priya Badal AI. Prefer catalog shutter + carcass rates. For general materials, you may use WEB CONTEXT if present. Never invent Priyabadal prices from the web. Continue the existing consultation — do not reset context.',
       '',
       'End with PRODUCTS: and SUGGESTIONS: lines.',
     ]
@@ -568,6 +582,7 @@ async function handleChat(req: IncomingMessage, res: ServerResponse) {
       system: systemPrompt.slice(0, 120_000),
       prompt: prompt.slice(0, 24_000),
       model: getChatModel(),
+      history: historyItems,
     })
 
     if (gate.token) consumeUsage(gate.token, 'chat')

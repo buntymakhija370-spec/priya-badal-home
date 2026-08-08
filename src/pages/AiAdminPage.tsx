@@ -214,8 +214,8 @@ export function AiAdminPage() {
               <label>
                 <span>Plan</span>
                 <select value={planId} onChange={(e) => setPlanId(e.target.value)}>
-                  <option value="starter">Starter · ₹499 · 10 visualise</option>
-                  <option value="pro">Pro · ₹1,499 · 40 visualise</option>
+                  <option value="starter">Starter · ₹375 · 15 images (₹25 each)</option>
+                  <option value="pro">Pro · ₹1,500 · 60 images (₹25 each)</option>
                 </select>
               </label>
               <label>

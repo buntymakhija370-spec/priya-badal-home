@@ -12,11 +12,14 @@ import {
 import { WHATSAPP_DISPLAY } from '../lib/whatsapp'
 import './AiSubscribePage.css'
 
+/** Client charge per AI image (room visualise or carcass) */
+const IMAGE_RATE_INR = 25
+
 const FALLBACK_PLANS: AiPlan[] = [
   {
     id: 'starter',
     name: 'Starter',
-    priceLabel: '₹499 / month',
+    priceLabel: '₹375 / month',
     visualise: 10,
     chat: 40,
     carcass: 5,
@@ -24,12 +27,16 @@ const FALLBACK_PLANS: AiPlan[] = [
   {
     id: 'pro',
     name: 'Pro',
-    priceLabel: '₹1,499 / month',
+    priceLabel: '₹1,500 / month',
     visualise: 40,
     chat: 150,
     carcass: 20,
   },
 ]
+
+function imageCredits(plan: AiPlan) {
+  return plan.visualise + plan.carcass
+}
 
 export function AiSubscribePage() {
   const [status, setStatus] = useState<AiAccessStatus | null>(null)
@@ -63,28 +70,45 @@ export function AiSubscribePage() {
     <main className="ai-sub page-pad">
       <header className="ai-sub__header">
         <p className="eyebrow">Controlled AI</p>
-        <h1>Paid AI for subscribers</h1>
+        <h1>AI images at ₹{IMAGE_RATE_INR} each</h1>
         <p>
-          Visualise, live carcass, and smart chat use Gemini AI credits. To keep costs controlled,
-          these tools unlock only with a monthly access code after payment.
+          Clients pay <strong>₹{IMAGE_RATE_INR} per AI image</strong> (room visualise or open
+          carcass). Smart chat replies are included in the monthly packs. Unlock with an access
+          code after WhatsApp / UPI payment.
         </p>
       </header>
 
+      <section className="ai-sub__rate" aria-label="Per-image rate">
+        <p className="ai-sub__rate-label">Client rate</p>
+        <p className="ai-sub__rate-value">₹{IMAGE_RATE_INR} / image</p>
+        <p className="ai-sub__rate-note">
+          Pay-as-you-go on WhatsApp, or buy a monthly pack below (same ₹{IMAGE_RATE_INR} rate).
+        </p>
+      </section>
+
       <section className="ai-sub__plans" aria-label="AI plans">
-        {plans.map((plan) => (
-          <article key={plan.id} className="ai-sub__plan">
-            <h2>{plan.name}</h2>
-            <p className="ai-sub__price">{plan.priceLabel}</p>
-            <ul>
-              <li>{plan.visualise} room visualises / month</li>
-              <li>{plan.chat} smart chat replies / month</li>
-              <li>{plan.carcass} live carcass AI / month</li>
-            </ul>
-            <a className="btn btn--dark" href={subscribeWhatsAppUrl(plan.name)}>
-              Subscribe on WhatsApp
-            </a>
-          </article>
-        ))}
+        {plans.map((plan) => {
+          const images = imageCredits(plan)
+          const packTotal = images * IMAGE_RATE_INR
+          return (
+            <article key={plan.id} className="ai-sub__plan">
+              <h2>{plan.name}</h2>
+              <p className="ai-sub__price">{plan.priceLabel}</p>
+              <p className="ai-sub__pack-math">
+                {images} AI images × ₹{IMAGE_RATE_INR} = ₹{packTotal.toLocaleString('en-IN')}
+              </p>
+              <ul>
+                <li>{plan.visualise} room visualises / month</li>
+                <li>{plan.carcass} live carcass AI / month</li>
+                <li>{plan.chat} smart chat replies / month (included)</li>
+                <li>₹{IMAGE_RATE_INR} per AI image</li>
+              </ul>
+              <a className="btn btn--dark" href={subscribeWhatsAppUrl(plan.name)}>
+                Subscribe on WhatsApp
+              </a>
+            </article>
+          )
+        })}
       </section>
 
       <section className="ai-sub__unlock">

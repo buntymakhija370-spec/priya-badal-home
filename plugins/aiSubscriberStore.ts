@@ -44,11 +44,15 @@ type StoreFile = {
 const DATA_DIR = resolve(process.cwd(), 'data')
 const STORE_PATH = resolve(DATA_DIR, 'ai-subscribers.json')
 
+/** Client rate for each AI image (room visualise or carcass) */
+export const AI_IMAGE_PRICE_INR = 25
+
 export const AI_PLANS: AiPlan[] = [
   {
     id: 'starter',
     name: 'Starter',
-    priceLabel: '₹499 / month',
+    // 10 visualise + 5 carcass = 15 images × ₹25
+    priceLabel: '₹375 / month',
     visualise: 10,
     chat: 40,
     carcass: 5,
@@ -56,7 +60,8 @@ export const AI_PLANS: AiPlan[] = [
   {
     id: 'pro',
     name: 'Pro',
-    priceLabel: '₹1,499 / month',
+    // 40 visualise + 20 carcass = 60 images × ₹25
+    priceLabel: '₹1,500 / month',
     visualise: 40,
     chat: 150,
     carcass: 20,

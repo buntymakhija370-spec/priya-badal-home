@@ -122,6 +122,7 @@ export function clearAiAccess() {
 export function subscribeWhatsAppUrl(planName?: string) {
   const text = [
     'Hi Priyabadal Homes, I want to subscribe to paid AI access.',
+    'Rate: ₹25 per AI image (visualise / carcass).',
     planName ? `Plan: ${planName}` : '',
     '',
     'Please share payment details and my access code.',

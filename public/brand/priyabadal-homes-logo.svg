@@ -9,23 +9,23 @@
       .tag {
         font-family: Arial, Helvetica, sans-serif;
         font-weight: 600;
-        letter-spacing: 0.28em;
+        letter-spacing: 0.22em;
         text-transform: uppercase;
       }
     </style>
   </defs>
 
-  <!-- Wordmark -->
-  <text class="wm" x="360" y="58" text-anchor="middle" font-size="42">
+  <!-- Wordmark — left aligned -->
+  <text class="wm" x="8" y="58" text-anchor="start" font-size="42">
     <tspan fill="#2f3133">PRIYABADAL</tspan>
     <tspan dx="14" fill="#8b5a3c">HOMES</tspan>
   </text>
 
   <!-- Accent rule under brand -->
   <line
-    x1="118"
+    x1="8"
     y1="72"
-    x2="602"
+    x2="520"
     y2="72"
     stroke="#8b5a3c"
     stroke-width="1.5"
@@ -33,12 +33,12 @@
     opacity="0.55"
   />
 
-  <!-- Category line: Shutters-Doors-Wall panels -->
+  <!-- Category line — left aligned -->
   <text
     class="tag"
-    x="360"
+    x="8"
     y="98"
-    text-anchor="middle"
+    text-anchor="start"
     fill="#3d2b6b"
     font-size="15"
   >SHUTTERS — DOORS — WALL PANELS</text>

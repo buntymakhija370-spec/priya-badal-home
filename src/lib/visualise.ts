@@ -247,7 +247,7 @@ export async function generateVisualise(
         : code === 'QUOTA_EXCEEDED'
           ? 'This month’s visualisation limit is reached. Upgrade or wait for next month.'
           : code === 'MISSING_FAL_KEY'
-            ? 'Visualisation isn’t connected on the server yet. Please try later.'
+            ? 'Visualise unavailable — Gemini is not connected. Owner: set the key in /ai-admin, then tap Try again.'
             : exhausted
               ? 'AI credits are temporarily unavailable. Please try later.'
               : raw && raw.length < 220

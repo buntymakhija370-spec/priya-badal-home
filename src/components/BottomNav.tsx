@@ -1,5 +1,6 @@
-import { NavLink } from 'react-router-dom'
+import { NavLink, useLocation, useNavigate } from 'react-router-dom'
 import { useCartCount } from '../hooks/useCart'
+import { readCheckReturn, rememberCheckReturn } from '../lib/checkReturn'
 import './BottomNav.css'
 
 const tabs = [
@@ -95,8 +96,26 @@ const tabs = [
   },
 ] as const
 
+/** Leave Check and restore the page the client was on before opening it. */
+export function leaveCheckPage(navigate: ReturnType<typeof useNavigate>) {
+  // Prefer history back so scroll position is restored (POP)
+  if (window.history.length > 1) {
+    navigate(-1)
+    return
+  }
+  const saved = readCheckReturn()
+  if (saved) {
+    navigate(saved)
+    return
+  }
+  navigate('/')
+}
+
 export function BottomNav() {
   const cartCount = useCartCount()
+  const location = useLocation()
+  const navigate = useNavigate()
+  const onCheck = location.pathname === '/favorites'
 
   return (
     <nav className="tabbar" aria-label="App navigation">
@@ -108,6 +127,36 @@ export function BottomNav() {
           className={({ isActive }) =>
             isActive ? 'tabbar__item is-active' : 'tabbar__item'
           }
+          onClick={(e) => {
+            // Opening Check: remember current browse page to return later
+            if (tab.to === '/favorites' && !onCheck) {
+              rememberCheckReturn(location.pathname, location.search)
+              return
+            }
+
+            // Leaving Check via Home / Shop / Chat — go back to that page,
+            // not a freshly remounted homepage (unless that was the return page).
+            if (onCheck && tab.to !== '/favorites' && tab.to !== '/cart') {
+              const saved = readCheckReturn()
+              if (tab.to === '/') {
+                e.preventDefault()
+                leaveCheckPage(navigate)
+                return
+              }
+              // Shop / Chat: if return path is under that tab, prefer it
+              if (
+                saved &&
+                ((tab.to === '/shop' &&
+                  (saved === '/shop' ||
+                    saved.startsWith('/shop/') ||
+                    saved.startsWith('/product/'))) ||
+                  (tab.to === '/chat' && saved.startsWith('/chat')))
+              ) {
+                e.preventDefault()
+                navigate(saved)
+              }
+            }
+          }}
         >
           <span className="tabbar__icon">
             {tab.icon}

@@ -1,14 +1,15 @@
-import { NavLink, Outlet } from 'react-router-dom'
+import { NavLink, Outlet, useLocation, useNavigate } from 'react-router-dom'
 import { useEffect, useState } from 'react'
 import { categories } from '../data/catalog'
 import { shopPath } from '../lib/links'
 import { useCartCount } from '../hooks/useCart'
+import { rememberCheckReturn } from '../lib/checkReturn'
 import {
   WHATSAPP_CHAT_URL,
   WHATSAPP_DISPLAY,
 } from '../lib/whatsapp'
 import { CurrencySelect } from './CurrencySelect'
-import { BottomNav } from './BottomNav'
+import { BottomNav, leaveCheckPage } from './BottomNav'
 import { InstallBanner } from './InstallBanner'
 import './Layout.css'
 
@@ -26,6 +27,9 @@ export function Layout() {
   const [scrolled, setScrolled] = useState(false)
   const [menuOpen, setMenuOpen] = useState(false)
   const cartCount = useCartCount()
+  const location = useLocation()
+  const navigate = useNavigate()
+  const onCheck = location.pathname === '/favorites'
 
   useEffect(() => {
     const onScroll = () => setScrolled(window.scrollY > 20)
@@ -41,13 +45,29 @@ export function Layout() {
     }
   }, [menuOpen])
 
+  // Keep last browse page so leaving Check can restore it
+  useEffect(() => {
+    rememberCheckReturn(location.pathname, location.search)
+  }, [location.pathname, location.search])
+
   const close = () => setMenuOpen(false)
 
   return (
     <div className="site">
       <div className="grain" aria-hidden="true" />
       <header className={`nav ${scrolled ? 'nav--scrolled' : ''} ${menuOpen ? 'nav--open' : ''}`}>
-        <NavLink className="nav__brand" to="/" onClick={close} aria-label="Priyabadal Homes home">
+        <NavLink
+          className="nav__brand"
+          to="/"
+          onClick={(e) => {
+            close()
+            if (onCheck) {
+              e.preventDefault()
+              leaveCheckPage(navigate)
+            }
+          }}
+          aria-label="Priyabadal Homes home"
+        >
           <img
             className="nav__logo"
             src="/brand/priyabadal-homes-logo.svg"

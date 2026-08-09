@@ -44,9 +44,9 @@ export function detectShutterPose(...texts: Array<string | undefined | null>): S
 /** Precise prompt block so ajar does not collapse into closed or full carcass */
 export function shutterPosePromptBlock(
   pose: ShutterPose,
-  categoryName: string,
+  categoryName?: string | null,
 ): string {
-  const space = categoryName.toLowerCase()
+  const space = (categoryName || 'interior').toLowerCase()
   const isWardrobe = space.includes('wardrobe') || space.includes('almirah')
   const unit = isWardrobe ? 'wardrobe' : space.includes('kitchen') ? 'kitchen cabinet' : 'unit'
 

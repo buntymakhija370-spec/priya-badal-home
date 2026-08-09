@@ -148,14 +148,15 @@ function resolveShutterPose(body: VisualiseBody): ShutterPose {
 }
 
 function buildPrompt(body: VisualiseBody) {
-  const space = body.categoryName.toLowerCase()
+  const categoryName = (body.categoryName || 'interior').trim() || 'interior'
+  const space = categoryName.toLowerCase()
   const isDrawing = body.inputKind === 'drawing'
   const isRefine = Boolean(body.refineImageUrl && body.changeRequest?.trim())
   const mode: VisualiseMode = body.visualiseMode || 'replace'
   const extraCount = body.productImageUrls?.length ?? 0
   const hasSize = Number(body.widthFt) > 0 && Number(body.heightFt) > 0
   const shutterPose = resolveShutterPose(body)
-  const poseBlock = shutterPosePromptBlock(shutterPose, body.categoryName)
+  const poseBlock = shutterPosePromptBlock(shutterPose, categoryName)
 
   const sizeLine = hasSize
     ? [
@@ -181,11 +182,13 @@ function buildPrompt(body: VisualiseBody) {
           : `IMAGE 3${extraCount > 1 ? '+ ' : ' '} = additional catalog angle(s) for detail accuracy. Prefer the closed look from IMAGE 2.`
       : ''
 
+  const colourLabel = body.colourLabel || 'catalog finish'
+  const colour = body.colour || '#c4b7a6'
   const productMatch = [
-    `Catalog product: "${body.productName}" (${body.categoryName}) by Priyabadal Homes.`,
+    `Catalog product: "${body.productName}" (${categoryName}) by Priyabadal Homes.`,
     'IMAGE 2 = hero CLOSED façade reference — match door layout, panel grooves, handle style, edge profile, colour, and material as closely as possible.',
     extraRefLine,
-    `Finish cue: ${body.colourLabel} (${body.colour}).`,
+    `Finish cue: ${colourLabel} (${colour}).`,
     body.finishLabel ? `Finish: ${body.finishLabel}.` : '',
     body.scopeLabel ? `Scope: ${body.scopeLabel}.` : '',
     poseBlock,
@@ -204,8 +207,8 @@ function buildPrompt(body: VisualiseBody) {
     return [
       'Client-ready revision for a paid Priyabadal Homes interior visualisation.',
       'Edit the attached visualisation. Preserve camera, room geometry, walls, floor, ceiling, windows, and overall lighting.',
-      `Keep product identity: "${body.productName}" (${body.categoryName}).`,
-      `Finish cue: ${body.colourLabel} (${body.colour}).`,
+      `Keep product identity: "${body.productName}" (${categoryName}).`,
+      `Finish cue: ${colourLabel} (${colour}).`,
       body.finishLabel ? `Finish: ${body.finishLabel}.` : '',
       `CHANGE REQUEST (must apply precisely): ${body.changeRequest!.trim()}`,
       poseBlock,
@@ -324,9 +327,19 @@ async function handleVisualise(req: IncomingMessage, res: ServerResponse) {
       shutterPose,
     })
   } catch (err) {
-    sendJson(res, 500, {
-      error: err instanceof Error ? err.message : 'Visualise failed',
-      code: 'SERVER_ERROR',
+    const raw = err instanceof Error ? err.message : 'Visualise failed'
+    const quota =
+      /quota|rate[- ]?limit|billing|RESOURCE_EXHAUSTED|exceeded your current/i.test(
+        raw,
+      )
+    sendJson(res, quota ? 429 : 500, {
+      error: quota
+        ? 'Google AI image quota is empty on this Gemini key. Owner: enable billing in Google AI Studio (aistudio.google.com) or wait for quota reset, then Try again.'
+        : raw,
+      code: quota ? 'GEMINI_QUOTA' : 'SERVER_ERROR',
+      hint: quota
+        ? 'Free-tier image quota is often 0 until billing is enabled on the Google Cloud / AI Studio project.'
+        : undefined,
     })
   }
 }
@@ -465,9 +478,16 @@ async function handleCarcassLive(req: IncomingMessage, res: ServerResponse) {
       },
     })
   } catch (err) {
-    sendJson(res, 500, {
-      error: err instanceof Error ? err.message : 'Carcass live AI failed',
-      code: 'SERVER_ERROR',
+    const raw = err instanceof Error ? err.message : 'Carcass live AI failed'
+    const quota =
+      /quota|rate[- ]?limit|billing|RESOURCE_EXHAUSTED|exceeded your current/i.test(
+        raw,
+      )
+    sendJson(res, quota ? 429 : 500, {
+      error: quota
+        ? 'Google AI image quota is empty on this Gemini key. Owner: enable billing in Google AI Studio, then Try again.'
+        : raw,
+      code: quota ? 'GEMINI_QUOTA' : 'SERVER_ERROR',
     })
   }
 }

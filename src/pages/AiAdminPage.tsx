@@ -200,11 +200,14 @@ export function AiAdminPage() {
               </button>
             </form>
             <p className="ai-admin__hint">
-              Get a free/cheap key at{' '}
+              Get a key at{' '}
               <a href="https://aistudio.google.com/apikey" target="_blank" rel="noreferrer">
                 aistudio.google.com/apikey
               </a>
-              . Customers never see this key.
+              . For room images, enable{' '}
+              <strong>billing</strong> on that Google AI project — free-tier image quota is often
+              0 (you’ll see “quota empty” in Chat until billing is on). Customers never see this
+              key.
             </p>
           </section>
 

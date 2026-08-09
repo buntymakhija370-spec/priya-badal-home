@@ -240,19 +240,30 @@ export async function generateVisualise(
     const raw = (data.error || data.hint || '').trim()
     const exhausted =
       /exhausted balance|top up your balance|locked/i.test(raw)
-    const code = exhausted ? 'FAL_BALANCE' : data.code
+    const geminiQuota =
+      data.code === 'GEMINI_QUOTA' ||
+      /quota|rate[- ]?limit|billing|RESOURCE_EXHAUSTED|exceeded your current/i.test(
+        raw,
+      )
+    const code = geminiQuota
+      ? 'GEMINI_QUOTA'
+      : exhausted
+        ? 'FAL_BALANCE'
+        : data.code
     const message =
       code === 'SUBSCRIPTION_REQUIRED'
-        ? 'AI unlock is needed for visualisation. Tap Unlock and enter your access code.'
+        ? 'AI unlock is needed for visualisation. Tap AI access and enter your access code, then Try again.'
         : code === 'QUOTA_EXCEEDED'
           ? 'This month’s visualisation limit is reached. Upgrade or wait for next month.'
           : code === 'MISSING_FAL_KEY'
             ? 'Visualise unavailable — Gemini is not connected. Owner: set the key in /ai-admin, then tap Try again.'
-            : exhausted
-              ? 'AI credits are temporarily unavailable. Please try later.'
-              : raw && raw.length < 220
-                ? raw
-                : 'I couldn’t update that look just now. Try again, or say “start over from photo”.'
+            : code === 'GEMINI_QUOTA'
+              ? 'Google AI image quota is empty on the server key. Owner: enable billing at aistudio.google.com (or wait for reset), then Try again.'
+              : exhausted
+                ? 'AI credits are temporarily unavailable. Please try later.'
+                : raw && raw.length < 220
+                  ? raw
+                  : 'I couldn’t update that look just now. Tap Try again, or say “start over from photo”.'
     return {
       source: 'error',
       code,

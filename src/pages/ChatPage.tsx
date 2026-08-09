@@ -48,11 +48,14 @@ function friendlyChatError(
   if (/subscription|access code|unlock|SUBSCRIPTION/i.test(t)) {
     return 'AI unlock is needed for that step. Tap AI access above, enter your code, then tap Try again.'
   }
+  if (/GEMINI_QUOTA|Google AI image quota|billing|rate[- ]?limit|RESOURCE_EXHAUSTED|exceeded your current quota/i.test(t)) {
+    return 'Google AI image quota is empty on the server key.\n\nOwner: open aistudio.google.com → enable billing for this Gemini project (free-tier image quota is often 0). Then come back and tap Try again.\n\nYour access code is fine — this is a Google billing/quota issue, not unlock.'
+  }
   if (/QUOTA|limit|monthly/i.test(t)) {
     return 'This month’s AI looks are used up. You can still ask price and carcass questions, or WhatsApp us.'
   }
   if (
-    /MISSING_FAL|not connected|Professional AI|needs-key|Gemini|GEMINI|Fal|balance|credit|Visualise unavailable|Visualize unavailable/i.test(
+    /MISSING_FAL|not connected|Professional AI|needs-key|Gemini key|Fal|balance|credit|Visualise unavailable|Visualize unavailable/i.test(
       t,
     )
   ) {
@@ -528,9 +531,12 @@ export function ChatPage() {
           id: crypto.randomUUID(),
           role: 'assistant',
           text: friendlyChatError(result.message, 'visualise'),
-          suggestions: shouldRefine
-            ? ['Try again', 'Slightly ajar — render now', 'Start over from photo']
-            : ['Try again', 'Give me another option', 'Price with carcass'],
+          suggestions:
+            result.code === 'GEMINI_QUOTA'
+              ? ['Try again', 'Give me another option', 'Price with carcass']
+              : shouldRefine
+                ? ['Try again', 'Slightly ajar — render now', 'Start over from photo']
+                : ['Try again', 'Give me another option', 'Price with carcass'],
         })
       }
     } catch {

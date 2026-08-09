@@ -41,10 +41,28 @@ export type ConsultBrief = {
   lastChangeRequest?: string | null
 }
 
+/** Client wants style cards to pick — never auto-generate a visualisation */
+export function isOptionsRequest(text: string): boolean {
+  const t = text.trim().toLowerCase()
+  if (!t) return false
+  if (
+    /^(suggest( other)? styles?|show (me )?options|more options|other options|another option|another options|give me (another |more )?options?|different (option|style|design)|show (me )?(more |other )?(styles?|designs?|options?)|options please)$/i.test(
+      t,
+    )
+  ) {
+    return true
+  }
+  return /\b(another option|other options|more options|different options?|give me (an? )?options?|show (me )?(the )?options?|pick (from )?options?|style options?|design options?|other styles?|another style|more styles?|suggest (other )?styles?|recommend (other )?styles?)\b/i.test(
+    t,
+  )
+}
+
 /** Clear edit-the-AI-photo commands (not general chitchat) */
 export function isChangeRequest(text: string): boolean {
   const t = text.trim()
   if (!t) return false
+  // Options / style picks are never “edit this AI look”
+  if (isOptionsRequest(t)) return false
   return /\b(change(s|d)?|update(d)?|edit(ed)?|revise(d)?|revision|modify|adjust|tweak|redo|correct(ion)?|fix (this|it|the look)|make (it|the|them|this|doors?|colour|color|handles?|shutters?) |make it |lighter|darker|brighter|softer|warmer|cooler|whiter|cream(ier)?|remove (the )?handles?|add (more )?(hanging|drawers|shelves|handles?)|no handles|more hanging|more drawers|less drawers|different (colour|color|finish|handle)|on this (photo|image|look|visual)|apply (this )?change|instead of|rather than|too (dark|light|bright|small|big|heavy)|a bit more|a bit less|slightly|ajar|half[- ]?open|partly open|partially open|(slightly |soft )?open (the )?(shutter|shutters|door|doors)|show (the )?inside|peek inside|same (look|image|photo|visual)? ?(?:but|with|without)|keep (this|the same)|continue (with |on )?(this|the )?(look|image|visual)|try again|do (it )?again|one more (time|edit)|another (edit|tweak|change)|also |now (make|change|add|remove|open|close))\b/i.test(
     t,
   )
@@ -207,8 +225,14 @@ function scoreProduct(product: Product, brief: ConsultBrief, text: string) {
   return score
 }
 
-export function suggestProducts(brief: ConsultBrief, text = '', limit = 6): Product[] {
-  const products = getAllProducts()
+export function suggestProducts(
+  brief: ConsultBrief,
+  text = '',
+  limit = 6,
+  options?: { excludeSelected?: boolean },
+): Product[] {
+  const excludeId = options?.excludeSelected ? brief.selectedProductId : undefined
+  const products = getAllProducts().filter((p) => p.id !== excludeId)
   const scored = products
     .map((product) => ({ product, score: scoreProduct(product, brief, text) }))
     .filter((row) => row.score > 0)
@@ -390,6 +414,8 @@ export type ConsultTurnResult = {
   catalogIntent?: string
   /** Preferred visualisation mode for runVisualise */
   visualiseMode?: 'replace' | 'install' | 'redesign'
+  /** Show style cards only — never call LLM or auto-generate an image */
+  optionsPick?: boolean
 }
 
 /** Detect replace / install / redesign wording for chat visualise */
@@ -413,8 +439,11 @@ function productSuggestionMessage(
   brief: ConsultBrief,
   text: string,
   intro: string,
+  opts?: { excludeSelected?: boolean },
 ): ChatMessage {
-  const products = suggestProducts(brief, text, 6)
+  const products = suggestProducts(brief, text, 6, {
+    excludeSelected: opts?.excludeSelected,
+  })
   const sizeLine =
     brief.widthFt != null && brief.heightFt != null
       ? `Size on file: ${brief.widthFt} × ${brief.heightFt}${
@@ -426,25 +455,18 @@ function productSuggestionMessage(
       ? 'Architect drawing is attached.'
       : 'Room photo is attached.'
     : null
+  const nextStep = brief.roomPhotoDataUrl
+    ? 'Tap a style card to select it — I will not make a new AI image until you tap Visualise my look.'
+    : 'Tap a style card to select it. Attach a room photo, then tap Visualise my look when you want the image.'
 
   return {
     id: crypto.randomUUID(),
     role: 'assistant',
-    text: [
-      intro,
-      '',
-      'Swipe the style cards below and tap one to continue — price, carcass, materials, or visualise next.',
-      sizeLine,
-      photoLine,
-    ]
-      .filter(Boolean)
-      .join('\n'),
+    text: [intro, '', nextStep, sizeLine, photoLine].filter(Boolean).join('\n'),
     products,
-    suggestions: brief.aiImageUrl
-      ? ['Suggest other styles', 'Price estimate', 'WhatsApp quote']
-      : brief.roomPhotoDataUrl
-        ? ['Suggest other styles', 'Visualise my look', 'Price estimate']
-        : ['Suggest other styles', 'Attach room photo', 'Price estimate'],
+    suggestions: brief.roomPhotoDataUrl
+      ? ['Visualise my look', 'Give me another option', 'Price estimate']
+      : ['Attach room photo', 'Give me another option', 'Price estimate'],
   }
 }
 
@@ -600,9 +622,11 @@ export function processConsultTurn(
       /^visualise my look$/i.test(lower))
 
   const wantsSuggest =
-    /\b(suggest|recommend|show (?:me )?options|ideas?|other styles|another style|what (?:do you|can you) suggest|product list|styles)\b/i.test(
+    isOptionsRequest(text) ||
+    /\b(suggest|recommend|show (?:me )?options|ideas?|other styles|another style|another option|more options|different (style|option|design)|what (?:do you|can you) suggest|product list|styles)\b/i.test(
       text,
-    ) || /^suggest styles$/i.test(lower)
+    ) ||
+    /^suggest styles$/i.test(lower)
 
   const wantsSummary =
     /\b(summary|what do you have|my details|brief|what do you recommend next)\b/i.test(
@@ -659,6 +683,23 @@ export function processConsultTurn(
           next.depthFt != null ? ` × ${next.depthFt}` : ''
         } ft — interior elevation only (no shutters)…`,
       },
+    }
+  }
+
+  // 0b) “Another option” — always show selectable cards first (never auto-visualise)
+  if (wantsSuggest && !wantsVisualise && !wantsCarcassVisualise) {
+    const excludeSelected = Boolean(brief.selectedProductId) || Boolean(brief.aiImageUrl)
+    return {
+      brief: next,
+      optionsPick: true,
+      reply: productSuggestionMessage(
+        next,
+        text,
+        excludeSelected
+          ? `Here are other Priyabadal options for your ${next.room ?? 'space'} — pick one card first:`
+          : `Here are Priyabadal style options for your ${next.room ?? 'space'} — pick one card first:`,
+        { excludeSelected },
+      ),
     }
   }
 
@@ -845,16 +886,15 @@ export function processConsultTurn(
     }
   }
 
-  // 5) Product suggestions only when asked, or when room is newly chosen
-  if (wantsSuggest || roomJustSet) {
+  // 5) Product suggestions when room is newly chosen (options asks handled earlier)
+  if (roomJustSet) {
     return {
       brief: next,
+      optionsPick: true,
       reply: productSuggestionMessage(
         next,
         text,
-        roomJustSet
-          ? `Got it — ${next.room}. Here are Priyabadal styles from our list that fit:`
-          : `Here are Priyabadal styles I’d suggest for your ${next.room ?? 'space'}:`,
+        `Got it — ${next.room}. Here are Priyabadal styles from our list that fit — tap one to select:`,
       ),
     }
   }
@@ -923,19 +963,19 @@ export function messageForProductSelected(product: Product, brief: ConsultBrief)
         .join(' · '),
       estimate,
       '',
-      'What next? Tap a chip below — or ask anything about this style.',
+      'What next?',
       needAttach
-        ? 'Attach a room photo when you want a room visualisation.'
-        : 'Ready to visualise in your photo anytime.',
+        ? 'Attach a room photo, then tap Visualise my look — I only make the AI image after you ask.'
+        : 'Tap Visualise my look when you want the AI image for this selected style (I won’t generate until you ask).',
     ]
       .filter((line) => line != null && line !== '')
       .join('\n'),
     products: [product],
     suggestions: [
       needAttach ? 'Attach room photo' : 'Visualise my look',
+      'Give me another option',
       'Price estimate',
       productHasCarcass(product) ? 'Visualise carcass' : 'Material specs',
-      'Suggest other styles',
     ],
   }
 }

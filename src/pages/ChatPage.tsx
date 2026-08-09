@@ -12,6 +12,7 @@ import {
   messageForPhotoAttached,
   messageForProductSelected,
   cleanChatProductText,
+  isOptionsRequest,
   processConsultTurn,
   type ChatMessage,
   type ConsultBrief,
@@ -472,10 +473,10 @@ export function ChatPage() {
           aiImageUrl: result.imageUrl,
           products: [product],
           suggestions: [
+            'Give me another option',
             'Slightly open shutters',
             'Make it lighter',
             'Make it darker',
-            'Remove handles',
             'WhatsApp quote',
           ],
         })
@@ -493,8 +494,8 @@ export function ChatPage() {
           role: 'assistant',
           text: friendlyChatError(result.message, 'visualise'),
           suggestions: shouldRefine
-            ? ['Slightly open shutters', 'Make it lighter', 'Start over from photo']
-            : ['Try visualise again', 'Price with carcass', 'Suggest other styles'],
+            ? ['Give me another option', 'Make it lighter', 'Start over from photo']
+            : ['Give me another option', 'Try visualise again', 'Price with carcass'],
         })
       }
     } catch {
@@ -638,6 +639,12 @@ export function ChatPage() {
         Boolean(turn.refine),
         turn.visualiseMode || detectVisualiseMode(trimmed),
       )
+      return
+    }
+
+    // “Give me another option” / suggest styles → cards only. Select first; visualise only when asked.
+    if (turn.optionsPick || isOptionsRequest(trimmed)) {
+      setMessages((prev) => [...prev, userMsg, turn.reply])
       return
     }
 

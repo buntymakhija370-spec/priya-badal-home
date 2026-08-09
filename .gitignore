@@ -17,6 +17,8 @@ dist-ssr
 
 # Local AI subscriber ledger (access codes + usage)
 data/ai-subscribers.json
+# Owner Gemini key pasted via /ai-admin (survives preview restarts)
+data/gemini-key.json
 
 # Editor directories and files
 .vscode/*

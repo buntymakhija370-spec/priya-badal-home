@@ -46,24 +46,28 @@ function friendlyChatError(
 ): string {
   const t = (raw || '').trim()
   if (/subscription|access code|unlock|SUBSCRIPTION/i.test(t)) {
-    return 'AI unlock is needed for that step. Tap Unlock above — or keep asking about price, carcass, and materials.'
+    return 'AI unlock is needed for that step. Tap AI access above, enter your code, then tap Try again.'
   }
   if (/QUOTA|limit|monthly/i.test(t)) {
     return 'This month’s AI looks are used up. You can still ask price and carcass questions, or WhatsApp us.'
   }
-  if (/MISSING_FAL|not connected|Fal|balance|credit/i.test(t)) {
+  if (
+    /MISSING_FAL|not connected|Professional AI|needs-key|Gemini|GEMINI|Fal|balance|credit|Visualise unavailable|Visualize unavailable/i.test(
+      t,
+    )
+  ) {
     return kind === 'visualise' || kind === 'carcass'
-      ? 'Visualisation isn’t available right now. Try again later, or WhatsApp us.'
-      : 'Live chat isn’t available right now. I’ve kept catalog answers ready — send again in a moment.'
+      ? 'Visualise unavailable — AI is not connected on the server right now.\n\nOwner: open /ai-admin and paste the Gemini API key (it is saved so it survives restarts).\n\nThen unlock with your access code and tap Try again.'
+      : 'Live chat isn’t available right now. Catalog price answers still work — send again in a moment.'
   }
   if (t && t.length < 160 && !/[A-Z_]{3,}/.test(t) && !/[{}[\]|]/.test(t)) {
     return t
   }
   if (kind === 'carcass') {
-    return 'I couldn’t make that open carcass just now. Try again, or WhatsApp us.'
+    return 'I couldn’t make that open carcass just now. Tap Try again, or WhatsApp us.'
   }
   return kind === 'visualise'
-    ? 'I couldn’t make that look just now. Try a clearer photo, or WhatsApp us.'
+    ? 'I couldn’t make that look just now. Tap Try again — or Start over from photo.'
     : 'Something went quiet on my side. Send again in a moment — price and carcass still work.'
 }
 
@@ -525,16 +529,16 @@ export function ChatPage() {
           role: 'assistant',
           text: friendlyChatError(result.message, 'visualise'),
           suggestions: shouldRefine
-            ? ['Give me another option', 'Make it lighter', 'Start over from photo']
-            : ['Give me another option', 'Try visualise again', 'Price with carcass'],
+            ? ['Try again', 'Slightly ajar — render now', 'Start over from photo']
+            : ['Try again', 'Give me another option', 'Price with carcass'],
         })
       }
     } catch {
       push({
         id: crypto.randomUUID(),
         role: 'assistant',
-        text: 'Something interrupted that visualise step. Try once more — or Unlock again if AI access expired.',
-        suggestions: ['Slightly open shutters', 'Start over from photo', 'Price with carcass'],
+        text: 'Something interrupted that visualise step. Tap Try again — or AI access if unlock expired.',
+        suggestions: ['Try again', 'Slightly ajar — render now', 'Start over from photo'],
       })
       setShowKey(true)
     } finally {
@@ -557,6 +561,36 @@ export function ChatPage() {
 
     // New messages should pin the thread to the latest reply
     stickToBottomRef.current = true
+
+    // Retry last visualise / refine without retyping
+    if (/^(try again|try visualise again|retry)$/i.test(trimmed)) {
+      if (!brief.selectedProductId || !brief.roomPhotoDataUrl) {
+        push(
+          { id: crypto.randomUUID(), role: 'user', text: trimmed },
+          {
+            id: crypto.randomUUID(),
+            role: 'assistant',
+            text: 'I need a selected style and a room photo before I can try again.',
+            suggestions: ['Attach room photo', 'Give me another option'],
+          },
+        )
+        setInput('')
+        return
+      }
+      const editExisting = Boolean(brief.aiImageUrl)
+      push({ id: crypto.randomUUID(), role: 'user', text: trimmed })
+      setInput('')
+      startRenderWait('visualise', {
+        isUpdate: editExisting,
+        previewUrl: brief.aiImageUrl ?? brief.roomPhotoDataUrl,
+      })
+      await runVisualise(
+        brief,
+        editExisting,
+        detectVisualiseMode(brief.lastChangeRequest || 'replace existing'),
+      )
+      return
+    }
 
     if (
       /^(open )?carcass assembly guide$/i.test(trimmed) ||

@@ -711,18 +711,60 @@ export function processConsultTurn(
   const wantsFresh = isFreshVisualiseRequest(text)
   const continueSameLook = isContinueSameLookRequest(text)
 
+  // Shutter open asks → pick a pose first, then render (never silent / surprise generate)
+  const confirmedShutterRender =
+    /— render now$/i.test(text.trim()) ||
+    /^(slightly ajar|half-open peek|open carcass look)( — render now)?$/i.test(
+      text.trim(),
+    )
+  const askingShutterPose =
+    canRefine &&
+    !confirmedShutterRender &&
+    /\b(shutter|shutters|door|doors|ajar|slightly open|open (the )?(shutter|shutters|door|doors)|(shutter|shutters|door|doors) open|show (the )?inside|peek)\b/i.test(
+      text,
+    )
+
+  if (askingShutterPose && !wantsVisualise && !wantsCarcassVisualise) {
+    return {
+      brief: next,
+      optionsPick: true,
+      reply: {
+        id: crypto.randomUUID(),
+        role: 'assistant',
+        text: [
+          'Choose how open you want the shutters — tap one option, then I’ll render that look:',
+          '',
+          '1) Slightly ajar — soft showroom peek (1–2 doors)',
+          '2) Half-open peek — more interior visible',
+          '3) Open carcass — full inside layout',
+        ].join('\n'),
+        suggestions: [
+          'Slightly ajar — render now',
+          'Half-open peek — render now',
+          'Open carcass look — render now',
+        ],
+      },
+    }
+  }
+
   if (
     canRefine &&
     !wantsFresh &&
     !wantsSuggest &&
     !wantsSummary &&
     !wantsCarcassVisualise &&
-    (isChangeRequest(text) || continueSameLook)
+    (isChangeRequest(text) || continueSameLook || confirmedShutterRender)
   ) {
     const changeText = continueSameLook
       ? brief.lastChangeRequest?.trim() ||
         'Keep this same visualisation — polish lighting and realism only; do not change the product or room.'
-      : text.trim()
+      : /slightly ajar/i.test(text)
+        ? 'Slightly open shutters — soft showroom ajar on 1–2 doors only (20–35°).'
+        : /half-open peek/i.test(text)
+          ? 'Half-open shutters — clearer peek of the interior, keep façade identity.'
+          : /open carcass look/i.test(text)
+            ? 'Open carcass — show the interior layout clearly.'
+            : text.trim()
     next = {
       ...next,
       lastChangeRequest: changeText,
@@ -734,14 +776,11 @@ export function processConsultTurn(
       reply: {
         id: crypto.randomUUID(),
         role: 'assistant',
-        text: continueSameLook
-          ? 'Continuing on your current AI look — editing this same image (not starting a new job)…'
-          : `Understood — editing your current AI look for: “${changeText}”.`,
+        text: `Rendering your update: “${changeText}”. Please wait on the progress screen…`,
         suggestions: [
-          'Slightly open shutters',
           'Make it lighter',
           'Make it darker',
-          'Remove handles',
+          'Give me another option',
           'WhatsApp quote',
         ],
       },

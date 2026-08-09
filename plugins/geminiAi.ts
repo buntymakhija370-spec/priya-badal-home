@@ -3,8 +3,8 @@
  * visualise, refine, carcass, and chat.
  */
 import { loadEnv } from 'vite'
-import { existsSync, readFileSync } from 'node:fs'
-import { resolve } from 'node:path'
+import { existsSync, mkdirSync, readFileSync, writeFileSync } from 'node:fs'
+import { dirname, resolve } from 'node:path'
 
 export type GeminiInlineImage = {
   mimeType: string
@@ -20,6 +20,37 @@ export const DEFAULT_IMAGE_MODEL = 'gemini-2.5-flash-image'
 export const DEFAULT_CHAT_MODEL = 'gemini-2.5-flash'
 
 const GEMINI_BASE = 'https://generativelanguage.googleapis.com/v1beta'
+/** Survives vite preview / server restarts (gitignored) */
+const KEY_STORE_PATH = resolve(process.cwd(), 'data/gemini-key.json')
+
+function readPersistedGeminiKey(): string {
+  try {
+    if (!existsSync(KEY_STORE_PATH)) return ''
+    const raw = JSON.parse(readFileSync(KEY_STORE_PATH, 'utf8')) as {
+      geminiApiKey?: string
+    }
+    return (raw.geminiApiKey || '').trim()
+  } catch {
+    return ''
+  }
+}
+
+function persistGeminiKey(key: string) {
+  try {
+    mkdirSync(dirname(KEY_STORE_PATH), { recursive: true })
+    writeFileSync(
+      KEY_STORE_PATH,
+      JSON.stringify(
+        { geminiApiKey: key, updatedAt: new Date().toISOString() },
+        null,
+        2,
+      ),
+      'utf8',
+    )
+  } catch {
+    /* non-fatal — runtime key still works until restart */
+  }
+}
 
 export function hydrateGeminiEnv(mode = 'development') {
   try {
@@ -62,7 +93,7 @@ export function hydrateGeminiEnv(mode = 'development') {
       process.env.GEMINI_API_KEY ||
       process.env.GOOGLE_API_KEY ||
       process.env.GOOGLE_AI_API_KEY ||
-      // Legacy Fal key slot — if owner already set FAL_KEY by mistake, ignore for Gemini
+      readPersistedGeminiKey() ||
       ''
   }
 }
@@ -73,6 +104,7 @@ export function getGeminiKey() {
     process.env.GEMINI_API_KEY ||
     process.env.GOOGLE_API_KEY ||
     process.env.GOOGLE_AI_API_KEY ||
+    readPersistedGeminiKey() ||
     ''
   )
 }
@@ -80,6 +112,7 @@ export function getGeminiKey() {
 export function setGeminiKey(key: string) {
   runtimeGeminiKey = key.trim()
   process.env.GEMINI_API_KEY = runtimeGeminiKey
+  if (runtimeGeminiKey) persistGeminiKey(runtimeGeminiKey)
 }
 
 export function getImageModel() {

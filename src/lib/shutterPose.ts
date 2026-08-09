@@ -22,16 +22,17 @@ export function detectShutterPose(...texts: Array<string | undefined | null>): S
   }
 
   if (
-    /\b(slightly open|soft open|ajar|half[- ]?open|partly open|partially open|little open|bit open|a bit open|make slightly|doors? (a )?bit|peek (inside|in)|show (the )?inside|glimpse (of )?(the )?inside|open (one|a|1) (door|shutter)|one (door|shutter) open|two doors? (slightly )?open|showroom open|catalogue open|catalog open)\b/i.test(
+    /\b(slightly open|soft open|ajar|half[- ]?open|partly open|partially open|little open|bit open|a bit open|make slightly|doors? (a )?bit|peek (inside|in)|show (the )?inside|glimpse (of )?(the )?inside|open (one|a|1) (door|shutter)|one (door|shutter) open|two doors? (slightly )?open|showroom open|catalogue open|catalog open|slightly (the )?(shutter|shutters|door|doors)|shutter(s)? (slightly )?open|door(s)? (slightly )?open)\b/i.test(
       t,
     )
   ) {
     return 'ajar'
   }
 
-  // Bare “open shutter(s)/door(s)” without “fully” → ajar showroom style
+  // Bare “open shutter(s)/door(s)” or “shutter open” without “fully” → ajar
   if (
-    /\bopen (the )?(shutter|shutters|door|doors)\b/i.test(t) &&
+    (/\bopen (the )?(shutter|shutters|door|doors)\b/i.test(t) ||
+      /\b(shutter|shutters|door|doors) open\b/i.test(t)) &&
     !/\b(fully|wide|completely)\b/i.test(t)
   ) {
     return 'ajar'

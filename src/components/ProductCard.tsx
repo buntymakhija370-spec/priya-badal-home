@@ -9,6 +9,7 @@ import {
 } from '../data/catalog'
 import { getProductMedia } from '../lib/media'
 import { productPath } from '../lib/links'
+import { rememberBrowseOrigin } from '../lib/browseReturn'
 import { saveScrollMemory } from '../lib/scrollMemory'
 import { useCurrency } from '../hooks/useCurrency'
 import { defaultConfig } from '../lib/pricing'
@@ -27,8 +28,15 @@ export function ProductCard({ product }: Props) {
   useCurrency()
   const location = useLocation()
   const href = productPath(product.id)
-  const rememberScroll = () =>
+  const rememberScroll = () => {
     saveScrollMemory(location.key, location.pathname)
+    rememberBrowseOrigin({
+      pathname: location.pathname,
+      search: location.search,
+      locationKey: location.key,
+      productId: product.id,
+    })
+  }
   const media = getProductMedia(product)
   const category = getCategory(product.categoryId)
   const minQty = getMinOrderQuantity(product)

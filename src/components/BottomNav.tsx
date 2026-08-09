@@ -1,5 +1,9 @@
 import { NavLink, useLocation, useNavigate } from 'react-router-dom'
 import { useCartCount } from '../hooks/useCart'
+import {
+  readBrowseOrigin,
+  readLastShopPath,
+} from '../lib/browseReturn'
 import { readCheckReturn, rememberCheckReturn } from '../lib/checkReturn'
 import './BottomNav.css'
 
@@ -153,9 +157,37 @@ export function BottomNav() {
                   (tab.to === '/chat' && saved.startsWith('/chat')))
               ) {
                 e.preventDefault()
-                navigate(saved)
+                if (saved.startsWith('/product/')) {
+                  const origin = readBrowseOrigin()
+                  navigate(origin?.path || readLastShopPath(), {
+                    state: { restoreScrollY: origin?.scrollY ?? 0 },
+                  })
+                } else {
+                  navigate(saved)
+                }
+                return
               }
             }
+
+            // Shop tab from Home / product / elsewhere → last collection + scroll
+            if (tab.to === '/shop' && !onCheck) {
+              const origin = readBrowseOrigin()
+              const lastShop = readLastShopPath()
+              const alreadyThere =
+                location.pathname === lastShop ||
+                `${location.pathname}${location.search}` === lastShop
+              if (!alreadyThere && lastShop !== '/shop') {
+                e.preventDefault()
+                navigate(lastShop, {
+                  state: {
+                    restoreScrollY: origin?.scrollY ?? 0,
+                  },
+                })
+              }
+            }
+
+            // On a product page, Home should not wipe the saved browse spot —
+            // just go home; Shop tab will resume the list later.
           }}
         >
           <span className="tabbar__icon">

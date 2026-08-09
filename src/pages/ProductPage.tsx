@@ -1,4 +1,4 @@
-import { Link, useParams } from 'react-router-dom'
+import { Link, useNavigate, useParams } from 'react-router-dom'
 import { useMemo, useState } from 'react'
 import {
   formatPrice,
@@ -24,6 +24,7 @@ import { useCurrency } from '../hooks/useCurrency'
 import { shopPath } from '../lib/links'
 import { isApproxDisplayCurrency } from '../lib/currency'
 import { productUsesCarcassConstruction } from '../data/carcassSpec'
+import { readBrowseOrigin } from '../lib/browseReturn'
 import './ProductPage.css'
 
 type SectionId = 'details' | 'specs' | 'features'
@@ -46,6 +47,7 @@ function SpecTable({ rows, caption }: { rows: SpecRow[]; caption: string }) {
 
 export function ProductPage() {
   const { productId } = useParams()
+  const navigate = useNavigate()
   const product = productId ? getProductById(productId) : undefined
   useProductSeo(product)
   const { currency } = useCurrency()
@@ -80,14 +82,61 @@ export function ProductPage() {
     product.carcassPrice != null,
   )
 
+  /** Return to the list page + scroll where the client opened this product */
+  const goBackToBrowse = () => {
+    const origin = readBrowseOrigin()
+    const fallback = category ? shopPath(category.id) : '/shop'
+    // Explicit path + scroll survives refresh better than history.back alone
+    if (origin?.path) {
+      navigate(origin.path, { state: { restoreScrollY: origin.scrollY || 0 } })
+      return
+    }
+    if (window.history.length > 1) {
+      navigate(-1)
+      return
+    }
+    navigate(fallback)
+  }
+
+  const goToShopList = (path: string) => {
+    const origin = readBrowseOrigin()
+    const sameFamily =
+      origin &&
+      (origin.path === path ||
+        origin.path.startsWith(`${path}/`) ||
+        (path.startsWith('/shop/') && origin.path.startsWith('/shop/')))
+    if (sameFamily && origin) {
+      navigate(origin.path, { state: { restoreScrollY: origin.scrollY } })
+      return
+    }
+    navigate(path)
+  }
+
   return (
     <main className="product-page page-pad">
+      <div className="product-page__back-row">
+        <button
+          type="button"
+          className="product-page__back"
+          onClick={goBackToBrowse}
+        >
+          ← Back
+        </button>
+      </div>
       <nav className="crumbs" aria-label="Breadcrumb">
-        <Link to="/shop">Shop</Link>
+        <button type="button" className="crumbs__link" onClick={() => goToShopList('/shop')}>
+          Shop
+        </button>
         <span>/</span>
         {category && (
           <>
-            <Link to={shopPath(category.id)}>{category.name}</Link>
+            <button
+              type="button"
+              className="crumbs__link"
+              onClick={() => goToShopList(shopPath(category.id))}
+            >
+              {category.name}
+            </button>
             <span>/</span>
           </>
         )}

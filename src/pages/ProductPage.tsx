@@ -1,4 +1,4 @@
-import { Link, useNavigate, useParams } from 'react-router-dom'
+import { Link, useLocation, useNavigate, useParams } from 'react-router-dom'
 import { useMemo, useState } from 'react'
 import {
   formatPrice,
@@ -24,7 +24,12 @@ import { useCurrency } from '../hooks/useCurrency'
 import { shopPath } from '../lib/links'
 import { isApproxDisplayCurrency } from '../lib/currency'
 import { productUsesCarcassConstruction } from '../data/carcassSpec'
-import { readBrowseOrigin } from '../lib/browseReturn'
+import {
+  readBrowseOrigin,
+  readLastShopBrowse,
+  resolveProductBackTarget,
+  type ProductBrowseState,
+} from '../lib/browseReturn'
 import './ProductPage.css'
 
 type SectionId = 'details' | 'specs' | 'features'
@@ -48,11 +53,13 @@ function SpecTable({ rows, caption }: { rows: SpecRow[]; caption: string }) {
 export function ProductPage() {
   const { productId } = useParams()
   const navigate = useNavigate()
+  const location = useLocation()
   const product = productId ? getProductById(productId) : undefined
   useProductSeo(product)
   const { currency } = useCurrency()
   const [section, setSection] = useState<SectionId>('details')
   const [added, setAdded] = useState(false)
+  const browseState = (location.state || null) as ProductBrowseState | null
 
   const related = useMemo(() => {
     if (!product) return []
@@ -84,32 +91,47 @@ export function ProductPage() {
 
   /** Return to the list page + scroll where the client opened this product */
   const goBackToBrowse = () => {
-    const origin = readBrowseOrigin()
-    const fallback = category ? shopPath(category.id) : '/shop'
-    // Explicit path + scroll survives refresh better than history.back alone
-    if (origin?.path) {
-      navigate(origin.path, { state: { restoreScrollY: origin.scrollY || 0 } })
-      return
-    }
-    if (window.history.length > 1) {
-      navigate(-1)
-      return
-    }
-    navigate(fallback)
+    const target = resolveProductBackTarget({
+      categoryShopPath: category ? shopPath(category.id) : '/shop',
+      productId: product.id,
+      locationState: browseState,
+    })
+    // replace: leave product out of history so another Back doesn’t bounce here
+    navigate(target.path, {
+      replace: true,
+      state: { restoreScrollY: target.scrollY || 0 },
+    })
   }
 
   const goToShopList = (path: string) => {
+    const fromState = browseState?.browseFrom || ''
     const origin = readBrowseOrigin()
-    const sameFamily =
-      origin &&
-      (origin.path === path ||
-        origin.path.startsWith(`${path}/`) ||
-        (path.startsWith('/shop/') && origin.path.startsWith('/shop/')))
-    if (sameFamily && origin) {
-      navigate(origin.path, { state: { restoreScrollY: origin.scrollY } })
+    const lastShop = readLastShopBrowse()
+    const candidates = [fromState, origin?.path, lastShop?.path].filter(
+      Boolean,
+    ) as string[]
+    const match = candidates.find((p) => {
+      const base = p.split('?')[0] || ''
+      return (
+        base === path ||
+        base.startsWith(`${path}/`) ||
+        (path.startsWith('/shop/') && base.startsWith('/shop/'))
+      )
+    })
+    if (match) {
+      const scrollY =
+        match === fromState
+          ? browseState?.browseScrollY || 0
+          : match === origin?.path
+            ? origin?.scrollY || 0
+            : lastShop?.scrollY || 0
+      navigate(match, {
+        replace: true,
+        state: { restoreScrollY: scrollY },
+      })
       return
     }
-    navigate(path)
+    navigate(path, { replace: true })
   }
 
   return (

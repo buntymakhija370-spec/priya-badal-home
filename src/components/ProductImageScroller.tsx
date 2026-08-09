@@ -7,7 +7,10 @@ import {
 } from 'react'
 import { useLocation, useNavigate } from 'react-router-dom'
 import type { MediaItem } from '../lib/media'
-import { rememberBrowseOrigin } from '../lib/browseReturn'
+import {
+  buildProductNavState,
+  rememberBrowseOrigin,
+} from '../lib/browseReturn'
 import { saveScrollMemory } from '../lib/scrollMemory'
 import './ProductImageScroller.css'
 
@@ -71,13 +74,18 @@ export function ProductImageScroller({
       el.scrollLeft = Math.round(el.scrollLeft / width) * width
       g.opened = true
       saveScrollMemory(location.key, location.pathname)
+      const navState = buildProductNavState(
+        location.pathname,
+        location.search,
+      )
       rememberBrowseOrigin({
         pathname: location.pathname,
         search: location.search,
         locationKey: location.key,
         productId: to.replace(/^\/product\//, '') || undefined,
+        scrollY: navState.browseScrollY,
       })
-      navigate(to)
+      navigate(to, { state: navState })
       return true
     }
 
@@ -174,13 +182,15 @@ export function ProductImageScroller({
     if (gestureRef.current.opened) return
     gestureRef.current.opened = true
     saveScrollMemory(location.key, location.pathname)
+    const navState = buildProductNavState(location.pathname, location.search)
     rememberBrowseOrigin({
       pathname: location.pathname,
       search: location.search,
       locationKey: location.key,
       productId: to.replace(/^\/product\//, '') || undefined,
+      scrollY: navState.browseScrollY,
     })
-    navigate(to)
+    navigate(to, { state: navState })
   }
 
   const onKeyDown = (e: KeyboardEvent<HTMLDivElement>) => {
@@ -188,13 +198,18 @@ export function ProductImageScroller({
     if (e.key === 'Enter' || e.key === ' ') {
       e.preventDefault()
       saveScrollMemory(location.key, location.pathname)
+      const navState = buildProductNavState(
+        location.pathname,
+        location.search,
+      )
       rememberBrowseOrigin({
         pathname: location.pathname,
         search: location.search,
         locationKey: location.key,
         productId: to.replace(/^\/product\//, '') || undefined,
+        scrollY: navState.browseScrollY,
       })
-      navigate(to)
+      navigate(to, { state: navState })
     }
   }
 

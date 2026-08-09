@@ -7,14 +7,21 @@
 import { forceWindowScroll, saveScrollMemory } from './scrollMemory'
 
 const KEY = 'pbh:browse-return'
+const KEY_SHOP = 'pbh:browse-return-shop'
 
 export type BrowseReturn = {
   path: string
   scrollY: number
-  /** History location key when they left the list (helps POP restore) */
   locationKey?: string
   productId?: string
   savedAt: number
+}
+
+/** Passed through React Router when opening a product */
+export type ProductBrowseState = {
+  browseFrom?: string
+  browseScrollY?: number
+  restoreScrollY?: number
 }
 
 function readScrollY() {
@@ -26,13 +33,33 @@ function readScrollY() {
   )
 }
 
-/** List / browse surfaces we can restore into */
 export function isListBrowsePath(pathname: string) {
   if (!pathname) return false
-  if (pathname === '/') return true
-  if (pathname === '/shop' || pathname.startsWith('/shop/')) return true
-  if (pathname === '/favorites') return true
+  const path = pathname.split('?')[0] || ''
+  if (path === '/') return true
+  if (path === '/shop' || path.startsWith('/shop/')) return true
+  if (path === '/favorites') return true
   return false
+}
+
+function writeJson(key: string, payload: BrowseReturn) {
+  try {
+    sessionStorage.setItem(key, JSON.stringify(payload))
+  } catch {
+    /* ignore */
+  }
+}
+
+function readJson(key: string): BrowseReturn | null {
+  try {
+    const raw = sessionStorage.getItem(key)
+    if (!raw) return null
+    const parsed = JSON.parse(raw) as BrowseReturn
+    if (!parsed?.path || typeof parsed.scrollY !== 'number') return null
+    return parsed
+  } catch {
+    return null
+  }
 }
 
 export function rememberBrowseOrigin(input: {
@@ -53,29 +80,35 @@ export function rememberBrowseOrigin(input: {
     productId: input.productId,
     savedAt: Date.now(),
   }
-  try {
-    sessionStorage.setItem(KEY, JSON.stringify(payload))
-  } catch {
-    /* ignore */
+  writeJson(KEY, payload)
+  // Keep a dedicated shop bookmark so Back never “forgets” the collection
+  // if the client later opens a product from the Home featured row.
+  if (input.pathname === '/shop' || input.pathname.startsWith('/shop/')) {
+    writeJson(KEY_SHOP, payload)
   }
-  // Keep path-keyed scroll in sync for ScrollToTop POP / refresh
-  saveScrollMemory(input.locationKey || `path:${input.pathname}`, input.pathname)
+  saveScrollMemory(
+    input.locationKey || `path:${input.pathname}`,
+    input.pathname,
+  )
 }
 
 export function readBrowseOrigin(): BrowseReturn | null {
-  try {
-    const raw = sessionStorage.getItem(KEY)
-    if (!raw) return null
-    const parsed = JSON.parse(raw) as BrowseReturn
-    if (!parsed?.path || typeof parsed.scrollY !== 'number') return null
-    return parsed
-  } catch {
-    return null
-  }
+  return readJson(KEY)
+}
+
+export function readLastShopBrowse(): BrowseReturn | null {
+  return readJson(KEY_SHOP)
 }
 
 /** Prefer last shop collection; fall back to /shop */
 export function readLastShopPath(): string {
+  const shop = readLastShopBrowse()
+  if (
+    shop &&
+    (shop.path === '/shop' || shop.path.startsWith('/shop/'))
+  ) {
+    return shop.path
+  }
   const origin = readBrowseOrigin()
   if (
     origin &&
@@ -84,6 +117,59 @@ export function readLastShopPath(): string {
     return origin.path
   }
   return '/shop'
+}
+
+/**
+ * Where Back on a product page should go.
+ * Never jumps to Home unless that is truly where the product was opened.
+ */
+export function resolveProductBackTarget(input: {
+  categoryShopPath: string
+  productId: string
+  locationState?: ProductBrowseState | null
+}): { path: string; scrollY: number } {
+  const state = input.locationState
+  const stateFrom = (state?.browseFrom || '').trim()
+  const statePath = stateFrom.split('?')[0] || ''
+
+  if (stateFrom && isListBrowsePath(statePath)) {
+    return {
+      path: stateFrom,
+      scrollY:
+        typeof state?.browseScrollY === 'number' ? state.browseScrollY : 0,
+    }
+  }
+
+  const origin = readBrowseOrigin()
+  if (origin?.path) {
+    const originPath = origin.path.split('?')[0] || ''
+    // Prefer the shop list for this visit when available
+    if (originPath === '/shop' || originPath.startsWith('/shop/')) {
+      return { path: origin.path, scrollY: origin.scrollY || 0 }
+    }
+    if (origin.productId === input.productId && originPath === '/') {
+      return { path: origin.path, scrollY: origin.scrollY || 0 }
+    }
+  }
+
+  const lastShop = readLastShopBrowse()
+  if (lastShop?.path) {
+    return { path: lastShop.path, scrollY: lastShop.scrollY || 0 }
+  }
+
+  // Always fall back to this product’s collection — not Home
+  return { path: input.categoryShopPath || '/shop', scrollY: 0 }
+}
+
+export function buildProductNavState(
+  pathname: string,
+  search = '',
+  scrollY?: number,
+): ProductBrowseState {
+  return {
+    browseFrom: `${pathname}${search || ''}`,
+    browseScrollY: typeof scrollY === 'number' ? scrollY : readScrollY(),
+  }
 }
 
 export function clearBrowseOrigin() {

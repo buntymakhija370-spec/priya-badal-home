@@ -80,6 +80,12 @@ export function ChatPage() {
     null,
   )
   const [busySeconds, setBusySeconds] = useState(0)
+  /** How many AI images made in this chat (1st, 2nd…) — keeps wait copy clear */
+  const [renderCount, setRenderCount] = useState(0)
+  /** True when this run is editing an existing look (2nd+ render) */
+  const [busyIsUpdate, setBusyIsUpdate] = useState(false)
+  /** Thumbnail shown on the wait screen while updating */
+  const [busyPreviewUrl, setBusyPreviewUrl] = useState<string | null>(null)
   /** True when Fal is on the server AND this device is unlocked */
   const [aiConfigured, setAiConfigured] = useState(false)
   const [showKey, setShowKey] = useState(false)
@@ -209,6 +215,26 @@ export function ChatPage() {
     setMessages((prev) => [...prev, ...next])
   }
 
+  const startRenderWait = (
+    kind: 'visualise' | 'carcass',
+    opts?: { isUpdate?: boolean; previewUrl?: string | null },
+  ) => {
+    stickToBottomRef.current = true
+    setBusyKind(kind)
+    setBusyIsUpdate(Boolean(opts?.isUpdate))
+    setBusyPreviewUrl(opts?.previewUrl ?? null)
+    setBusySeconds(0)
+    setBusy(true)
+  }
+
+  const clearRenderWait = () => {
+    setBusy(false)
+    setBusyKind(null)
+    setBusyIsUpdate(false)
+    setBusyPreviewUrl(null)
+    setBusySeconds(0)
+  }
+
   const runCarcassVisualise = async (current: ConsultBrief) => {
     const product = current.selectedProductId
       ? getProductById(current.selectedProductId)
@@ -217,6 +243,7 @@ export function ChatPage() {
     const carcassImage = getProductCarcassImage(product)
 
     if (!product || !category || !carcassImage) {
+      clearRenderWait()
       push({
         id: crypto.randomUUID(),
         role: 'assistant',
@@ -227,6 +254,7 @@ export function ChatPage() {
     }
 
     if (current.widthFt == null || current.heightFt == null) {
+      clearRenderWait()
       push({
         id: crypto.randomUUID(),
         role: 'assistant',
@@ -237,6 +265,7 @@ export function ChatPage() {
     }
 
     if (!aiConfigured) {
+      clearRenderWait()
       setShowKey(true)
       if (!unlockNagRef.current) {
         unlockNagRef.current = true
@@ -267,8 +296,10 @@ export function ChatPage() {
       thicknessId: rates.thicknessId,
     })
 
-    setBusyKind('carcass')
-    setBusy(true)
+    startRenderWait('carcass', {
+      isUpdate: Boolean(current.aiImageUrl),
+      previewUrl: current.aiImageUrl ?? null,
+    })
     try {
       const result = await generateLiveCarcass({
         carcassImagePath: carcassImage,
@@ -289,25 +320,21 @@ export function ChatPage() {
             'Open carcass look ready — next edits continue on this same image.',
         }
         setBrief(nextBrief)
+        setRenderCount((n) => n + 1)
         push({
           id: crypto.randomUUID(),
           role: 'assistant',
           text: [
-            result.message,
-            '',
-            `Open carcass for ${product.name} at ${width} × ${height} × ${depth} ft.`,
+            `Open carcass ready — ${product.name} at ${width} × ${height} × ${depth} ft.`,
             `Layout: ${quote.baySummary}`,
-            `BWP plywood · both-side 1 mm laminate · 2 mm edge banding.`,
+            `Catalog estimate: ${formatPrice(quote.unitPrice, 'INR')} (final on WhatsApp after measure).`,
             '',
-            `Catalog estimate (with carcass): ${formatPrice(quote.unitPrice, 'INR')} — final on WhatsApp after measure.`,
-            '',
-            'Want the shuttered room look next? Attach a photo and say “Visualise my look”.',
+            'Next: attach a room photo and tap Visualise for the shuttered look.',
           ].join('\n'),
           aiImageUrl: result.imageUrl,
           products: [product],
           suggestions: [
             'Price estimate',
-            'What is BWP plywood?',
             'Visualise my look',
             'WhatsApp quote',
           ],
@@ -336,8 +363,7 @@ export function ChatPage() {
         suggestions: ['Price with carcass', 'WhatsApp quote'],
       })
     } finally {
-      setBusy(false)
-      setBusyKind(null)
+      clearRenderWait()
     }
   }
 
@@ -350,6 +376,7 @@ export function ChatPage() {
       ? getProductById(current.selectedProductId)
       : undefined
     if (!product || !current.roomPhotoDataUrl) {
+      clearRenderWait()
       push({
         id: crypto.randomUUID(),
         role: 'assistant',
@@ -368,6 +395,7 @@ export function ChatPage() {
     const shouldRefine = Boolean(refine && current.aiImageUrl && changeText)
 
     if (!aiConfigured) {
+      clearRenderWait()
       setShowKey(true)
       if (!unlockNagRef.current) {
         unlockNagRef.current = true
@@ -381,8 +409,11 @@ export function ChatPage() {
       return
     }
 
-    setBusyKind('visualise')
-    setBusy(true)
+    // Show the wait screen immediately — critical on 2nd+ renders so clients know AI is working
+    startRenderWait('visualise', {
+      isUpdate: Boolean(current.aiImageUrl) || shouldRefine,
+      previewUrl: current.aiImageUrl ?? current.roomPhotoDataUrl,
+    })
     try {
       const category = getCategory(product.categoryId)
       const colour = colourFromBrief(current)
@@ -460,23 +491,23 @@ export function ChatPage() {
             'Base look ready — apply the next change on this same image.',
         }
         setBrief(nextBrief)
+        setRenderCount((n) => n + 1)
+        const pass = renderCount + 1
         push({
           id: crypto.randomUUID(),
           role: 'assistant',
-          text: usedRefine
-            ? `${result.message}\n\nUpdated your current look for ${product.name}. This chat is still on the same job — say another change (e.g. “make it lighter”) and I’ll edit this same image. Say “start over from photo” only if you want a fresh render.`
-            : shouldRefine
-              ? `${result.message}\n\nI rebuilt the look with your change for ${product.name}.\n\nWe’re still on the same visualisation — tell me another tweak anytime, or say “start over from photo”.`
-              : `${result.message}\n\nVisualisation of ${product.name}${
-                  kind === 'drawing' ? ' from your architect drawing' : ' in your room photo'
-                }.\n\nNext messages continue this same look — tell me a change and I’ll edit this image (I won’t start a new job unless you ask).`,
+          text: usedRefine || shouldRefine
+            ? `Look #${pass} ready — updated ${product.name}.\n\nTap a change below, or type what you want next. I’ll keep editing this same image.`
+            : `Look #${pass} ready — ${product.name}${
+                kind === 'drawing' ? ' on your drawing' : ' in your room'
+              }.\n\nWant a tweak? Tap a chip or type it. For a different style, say “Give me another option”.`,
           aiImageUrl: result.imageUrl,
           products: [product],
           suggestions: [
             'Give me another option',
-            'Slightly open shutters',
             'Make it lighter',
             'Make it darker',
+            'Slightly open shutters',
             'WhatsApp quote',
           ],
         })
@@ -507,8 +538,7 @@ export function ChatPage() {
       })
       setShowKey(true)
     } finally {
-      setBusy(false)
-      setBusyKind(null)
+      clearRenderWait()
     }
   }
 
@@ -627,13 +657,22 @@ export function ChatPage() {
     inputRef.current?.focus()
 
     if (turn.shouldCarcassVisualise) {
-      setMessages((prev) => [...prev, userMsg, turn.reply])
+      // Wait screen first so 2nd renders never look “stuck”
+      startRenderWait('carcass', {
+        isUpdate: Boolean(turn.brief.aiImageUrl),
+        previewUrl: turn.brief.aiImageUrl ?? null,
+      })
+      setMessages((prev) => [...prev, userMsg])
       await runCarcassVisualise(turn.brief)
       return
     }
 
     if (turn.shouldVisualise) {
-      setMessages((prev) => [...prev, userMsg, turn.reply])
+      startRenderWait('visualise', {
+        isUpdate: Boolean(turn.refine || turn.brief.aiImageUrl),
+        previewUrl: turn.brief.aiImageUrl ?? turn.brief.roomPhotoDataUrl ?? null,
+      })
+      setMessages((prev) => [...prev, userMsg])
       await runVisualise(
         turn.brief,
         Boolean(turn.refine),
@@ -892,9 +931,6 @@ export function ChatPage() {
   }
 
   const whatsapp = buildChatWhatsAppUrl(brief)
-  const selected = brief.selectedProductId
-    ? getProductById(brief.selectedProductId)
-    : undefined
   const latestSuggestions =
     [...messages].reverse().find((m) => m.role === 'assistant' && m.suggestions?.length)
       ?.suggestions ?? []
@@ -902,6 +938,24 @@ export function ChatPage() {
 
   const showWorkOverlay =
     busy && (busyKind === 'visualise' || busyKind === 'carcass')
+
+  const canVisualise = Boolean(brief.selectedProductId && brief.roomPhotoDataUrl)
+  const stepPhoto = Boolean(brief.roomPhotoDataUrl)
+  const stepStyle = Boolean(brief.selectedProductId)
+  const stepLook = Boolean(brief.aiImageUrl)
+
+  /** Fake-but-honest progress so long 2nd renders still feel alive */
+  const renderProgress = Math.min(
+    96,
+    busySeconds < 8
+      ? 8 + busySeconds * 4
+      : busySeconds < 25
+        ? 40 + (busySeconds - 8) * 2.2
+        : 78 + Math.min(18, busySeconds - 25),
+  )
+  const renderStep =
+    busySeconds < 10 ? 0 : busySeconds < 28 ? 1 : 2
+  const nextLookNumber = renderCount + 1
 
   return (
     <main
@@ -920,46 +974,56 @@ export function ChatPage() {
             className="pbai__logo"
           />
           <div className="pbai__brand-text">
-            <p className="pbai__title">Chat</p>
+            <p className="pbai__title">Priyabadal Chat</p>
             <p className="pbai__subtitle">
-              Price · carcass · materials · visualise
+              {showWorkOverlay
+                ? busyIsUpdate
+                  ? `Rendering look #${nextLookNumber}…`
+                  : 'Rendering your look…'
+                : brief.aiImageUrl
+                  ? `Look #${renderCount || 1} ready`
+                  : 'Ask · pick style · visualise'}
             </p>
           </div>
         </div>
         <div className="pbai__top-actions">
           <span
-            className={`pbai__status ${aiConfigured ? 'is-live' : ''}`}
-            title={aiConfigured ? 'Paid AI on' : 'AI subscription'}
+            className={`pbai__status ${
+              showWorkOverlay ? 'is-busy' : aiConfigured ? 'is-live' : ''
+            }`}
+            title={
+              showWorkOverlay
+                ? 'AI is rendering'
+                : aiConfigured
+                  ? 'Paid AI on'
+                  : 'AI subscription'
+            }
           >
-            {aiConfigured ? 'AI on' : 'AI'}
+            {showWorkOverlay ? 'Working' : aiConfigured ? 'AI on' : 'Unlock'}
           </span>
-          <button
-            type="button"
-            className="pbai__ghost"
-            onClick={() => setShowKey((v) => !v)}
-          >
-            {showKey ? 'Close' : 'Unlock'}
-          </button>
+          {!showWorkOverlay ? (
+            <button
+              type="button"
+              className="pbai__ghost"
+              onClick={() => setShowKey((v) => !v)}
+            >
+              {showKey ? 'Close' : 'AI access'}
+            </button>
+          ) : null}
         </div>
       </header>
 
       {!showKey ? (
-        <div className="pbai__brief-bar" aria-label="Session brief">
-          <span>{brief.room ?? 'Space?'}</span>
-          <span>
-            {brief.widthFt != null && brief.heightFt != null
-              ? `${brief.widthFt}×${brief.heightFt}${brief.depthFt != null ? `×${brief.depthFt}` : ''} ft`
-              : 'Size?'}
+        <div className="pbai__steps" aria-label="How chat works">
+          <span className={stepPhoto ? 'is-done' : ''}>1 Photo</span>
+          <span className={stepStyle ? 'is-done' : ''}>2 Style</span>
+          <span
+            className={
+              showWorkOverlay ? 'is-busy' : stepLook ? 'is-done' : ''
+            }
+          >
+            {showWorkOverlay ? '3 Rendering…' : '3 Visualise'}
           </span>
-          <span>{selected?.name ?? 'Product?'}</span>
-          <span>
-            {brief.roomPhotoDataUrl
-              ? brief.attachmentKind === 'drawing'
-                ? 'Drawing'
-                : 'Photo'
-              : 'Attach?'}
-          </span>
-          <span>{brief.aiImageUrl ? 'AI ready' : 'No AI yet'}</span>
         </div>
       ) : null}
 
@@ -981,8 +1045,9 @@ export function ChatPage() {
               />
               <h1>Chat with Priyabadal</h1>
               <p>
-                Ask for wardrobe or kitchen options — tap a photo card to select, then
-                continue with price, carcass, or visualisation.
+                Easy path: add a room photo → tap a style card → tap{' '}
+                <strong>Visualise</strong>. Wait for the progress screen every time
+                (first look and updates).
               </p>
             </div>
           ) : null}
@@ -1154,6 +1219,43 @@ export function ChatPage() {
               </div>
             </article>
           ) : null}
+
+          {showWorkOverlay ? (
+            <article className="pbai-msg pbai-msg--assistant pbai-msg--rendering">
+              <div className="pbai-msg__avatar" aria-hidden="true">
+                PB
+              </div>
+              <div className="pbai-msg__body">
+                <p className="pbai-msg__label">Rendering now</p>
+                <div className="pbai-render-inline">
+                  <div className="pbai-render-inline__row">
+                    <div className="pbai__work-spinner pbai__work-spinner--sm" />
+                    <div>
+                      <strong>
+                        {busyKind === 'carcass'
+                          ? 'Building open carcass…'
+                          : busyIsUpdate
+                            ? `Updating look #${nextLookNumber}…`
+                            : `Creating look #${nextLookNumber}…`}
+                      </strong>
+                      <p>
+                        AI is working — stay on this chat ({busySeconds}s)
+                      </p>
+                    </div>
+                  </div>
+                  <div
+                    className="pbai-render-bar"
+                    role="progressbar"
+                    aria-valuemin={0}
+                    aria-valuemax={100}
+                    aria-valuenow={Math.round(renderProgress)}
+                  >
+                    <i style={{ width: `${renderProgress}%` }} />
+                  </div>
+                </div>
+              </div>
+            </article>
+          ) : null}
           <div ref={endRef} />
         </div>
       </div>
@@ -1161,49 +1263,74 @@ export function ChatPage() {
       {showWorkOverlay ? (
         <div
           className="pbai__work"
-          role="status"
-          aria-live="polite"
+          role="alertdialog"
+          aria-modal="true"
+          aria-live="assertive"
           aria-busy="true"
+          aria-label="AI rendering in progress"
         >
           <div className="pbai__work-card">
-            <div className="pbai__work-spinner" aria-hidden="true" />
-            <p className="pbai__work-kicker">Please wait</p>
+            {busyPreviewUrl ? (
+              <div className="pbai__work-preview">
+                <img src={busyPreviewUrl} alt="" />
+                <span className="pbai__work-preview-badge">
+                  {busyIsUpdate ? 'Updating this look' : 'Working from this photo'}
+                </span>
+              </div>
+            ) : (
+              <div className="pbai__work-spinner" aria-hidden="true" />
+            )}
+            <p className="pbai__work-kicker">
+              {busyIsUpdate ? `Look #${nextLookNumber}` : 'Please wait'}
+            </p>
             <h2 className="pbai__work-title">
               {busyKind === 'carcass'
-                ? 'Open carcass in progress'
-                : 'Visualisation in progress'}
+                ? 'Rendering open carcass'
+                : busyIsUpdate
+                  ? 'Rendering your update'
+                  : 'Rendering your room look'}
             </h2>
             <p className="pbai__work-body">
               {busyKind === 'carcass'
-                ? 'Building your live-size open carcass elevation. Stay on this chat — usually 15–40 seconds.'
-                : brief.aiImageUrl
-                  ? 'Updating your current look (same chat job). Stay on this screen while AI finishes.'
-                  : 'Creating your room look from the photo/drawing you sent. Stay on this screen while AI works.'}
+                ? 'Building a live-size open carcass elevation. Usually 15–40 seconds — do not leave this screen.'
+                : busyIsUpdate
+                  ? 'Same chat job — AI is editing your current image. This can take 15–45 seconds. The new look appears when the bar finishes.'
+                  : 'Creating your first AI look from the photo/drawing. Stay here until it finishes (about 15–40 seconds).'}
             </p>
+            <ol className="pbai__work-steps" aria-label="Render progress">
+              <li className={renderStep >= 0 ? 'is-on' : ''}>Preparing</li>
+              <li className={renderStep >= 1 ? 'is-on' : ''}>Rendering</li>
+              <li className={renderStep >= 2 ? 'is-on' : ''}>Finishing</li>
+            </ol>
+            <div
+              className="pbai-render-bar pbai-render-bar--lg"
+              role="progressbar"
+              aria-valuemin={0}
+              aria-valuemax={100}
+              aria-valuenow={Math.round(renderProgress)}
+            >
+              <i style={{ width: `${renderProgress}%` }} />
+            </div>
             <p className="pbai__work-timer">
               Working… {busySeconds}s
-              {busySeconds >= 20 ? ' — almost there' : ''}
+              {busySeconds >= 25 ? ' — almost there' : busySeconds >= 12 ? ' — still rendering' : ''}
             </p>
-            <div className="pbai-msg__bubble pbai-msg__bubble--typing" aria-hidden>
-              <span />
-              <span />
-              <span />
-            </div>
           </div>
         </div>
       ) : null}
 
       <footer
         className="pbai__composer-wrap"
-        aria-hidden={showKey || undefined}
+        aria-hidden={showKey || showWorkOverlay || undefined}
       >
-        {!showKey && latestSuggestions.length > 0 ? (
+        {!showKey && !showWorkOverlay && latestSuggestions.length > 0 ? (
           <div className="pbai__chips">
             {latestSuggestions.map((s) => (
               <button
                 key={s}
                 type="button"
                 className="pbai-chip"
+                disabled={busy}
                 onClick={() => void send(s)}
               >
                 {s}
@@ -1212,14 +1339,14 @@ export function ChatPage() {
           </div>
         ) : null}
 
-        {pendingFile ? (
+        {pendingFile && !showWorkOverlay ? (
           <div className="pbai__pending">
             <img src={pendingFile.dataUrl} alt="" />
             <div>
               <p>
-                Ready to send as{' '}
+                Ready as{' '}
                 <strong>
-                  {pendingFile.kind === 'drawing' ? 'architect drawing' : 'room photo'}
+                  {pendingFile.kind === 'drawing' ? 'drawing' : 'room photo'}
                 </strong>
               </p>
               <div className="pbai__pending-actions">
@@ -1261,39 +1388,36 @@ export function ChatPage() {
               value={input}
               onChange={(e) => setInput(e.target.value)}
               onKeyDown={onKeyDown}
-              placeholder="Ask price, carcass visualise, materials…"
+              disabled={showWorkOverlay}
+              placeholder={
+                showWorkOverlay
+                  ? 'Rendering — please wait…'
+                  : canVisualise
+                    ? brief.aiImageUrl
+                      ? 'Type a change, or tap Update look'
+                      : 'Ask anything, or tap Visualise'
+                    : 'Ask price / materials, or add photo + style'
+              }
             />
             <div className="pbai__composer-tools">
-              <div className="pbai__attach-group" role="group" aria-label="Attach">
-                <button
-                  type="button"
-                  className={attachMode === 'photo' ? 'is-on' : ''}
-                  title="Room photo"
-                  onClick={() => {
-                    setAttachMode('photo')
-                    fileRef.current?.click()
-                  }}
-                >
-                  Photo
-                </button>
-                <button
-                  type="button"
-                  className={attachMode === 'drawing' ? 'is-on' : ''}
-                  title="Architect drawing"
-                  onClick={() => {
-                    setAttachMode('drawing')
-                    fileRef.current?.click()
-                  }}
-                >
-                  Drawing
-                </button>
-              </div>
               <button
                 type="button"
                 className="pbai__tool"
-                disabled={
-                  busy || !brief.selectedProductId || !brief.roomPhotoDataUrl
-                }
+                disabled={busy}
+                title="Attach room photo or drawing"
+                onClick={() => {
+                  setAttachMode('photo')
+                  fileRef.current?.click()
+                }}
+              >
+                + Photo
+              </button>
+              <button
+                type="button"
+                className={`pbai__tool pbai__tool--primary${
+                  brief.aiImageUrl ? ' is-update' : ''
+                }`}
+                disabled={busy || !canVisualise}
                 onClick={() => {
                   if (busy) return
                   const typed = input.trim()
@@ -1311,26 +1435,18 @@ export function ChatPage() {
                   const userLine = typed
                     ? typed
                     : editExisting
-                      ? 'Apply change on this same look'
+                      ? 'Update this look'
                       : 'Visualise my look'
-                  push(
-                    {
-                      id: crypto.randomUUID(),
-                      role: 'user',
-                      text: userLine,
-                    },
-                    {
-                      id: crypto.randomUUID(),
-                      role: 'assistant',
-                      text: editExisting
-                        ? `Continuing your current AI look${
-                            nextBrief.lastChangeRequest
-                              ? ` — “${nextBrief.lastChangeRequest}”`
-                              : ''
-                          }. Please wait while the image updates…`
-                        : 'Generating your AI visualisation. Please wait — this can take about 15–40 seconds…',
-                    },
-                  )
+                  // Wait screen starts inside runVisualise — show it before any delay
+                  startRenderWait('visualise', {
+                    isUpdate: editExisting,
+                    previewUrl: nextBrief.aiImageUrl ?? nextBrief.roomPhotoDataUrl,
+                  })
+                  push({
+                    id: crypto.randomUUID(),
+                    role: 'user',
+                    text: userLine,
+                  })
                   void runVisualise(
                     nextBrief,
                     editExisting,
@@ -1338,9 +1454,9 @@ export function ChatPage() {
                   )
                 }}
               >
-                {brief.aiImageUrl ? 'Apply change' : 'Visualise'}
+                {brief.aiImageUrl ? 'Update look' : 'Visualise'}
               </button>
-              {whatsapp ? (
+              {whatsapp && !showWorkOverlay ? (
                 <a
                   className="pbai__tool pbai__tool--wa"
                   href={whatsapp}
@@ -1369,8 +1485,11 @@ export function ChatPage() {
             onChange={(e) => void onFilePicked(e.target.files?.[0] || null)}
           />
           <p className="pbai__hint">
-            Enter to send · Shift+Enter for new line · Drawings & photos visualise with our
-            product list
+            {canVisualise
+              ? brief.aiImageUrl
+                ? 'Tip: type “make it lighter” then tap Update look — wait for the progress screen'
+                : 'Photo + style ready — tap Visualise and wait for the progress screen'
+              : 'Steps: add a photo → select a style card → tap Visualise'}
           </p>
         </form>
       </footer>

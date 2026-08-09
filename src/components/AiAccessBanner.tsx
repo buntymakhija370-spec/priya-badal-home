@@ -115,10 +115,23 @@ export function AiAccessBanner({ onStatus, compact }: Props) {
       </div>
       {msg ? <p className="ai-access__msg">{msg}</p> : null}
       {!status.falConfigured ? (
-        <p className="ai-access__msg">
-          Server AI is offline right now. You can still save your access code — visualisation
-          turns on when the owner reconnects AI.
-        </p>
+        <div className="ai-access__owner">
+          <p className="ai-access__msg">
+            Your access code is saved ✓ — but Server AI is offline until the owner
+            connects a Gemini key.
+          </p>
+          <p>
+            Owner: open AI admin → enter admin PIN → paste Gemini API key → Save.
+            Get a key at{' '}
+            <a href="https://aistudio.google.com/apikey" target="_blank" rel="noreferrer">
+              aistudio.google.com/apikey
+            </a>
+            . After save, close this panel and tap Visualise again.
+          </p>
+          <Link className="ai-access__owner-btn" to="/ai-admin">
+            Open AI admin · connect Gemini
+          </Link>
+        </div>
       ) : null}
     </aside>
   )

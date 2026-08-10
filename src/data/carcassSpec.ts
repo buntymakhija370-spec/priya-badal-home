@@ -51,7 +51,7 @@ export const CARCASS_ASSEMBLY_STEPS = [
   {
     id: 'shelves',
     title: '4. Shelves, rods & drawers',
-    body: 'Fit shelves at marked heights, hanging rods, and drawer boxes as per your bay layout from Carcass Planner / WhatsApp drawing.',
+    body: 'Fit shelves at marked heights, hanging rods, and drawer boxes as per your bay layout from Chat / WhatsApp drawing.',
   },
   {
     id: 'wall',
@@ -72,6 +72,7 @@ export function productUsesCarcassConstruction(categoryId: string, hasCarcassPri
     categoryId === 'wardrobe' ||
     categoryId === 'kitchen' ||
     categoryId === 'temple' ||
-    categoryId === 'sculpted-furniture'
+    categoryId === 'sculpted-furniture' ||
+    categoryId === 'carcass-selection'
   )
 }

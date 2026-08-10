@@ -1,14 +1,19 @@
 import { useEffect, useLayoutEffect } from 'react'
 import { useLocation, useNavigationType } from 'react-router-dom'
+import { applyBrowseScroll } from '../lib/browseReturn'
 import {
   forceWindowScroll,
   restoreScrollMemory,
   saveScrollMemory,
 } from '../lib/scrollMemory'
 
+type LocationState = {
+  restoreScrollY?: number
+}
+
 /**
- * - New pages (PUSH / REPLACE): jump to top
- * - Back / forward (POP): restore where the customer left the list
+ * - New pages (PUSH / REPLACE): jump to top — unless returning from a product
+ * - Back / forward / refresh (POP): restore where the customer left the list
  *
  * Scroll is saved on every scroll AND in the click/touch capture phase
  * before React Router navigates, so it cannot be overwritten with 0.
@@ -42,7 +47,6 @@ export function ScrollToTop() {
     const onPointerDown = (event: Event) => {
       const target = event.target
       if (!(target instanceof Element)) return
-      // Any in-app navigation affordance
       if (
         target.closest('a[href]') ||
         target.closest('[data-save-scroll]') ||
@@ -73,12 +77,28 @@ export function ScrollToTop() {
   }, [location.key, location.pathname])
 
   useLayoutEffect(() => {
+    const state = (location.state || null) as LocationState | null
+    const explicitY =
+      typeof state?.restoreScrollY === 'number' ? state.restoreScrollY : null
+
+    // Explicit return from product (Back / crumb / Shop tab)
+    if (explicitY != null) {
+      return applyBrowseScroll(explicitY)
+    }
+
+    // Browser Back / Forward / page refresh → restore list position
     if (navigationType === 'POP') {
       return restoreScrollMemory(location.key, location.pathname)
     }
+
     forceWindowScroll(0)
     return undefined
-  }, [location.key, location.pathname, navigationType])
+  }, [
+    location.key,
+    location.pathname,
+    location.state,
+    navigationType,
+  ])
 
   return null
 }

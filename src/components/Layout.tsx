@@ -1,27 +1,25 @@
-import { NavLink, Outlet } from 'react-router-dom'
+import { NavLink, Outlet, useLocation, useNavigate } from 'react-router-dom'
 import { useEffect, useState } from 'react'
 import { categories } from '../data/catalog'
 import { shopPath } from '../lib/links'
 import { useCartCount } from '../hooks/useCart'
+import { rememberCheckReturn } from '../lib/checkReturn'
 import {
   WHATSAPP_CHAT_URL,
   WHATSAPP_DISPLAY,
 } from '../lib/whatsapp'
 import { CurrencySelect } from './CurrencySelect'
-import { BottomNav } from './BottomNav'
+import { BottomNav, leaveCheckPage } from './BottomNav'
 import { InstallBanner } from './InstallBanner'
 import './Layout.css'
 
 const utilityLinks = [
   { to: '/install', label: 'Get the App (iPhone & Android)' },
-  { to: '/design', label: 'Design my space' },
-  { to: '/shop', label: 'All products' },
+  { to: '/shop', label: 'Collections' },
   { to: '/how-it-works', label: 'How it works' },
-  { to: '/visualise', label: 'Visualise AI' },
-  { to: '/carcass', label: 'Carcass Planner' },
+  { to: '/chat', label: 'Chat' },
   { to: '/guides/carcass-assembly', label: 'Carcass assembly guide' },
   { to: '/favorites', label: 'Favorites' },
-  { to: '/chat', label: 'Priya Badal AI' },
   { to: '/add-product', label: 'Add Product' },
 ]
 
@@ -29,6 +27,9 @@ export function Layout() {
   const [scrolled, setScrolled] = useState(false)
   const [menuOpen, setMenuOpen] = useState(false)
   const cartCount = useCartCount()
+  const location = useLocation()
+  const navigate = useNavigate()
+  const onCheck = location.pathname === '/favorites'
 
   useEffect(() => {
     const onScroll = () => setScrolled(window.scrollY > 20)
@@ -44,13 +45,29 @@ export function Layout() {
     }
   }, [menuOpen])
 
+  // Keep last browse page so leaving Check can restore it
+  useEffect(() => {
+    rememberCheckReturn(location.pathname, location.search)
+  }, [location.pathname, location.search])
+
   const close = () => setMenuOpen(false)
 
   return (
     <div className="site">
       <div className="grain" aria-hidden="true" />
       <header className={`nav ${scrolled ? 'nav--scrolled' : ''} ${menuOpen ? 'nav--open' : ''}`}>
-        <NavLink className="nav__brand" to="/" onClick={close} aria-label="Priyabadal Homes home">
+        <NavLink
+          className="nav__brand"
+          to="/"
+          onClick={(e) => {
+            close()
+            if (onCheck) {
+              e.preventDefault()
+              leaveCheckPage(navigate)
+            }
+          }}
+          aria-label="Priyabadal Homes home"
+        >
           <img
             className="nav__logo"
             src="/brand/priyabadal-homes-logo.svg"
@@ -64,11 +81,8 @@ export function Layout() {
               {cat.name}
             </NavLink>
           ))}
-          <NavLink to="/design" onClick={close}>
-            Design
-          </NavLink>
-          <NavLink to="/visualise" onClick={close}>
-            Visualise
+          <NavLink to="/chat" onClick={close}>
+            Chat
           </NavLink>
           <NavLink to="/shop" onClick={close}>
             All
@@ -161,16 +175,7 @@ export function Layout() {
                 <NavLink to="/favorites">Favorites</NavLink>
               </li>
               <li>
-                <NavLink to="/design">Design my space</NavLink>
-              </li>
-              <li>
-                <NavLink to="/visualise">Visualise AI</NavLink>
-              </li>
-              <li>
-                <NavLink to="/carcass">Carcass Planner</NavLink>
-              </li>
-              <li>
-                <NavLink to="/chat">Priya Badal AI</NavLink>
+                <NavLink to="/chat">Chat</NavLink>
               </li>
               <li>
                 <a href={WHATSAPP_CHAT_URL} target="_blank" rel="noopener noreferrer">

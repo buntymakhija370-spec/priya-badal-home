@@ -26,6 +26,7 @@ const utilityLinks = [
 export function Layout() {
   const [scrolled, setScrolled] = useState(false)
   const [menuOpen, setMenuOpen] = useState(false)
+  const [categoriesOpen, setCategoriesOpen] = useState(false)
   const cartCount = useCartCount()
   const location = useLocation()
   const navigate = useNavigate()
@@ -50,7 +51,10 @@ export function Layout() {
     rememberCheckReturn(location.pathname, location.search)
   }, [location.pathname, location.search])
 
-  const close = () => setMenuOpen(false)
+  const close = () => {
+    setMenuOpen(false)
+    setCategoriesOpen(false)
+  }
 
   return (
     <div className="site">
@@ -109,17 +113,37 @@ export function Layout() {
         </div>
 
         <nav className={`nav__links ${menuOpen ? 'is-open' : ''}`} aria-label="Primary">
-          <p className="nav__section-label">Categories</p>
-          {categories.map((cat) => (
-            <NavLink
-              key={cat.id}
-              className="nav__category"
-              to={shopPath(cat.id)}
-              onClick={close}
+          <div className="nav__categories">
+            <button
+              className={`nav__categories-btn ${categoriesOpen ? 'is-open' : ''}`}
+              type="button"
+              aria-expanded={categoriesOpen}
+              aria-controls="nav-all-categories"
+              onClick={() => setCategoriesOpen((v) => !v)}
             >
-              {cat.name}
-            </NavLink>
-          ))}
+              <span>All categories</span>
+              <span className="nav__categories-chevron" aria-hidden="true" />
+            </button>
+            <div
+              id="nav-all-categories"
+              className={`nav__categories-panel ${categoriesOpen ? 'is-open' : ''}`}
+              aria-hidden={!categoriesOpen}
+            >
+              {categories.map((cat) => (
+                <NavLink
+                  key={cat.id}
+                  className="nav__category"
+                  to={shopPath(cat.id)}
+                  onClick={close}
+                >
+                  {cat.name}
+                </NavLink>
+              ))}
+              <NavLink className="nav__category nav__category--all" to="/shop" onClick={close}>
+                View full shop
+              </NavLink>
+            </div>
+          </div>
 
           <div className="nav__divider" aria-hidden="true" />
 

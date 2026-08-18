@@ -34,11 +34,9 @@
 /* Hide competing site chrome while chatting (:has + body class fallback) */
 body:has(.pbai) .footer,
 body:has(.pbai) .wa-fab,
-body:has(.pbai) .install-banner,
 body:has(.pbai) .tabbar,
 body.pbai-open .footer,
 body.pbai-open .wa-fab,
-body.pbai-open .install-banner,
 body.pbai-open .tabbar {
   display: none !important;
 }

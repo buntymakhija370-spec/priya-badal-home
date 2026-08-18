@@ -10,7 +10,6 @@ import { FavoritesPage } from './pages/FavoritesPage'
 import { CartPage } from './pages/CartPage'
 import { HowItWorksPage } from './pages/HowItWorksPage'
 import { CarcassAssemblyPage } from './pages/CarcassAssemblyPage'
-import { InstallPage } from './pages/InstallPage'
 import { AiSubscribePage } from './pages/AiSubscribePage'
 import { AiAdminPage } from './pages/AiAdminPage'
 import './App.css'
@@ -40,7 +39,7 @@ export default function App() {
           <Route path="carcass" element={<RedirectToChat />} />
           <Route path="guides/carcass-assembly" element={<CarcassAssemblyPage />} />
           <Route path="how-it-works" element={<HowItWorksPage />} />
-          <Route path="install" element={<InstallPage />} />
+          <Route path="install" element={<Navigate to="/" replace />} />
           <Route path="ai" element={<AiSubscribePage />} />
           <Route path="ai-admin" element={<AiAdminPage />} />
           <Route path="favorites" element={<FavoritesPage />} />

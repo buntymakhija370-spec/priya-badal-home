@@ -10,11 +10,9 @@ import {
 } from '../lib/whatsapp'
 import { CurrencySelect } from './CurrencySelect'
 import { BottomNav, leaveCheckPage } from './BottomNav'
-import { InstallBanner } from './InstallBanner'
 import './Layout.css'
 
 const utilityLinks = [
-  { to: '/install', label: 'Get the App (iPhone & Android)' },
   { to: '/shop', label: 'Collections' },
   { to: '/how-it-works', label: 'How it works' },
   { to: '/chat', label: 'Chat' },
@@ -187,9 +185,6 @@ export function Layout() {
             <p className="footer__heading">Help</p>
             <ul>
               <li>
-                <NavLink to="/install">Get the App</NavLink>
-              </li>
-              <li>
                 <NavLink to="/how-it-works">How your order works</NavLink>
               </li>
               <li>
@@ -222,7 +217,6 @@ export function Layout() {
       </a>
 
       <BottomNav />
-      <InstallBanner />
     </div>
   )
 }

@@ -87,7 +87,7 @@ export function ProductCard({ product }: Props) {
         ) : null}
         {minQty > 1 ? (
           <p className="product-card__min">
-            Bulk commercial · order {minQty}+ identical packs
+            Bulk order · {minQty}+ identical packs
           </p>
         ) : null}
         <p className="product-card__desc">{product.description}</p>

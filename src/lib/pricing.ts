@@ -148,10 +148,9 @@ const BOARD_SUPPLY_LOOKUP: Record<BoardSupplyId, BoardSupplyOption> = {
   'cnc-carve-hd': BOARD_SUPPLIES[1]!,
 }
 
-/** Categories that do not offer CNC-Carve HD Board (unique / bulk packs) */
+/** Categories that do not offer CNC-Carve HD Board (unique / soft goods) */
 const CNC_BOARD_EXCLUDED = new Set([
   'live-edge-furniture',
-  'commercials',
   'silaibunai',
   'handles',
 ])
@@ -524,11 +523,7 @@ export function calculatePrice(
       ? getBuildScopeRate(product, buildScope.id)
       : product.price
 
-    if (product.categoryId === 'commercials') {
-      // Bulk packs are quoted per fixed package — not resized on the calculator
-      sizeFactor = 1
-      boardPrice = Math.round(baseRate * finishMult * thicknessMult)
-    } else if (product.pricingMode === 'per-sqft') {
+    if (product.pricingMode === 'per-sqft') {
       sizeFactor = sqft
       boardPrice = Math.round(baseRate * sqft * finishMult * thicknessMult)
     } else {

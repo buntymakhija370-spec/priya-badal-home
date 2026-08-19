@@ -59,14 +59,13 @@ export function ShopPage() {
     'Customise sizes and request WhatsApp quotes.'
 
   return (
-    <main className={`shop page-pad ${category?.id === 'commercials' ? 'shop--commercials' : ''}`}>
+    <main className="shop page-pad">
       <header className="shop__header">
         <p className="eyebrow">Shop</p>
         <h1>
           {subcategory?.name ?? (category ? category.name : 'All products')}
         </h1>
-        {category?.caption &&
-        (category.id === 'commercials' || category.id === 'live-edge-furniture') ? (
+        {category?.caption && category.id === 'live-edge-furniture' ? (
           <p className="shop__caption">{category.caption}</p>
         ) : null}
         <p className="shop__lede">{lede}</p>
@@ -76,19 +75,6 @@ export function ShopPage() {
           </p>
         ) : null}
       </header>
-
-      {category?.id === 'commercials' && category.conceptNote ? (
-        <aside className="shop__concept" aria-label="Commercials concept">
-          <p className="shop__concept-kicker">How commercials work</p>
-          <p>{category.conceptNote}</p>
-          <ul>
-            <li>Lowest project cost through bulk manufacture</li>
-            <li>Minimum order: {category.minOrderQuantity ?? 10} identical packs</li>
-            <li>Choose 1BHK, 2BHK, or 3BHK package type</li>
-            <li>WhatsApp quote with your project quantity (10+)</li>
-          </ul>
-        </aside>
-      ) : null}
 
       {category?.id === 'live-edge-furniture' && category.conceptNote ? (
         <aside className="shop__concept" aria-label="Live Edge Furniture information">

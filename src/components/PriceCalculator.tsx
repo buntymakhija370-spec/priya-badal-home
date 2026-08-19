@@ -299,7 +299,7 @@ function CalculatorOverlay({ product, onClose }: OverlayProps) {
         <div className="calc-sheet__top">
           <div>
             <p className="calc-sheet__eyebrow">
-              {minQty > 1 ? 'Bulk commercial' : 'Customise & Price'}
+              {minQty > 1 ? 'Bulk quote' : 'Customise & Price'}
             </p>
             <h2 id={titleId}>{product.name}</h2>
           </div>
@@ -315,7 +315,7 @@ function CalculatorOverlay({ product, onClose }: OverlayProps) {
 
         {minQty > 1 ? (
           <p className="calc-sheet__bulk-note">
-            Lowest commercial rate — we accept orders only for a minimum of{' '}
+            Lowest bulk rate — we accept orders only for a minimum of{' '}
             <strong>{minQty} identical packs</strong> (bulk manufacture).
           </p>
         ) : null}

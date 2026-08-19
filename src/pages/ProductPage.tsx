@@ -3,7 +3,6 @@ import { useMemo, useState } from 'react'
 import {
   formatPrice,
   getCategory,
-  getMinOrderQuantity,
   getSubcategory,
   isProductCustomizable,
   type SpecRow,
@@ -72,8 +71,6 @@ export function ProductPage() {
   const subcategory = getSubcategory(product.categoryId, product.subcategoryId)
   const media = getProductMedia(product)
   const presentation = resolveProductPresentation(product)
-  const minQty = getMinOrderQuantity(product)
-  const isCommercial = product.categoryId === 'commercials'
   const customizable = isProductCustomizable(product)
   const showCarcassSpec = productUsesCarcassConstruction(
     product.categoryId,
@@ -103,12 +100,6 @@ export function ProductPage() {
           <p className="product-page__brand">by {presentation.brand}</p>
           <h1>{product.name}</h1>
 
-          {isCommercial ? (
-            <p className="product-page__bulk-caption">
-              Lowest cost commercial pack · Minimum {minQty} copies
-            </p>
-          ) : null}
-
           <div className="product-page__price-block">
             {customizable ? (
               <span className="product-page__price-from">From</span>
@@ -119,9 +110,6 @@ export function ProductPage() {
                 /sq ft{product.carcassPrice != null ? ' shutter' : ''}
               </span>
             )}
-            {isCommercial ? (
-              <span className="product-page__price-unit">/pack</span>
-            ) : null}
           </div>
           {product.carcassPrice != null && product.pricingMode === 'per-sqft' ? (
             <p className="product-page__price-alt">
@@ -141,13 +129,7 @@ export function ProductPage() {
           ) : null}
 
           <ul className="product-page__trust">
-            {isCommercial ? (
-              <>
-                <li>Bulk only · min {minQty}</li>
-                <li>Lowest commercial rate</li>
-                <li>Project WhatsApp quote</li>
-              </>
-            ) : customizable ? (
+            {customizable ? (
               <>
                 <li>10-year warranty</li>
                 <li>On-site assembly</li>

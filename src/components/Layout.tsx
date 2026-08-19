@@ -14,15 +14,15 @@ import { isOpenAllCategoriesActive } from '../lib/eventAccess'
 import './Layout.css'
 
 const utilityLinks = [
-  { to: '/install', label: 'Get the App (iPhone & Android)' },
+  { to: '/chat', label: 'AI Chat (Priya Badal AI)' },
+  { to: '/visualise', label: 'Visualise AI' },
   { to: '/design', label: 'Design my space' },
+  { to: '/carcass', label: 'Carcass Planner' },
   { to: '/shop', label: 'All products' },
   { to: '/how-it-works', label: 'How it works' },
-  { to: '/visualise', label: 'Visualise AI' },
-  { to: '/carcass', label: 'Carcass Planner' },
+  { to: '/install', label: 'Get the App (iPhone & Android)' },
   { to: '/guides/carcass-assembly', label: 'Carcass assembly guide' },
   { to: '/favorites', label: 'Favorites' },
-  { to: '/chat', label: 'Priya Badal AI' },
   { to: '/add-product', label: 'Add Product' },
 ]
 
@@ -76,12 +76,18 @@ export function Layout() {
           <NavLink to="/visualise" onClick={close}>
             Visualise
           </NavLink>
+          <NavLink className="nav__ai" to="/chat" onClick={close}>
+            AI Chat
+          </NavLink>
           <NavLink to="/shop" onClick={close}>
             All
           </NavLink>
         </nav>
 
         <div className="nav__end">
+          <NavLink className="nav__ai-btn" to="/chat" onClick={close}>
+            AI Chat
+          </NavLink>
           <CurrencySelect compact className="nav__currency" />
           <NavLink className="nav__cart" to="/cart" onClick={close}>
             <span className="nav__cart-label">Cart</span>
@@ -101,6 +107,19 @@ export function Layout() {
         </div>
 
         <nav className={`nav__links ${menuOpen ? 'is-open' : ''}`} aria-label="Primary">
+          <p className="nav__section-label">AI tools</p>
+          <NavLink className="nav__utility nav__utility--ai" to="/chat" onClick={close}>
+            AI Chat — Priya Badal AI
+          </NavLink>
+          <NavLink className="nav__utility" to="/visualise" onClick={close}>
+            Visualise AI
+          </NavLink>
+          <NavLink className="nav__utility" to="/design" onClick={close}>
+            Design my space
+          </NavLink>
+
+          <div className="nav__divider" aria-hidden="true" />
+
           <p className="nav__section-label">Categories</p>
           {categories.map((cat) => (
             <NavLink
@@ -115,7 +134,10 @@ export function Layout() {
 
           <div className="nav__divider" aria-hidden="true" />
 
-          {utilityLinks.map((link) => (
+          <p className="nav__section-label">More</p>
+          {utilityLinks
+            .filter((link) => !['/chat', '/visualise', '/design'].includes(link.to))
+            .map((link) => (
             <NavLink key={link.to} className="nav__utility" to={link.to} onClick={close}>
               {link.label}
             </NavLink>
@@ -188,15 +210,20 @@ export function Layout() {
         </div>
       </footer>
 
-      <a
-        className="wa-fab"
-        href={WHATSAPP_CHAT_URL}
-        target="_blank"
-        rel="noopener noreferrer"
-        aria-label="Chat on WhatsApp"
-      >
-        WhatsApp
-      </a>
+      <div className="fab-stack" aria-label="Quick actions">
+        <NavLink className="ai-fab" to="/chat" aria-label="Open AI Chat">
+          AI Chat
+        </NavLink>
+        <a
+          className="wa-fab"
+          href={WHATSAPP_CHAT_URL}
+          target="_blank"
+          rel="noopener noreferrer"
+          aria-label="Chat on WhatsApp"
+        >
+          WhatsApp
+        </a>
+      </div>
 
       <BottomNav />
       <InstallBanner />

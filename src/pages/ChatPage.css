@@ -24,6 +24,7 @@
 
 /* Hide site chrome that would push the chat page and fight scroll */
 body:has(.pbai) .footer,
+body:has(.pbai) .fab-stack,
 body:has(.pbai) .wa-fab {
   display: none;
 }

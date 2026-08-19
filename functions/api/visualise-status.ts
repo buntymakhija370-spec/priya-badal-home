@@ -16,7 +16,7 @@ export const onRequestGet: PagesFunction<Env> = async (context) => {
   const configured = Boolean(falKey)
 
   return json({
-    configured: configured && (publicOpen || configured),
+    configured,
     publicOpen: publicOpen && configured,
     publicOpenUntil: PUBLIC_AI_UNTIL_LABEL,
     mode: configured ? (publicOpen ? 'public-ai' : 'paid-ai') : 'needs-key',

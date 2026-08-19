@@ -209,6 +209,16 @@ export function getCncCarveHdRate(
 const FINISH_LOOKUP: Record<string, FinishOption> = {
   pu: { id: 'pu', name: 'PU', multiplier: 1 },
   laminated: { id: 'laminated', name: 'Laminated', multiplier: 1 },
+  'pu-front-laminate-back': {
+    id: 'pu-front-laminate-back',
+    name: 'Front PU · back laminated',
+    multiplier: 1,
+  },
+  'laminate-pu-border': {
+    id: 'laminate-pu-border',
+    name: 'Laminated · PU border · back laminated',
+    multiplier: 1,
+  },
   'laminate-solid-wood': {
     id: 'laminate-solid-wood',
     name: 'Laminate + solid wood',
@@ -226,6 +236,11 @@ const FINISH_LOOKUP: Record<string, FinishOption> = {
     name: 'Ceramic coating (+20%)',
     multiplier: 1.2,
   },
+  'ceramic-front-laminate-back': {
+    id: 'ceramic-front-laminate-back',
+    name: 'Front ceramic · back laminated',
+    multiplier: 1,
+  },
   'ceramic-ss': {
     id: 'ceramic-ss',
     name: 'Ceramic + stainless steel',
@@ -239,6 +254,11 @@ const FINISH_LOOKUP: Record<string, FinishOption> = {
     multiplier: 1,
   },
   metallic: { id: 'metallic', name: 'Metallic', multiplier: 1 },
+  'pu-metallic-both': {
+    id: 'pu-metallic-both',
+    name: 'PU metallic · both sides',
+    multiplier: 1,
+  },
 }
 
 const THICKNESS_LOOKUP: Record<string, ThicknessOption> = {

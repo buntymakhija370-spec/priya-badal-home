@@ -26,10 +26,14 @@ const FINISH_LABELS: Record<string, string> = {
   textured: 'Textured finish',
   ceramic: 'Ceramic coating',
   'ceramic-20': 'Ceramic coating (+20%)',
+  'ceramic-front-laminate-back': 'Front ceramic · back laminated',
   'ceramic-ss': 'Ceramic + stainless steel',
   oxidised: 'Oxidised finish',
   'iron-metallic': 'Iron metallic coating',
   metallic: 'Metallic finish',
+  'pu-front-laminate-back': 'Front PU · back laminated',
+  'laminate-pu-border': 'Laminated · PU border · back laminated',
+  'pu-metallic-both': 'PU metallic · both sides',
 }
 
 function finishLabel(product: Product) {

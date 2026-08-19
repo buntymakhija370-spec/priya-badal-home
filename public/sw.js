@@ -1,5 +1,5 @@
 /* Priyabadal Homes — app shell cache. Bump CACHE when shipping UI changes. */
-const CACHE = 'pbh-shell-v6'
+const CACHE = 'pbh-shell-v7'
 
 const SHELL = [
   '/manifest.webmanifest',

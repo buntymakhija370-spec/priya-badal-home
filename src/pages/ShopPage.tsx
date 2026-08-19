@@ -4,6 +4,7 @@ import { categories, getCategory, getSubcategory } from '../data/catalog'
 import { getProductsByCategory, getAllProducts } from '../lib/products'
 import { ProductCard } from '../components/ProductCard'
 import { shopPath } from '../lib/links'
+import { isOpenAllCategoriesActive } from '../lib/eventAccess'
 import './ShopPage.css'
 
 type SortId = 'featured' | 'price-asc' | 'price-desc' | 'name'
@@ -51,10 +52,12 @@ export function ShopPage() {
   }, [baseProducts, query, sort])
 
   const subcats = category?.subcategories ?? []
+  const openAll = isOpenAllCategoriesActive()
   const focusedCategory =
-    category?.id === 'live-edge-furniture' ||
-    category?.id === 'sculpted-furniture' ||
-    category?.id === 'doors'
+    !openAll &&
+    (category?.id === 'live-edge-furniture' ||
+      category?.id === 'sculpted-furniture' ||
+      category?.id === 'doors')
   const hideCategoryChips = Boolean(category && focusedCategory)
   const lede =
     subcategory?.description ??
@@ -68,7 +71,9 @@ export function ShopPage() {
         <h1>
           {subcategory?.name ?? (category ? category.name : 'All products')}
         </h1>
-        {category?.caption && focusedCategory ? (
+        {openAll ? (
+          <p className="shop__caption">Open house · all collections through 24 Aug</p>
+        ) : category?.caption && focusedCategory ? (
           <p className="shop__caption">{category.caption}</p>
         ) : null}
         <p className="shop__lede">{lede}</p>

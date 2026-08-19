@@ -97,6 +97,14 @@
   opacity: 1;
 }
 
+.nav__desktop--open-all {
+  flex-wrap: wrap;
+  justify-content: flex-end;
+  gap: 0.35rem 0.85rem;
+  max-width: min(62vw, 44rem);
+  font-size: 0.82rem;
+}
+
 .nav--open .nav__desktop {
   display: none;
 }

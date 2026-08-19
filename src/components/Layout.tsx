@@ -10,6 +10,7 @@ import {
 import { CurrencySelect } from './CurrencySelect'
 import { BottomNav } from './BottomNav'
 import { InstallBanner } from './InstallBanner'
+import { isOpenAllCategoriesActive } from '../lib/eventAccess'
 import './Layout.css'
 
 const utilityLinks = [
@@ -29,6 +30,8 @@ export function Layout() {
   const [scrolled, setScrolled] = useState(false)
   const [menuOpen, setMenuOpen] = useState(false)
   const cartCount = useCartCount()
+  const openAll = isOpenAllCategoriesActive()
+  const desktopCategories = openAll ? categories : categories.slice(0, 4)
 
   useEffect(() => {
     const onScroll = () => setScrolled(window.scrollY > 20)
@@ -58,8 +61,11 @@ export function Layout() {
           />
         </NavLink>
 
-        <nav className="nav__desktop" aria-label="Shop categories">
-          {categories.slice(0, 4).map((cat) => (
+        <nav
+          className={`nav__desktop${openAll ? ' nav__desktop--open-all' : ''}`}
+          aria-label="Shop categories"
+        >
+          {desktopCategories.map((cat) => (
             <NavLink key={cat.id} to={shopPath(cat.id)} onClick={close}>
               {cat.name}
             </NavLink>

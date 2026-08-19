@@ -97,38 +97,6 @@
   opacity: 1;
 }
 
-.nav__desktop a.nav__ai,
-.nav__desktop a.nav__ai.active {
-  opacity: 1;
-  font-weight: 650;
-  color: var(--honey-deep);
-}
-
-.nav__ai-btn {
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  min-height: 2.35rem;
-  padding: 0.35rem 0.85rem;
-  border-radius: 999px;
-  background: var(--ink);
-  color: #f4f8f5;
-  font-size: 0.82rem;
-  font-weight: 650;
-  letter-spacing: 0.01em;
-  white-space: nowrap;
-}
-
-.nav__ai-btn:hover {
-  color: #fff;
-  filter: brightness(1.08);
-}
-
-.nav__utility--ai {
-  font-weight: 650 !important;
-  color: var(--honey-deep) !important;
-}
-
 .nav__desktop--open-all {
   flex-wrap: wrap;
   justify-content: flex-end;
@@ -356,67 +324,41 @@
   color: #fff;
 }
 
-.fab-stack {
+.wa-fab {
   position: fixed;
   right: max(1rem, env(safe-area-inset-right, 0px));
   bottom: max(1rem, env(safe-area-inset-bottom, 0px));
   z-index: 45;
-  display: flex;
-  flex-direction: column;
-  align-items: flex-end;
-  gap: 0.55rem;
-}
-
-@media (max-width: 959px) {
-  .fab-stack {
-    bottom: calc(var(--tabbar-h) + env(safe-area-inset-bottom, 0px) + 0.75rem);
-  }
-
-  /* Bottom tab bar already has AI Chat — keep WhatsApp only on phones */
-  .ai-fab {
-    display: none;
-  }
-}
-
-.ai-fab,
-.wa-fab {
   display: inline-flex;
   align-items: center;
   justify-content: center;
   min-height: 2.85rem;
   padding: 0.65rem 1rem;
   border-radius: 999px;
+  background: #25d366;
   color: #fff;
   font-size: 0.88rem;
-  font-weight: 650;
-  box-shadow: 0 10px 28px rgba(21, 32, 25, 0.18);
+  font-weight: 600;
+  box-shadow: 0 8px 24px rgba(21, 32, 25, 0.22);
+  -webkit-tap-highlight-color: transparent;
 }
 
-.ai-fab {
-  background: var(--ink);
-}
+@media (max-width: 959px) {
+  .wa-fab {
+    bottom: calc(var(--tabbar-h) + env(safe-area-inset-bottom, 0px) + 0.75rem);
+  }
 
-.ai-fab:hover {
-  color: #fff;
-  filter: brightness(1.08);
-}
-
-.wa-fab {
-  background: #25d366;
+  .footer {
+    padding-bottom: calc(
+      var(--tabbar-h) + env(safe-area-inset-bottom, 0px) + 2.5rem
+    );
+  }
 }
 
 .wa-fab:hover,
 .wa-fab:focus-visible {
   background: #1ebe57;
   color: #fff;
-}
-
-@media (max-width: 959px) {
-  .footer {
-    padding-bottom: calc(
-      var(--tabbar-h) + env(safe-area-inset-bottom, 0px) + 2.5rem
-    );
-  }
 }
 
 @media (max-width: 720px) {

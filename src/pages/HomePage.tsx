@@ -141,11 +141,11 @@ export function HomePage() {
             see the look, get an instant estimate, then WhatsApp for the final quote.
           </p>
           <div className="hero__actions reveal reveal--4">
-            <Link className="btn btn--primary" to="/chat">
-              AI Chat
-            </Link>
-            <Link className="btn btn--ghost" to="/design">
+            <Link className="btn btn--primary" to="/design">
               Design my space
+            </Link>
+            <Link className="btn btn--ghost" to="/install">
+              Get the App
             </Link>
           </div>
         </div>

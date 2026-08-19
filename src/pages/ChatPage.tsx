@@ -68,9 +68,11 @@ export function ChatPage() {
     const prevBody = document.body.style.overflow
     document.documentElement.style.overflow = 'hidden'
     document.body.style.overflow = 'hidden'
+    document.body.classList.add('pbai-open')
     return () => {
       document.documentElement.style.overflow = prevHtml
       document.body.style.overflow = prevBody
+      document.body.classList.remove('pbai-open')
     }
   }, [])
 
@@ -89,7 +91,8 @@ export function ChatPage() {
           `Complimentary AI open until ${s.publicOpenUntil || '24 Aug'} — no personal key needed.`,
         )
       } else if (!s.configured) {
-        setShowKey(true)
+        // Do not auto-open the key sheet — only when the user taps AI key
+        setShowKey(false)
       }
     })
   }, [])
@@ -507,16 +510,19 @@ export function ChatPage() {
   const showWelcomeHero = messages.length <= 1 && !busy
 
   return (
-    <main className="pbai">
+    <main className={`pbai${showKey && !aiConfigured ? ' pbai--unlock' : ''}`}>
       <header className="pbai__top">
         <div className="pbai__brand">
+          <Link className="pbai__back" to="/" aria-label="Back to home">
+            ←
+          </Link>
           <img
             src="/brand/priyabadal-homes-logo.svg"
             alt=""
             className="pbai__logo"
           />
-          <div>
-            <p className="pbai__title">Priya Badal AI</p>
+          <div className="pbai__brand-text">
+            <p className="pbai__title">Priyabadal Chat</p>
             <p className="pbai__subtitle">
               Live AI · any product · price · carcass · materials · visualise
             </p>
@@ -524,7 +530,7 @@ export function ChatPage() {
         </div>
         <div className="pbai__top-actions">
           <span className={`pbai__status ${aiConfigured ? 'is-live' : ''}`}>
-            {aiConfigured ? 'AI open for all' : 'Connect AI'}
+            {aiConfigured ? 'AI on' : 'Connect AI'}
           </span>
           {!aiConfigured ? (
             <button
@@ -538,30 +544,38 @@ export function ChatPage() {
         </div>
       </header>
 
-      {(!aiConfigured && (showKey || !aiConfigured)) ? (
-        <section className="pbai__key" aria-label="Connect AI">
-          <p>
-            Paste your Fal.ai key for live AI chat answers + visualisations (same key as
-            Visualise).{' '}
-            <a href="https://fal.ai/dashboard/billing" target="_blank" rel="noreferrer">
-              Billing
-            </a>
-          </p>
-          <form onSubmit={onConnectKey}>
-            <input
-              type="password"
-              value={falKeyInput}
-              onChange={(e) => setFalKeyInput(e.target.value)}
-              placeholder="Fal.ai API key"
-              autoComplete="off"
-              required
-            />
-            <button className="btn btn--dark" type="submit" disabled={savingKey}>
-              {savingKey ? 'Connecting…' : 'Connect'}
-            </button>
-          </form>
-          {keyMsg ? <p className="pbai__key-msg">{keyMsg}</p> : null}
-        </section>
+      {!aiConfigured && showKey ? (
+        <div className="pbai__sheet" role="dialog" aria-modal="true" aria-label="Connect AI">
+          <button
+            type="button"
+            className="pbai__sheet-backdrop"
+            aria-label="Close"
+            onClick={() => setShowKey(false)}
+          />
+          <section className="pbai__sheet-card pbai__key" aria-label="Connect AI">
+            <p>
+              Paste your Fal.ai key for live AI chat answers + visualisations (same key as
+              Visualise).{' '}
+              <a href="https://fal.ai/dashboard/billing" target="_blank" rel="noreferrer">
+                Billing
+              </a>
+            </p>
+            <form onSubmit={onConnectKey}>
+              <input
+                type="password"
+                value={falKeyInput}
+                onChange={(e) => setFalKeyInput(e.target.value)}
+                placeholder="Fal.ai API key"
+                autoComplete="off"
+                required
+              />
+              <button className="btn btn--dark" type="submit" disabled={savingKey}>
+                {savingKey ? 'Connecting…' : 'Connect'}
+              </button>
+            </form>
+            {keyMsg ? <p className="pbai__key-msg">{keyMsg}</p> : null}
+          </section>
+        </div>
       ) : keyMsg ? (
         <p className="pbai__key-msg" role="status">
           {keyMsg}

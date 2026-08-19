@@ -228,8 +228,8 @@ const FINISH_LOOKUP: Record<string, FinishOption> = {
     name: 'Ceramic + stainless steel',
     multiplier: 1,
   },
-  /** 30% above ceramic / product base finish */
-  oxidised: { id: 'oxidised', name: 'Oxidised finish (+30%)', multiplier: 1.3 },
+  /** 30% above ceramic / product base finish when used as an upgrade option */
+  oxidised: { id: 'oxidised', name: 'Oxidised finish', multiplier: 1.3 },
   'iron-metallic': {
     id: 'iron-metallic',
     name: 'Iron metallic coating',
@@ -240,7 +240,9 @@ const FINISH_LOOKUP: Record<string, FinishOption> = {
 
 const THICKNESS_LOOKUP: Record<string, ThicknessOption> = {
   '6': { id: '6', label: '6 mm', mm: 6, multiplier: 1 },
+  '8': { id: '8', label: '8 mm', mm: 8, multiplier: 1 },
   '12': { id: '12', label: '12 mm', mm: 12, multiplier: 0.82 },
+  '14': { id: '14', label: '14 mm', mm: 14, multiplier: 1 },
   '16': { id: '16', label: '16 mm', mm: 16, multiplier: 1 },
   '18': { id: '18', label: '18 mm', mm: 18, multiplier: 0.92 },
   '22': { id: '22', label: '22 mm', mm: 22, multiplier: 1 },

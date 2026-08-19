@@ -31,6 +31,18 @@ import {
   loadInlineImage,
   setGeminiKey,
 } from './geminiAi.ts'
+import {
+  falChat,
+  falConfigured,
+  falEditImage,
+  getFalCarcassModel,
+  getFalChatModel,
+  getFalCreateModel,
+  getFalRefineModel,
+  hydrateFalEnv,
+  resolveFalImageUrl,
+  setFalKey,
+} from './falAi.ts'
 
 type VisualiseMode = 'replace' | 'install' | 'redesign'
 
@@ -90,10 +102,17 @@ const INTERIOR_SYSTEM_PROMPT = [
 ].join(' ')
 
 hydrateGeminiEnv(process.env.NODE_ENV === 'production' ? 'production' : 'development')
+hydrateFalEnv(process.env.NODE_ENV === 'production' ? 'production' : 'development')
 
-/** @deprecated name kept for API compatibility — means Gemini key is set */
+/** True when Fal and/or Gemini key is available. Prefer Fal for event demos. */
 function aiConfigured() {
-  return Boolean(getGeminiKey())
+  return falConfigured() || Boolean(getGeminiKey())
+}
+
+function activeProvider(): 'fal' | 'gemini' | 'none' {
+  if (falConfigured()) return 'fal'
+  if (getGeminiKey()) return 'gemini'
+  return 'none'
 }
 
 function readBody(req: IncomingMessage): Promise<string> {
@@ -272,7 +291,7 @@ async function handleVisualise(req: IncomingMessage, res: ServerResponse) {
     sendJson(res, 503, {
       error: 'Professional AI is not connected yet',
       code: 'MISSING_FAL_KEY',
-      hint: 'Owner must set GEMINI_API_KEY on the server (or paste it in /ai-admin). Subscribers do not paste keys.',
+      hint: 'Owner: set FAL_KEY (preferred) or GEMINI_API_KEY via /ai-admin. Fal.ai uses simple card billing — no Google AI Studio payment needed.',
     })
     return
   }
@@ -289,8 +308,54 @@ async function handleVisualise(req: IncomingMessage, res: ServerResponse) {
     const isRefine = Boolean(body.refineImageUrl && body.changeRequest?.trim())
     const shutterPose = resolveShutterPose(body)
     const prompt = buildPrompt(body)
-    const model = getImageModel()
+    const provider = activeProvider()
 
+    if (provider === 'fal') {
+      let imageUrls: string[]
+      let model: string
+      if (isRefine) {
+        imageUrls = [
+          await resolveFalImageUrl(body.refineImageUrl!, 'refine.jpg'),
+        ]
+        model = getFalRefineModel()
+      } else {
+        const extraProductSrcs = (body.productImageUrls ?? [])
+          .filter((u) => typeof u === 'string' && u.length > 0)
+          .filter((u) => u !== body.productImageUrl)
+          .slice(0, 3)
+        imageUrls = await Promise.all([
+          resolveFalImageUrl(body.roomDataUrl, 'room.jpg'),
+          resolveFalImageUrl(body.productImageUrl, 'product-exterior.jpg'),
+          ...extraProductSrcs.map((src, i) =>
+            resolveFalImageUrl(src, `product-detail-${i + 1}.jpg`),
+          ),
+        ])
+        model = getFalCreateModel()
+      }
+
+      const result = await falEditImage({
+        imageUrls,
+        prompt: `${INTERIOR_SYSTEM_PROMPT}\n\n${prompt}`,
+        model,
+        refine: isRefine,
+      })
+
+      if (gate.token) consumeUsage(gate.token, 'visualise')
+
+      sendJson(res, 200, {
+        imageUrl: result.imageUrl,
+        provider: 'fal',
+        model: result.model,
+        mode: isRefine ? 'refine-precision' : 'interior-presentation',
+        quality: 'flux-edit',
+        visualiseMode: body.visualiseMode || 'replace',
+        access: statusForToken(gate.token),
+        shutterPose,
+      })
+      return
+    }
+
+    const model = getImageModel()
     let images
     if (isRefine) {
       images = [await loadInlineImage(body.refineImageUrl!)]
@@ -329,16 +394,18 @@ async function handleVisualise(req: IncomingMessage, res: ServerResponse) {
   } catch (err) {
     const raw = err instanceof Error ? err.message : 'Visualise failed'
     const quota =
-      /quota|rate[- ]?limit|billing|RESOURCE_EXHAUSTED|exceeded your current/i.test(
+      /quota|rate[- ]?limit|billing|RESOURCE_EXHAUSTED|exceeded your current|balance/i.test(
         raw,
       )
     sendJson(res, quota ? 429 : 500, {
       error: quota
-        ? 'Google AI image quota is empty on this Gemini key. Owner: enable billing in Google AI Studio (aistudio.google.com) or wait for quota reset, then Try again.'
+        ? activeProvider() === 'fal'
+          ? 'Fal.ai credits are empty. Add balance at fal.ai/dashboard/billing, then Try again.'
+          : 'Google AI image quota is empty on this Gemini key. Prefer Fal.ai for the event (set FAL_KEY), or enable Google billing.'
         : raw,
-      code: quota ? 'GEMINI_QUOTA' : 'SERVER_ERROR',
+      code: quota ? 'AI_QUOTA' : 'SERVER_ERROR',
       hint: quota
-        ? 'Free-tier image quota is often 0 until billing is enabled on the Google Cloud / AI Studio project.'
+        ? 'Use Fal.ai (card top-up) to avoid Google AI Studio payment issues.'
         : undefined,
     })
   }
@@ -368,17 +435,29 @@ async function handleConfig(req: IncomingMessage, res: ServerResponse) {
     }
     const key = (body.key || '').trim()
     if (!key || key.length < 10) {
-      sendJson(res, 400, { error: 'Paste a valid Gemini API key' })
+      sendJson(res, 400, { error: 'Paste a valid Fal.ai or Gemini API key' })
       return
     }
-    setGeminiKey(key)
-    sendJson(res, 200, {
-      configured: true,
-      mode: 'paid-ai',
-      model: getImageModel(),
-      refineModel: getImageModel(),
-      provider: 'gemini',
-    })
+    // Fal keys are usually longer UUID-like; Gemini keys often start with AIza
+    if (key.startsWith('AIza')) {
+      setGeminiKey(key)
+      sendJson(res, 200, {
+        configured: true,
+        mode: 'paid-ai',
+        model: getImageModel(),
+        refineModel: getImageModel(),
+        provider: 'gemini',
+      })
+    } else {
+      setFalKey(key)
+      sendJson(res, 200, {
+        configured: true,
+        mode: 'paid-ai',
+        model: getFalCreateModel(),
+        refineModel: getFalRefineModel(),
+        provider: 'fal',
+      })
+    }
   } catch (err) {
     sendJson(res, 500, {
       error: err instanceof Error ? err.message : 'Could not save key',
@@ -430,7 +509,7 @@ async function handleCarcassLive(req: IncomingMessage, res: ServerResponse) {
     sendJson(res, 503, {
       error: 'Professional AI is not connected yet',
       code: 'MISSING_FAL_KEY',
-      hint: 'Owner must set GEMINI_API_KEY on the server.',
+      hint: 'Owner: set FAL_KEY (preferred) or GEMINI_API_KEY via /ai-admin.',
     })
     return
   }
@@ -450,12 +529,35 @@ async function handleCarcassLive(req: IncomingMessage, res: ServerResponse) {
       return
     }
 
-    const model = getImageModel()
     const carcassPrompt = [
       buildCarcassLivePrompt(body),
       'Client-presentation quality. Photoreal open carcass for quotation — clean, sharp, believable scale.',
     ].join(' ')
 
+    if (activeProvider() === 'fal') {
+      const imageUrl = await resolveFalImageUrl(body.carcassImageUrl, 'carcass.jpg')
+      const result = await falEditImage({
+        imageUrls: [imageUrl],
+        prompt: `${INTERIOR_SYSTEM_PROMPT}\n\n${carcassPrompt}`,
+        model: getFalCarcassModel(),
+      })
+      if (gate.token) consumeUsage(gate.token, 'carcass')
+      sendJson(res, 200, {
+        imageUrl: result.imageUrl,
+        provider: 'fal',
+        model: result.model,
+        mode: 'live-size-carcass',
+        access: statusForToken(gate.token),
+        size: {
+          widthFt: body.widthFt,
+          heightFt: body.heightFt,
+          depthFt: body.depthFt,
+        },
+      })
+      return
+    }
+
+    const model = getImageModel()
     const result = await geminiEditImage({
       images: [await loadInlineImage(body.carcassImageUrl)],
       prompt: carcassPrompt,
@@ -480,14 +582,14 @@ async function handleCarcassLive(req: IncomingMessage, res: ServerResponse) {
   } catch (err) {
     const raw = err instanceof Error ? err.message : 'Carcass live AI failed'
     const quota =
-      /quota|rate[- ]?limit|billing|RESOURCE_EXHAUSTED|exceeded your current/i.test(
+      /quota|rate[- ]?limit|billing|RESOURCE_EXHAUSTED|exceeded your current|balance/i.test(
         raw,
       )
     sendJson(res, quota ? 429 : 500, {
       error: quota
-        ? 'Google AI image quota is empty on this Gemini key. Owner: enable billing in Google AI Studio, then Try again.'
+        ? 'AI credits/quota empty. Top up Fal.ai billing (recommended for the event).'
         : raw,
-      code: quota ? 'GEMINI_QUOTA' : 'SERVER_ERROR',
+      code: quota ? 'AI_QUOTA' : 'SERVER_ERROR',
     })
   }
 }
@@ -598,18 +700,36 @@ async function handleChat(req: IncomingMessage, res: ServerResponse) {
       .filter(Boolean)
       .join('\n')
 
-    const { reply, model } = await geminiChat({
-      system: systemPrompt.slice(0, 120_000),
-      prompt: prompt.slice(0, 24_000),
-      model: getChatModel(),
-      history: historyItems,
-    })
+    const { reply, model } =
+      activeProvider() === 'fal'
+        ? await falChat({
+            system: systemPrompt.slice(0, 120_000),
+            prompt: [
+              historyItems
+                .map(
+                  (h) =>
+                    `${h.role === 'assistant' ? 'Assistant' : 'Client'}: ${h.text}`,
+                )
+                .join('\n'),
+              prompt,
+            ]
+              .filter(Boolean)
+              .join('\n')
+              .slice(0, 24_000),
+            model: getFalChatModel(),
+          })
+        : await geminiChat({
+            system: systemPrompt.slice(0, 120_000),
+            prompt: prompt.slice(0, 24_000),
+            model: getChatModel(),
+            history: historyItems,
+          })
 
     if (gate.token) consumeUsage(gate.token, 'chat')
 
     sendJson(res, 200, {
       reply,
-      provider: 'gemini',
+      provider: activeProvider(),
       model,
       access: statusForToken(gate.token),
     })
@@ -745,14 +865,25 @@ async function handleAiAdmin(req: IncomingMessage, res: ServerResponse) {
       return
     }
 
-    if (action === 'set-fal-key' || action === 'set-gemini-key') {
-      const key = (body.falKey || body.geminiKey || '').trim()
+    if (action === 'set-fal-key') {
+      const key = (body.falKey || '').trim()
+      if (!key || key.length < 10) {
+        sendJson(res, 400, { error: 'Valid Fal.ai API key required' })
+        return
+      }
+      setFalKey(key)
+      sendJson(res, 200, { ok: true, falConfigured: true, provider: 'fal' })
+      return
+    }
+
+    if (action === 'set-gemini-key') {
+      const key = (body.geminiKey || body.falKey || '').trim()
       if (!key || key.length < 10) {
         sendJson(res, 400, { error: 'Valid Gemini API key required' })
         return
       }
       setGeminiKey(key)
-      sendJson(res, 200, { ok: true, falConfigured: true, provider: 'gemini' })
+      sendJson(res, 200, { ok: true, falConfigured: aiConfigured(), provider: 'gemini' })
       return
     }
 
@@ -799,21 +930,28 @@ function attach(middlewares: Connect.Server) {
     const token = readAccessToken(req)
     const access = statusForToken(token)
     const needsSub = requireSubscription()
+    const provider = activeProvider()
+    const ready = aiConfigured()
     sendJson(res, 200, {
       ...access,
-      configured: aiConfigured() && (!needsSub || access.subscribed),
-      falConfigured: aiConfigured(),
-      mode: aiConfigured()
+      configured: ready && (!needsSub || access.subscribed),
+      falConfigured: ready,
+      mode: ready
         ? access.subscribed || !needsSub
           ? 'subscriber-ai'
           : 'needs-subscription'
         : 'needs-key',
-      model: getImageModel(),
-      refineModel: getImageModel(),
-      chatModel: getChatModel(),
-      quality: 'flash-image',
-      engine: 'Priyabadal Interior AI · Google Gemini Flash Image',
-      provider: 'gemini',
+      model: provider === 'fal' ? getFalCreateModel() : getImageModel(),
+      refineModel: provider === 'fal' ? getFalRefineModel() : getImageModel(),
+      chatModel: provider === 'fal' ? getFalChatModel() : getChatModel(),
+      quality: provider === 'fal' ? 'flux-edit' : 'flash-image',
+      engine:
+        provider === 'fal'
+          ? 'Priyabadal Interior AI · Fal FLUX'
+          : provider === 'gemini'
+            ? 'Priyabadal Interior AI · Google Gemini Flash Image'
+            : 'Priyabadal Interior AI · not connected',
+      provider,
       requireSubscription: needsSub,
     })
   })
@@ -825,13 +963,16 @@ export function visualiseApiPlugin(): Plugin {
     name: 'priyabadal-visualise-api',
     configResolved(config) {
       hydrateGeminiEnv(config.mode)
+      hydrateFalEnv(config.mode)
     },
     configureServer(server) {
       hydrateGeminiEnv(server.config.mode)
+      hydrateFalEnv(server.config.mode)
       attach(server.middlewares)
     },
     configurePreviewServer(server) {
       hydrateGeminiEnv(server.config.mode)
+      hydrateFalEnv(server.config.mode)
       attach(server.middlewares)
     },
   }

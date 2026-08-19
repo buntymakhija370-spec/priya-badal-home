@@ -142,12 +142,12 @@ export function AiAdminPage() {
         }),
       })
       const data = (await res.json()) as { error?: string; falConfigured?: boolean }
-      if (!res.ok) throw new Error(data.error || 'Could not set Gemini key')
+      if (!res.ok) throw new Error(data.error || 'Could not set Fal key')
       setFalConfigured(Boolean(data.falConfigured))
       setFalKey('')
-      setMsg('Gemini key saved on server (not shown to customers).')
+      setMsg('Fal.ai key saved on server (not shown to customers).')
     } catch (err) {
-      setMsg(err instanceof Error ? err.message : 'Gemini key update failed')
+      setMsg(err instanceof Error ? err.message : 'Fal key update failed')
     } finally {
       setBusy(false)
     }
@@ -159,8 +159,8 @@ export function AiAdminPage() {
         <p className="eyebrow">Owner only</p>
         <h1>AI subscriber admin</h1>
         <p>
-          Issue monthly access codes after WhatsApp/UPI payment. Customers never see your Gemini
-          key. Default admin PIN is in server env <code>AI_ADMIN_PIN</code>.
+          Issue monthly access codes after WhatsApp/UPI payment. Customers never see your Fal /
+          Gemini key. Default admin PIN is in server env <code>AI_ADMIN_PIN</code>.
         </p>
       </header>
 
@@ -182,32 +182,29 @@ export function AiAdminPage() {
       ) : (
         <>
           <section className="ai-admin__card">
-            <h2>Server Gemini key</h2>
-            <p>Status: {falConfigured ? 'Connected (Gemini)' : 'Not connected'}</p>
+            <h2>Server Fal.ai key (recommended)</h2>
+            <p>Status: {falConfigured ? 'Connected' : 'Not connected'}</p>
             <form onSubmit={onSetFal} className="ai-admin__form">
               <label>
-                <span>Set / replace Gemini API key</span>
+                <span>Set / replace Fal API key</span>
                 <input
                   type="password"
                   value={falKey}
                   onChange={(e) => setFalKey(e.target.value)}
-                  placeholder="AIza…"
+                  placeholder="fal-…"
                   autoComplete="off"
                 />
               </label>
               <button className="btn btn--dark" type="submit" disabled={busy || !falKey}>
-                Save Gemini key
+                Save Fal key
               </button>
             </form>
             <p className="ai-admin__hint">
-              Get a key at{' '}
-              <a href="https://aistudio.google.com/apikey" target="_blank" rel="noreferrer">
-                aistudio.google.com/apikey
+              Create a key + add credits at{' '}
+              <a href="https://fal.ai/dashboard/keys" target="_blank" rel="noreferrer">
+                fal.ai/dashboard/keys
               </a>
-              . For room images, enable{' '}
-              <strong>billing</strong> on that Google AI project — free-tier image quota is often
-              0 (you’ll see “quota empty” in Chat until billing is on). Customers never see this
-              key.
+              . Uses card billing (no Google AI Studio payment). Customers never see this key.
             </p>
           </section>
 

@@ -51,8 +51,6 @@ export function ShopPage() {
   }, [baseProducts, query, sort])
 
   const subcats = category?.subcategories ?? []
-  const isLiveEdge = category?.id === 'live-edge-furniture'
-  const hideCategoryChips = Boolean(category && isLiveEdge)
   const lede =
     subcategory?.description ??
     category?.description ??
@@ -160,23 +158,7 @@ export function ShopPage() {
         </aside>
       ) : null}
 
-      {!hideCategoryChips ? (
-        <div className="shop__cats" aria-label="Categories">
-          <Link className="chip" to="/shop">
-            Collections
-          </Link>
-          {categories.map((cat) => (
-            <Link
-              key={cat.id}
-              className={`chip ${categoryId === cat.id ? 'chip--active' : ''}`}
-              to={shopPath(cat.id)}
-            >
-              {cat.name}
-            </Link>
-          ))}
-        </div>
-      ) : null}
-
+      {/* Stay focused on this collection — switch via ← All collections */}
       {category && subcats.length > 0 && (
         <div className="shop__subs" aria-label="Subcategories">
           <Link

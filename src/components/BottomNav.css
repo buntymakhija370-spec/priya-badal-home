@@ -26,12 +26,15 @@
     align-items: center;
     justify-content: center;
     gap: 0.18rem;
+    min-width: 0;
     min-height: 2.75rem;
-    padding: 0.2rem 0.15rem;
+    width: 100%;
+    padding: 0.2rem 0.1rem;
     color: rgba(21, 32, 25, 0.48);
-    font-size: 0.68rem;
+    font-size: 0.66rem;
     font-weight: 600;
     letter-spacing: 0.01em;
+    text-align: center;
     -webkit-tap-highlight-color: transparent;
     transition: color 0.2s var(--ease-out);
   }
@@ -71,6 +74,10 @@
 
   .tabbar__label {
     line-height: 1;
+    max-width: 100%;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
   }
 
   .tabbar__item.is-active .tabbar__label {

@@ -1,0 +1,372 @@
+[
+  {
+    "id": "live-edge-seater-01",
+    "name": "Mountain Crest Live Edge Bench",
+    "subcategoryId": "seaters",
+    "price": 52999,
+    "sku": "PBH-LE-SEAT-01",
+    "description": "Sculptural live-edge bench with a wavy mountain-crest backrest, thick organic seat, and branch-style legs in polished natural hardwood.",
+    "collection": "Live Edge Seaters",
+    "image": "/products/live-edge/seaters/seater-01.jpg"
+  },
+  {
+    "id": "live-edge-seater-02",
+    "name": "Slab Beam Live Edge Bench",
+    "subcategoryId": "seaters",
+    "price": 34999,
+    "sku": "PBH-LE-SEAT-02",
+    "description": "Minimal live-edge bench with a long solid slab seat and two thick textured trunk-style legs — clean, grounded seating.",
+    "collection": "Live Edge Seaters",
+    "image": "/products/live-edge/seaters/seater-02.jpg"
+  },
+  {
+    "id": "live-edge-seater-03",
+    "name": "Bird Form Live Edge Seater",
+    "subcategoryId": "seaters",
+    "price": 48999,
+    "sku": "PBH-LE-SEAT-03",
+    "description": "Organic root-wood seater with a dramatic bird-like backrest contour, integrated arm curve, and four solid wood legs.",
+    "collection": "Live Edge Seaters",
+    "image": "/products/live-edge/seaters/seater-03.jpg"
+  },
+  {
+    "id": "live-edge-seater-04",
+    "name": "Root Lattice Live Edge Bench",
+    "subcategoryId": "seaters",
+    "price": 49999,
+    "sku": "PBH-LE-SEAT-04",
+    "description": "Live-edge bench with a lattice of natural voids in the backrest, thick curved seat, and sturdy branch legs.",
+    "collection": "Live Edge Seaters",
+    "image": "/products/live-edge/seaters/seater-04.jpg"
+  },
+  {
+    "id": "live-edge-seater-05",
+    "name": "Gnarled Hollow Live Edge Bench",
+    "subcategoryId": "seaters",
+    "price": 46999,
+    "sku": "PBH-LE-SEAT-05",
+    "description": "Rustic live-edge bench with a gnarled hollowed backrest, wide slab seat, and four log-style legs.",
+    "collection": "Live Edge Seaters",
+    "image": "/products/live-edge/seaters/seater-05.jpg"
+  },
+  {
+    "id": "live-edge-seater-06",
+    "name": "Branch Reach Live Edge Seater",
+    "subcategoryId": "seaters",
+    "price": 47999,
+    "sku": "PBH-LE-SEAT-06",
+    "description": "Compact live-edge seater with a bowl-carved seat and a dramatic branch-reach backrest with natural openings.",
+    "collection": "Live Edge Seaters",
+    "image": "/products/live-edge/seaters/seater-06.jpg"
+  },
+  {
+    "id": "live-edge-seater-07",
+    "name": "Cave Hollow Live Edge Chair",
+    "subcategoryId": "seaters",
+    "price": 44999,
+    "sku": "PBH-LE-SEAT-07",
+    "description": "Live-edge chair carved from a thick root slab with a deep cave-like hollow in the backrest and sturdy stump legs.",
+    "collection": "Live Edge Seaters",
+    "image": "/products/live-edge/seaters/seater-07.jpg"
+  },
+  {
+    "id": "live-edge-seater-08",
+    "name": "Bowl Seat Live Edge Chair",
+    "subcategoryId": "seaters",
+    "price": 42999,
+    "sku": "PBH-LE-SEAT-08",
+    "description": "Single-slab live-edge chair with a smooth bowl seat, jagged organic back, and four cylindrical wood legs.",
+    "collection": "Live Edge Seaters",
+    "image": "/products/live-edge/seaters/seater-08.jpg"
+  },
+  {
+    "id": "live-edge-seater-09",
+    "name": "Portal Void Live Edge Seater",
+    "subcategoryId": "seaters",
+    "price": 45999,
+    "sku": "PBH-LE-SEAT-09",
+    "description": "Asymmetrical live-edge seater with a natural portal void in the backrest, wide hollowed seat, and branch legs.",
+    "collection": "Live Edge Seaters",
+    "image": "/products/live-edge/seaters/seater-09.jpg"
+  },
+  {
+    "id": "live-edge-seater-10",
+    "name": "Root Wrap Live Edge Chair",
+    "subcategoryId": "seaters",
+    "price": 51999,
+    "sku": "PBH-LE-SEAT-10",
+    "description": "Sculptural three-leg live-edge chair with a wrapping root backrest, integrated arm curve, and polished honey grain.",
+    "collection": "Live Edge Seaters",
+    "image": "/products/live-edge/seaters/seater-10.jpg"
+  },
+  {
+    "id": "live-edge-seater-11",
+    "name": "Ridge Peak Live Edge Bench",
+    "subcategoryId": "seaters",
+    "price": 48999,
+    "sku": "PBH-LE-SEAT-11",
+    "description": "Wide live-edge bench with a tall ridged backrest full of natural openings and four tapered branch legs.",
+    "collection": "Live Edge Seaters",
+    "image": "/products/live-edge/seaters/seater-11.jpg"
+  },
+  {
+    "id": "live-edge-seater-12",
+    "name": "Armored Hollow Live Edge Seater",
+    "subcategoryId": "seaters",
+    "price": 46999,
+    "sku": "PBH-LE-SEAT-12",
+    "description": "Low-arm live-edge seater with an armored hollow back slab, thick concave seat, and four sturdy trunk legs.",
+    "collection": "Live Edge Seaters",
+    "image": "/products/live-edge/seaters/seater-12.jpg"
+  },
+  {
+    "id": "live-edge-seater-13",
+    "name": "Honey Grain Live Edge Seater",
+    "subcategoryId": "seaters",
+    "price": 44999,
+    "sku": "PBH-LE-SEAT-13",
+    "description": "Warm honey-grain live-edge seater with a wrapping back, deep natural hollows, and four organic stump legs.",
+    "collection": "Live Edge Seaters",
+    "image": "/products/live-edge/seaters/seater-13.jpg"
+  },
+  {
+    "id": "live-edge-console-01",
+    "name": "Root Lattice Console",
+    "subcategoryId": "consoles",
+    "price": 48999,
+    "sku": "PBH-LE-CONS-01",
+    "description": "Long live-edge console with a smooth slab top and dense intertwining root lattice base — entry and hallway statement.",
+    "collection": "Live Edge Consoles",
+    "image": "/products/live-edge/consoles/console-01.jpg"
+  },
+  {
+    "id": "live-edge-console-02",
+    "name": "Wing Tip Root Console",
+    "subcategoryId": "consoles",
+    "price": 46999,
+    "sku": "PBH-LE-CONS-02",
+    "description": "Live-edge console with a wing-tip top contour and thick gnarled root legs — warm honey hardwood finish.",
+    "collection": "Live Edge Consoles",
+    "image": "/products/live-edge/consoles/console-02.jpg"
+  },
+  {
+    "id": "live-edge-console-03",
+    "name": "Wall Flush Root Console",
+    "subcategoryId": "consoles",
+    "price": 44999,
+    "sku": "PBH-LE-CONS-03",
+    "description": "Root-wood console with a straighter back edge for wall placement, jagged live front, and branch-style supports.",
+    "collection": "Live Edge Consoles",
+    "image": "/products/live-edge/consoles/console-03.jpg"
+  },
+  {
+    "id": "live-edge-console-04",
+    "name": "Fan Span Root Console",
+    "subcategoryId": "consoles",
+    "price": 49999,
+    "sku": "PBH-LE-CONS-04",
+    "description": "Fan-span sculptural console with finger-like live-edge protrusions and a splayed root base — rustic luxe accent.",
+    "collection": "Live Edge Consoles",
+    "image": "/products/live-edge/consoles/console-04.jpg"
+  },
+  {
+    "id": "live-edge-centre-01",
+    "name": "Root Void Centre Table",
+    "subcategoryId": "centre-tables",
+    "price": 54999,
+    "sku": "PBH-LE-CTR-01",
+    "description": "Sculptural root-wood centre table with natural voids through the top and an organic multi-point base — living-room statement piece.",
+    "collection": "Live Edge Centre Tables",
+    "image": "/products/live-edge/centre-tables/centre-01.jpg"
+  },
+  {
+    "id": "live-edge-centre-02",
+    "name": "Flared Bowl Centre Base",
+    "subcategoryId": "centre-tables",
+    "price": 42999,
+    "sku": "PBH-LE-CTR-02",
+    "description": "Flared bowl-form live-edge centre base — hollowed organic rim, ideal as a sculptural table base or with a glass top.",
+    "collection": "Live Edge Centre Tables",
+    "image": "/products/live-edge/centre-tables/centre-02.jpg"
+  },
+  {
+    "id": "live-edge-centre-03",
+    "name": "Interlace Root Centre Table",
+    "subcategoryId": "centre-tables",
+    "price": 56999,
+    "sku": "PBH-LE-CTR-03",
+    "description": "Drum-like root interlacing centre table with leveled top facets and open branch structure throughout.",
+    "collection": "Live Edge Centre Tables",
+    "image": "/products/live-edge/centre-tables/centre-03.jpg"
+  },
+  {
+    "id": "live-edge-centre-04",
+    "name": "Porous Stump Centre Table",
+    "subcategoryId": "centre-tables",
+    "price": 48999,
+    "sku": "PBH-LE-CTR-04",
+    "description": "Compact porous stump centre table with a flat live-edge top plane and deep natural hollows through the body.",
+    "collection": "Live Edge Centre Tables",
+    "image": "/products/live-edge/centre-tables/centre-04.jpg"
+  },
+  {
+    "id": "live-edge-centre-05",
+    "name": "Branch Peak Centre Base",
+    "subcategoryId": "centre-tables",
+    "price": 45999,
+    "sku": "PBH-LE-CTR-05",
+    "description": "Gnarled branch-peak centre table base with multiple leveled tips for a glass top — rich dark knots and honey grain.",
+    "collection": "Live Edge Centre Tables",
+    "image": "/products/live-edge/centre-tables/centre-05.jpg"
+  },
+  {
+    "id": "live-edge-centre-06",
+    "name": "Starburst Root Centre Base",
+    "subcategoryId": "centre-tables",
+    "price": 52999,
+    "sku": "PBH-LE-CTR-06",
+    "description": "Low starburst root centre base — radiating limbs from a hollow core, made for a round glass top.",
+    "collection": "Live Edge Centre Tables",
+    "image": "/products/live-edge/centre-tables/centre-06.jpg"
+  },
+  {
+    "id": "live-edge-centre-07",
+    "name": "Block Root Centre Table",
+    "subcategoryId": "centre-tables",
+    "price": 49999,
+    "sku": "PBH-LE-CTR-07",
+    "description": "Blocky root-wood centre table with a leveled top and intertwined cavities — grounded organic modern piece.",
+    "collection": "Live Edge Centre Tables",
+    "image": "/products/live-edge/centre-tables/centre-07.jpg"
+  },
+  {
+    "id": "live-edge-centre-08",
+    "name": "Pale Root Pedestal Table",
+    "subcategoryId": "centre-tables",
+    "price": 43999,
+    "sku": "PBH-LE-CTR-08",
+    "description": "Pale tan live-edge pedestal / centre base with multiple flat-cut peaks and raw fissure character.",
+    "collection": "Live Edge Centre Tables",
+    "image": "/products/live-edge/centre-tables/centre-08.jpg"
+  },
+  {
+    "id": "live-edge-centre-09",
+    "name": "Level Top Root Centre Table",
+    "subcategoryId": "centre-tables",
+    "price": 51999,
+    "sku": "PBH-LE-CTR-09",
+    "description": "Root centre table with a fully leveled polished top and tangled natural base voids — ready to use without glass.",
+    "collection": "Live Edge Centre Tables",
+    "image": "/products/live-edge/centre-tables/centre-09.jpg"
+  },
+  {
+    "id": "live-edge-centre-10",
+    "name": "Wing Span Root Centre Base",
+    "subcategoryId": "centre-tables",
+    "price": 55999,
+    "sku": "PBH-LE-CTR-10",
+    "description": "Wide wing-span root centre base with radiating limbs and polished medium-brown grain — bold glass-top anchor.",
+    "collection": "Live Edge Centre Tables",
+    "image": "/products/live-edge/centre-tables/centre-10.jpg"
+  },
+  {
+    "id": "live-edge-ball-01",
+    "name": "Hex Bolt Ball Stool",
+    "subcategoryId": "ball-stools",
+    "price": 16999,
+    "sku": "PBH-LE-BALL-01",
+    "description": "Two-tone hex-bolt style wood stool — hexagonal top and base with a deep ribbed spool centre in dark and honey hardwood.",
+    "collection": "Live Edge Ball Stools",
+    "image": "/products/live-edge/ball-stools/ball-01.jpg"
+  },
+  {
+    "id": "live-edge-ball-02",
+    "name": "Weathered Column Ball Stool",
+    "subcategoryId": "ball-stools",
+    "price": 15999,
+    "sku": "PBH-LE-BALL-02",
+    "description": "Column-form ball stool with a smooth polished seat top and deeply weathered, layered raw sides.",
+    "collection": "Live Edge Ball Stools",
+    "image": "/products/live-edge/ball-stools/ball-02.jpg"
+  },
+  {
+    "id": "live-edge-ball-03",
+    "name": "Cave Hollow Ball Stool",
+    "subcategoryId": "ball-stools",
+    "price": 17999,
+    "sku": "PBH-LE-BALL-03",
+    "description": "Rounded ball stool with a polished outer shell and a dramatic raw cave hollow on one face.",
+    "collection": "Live Edge Ball Stools",
+    "image": "/products/live-edge/ball-stools/ball-03.jpg"
+  },
+  {
+    "id": "live-edge-ball-04",
+    "name": "Terracotta Burl Ball Stool",
+    "subcategoryId": "ball-stools",
+    "price": 17499,
+    "sku": "PBH-LE-BALL-04",
+    "description": "Warm terracotta-tone burl ball stool with a smooth outer curve and deeply porous hollow face.",
+    "collection": "Live Edge Ball Stools",
+    "image": "/products/live-edge/ball-stools/ball-04.jpg"
+  },
+  {
+    "id": "live-edge-ball-05",
+    "name": "Twin Hollow Ball Stools",
+    "subcategoryId": "ball-stools",
+    "price": 32999,
+    "sku": "PBH-LE-BALL-05",
+    "description": "Pair of honey-grain hollow ball stools — stacked look in photo; organic ovoid forms with natural openings.",
+    "collection": "Live Edge Ball Stools",
+    "image": "/products/live-edge/ball-stools/ball-05.jpg"
+  },
+  {
+    "id": "live-edge-ball-06",
+    "name": "Root Orb Ball Stool",
+    "subcategoryId": "ball-stools",
+    "price": 16999,
+    "sku": "PBH-LE-BALL-06",
+    "description": "Root-orb ball stool with a flattened polished seat, deep side crevices, and a solid grounded base.",
+    "collection": "Live Edge Ball Stools",
+    "image": "/products/live-edge/ball-stools/ball-06.jpg"
+  },
+  {
+    "id": "live-edge-basin-01",
+    "name": "Fissure Edge Wood Basin",
+    "subcategoryId": "basins",
+    "price": 24999,
+    "sku": "PBH-LE-BASIN-01",
+    "description": "Vessel-style live-edge wooden basin with a smooth circular bowl, natural fissure detail, and centre drain — sealed for vanity use.",
+    "collection": "Live Edge Basins",
+    "image": "/products/live-edge/basins/basin-01.jpg"
+  },
+  {
+    "id": "live-edge-basin-02",
+    "name": "Burl Grain Wood Basin",
+    "subcategoryId": "basins",
+    "price": 26999,
+    "sku": "PBH-LE-BASIN-02",
+    "description": "Organic burl-grain wooden washbasin with a shallow polished bowl, irregular rim, and centre drain hole.",
+    "collection": "Live Edge Basins",
+    "image": "/products/live-edge/basins/basin-02.jpg"
+  },
+  {
+    "id": "live-edge-basin-03",
+    "name": "Gold River Resin Basin",
+    "subcategoryId": "basins",
+    "price": 32999,
+    "sku": "PBH-LE-BASIN-03",
+    "description": "River-style wood and gold epoxy resin basin — twin hardwood sides with a textured gold resin centre strip and drain.",
+    "collection": "Live Edge Basins",
+    "image": "/products/live-edge/basins/basin-03.jpg"
+  },
+  {
+    "id": "live-edge-basin-04",
+    "name": "Asymmetric Grain Wood Basin",
+    "subcategoryId": "basins",
+    "price": 25999,
+    "sku": "PBH-LE-BASIN-04",
+    "description": "Asymmetric live-edge wooden basin with rich swirling grain, uneven organic rim, and a sealed centre drain.",
+    "collection": "Live Edge Basins",
+    "image": "/products/live-edge/basins/basin-04.jpg"
+  }
+]

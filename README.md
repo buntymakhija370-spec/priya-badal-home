@@ -17,15 +17,15 @@ npm install
 npm run dev
 ```
 
-### Professional Visualise AI (Fal)
+### Professional Visualise AI (Google Gemini)
 
-1. Get a key at https://fal.ai/dashboard/keys  
+1. Get a key at https://aistudio.google.com/apikey  
 2. Either:
-   - Paste it on the **/visualise** page (Connect professional AI), or
-   - Put `FAL_KEY=...` in `.env` and restart `npm run dev` / `npm run preview`
-3. Generate uses **your product photo + room photo** (Nano Banana Pro edit)
+   - Paste it in **/ai-admin** (owner PIN), or
+   - Put `GEMINI_API_KEY=...` in `.env` and restart `npm run dev` / `npm run preview`
+3. Generate uses **your product photo + room photo** (Gemini 2.5 Flash Image — cheap Nano Banana)
 
-Cheap overlay previews are disabled — only real AI renders are shown.
+Customers unlock with a paid access code; they never see your Gemini key.
 
 ## Build
 

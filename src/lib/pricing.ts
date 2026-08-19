@@ -207,6 +207,16 @@ export function getCncCarveHdRate(
 const FINISH_LOOKUP: Record<string, FinishOption> = {
   pu: { id: 'pu', name: 'PU', multiplier: 1 },
   laminated: { id: 'laminated', name: 'Laminated', multiplier: 1 },
+  'pu-front-laminate-back': {
+    id: 'pu-front-laminate-back',
+    name: 'Front PU · back laminated',
+    multiplier: 1,
+  },
+  'laminate-pu-border': {
+    id: 'laminate-pu-border',
+    name: 'Laminated · PU border · back laminated',
+    multiplier: 1,
+  },
   'laminate-solid-wood': {
     id: 'laminate-solid-wood',
     name: 'Laminate + solid wood',
@@ -218,6 +228,16 @@ const FINISH_LOOKUP: Record<string, FinishOption> = {
   gloss: { id: 'gloss', name: 'High gloss lacquer', multiplier: 1.2 },
   textured: { id: 'textured', name: 'Textured finish', multiplier: 1.08 },
   ceramic: { id: 'ceramic', name: 'Ceramic coating', multiplier: 1 },
+  'ceramic-both': {
+    id: 'ceramic-both',
+    name: 'Ceramic coating · both sides',
+    multiplier: 1,
+  },
+  'ceramic-front-laminate-back': {
+    id: 'ceramic-front-laminate-back',
+    name: 'Front ceramic · back laminated',
+    multiplier: 1,
+  },
   /** 20% above product base finish (e.g. PU) */
   'ceramic-20': {
     id: 'ceramic-20',
@@ -237,6 +257,11 @@ const FINISH_LOOKUP: Record<string, FinishOption> = {
     multiplier: 1,
   },
   metallic: { id: 'metallic', name: 'Metallic', multiplier: 1 },
+  'pu-metallic-both': {
+    id: 'pu-metallic-both',
+    name: 'PU metallic · both sides',
+    multiplier: 1,
+  },
 }
 
 const THICKNESS_LOOKUP: Record<string, ThicknessOption> = {

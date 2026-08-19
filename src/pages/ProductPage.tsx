@@ -1,4 +1,4 @@
-import { Link, useParams } from 'react-router-dom'
+import { Link, useLocation, useNavigate, useParams } from 'react-router-dom'
 import { useMemo, useState } from 'react'
 import {
   formatPrice,
@@ -24,6 +24,12 @@ import { useCurrency } from '../hooks/useCurrency'
 import { shopPath } from '../lib/links'
 import { isApproxDisplayCurrency } from '../lib/currency'
 import { productUsesCarcassConstruction } from '../data/carcassSpec'
+import {
+  readBrowseOrigin,
+  readLastShopBrowse,
+  resolveProductBackTarget,
+  type ProductBrowseState,
+} from '../lib/browseReturn'
 import './ProductPage.css'
 
 type SectionId = 'details' | 'specs' | 'features'
@@ -46,11 +52,14 @@ function SpecTable({ rows, caption }: { rows: SpecRow[]; caption: string }) {
 
 export function ProductPage() {
   const { productId } = useParams()
+  const navigate = useNavigate()
+  const location = useLocation()
   const product = productId ? getProductById(productId) : undefined
   useProductSeo(product)
   const { currency } = useCurrency()
   const [section, setSection] = useState<SectionId>('details')
   const [added, setAdded] = useState(false)
+  const browseState = (location.state || null) as ProductBrowseState | null
 
   const related = useMemo(() => {
     if (!product) return []
@@ -80,14 +89,76 @@ export function ProductPage() {
     product.carcassPrice != null,
   )
 
+  /** Return to the list page + scroll where the client opened this product */
+  const goBackToBrowse = () => {
+    const target = resolveProductBackTarget({
+      categoryShopPath: category ? shopPath(category.id) : '/shop',
+      productId: product.id,
+      locationState: browseState,
+    })
+    // replace: leave product out of history so another Back doesn’t bounce here
+    navigate(target.path, {
+      replace: true,
+      state: { restoreScrollY: target.scrollY || 0 },
+    })
+  }
+
+  const goToShopList = (path: string) => {
+    const fromState = browseState?.browseFrom || ''
+    const origin = readBrowseOrigin()
+    const lastShop = readLastShopBrowse()
+    const candidates = [fromState, origin?.path, lastShop?.path].filter(
+      Boolean,
+    ) as string[]
+    const match = candidates.find((p) => {
+      const base = p.split('?')[0] || ''
+      return (
+        base === path ||
+        base.startsWith(`${path}/`) ||
+        (path.startsWith('/shop/') && base.startsWith('/shop/'))
+      )
+    })
+    if (match) {
+      const scrollY =
+        match === fromState
+          ? browseState?.browseScrollY || 0
+          : match === origin?.path
+            ? origin?.scrollY || 0
+            : lastShop?.scrollY || 0
+      navigate(match, {
+        replace: true,
+        state: { restoreScrollY: scrollY },
+      })
+      return
+    }
+    navigate(path, { replace: true })
+  }
+
   return (
     <main className="product-page page-pad">
+      <div className="product-page__back-row">
+        <button
+          type="button"
+          className="product-page__back"
+          onClick={goBackToBrowse}
+        >
+          ← Back
+        </button>
+      </div>
       <nav className="crumbs" aria-label="Breadcrumb">
-        <Link to="/shop">Shop</Link>
+        <button type="button" className="crumbs__link" onClick={() => goToShopList('/shop')}>
+          Shop
+        </button>
         <span>/</span>
         {category && (
           <>
-            <Link to={shopPath(category.id)}>{category.name}</Link>
+            <button
+              type="button"
+              className="crumbs__link"
+              onClick={() => goToShopList(shopPath(category.id))}
+            >
+              {category.name}
+            </button>
             <span>/</span>
           </>
         )}
@@ -205,24 +276,10 @@ export function ProductPage() {
           </div>
           <Link
             className="btn btn--outline product-page__visualise"
-            to={`/visualise?product=${product.id}`}
+            to={`/chat?product=${product.id}`}
           >
-            Visualise in my room (AI)
+            Ask in Chat — price, carcass & visualise
           </Link>
-          <Link
-            className="btn btn--outline product-page__visualise"
-            to="/design"
-          >
-            Design my space & quote
-          </Link>
-          {product.categoryId === 'wardrobe' || product.categoryId === 'kitchen' ? (
-            <Link
-              className="btn btn--outline product-page__visualise"
-              to={`/carcass?type=${product.categoryId}&product=${product.id}`}
-            >
-              Plan carcass & price
-            </Link>
-          ) : null}
           {customizable ? (
             <Link className="product-page__how" to="/how-it-works">
               How your custom order works

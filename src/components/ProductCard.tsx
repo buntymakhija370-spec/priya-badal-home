@@ -1,5 +1,5 @@
 import { useState } from 'react'
-import { Link, useLocation } from 'react-router-dom'
+import { useLocation, useNavigate } from 'react-router-dom'
 import {
   formatPrice,
   getCategory,
@@ -9,6 +9,10 @@ import {
 } from '../data/catalog'
 import { getProductMedia } from '../lib/media'
 import { productPath } from '../lib/links'
+import {
+  buildProductNavState,
+  rememberBrowseOrigin,
+} from '../lib/browseReturn'
 import { saveScrollMemory } from '../lib/scrollMemory'
 import { useCurrency } from '../hooks/useCurrency'
 import { defaultConfig } from '../lib/pricing'
@@ -26,9 +30,20 @@ type Props = {
 export function ProductCard({ product }: Props) {
   useCurrency()
   const location = useLocation()
+  const navigate = useNavigate()
   const href = productPath(product.id)
-  const rememberScroll = () =>
+  const openProduct = () => {
+    const navState = buildProductNavState(location.pathname, location.search)
     saveScrollMemory(location.key, location.pathname)
+    rememberBrowseOrigin({
+      pathname: location.pathname,
+      search: location.search,
+      locationKey: location.key,
+      productId: product.id,
+      scrollY: navState.browseScrollY,
+    })
+    navigate(href, { state: navState })
+  }
   const media = getProductMedia(product)
   const category = getCategory(product.categoryId)
   const minQty = getMinOrderQuantity(product)
@@ -59,9 +74,9 @@ export function ProductCard({ product }: Props) {
       <div className="product-card__body">
         {category && <p className="product-card__cat">{category.name}</p>}
         <h3>
-          <Link to={href} onClick={rememberScroll}>
+          <button type="button" className="product-card__title-btn" onClick={openProduct}>
             {product.name}
-          </Link>
+          </button>
         </h3>
         <p className="product-card__price">
           {customizable ? (
@@ -87,7 +102,7 @@ export function ProductCard({ product }: Props) {
         ) : null}
         {minQty > 1 ? (
           <p className="product-card__min">
-            Bulk order · {minQty}+ identical packs
+            Bulk commercial · order {minQty}+ identical packs
           </p>
         ) : null}
         <p className="product-card__desc">{product.description}</p>

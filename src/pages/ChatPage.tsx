@@ -1,7 +1,6 @@
 import { useEffect, useRef, useState, type FormEvent, type KeyboardEvent } from 'react'
-import { Link, useNavigate, useSearchParams } from 'react-router-dom'
+import { Link, useSearchParams } from 'react-router-dom'
 import { askPriyaBadalAI } from '../lib/chatAI'
-import { CARCASS_ASSEMBLY_PATH } from '../data/carcassSpec'
 import {
   buildChatWhatsAppUrl,
   colourFromBrief,
@@ -29,7 +28,6 @@ type AttachMode = 'photo' | 'drawing'
 
 export function ChatPage() {
   useCurrency()
-  const navigate = useNavigate()
   const [searchParams, setSearchParams] = useSearchParams()
   const [messages, setMessages] = useState<ChatMessage[]>([createWelcomeMessage()])
   const [brief, setBrief] = useState<ConsultBrief>({})
@@ -127,7 +125,7 @@ export function ChatPage() {
         text: [
           'Carcass help is right here in chat.',
           '',
-          'Ask shutter vs carcass rates, share size in feet (e.g. 8×7), say “Visualise carcass” for a live-size open carcass elevation, or ask for the BWP · 1 mm laminate both sides · 2 mm edge banding assembly guide.',
+          'Ask shutter vs carcass rates, share size in feet (e.g. 8×7), or say “Visualise carcass” for a live-size open carcass elevation.',
         ].join('\n'),
         suggestions: [
           'Visualise carcass',
@@ -292,15 +290,14 @@ export function ChatPage() {
           id: crypto.randomUUID(),
           role: 'assistant',
           text: [
-            'Opening the carcass assembly guide — BWP plywood, both-side 1 mm laminate, 2 mm edge banding, install drawing, and QR for easy assembly.',
+            'Our carcass standard: BWP plywood, both-side 1 mm laminate, and 2 mm edge banding.',
             '',
-            `Path: ${CARCASS_ASSEMBLY_PATH}`,
+            'Ask me for shutter vs carcass rates, a size estimate in feet, or WhatsApp — our team shares the install drawing with your order.',
           ].join('\n'),
-          suggestions: ['What is carcass pricing?', 'Material specs', 'Suggest styles'],
+          suggestions: ['What is carcass pricing?', 'Material specs', 'WhatsApp quote'],
         },
       )
       setInput('')
-      navigate(CARCASS_ASSEMBLY_PATH)
       return
     }
 

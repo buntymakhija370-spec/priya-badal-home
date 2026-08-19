@@ -9,8 +9,6 @@ import { AddProductPage } from './pages/AddProductPage'
 import { FavoritesPage } from './pages/FavoritesPage'
 import { CartPage } from './pages/CartPage'
 import { HowItWorksPage } from './pages/HowItWorksPage'
-import { CarcassPlannerPage } from './pages/CarcassPlannerPage'
-import { CarcassAssemblyPage } from './pages/CarcassAssemblyPage'
 import './App.css'
 
 function ChatRedirect() {
@@ -31,8 +29,8 @@ export default function App() {
           <Route path="product/:productId" element={<ProductPage />} />
           <Route path="design" element={<ChatRedirect />} />
           <Route path="visualise" element={<ChatRedirect />} />
-          <Route path="carcass" element={<CarcassPlannerPage />} />
-          <Route path="guides/carcass-assembly" element={<CarcassAssemblyPage />} />
+          <Route path="carcass" element={<ChatRedirect />} />
+          <Route path="guides/carcass-assembly" element={<ChatRedirect />} />
           <Route path="how-it-works" element={<HowItWorksPage />} />
           <Route path="install" element={<Navigate to="/" replace />} />
           <Route path="favorites" element={<FavoritesPage />} />

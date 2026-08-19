@@ -14,10 +14,8 @@ import './Layout.css'
 
 const utilityLinks = [
   { to: '/chat', label: 'AI Chat' },
-  { to: '/carcass', label: 'Carcass Planner' },
   { to: '/shop', label: 'Collections' },
   { to: '/how-it-works', label: 'How it works' },
-  { to: '/guides/carcass-assembly', label: 'Carcass assembly guide' },
   { to: '/favorites', label: 'Favorites' },
   { to: '/add-product', label: 'Add Product' },
 ]
@@ -179,9 +177,6 @@ export function Layout() {
               </li>
               <li>
                 <NavLink to="/favorites">Favorites</NavLink>
-              </li>
-              <li>
-                <NavLink to="/carcass">Carcass Planner</NavLink>
               </li>
               <li>
                 <NavLink to="/chat">AI Chat</NavLink>

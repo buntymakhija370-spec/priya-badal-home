@@ -44,9 +44,9 @@ export const ORDER_STEPS: OrderStep[] = [
   {
     id: 'install',
     title: 'Delivery & fitting',
-    summary: 'On-site assembly with drawing + QR guide.',
+    summary: 'On-site assembly with install drawing.',
     detail:
-      'We coordinate delivery and carpenter fitting. Scan the carcass QR (or open /guides/carcass-assembly) for the installation drawing and step-by-step box assembly. After install, keep WhatsApp open for finishing notes.',
+      'We coordinate delivery and carpenter fitting. The install drawing is shared on WhatsApp with your order. After install, keep WhatsApp open for finishing notes.',
   },
 ]
 

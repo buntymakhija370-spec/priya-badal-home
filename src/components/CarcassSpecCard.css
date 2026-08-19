@@ -1,6 +1,6 @@
 .carcass-spec {
   display: grid;
-  grid-template-columns: minmax(0, 1fr) auto;
+  grid-template-columns: minmax(0, 1fr);
   gap: 1.25rem;
   align-items: center;
   padding: 1.15rem 1.25rem;

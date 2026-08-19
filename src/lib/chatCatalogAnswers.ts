@@ -1,6 +1,5 @@
 import { formatPrice, type Product } from '../data/catalog'
 import {
-  CARCASS_ASSEMBLY_PATH,
   CARCASS_CONSTRUCTION_DETAIL,
   CARCASS_CONSTRUCTION_SHORT,
   CARCASS_SPEC_ROWS,
@@ -159,7 +158,7 @@ function rateLines(product: Product): string[] {
     )
   } else if (supportsBuildScope(product.categoryId)) {
     lines.push(
-      '• Carcass: not listed separately on this product — ask WhatsApp for carcass scope, or use Carcass Planner for layout rates.',
+      '• Carcass: not listed separately on this product — ask WhatsApp for carcass scope and layout rates.',
     )
   }
   return lines
@@ -288,14 +287,13 @@ export function answerCarcassQuestion(
     CARCASS_CONSTRUCTION_DETAIL,
     '',
     ...CARCASS_SPEC_ROWS.map((r) => `• ${r.label}: ${r.value}`),
-    `• Assembly guide (drawing + QR): ${CARCASS_ASSEMBLY_PATH}`,
     '',
     'How we price it on Priyabadal Homes:',
     '• Shutter only — fronts / doors at the catalog shutter rate.',
     '• With carcass — shutter rate + carcass rate (both added), when the product lists a carcass rate.',
     '• Many wardrobes & temple walls are priced per sq ft for each rate.',
     '',
-    'For bay layouts (hanging + drawers + shelves), open Carcass Planner — it adds module extras on top of carcass rates.',
+    'For bay layouts (hanging + drawers + shelves), share your size here or on WhatsApp — we’ll quote module extras with the carcass rates.',
   ]
 
   if (!product) {
@@ -309,8 +307,8 @@ export function answerCarcassQuestion(
         suggestions: [
           'Suggest styles',
           'Wardrobe 8x7 with carcass',
-          'Open carcass assembly guide',
           'Material specs',
+          'WhatsApp quote',
         ],
       },
     )
@@ -326,7 +324,7 @@ export function answerCarcassQuestion(
       ? estimateBlock(product, brief, scopeFromText(text) ?? 'with-carcass')
       : [
           'This product doesn’t list a separate carcass rate in the catalog.',
-          'Use AI Chat / Carcass Planner, or WhatsApp us for a full unit quote.',
+          'Ask in AI Chat or WhatsApp us for a full unit quote.',
         ]),
   ]
 

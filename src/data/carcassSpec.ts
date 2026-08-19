@@ -20,8 +20,8 @@ export const CARCASS_SPEC_ROWS = [
   { label: 'Carcass laminate', value: '1 mm laminate — both sides' },
   { label: 'Edge banding', value: '2 mm edge banding on exposed edges' },
   {
-    label: 'Assembly guide',
-    value: 'Installation drawing + QR code for easy carcass assembly',
+    label: 'Install drawing',
+    value: 'Shared on WhatsApp with your confirmed order',
   },
 ] as const
 
@@ -51,7 +51,7 @@ export const CARCASS_ASSEMBLY_STEPS = [
   {
     id: 'shelves',
     title: '4. Shelves, rods & drawers',
-    body: 'Fit shelves at marked heights, hanging rods, and drawer boxes as per your bay layout from Carcass Planner / WhatsApp drawing.',
+    body: 'Fit shelves at marked heights, hanging rods, and drawer boxes as per your bay layout from the WhatsApp drawing.',
   },
   {
     id: 'wall',

@@ -5,7 +5,6 @@ import {
   type SpecRow,
 } from '../data/catalog'
 import {
-  CARCASS_ASSEMBLY_PATH,
   CARCASS_CONSTRUCTION_SHORT,
   CARCASS_SPEC_ROWS,
   productUsesCarcassConstruction,
@@ -202,7 +201,7 @@ export function resolveProductPresentation(product: Product) {
     {
       label: 'Assembly',
       value: usesCarcass
-        ? `Carpenter assembly (on-site) · QR guide ${CARCASS_ASSEMBLY_PATH}`
+        ? 'Carpenter assembly (on-site) — install drawing shared on WhatsApp'
         : 'Carpenter Assembly (on-site)',
     },
     { label: 'Collection', value: collection },
@@ -264,8 +263,8 @@ export function resolveProductPresentation(product: Product) {
             value: '2 mm edge banding',
           },
           {
-            label: 'Install drawing / QR',
-            value: `Scan QR or open ${CARCASS_ASSEMBLY_PATH}`,
+            label: 'Install drawing',
+            value: 'Shared with your WhatsApp order confirmation',
           },
         ]
       : []),

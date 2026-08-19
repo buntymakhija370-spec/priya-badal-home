@@ -132,6 +132,36 @@ function parseDataUrl(dataUrl: string): { contentType: string; buffer: Buffer } 
   }
 }
 
+function contentTypeForPath(filePath: string): string {
+  const lower = filePath.toLowerCase()
+  if (lower.endsWith('.png')) return 'image/png'
+  if (lower.endsWith('.webp')) return 'image/webp'
+  if (lower.endsWith('.gif')) return 'image/gif'
+  if (lower.endsWith('.svg')) return 'image/svg+xml'
+  return 'image/jpeg'
+}
+
+/** Read /products/... from local public/ or dist/ (preview ports change; avoid hardcoded origin). */
+function readLocalPublicAsset(
+  src: string,
+): { contentType: string; buffer: Buffer } | null {
+  if (!src.startsWith('/')) return null
+  const rel = src.replace(/^\//, '')
+  for (const root of ['public', 'dist']) {
+    const filePath = resolve(process.cwd(), root, rel)
+    if (!existsSync(filePath)) continue
+    try {
+      return {
+        contentType: contentTypeForPath(filePath),
+        buffer: readFileSync(filePath),
+      }
+    } catch {
+      /* try next root */
+    }
+  }
+  return null
+}
+
 async function fetchAsBuffer(url: string): Promise<{ contentType: string; buffer: Buffer }> {
   const res = await fetch(url)
   if (!res.ok) throw new Error(`Could not fetch image (${res.status})`)
@@ -228,9 +258,30 @@ export async function resolveFalImageUrl(
   }
 
   if (src.startsWith('/')) {
-    const origin = process.env.PUBLIC_ORIGIN || 'http://127.0.0.1:4173'
-    const { contentType, buffer } = await fetchAsBuffer(`${origin.replace(/\/$/, '')}${src}`)
-    return uploadToFal(falKey, contentType, buffer, fileName)
+    const local = readLocalPublicAsset(src)
+    if (local) {
+      return uploadToFal(falKey, local.contentType, local.buffer, fileName)
+    }
+    const origins = [
+      process.env.PUBLIC_ORIGIN,
+      'http://127.0.0.1:4174',
+      'http://127.0.0.1:4173',
+      'http://127.0.0.1:5173',
+    ].filter((v): v is string => Boolean(v && v.trim()))
+    let lastErr: unknown
+    for (const origin of origins) {
+      try {
+        const { contentType, buffer } = await fetchAsBuffer(
+          `${origin.replace(/\/$/, '')}${src}`,
+        )
+        return uploadToFal(falKey, contentType, buffer, fileName)
+      } catch (err) {
+        lastErr = err
+      }
+    }
+    throw lastErr instanceof Error
+      ? lastErr
+      : new Error(`Could not load local image ${src}`)
   }
 
   throw new Error('Unsupported image source')

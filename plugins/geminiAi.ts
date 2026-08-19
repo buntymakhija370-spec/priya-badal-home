@@ -129,6 +129,15 @@ function parseDataUrl(dataUrl: string): { mimeType: string; data: string } | nul
   return { mimeType: match[1] || 'image/jpeg', data: match[2] || '' }
 }
 
+function contentTypeForPath(filePath: string): string {
+  const lower = filePath.toLowerCase()
+  if (lower.endsWith('.png')) return 'image/png'
+  if (lower.endsWith('.webp')) return 'image/webp'
+  if (lower.endsWith('.gif')) return 'image/gif'
+  if (lower.endsWith('.svg')) return 'image/svg+xml'
+  return 'image/jpeg'
+}
+
 /** Load image from data URL or http(s)/relative path into Gemini inlineData */
 export async function loadInlineImage(
   src: string,
@@ -138,6 +147,26 @@ export async function loadInlineImage(
     const parsed = parseDataUrl(src)
     if (!parsed?.data) throw new Error('Invalid image data')
     return { mimeType: parsed.mimeType, data: parsed.data }
+  }
+
+  if (src.startsWith('/')) {
+    const rel = src.replace(/^\//, '')
+    for (const root of ['public', 'dist']) {
+      const filePath = resolve(process.cwd(), root, rel)
+      if (!existsSync(filePath)) continue
+      try {
+        const buffer = readFileSync(filePath)
+        if (buffer.length > 4_500_000) {
+          throw new Error('Image too large for Gemini — please use a smaller photo')
+        }
+        return {
+          mimeType: contentTypeForPath(filePath),
+          data: buffer.toString('base64'),
+        }
+      } catch (err) {
+        if (err instanceof Error && /too large/i.test(err.message)) throw err
+      }
+    }
   }
 
   let url = src

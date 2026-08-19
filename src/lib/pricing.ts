@@ -70,7 +70,6 @@ const BUILD_SCOPE_CATEGORIES = new Set([
   'kitchen',
   'wardrobe',
   'temple',
-  'sculpted-furniture',
 ])
 
 export function supportsBuildScope(categoryId: string): boolean {
@@ -151,6 +150,7 @@ const BOARD_SUPPLY_LOOKUP: Record<BoardSupplyId, BoardSupplyOption> = {
 /** Categories that do not offer CNC-Carve HD Board (unique / soft goods) */
 const CNC_BOARD_EXCLUDED = new Set([
   'live-edge-furniture',
+  'sculpted-furniture',
   'silaibunai',
   'handles',
 ])

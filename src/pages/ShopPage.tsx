@@ -51,21 +51,24 @@ export function ShopPage() {
   }, [baseProducts, query, sort])
 
   const subcats = category?.subcategories ?? []
-  const isLiveEdge = category?.id === 'live-edge-furniture'
-  const hideCategoryChips = Boolean(category && isLiveEdge)
+  const focusedCategory =
+    category?.id === 'live-edge-furniture' ||
+    category?.id === 'sculpted-furniture' ||
+    category?.id === 'doors'
+  const hideCategoryChips = Boolean(category && focusedCategory)
   const lede =
     subcategory?.description ??
     category?.description ??
     'Customise sizes and request WhatsApp quotes.'
 
   return (
-    <main className="shop page-pad">
+    <main className={`shop page-pad${focusedCategory ? ' shop--focused' : ''}`}>
       <header className="shop__header">
         <p className="eyebrow">Shop</p>
         <h1>
           {subcategory?.name ?? (category ? category.name : 'All products')}
         </h1>
-        {category?.caption && category.id === 'live-edge-furniture' ? (
+        {category?.caption && focusedCategory ? (
           <p className="shop__caption">{category.caption}</p>
         ) : null}
         <p className="shop__lede">{lede}</p>
@@ -85,6 +88,32 @@ export function ShopPage() {
             <li>Natural product — each piece is unique and not repeatable</li>
             <li>Ask size and confirm the exact piece on WhatsApp</li>
             <li>Seaters, consoles, centre tables, ball stools &amp; basins</li>
+          </ul>
+        </aside>
+      ) : null}
+
+      {category?.id === 'sculpted-furniture' && category.conceptNote ? (
+        <aside className="shop__concept" aria-label="Sculpted Furniture information">
+          <p className="shop__concept-kicker">About Sculpted Furniture</p>
+          <p>{category.conceptNote}</p>
+          <ul>
+            <li>Art furniture &amp; sculptures made to order</li>
+            <li>Dining tables, consoles, pedestals, lamps &amp; outdoor pieces</li>
+            <li>Confirm finish, size, and placement on WhatsApp</li>
+            <li>Browse this collection only — no other categories here</li>
+          </ul>
+        </aside>
+      ) : null}
+
+      {category?.id === 'doors' && category.conceptNote ? (
+        <aside className="shop__concept" aria-label="Doors information">
+          <p className="shop__concept-kicker">About Doors</p>
+          <p>{category.conceptNote}</p>
+          <ul>
+            <li>Main doors, room doors &amp; flush shutters</li>
+            <li>Carved, fluted, metal-inlay &amp; smart options</li>
+            <li>Made to your opening size</li>
+            <li>Share width, height &amp; finish on WhatsApp for a firm quote</li>
           </ul>
         </aside>
       ) : null}

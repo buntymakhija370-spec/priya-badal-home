@@ -9,7 +9,6 @@ import {
 } from '../lib/whatsapp'
 import { CurrencySelect } from './CurrencySelect'
 import { BottomNav } from './BottomNav'
-import { InstallBanner } from './InstallBanner'
 import { isOpenAllCategoriesActive } from '../lib/eventAccess'
 import './Layout.css'
 
@@ -20,7 +19,6 @@ const utilityLinks = [
   { to: '/carcass', label: 'Carcass Planner' },
   { to: '/shop', label: 'Collections' },
   { to: '/how-it-works', label: 'How it works' },
-  { to: '/install', label: 'Get the App (iPhone & Android)' },
   { to: '/guides/carcass-assembly', label: 'Carcass assembly guide' },
   { to: '/favorites', label: 'Favorites' },
   { to: '/add-product', label: 'Add Product' },
@@ -179,9 +177,6 @@ export function Layout() {
             <p className="footer__heading">Help</p>
             <ul>
               <li>
-                <NavLink to="/install">Get the App</NavLink>
-              </li>
-              <li>
                 <NavLink to="/how-it-works">How your order works</NavLink>
               </li>
               <li>
@@ -223,7 +218,6 @@ export function Layout() {
       </a>
 
       <BottomNav />
-      <InstallBanner />
     </div>
   )
 }

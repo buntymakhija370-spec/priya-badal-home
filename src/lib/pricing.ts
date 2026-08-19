@@ -159,21 +159,24 @@ export function supportsBoardSupply(categoryId: string): boolean {
   return !CNC_BOARD_EXCLUDED.has(categoryId)
 }
 
-/** Category allows CNC, unless the product sets cncAvailable: false */
+/**
+ * CNC-Carve HD Board is retired from the price calculator.
+ * Catalog fields (cncCarveHdRate, etc.) remain for reference only.
+ */
 export function productSupportsCnc(
-  categoryId: string,
-  product?: Pick<Product, 'cncAvailable'> | null,
+  _categoryId: string,
+  _product?: Pick<Product, 'cncAvailable'> | null,
 ): boolean {
-  if (product?.cncAvailable === false) return false
-  return supportsBoardSupply(categoryId)
+  return false
 }
 
 export function getBoardSupply(id: string): BoardSupplyOption {
   return BOARD_SUPPLY_LOOKUP[id as BoardSupplyId] ?? BOARD_SUPPLY_LOOKUP.finished
 }
 
-export function getBoardSupplyOptions(categoryId: string): BoardSupplyOption[] {
-  return supportsBoardSupply(categoryId) ? BOARD_SUPPLIES : []
+/** Board-supply picker: finished only (CNC-Carve HD removed from calculator) */
+export function getBoardSupplyOptions(_categoryId: string): BoardSupplyOption[] {
+  return [BOARD_SUPPLY_LOOKUP.finished]
 }
 
 export type PriceConfig = {

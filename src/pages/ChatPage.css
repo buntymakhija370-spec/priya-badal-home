@@ -181,6 +181,69 @@ body.pbai-open .tabbar {
   background: rgba(21, 32, 25, 0.05);
 }
 
+.pbai__key {
+  display: grid;
+  gap: 0.55rem;
+}
+
+.pbai__key p {
+  margin: 0;
+  font-size: 0.86rem;
+  color: var(--ink-soft);
+  line-height: 1.4;
+}
+
+.pbai__key a {
+  color: var(--moss);
+  text-decoration: underline;
+  text-underline-offset: 0.12em;
+}
+
+.pbai__key form {
+  display: grid;
+  grid-template-columns: 1fr auto;
+  gap: 0.5rem;
+}
+
+.pbai__key input {
+  min-height: 2.55rem;
+  padding: 0.5rem 0.75rem;
+  border: 1px solid rgba(21, 32, 25, 0.16);
+  border-radius: 0.45rem;
+  background: #fff;
+}
+
+.pbai__key-msg {
+  margin: 0;
+  padding: 0.45rem 0.85rem;
+  font-size: 0.78rem;
+  font-weight: 600;
+  color: var(--moss);
+  text-align: center;
+  flex-shrink: 0;
+}
+
+.pbai__brief-bar {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.4rem;
+  justify-content: center;
+  padding: 0.55rem 0.7rem 0.15rem;
+  flex-shrink: 0;
+}
+
+.pbai__brief-bar span {
+  font-size: 0.72rem;
+  font-weight: 650;
+  letter-spacing: 0.03em;
+  text-transform: uppercase;
+  color: var(--ink-soft);
+  background: rgba(255, 255, 255, 0.72);
+  border: 1px solid rgba(21, 32, 25, 0.08);
+  border-radius: 999px;
+  padding: 0.28rem 0.65rem;
+}
+
 /* Full-screen unlock sheet — sits over chat so pills/chips never collide */
 .pbai__sheet {
   position: absolute;

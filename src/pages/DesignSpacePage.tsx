@@ -431,7 +431,9 @@ export function DesignSpacePage() {
                   {keyMsg ? <p className="design__ok">{keyMsg}</p> : null}
                 </div>
               ) : (
-                <p className="design__ok">AI key connected — keep Fal credits topped up to generate.</p>
+                <p className="design__ok">
+                  Complimentary AI is open for everyone until 24 Aug — no personal key needed.
+                </p>
               )}
 
               <div className="design__upload-box">

@@ -33,6 +33,8 @@ export function VisualisePage() {
   const [keyMsg, setKeyMsg] = useState<string | null>(null)
   const [falKeyInput, setFalKeyInput] = useState('')
   const [aiConfigured, setAiConfigured] = useState(false)
+  const [publicAiOpen, setPublicAiOpen] = useState(false)
+  const [publicAiUntil, setPublicAiUntil] = useState('24 Aug 2026')
   const [aiModel, setAiModel] = useState('fal-ai/flux-2-pro/edit')
 
   const product = productId ? getProductById(productId) : undefined
@@ -47,7 +49,12 @@ export function VisualisePage() {
   useEffect(() => {
     void fetchVisualiseStatus().then((s) => {
       setAiConfigured(s.configured)
+      setPublicAiOpen(Boolean(s.publicOpen))
+      if (s.publicOpenUntil) setPublicAiUntil(s.publicOpenUntil)
       if (s.model) setAiModel(s.model)
+      if (s.publicOpen && s.configured) {
+        setKeyMsg(`Complimentary AI open for everyone until ${s.publicOpenUntil || '24 Aug'}.`)
+      }
     })
   }, [])
 
@@ -154,10 +161,18 @@ export function VisualisePage() {
         </p>
         <p className={`visualise__mode ${aiConfigured ? 'is-live' : ''}`}>
           {aiConfigured
-            ? `Professional AI ready · ${aiModel}`
+            ? publicAiOpen
+              ? `Complimentary AI open until ${publicAiUntil}`
+              : `Professional AI ready · ${aiModel}`
             : 'AI key required · connect Fal below (no fake previews)'}
         </p>
       </header>
+
+      {publicAiOpen && aiConfigured ? (
+        <p className="visualise__key-ok" role="status">
+          Complimentary AI is open for everyone until {publicAiUntil} — no personal key needed.
+        </p>
+      ) : null}
 
       {!aiConfigured ? (
         <section className="visualise__keybox" aria-labelledby="connect-ai">

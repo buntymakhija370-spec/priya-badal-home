@@ -83,7 +83,14 @@ export function ChatPage() {
   useEffect(() => {
     void fetchVisualiseStatus().then((s) => {
       setAiConfigured(s.configured)
-      if (!s.configured) setShowKey(false)
+      if (s.configured && s.publicOpen) {
+        setShowKey(false)
+        setKeyMsg(
+          `Complimentary AI open until ${s.publicOpenUntil || '24 Aug'} — no personal key needed.`,
+        )
+      } else if (!s.configured) {
+        setShowKey(true)
+      }
     })
   }, [])
 
@@ -517,19 +524,21 @@ export function ChatPage() {
         </div>
         <div className="pbai__top-actions">
           <span className={`pbai__status ${aiConfigured ? 'is-live' : ''}`}>
-            {aiConfigured ? 'Visualise on' : 'Connect AI'}
+            {aiConfigured ? 'AI open for all' : 'Connect AI'}
           </span>
-          <button
-            type="button"
-            className="pbai__ghost"
-            onClick={() => setShowKey((v) => !v)}
-          >
-            {showKey ? 'Close' : 'AI key'}
-          </button>
+          {!aiConfigured ? (
+            <button
+              type="button"
+              className="pbai__ghost"
+              onClick={() => setShowKey((v) => !v)}
+            >
+              {showKey ? 'Close' : 'AI key'}
+            </button>
+          ) : null}
         </div>
       </header>
 
-      {showKey || !aiConfigured ? (
+      {(!aiConfigured && (showKey || !aiConfigured)) ? (
         <section className="pbai__key" aria-label="Connect AI">
           <p>
             Paste your Fal.ai key for live AI chat answers + visualisations (same key as
@@ -553,6 +562,10 @@ export function ChatPage() {
           </form>
           {keyMsg ? <p className="pbai__key-msg">{keyMsg}</p> : null}
         </section>
+      ) : keyMsg ? (
+        <p className="pbai__key-msg" role="status">
+          {keyMsg}
+        </p>
       ) : null}
 
       <div className="pbai__brief-bar" aria-label="Session brief">

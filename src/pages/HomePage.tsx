@@ -137,12 +137,12 @@ export function HomePage() {
             Made-to-measure interiors with clear prices.
           </h1>
           <p className="hero__lede reveal reveal--3">
-            Design your kitchen, wardrobe, or temple with AI — enter your size,
-            see the look, get an instant estimate, then WhatsApp for the final quote.
+            Ask our AI about any product — size, price, carcass, materials, and
+            room visualisations. Then WhatsApp for your final quote.
           </p>
           <div className="hero__actions reveal reveal--4">
-            <Link className="btn btn--primary" to="/design">
-              Design my space
+            <Link className="btn btn--primary" to="/chat">
+              AI Chat
             </Link>
             <Link className="btn btn--ghost" to="/shop">
               Browse collections

@@ -326,7 +326,7 @@ export function answerCarcassQuestion(
       ? estimateBlock(product, brief, scopeFromText(text) ?? 'with-carcass')
       : [
           'This product doesn’t list a separate carcass rate in the catalog.',
-          'Use Design my space / Carcass Planner, or WhatsApp us for a full unit quote.',
+          'Use AI Chat / Carcass Planner, or WhatsApp us for a full unit quote.',
         ]),
   ]
 

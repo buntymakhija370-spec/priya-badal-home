@@ -1,5 +1,5 @@
 import { useEffect, useRef, useState, type FormEvent, type KeyboardEvent } from 'react'
-import { Link, useNavigate } from 'react-router-dom'
+import { Link, useNavigate, useSearchParams } from 'react-router-dom'
 import { askPriyaBadalAI } from '../lib/chatAI'
 import { CARCASS_ASSEMBLY_PATH } from '../data/carcassSpec'
 import {
@@ -30,6 +30,7 @@ type AttachMode = 'photo' | 'drawing'
 export function ChatPage() {
   useCurrency()
   const navigate = useNavigate()
+  const [searchParams, setSearchParams] = useSearchParams()
   const [messages, setMessages] = useState<ChatMessage[]>([createWelcomeMessage()])
   const [brief, setBrief] = useState<ConsultBrief>({})
   const [input, setInput] = useState('')
@@ -39,6 +40,7 @@ export function ChatPage() {
   const [savingKey, setSavingKey] = useState(false)
   const [keyMsg, setKeyMsg] = useState<string | null>(null)
   const [showKey, setShowKey] = useState(false)
+  const [publicOpen, setPublicOpen] = useState(false)
   const [attachMode, setAttachMode] = useState<AttachMode>('photo')
   const [pendingFile, setPendingFile] = useState<{
     dataUrl: string
@@ -49,6 +51,7 @@ export function ChatPage() {
   const stickToBottomRef = useRef(true)
   const fileRef = useRef<HTMLInputElement>(null)
   const inputRef = useRef<HTMLTextAreaElement>(null)
+  const bootstrappedRef = useRef(false)
 
   /** Scroll only the chat thread — never the whole page */
   const scrollThreadToBottom = (smooth = false) => {
@@ -85,17 +88,70 @@ export function ChatPage() {
   useEffect(() => {
     void fetchVisualiseStatus().then((s) => {
       setAiConfigured(s.configured)
+      setPublicOpen(Boolean(s.configured && s.publicOpen))
       if (s.configured && s.publicOpen) {
         setShowKey(false)
-        setKeyMsg(
-          `Complimentary AI open until ${s.publicOpenUntil || '24 Aug'} — no personal key needed.`,
-        )
       } else if (!s.configured) {
         // Do not auto-open the key sheet — only when the user taps AI key
         setShowKey(false)
       }
     })
   }, [])
+
+  /** Deep links from shop / old Design·Visualise·Carcass URLs */
+  useEffect(() => {
+    if (bootstrappedRef.current) return
+    const productId = searchParams.get('product')
+    const intent = (searchParams.get('intent') || searchParams.get('type') || '').toLowerCase()
+    if (!productId && !intent) return
+    bootstrappedRef.current = true
+
+    const product = productId ? getProductById(productId) : undefined
+    const extras: ChatMessage[] = []
+    let nextBrief: ConsultBrief = {}
+
+    if (product) {
+      nextBrief = {
+        selectedProductId: product.id,
+        categoryId: product.categoryId,
+        room: product.rooms[0],
+      }
+      setBrief((prev) => ({ ...prev, ...nextBrief }))
+      extras.push(messageForProductSelected(product, nextBrief))
+    }
+
+    if (intent.includes('carcass') || intent === 'kitchen' || intent === 'wardrobe') {
+      extras.push({
+        id: crypto.randomUUID(),
+        role: 'assistant',
+        text: [
+          'Carcass help is right here in chat.',
+          '',
+          'Ask shutter vs carcass rates, share size in feet (e.g. 8×7), say “Visualise carcass” for a live-size open carcass elevation, or ask for the BWP · 1 mm laminate both sides · 2 mm edge banding assembly guide.',
+        ].join('\n'),
+        suggestions: [
+          'Visualise carcass',
+          'What is carcass pricing?',
+          'Price with carcass for 8×7',
+          'What materials do you use?',
+        ],
+      })
+    } else if (intent.includes('visual') || intent.includes('design') || productId) {
+      extras.push({
+        id: crypto.randomUUID(),
+        role: 'assistant',
+        text: [
+          'Visualisation lives in this chat.',
+          '',
+          'Attach a room photo, pick a product if you haven’t, then say “visualise”.',
+        ].join('\n'),
+        suggestions: ['Attach room photo', 'Visualise my look', 'Suggest styles'],
+      })
+    }
+
+    if (extras.length) setMessages((prev) => [...prev, ...extras])
+    setSearchParams({}, { replace: true })
+  }, [searchParams, setSearchParams])
 
   const onThreadScroll = () => {
     const el = scrollRef.current
@@ -501,13 +557,9 @@ export function ChatPage() {
   }
 
   const whatsapp = buildChatWhatsAppUrl(brief)
-  const selected = brief.selectedProductId
-    ? getProductById(brief.selectedProductId)
-    : undefined
   const latestSuggestions =
     [...messages].reverse().find((m) => m.role === 'assistant' && m.suggestions?.length)
       ?.suggestions ?? []
-  const showWelcomeHero = messages.length <= 1 && !busy
 
   return (
     <main className={`pbai${showKey && !aiConfigured ? ' pbai--unlock' : ''}`}>
@@ -522,9 +574,9 @@ export function ChatPage() {
             className="pbai__logo"
           />
           <div className="pbai__brand-text">
-            <p className="pbai__title">Priyabadal Chat</p>
+            <p className="pbai__title">AI Chat</p>
             <p className="pbai__subtitle">
-              Live AI · any product · price · carcass · materials · visualise
+              Products · price · carcass · visualise
             </p>
           </div>
         </div>
@@ -576,29 +628,11 @@ export function ChatPage() {
             {keyMsg ? <p className="pbai__key-msg">{keyMsg}</p> : null}
           </section>
         </div>
-      ) : keyMsg ? (
+      ) : keyMsg && !publicOpen ? (
         <p className="pbai__key-msg" role="status">
           {keyMsg}
         </p>
       ) : null}
-
-      <div className="pbai__brief-bar" aria-label="Session brief">
-        <span>{brief.room ?? 'Space?'}</span>
-        <span>
-          {brief.widthFt != null && brief.heightFt != null
-            ? `${brief.widthFt}×${brief.heightFt}${brief.depthFt != null ? `×${brief.depthFt}` : ''} ft`
-            : 'Size?'}
-        </span>
-        <span>{selected?.name ?? 'Product?'}</span>
-        <span>
-          {brief.roomPhotoDataUrl
-            ? brief.attachmentKind === 'drawing'
-              ? 'Drawing'
-              : 'Photo'
-            : 'Attach?'}
-        </span>
-        <span>{brief.aiImageUrl ? 'AI ready' : 'No AI yet'}</span>
-      </div>
 
       <div
         className="pbai__scroll"
@@ -608,22 +642,6 @@ export function ChatPage() {
         onScroll={onThreadScroll}
       >
         <div className="pbai__thread">
-          {showWelcomeHero ? (
-            <div className="pbai__hero">
-              <img
-                src="/brand/priyabadal-homes-logo.svg"
-                alt="Priyabadal Homes"
-                className="pbai__hero-logo"
-              />
-              <h1>Priya Badal AI</h1>
-              <p>
-                Ask anything about any Priyabadal product — design, price, carcass,
-                materials. I’ll answer in natural conversation from our catalog. Attach a
-                photo when you want to visualise.
-              </p>
-            </div>
-          ) : null}
-
           {messages.map((msg) => (
             <article key={msg.id} className={`pbai-msg pbai-msg--${msg.role}`}>
               {msg.role === 'assistant' ? (

@@ -70,7 +70,7 @@ export function buildWhatsAppQuoteUrl(
 
   if (minQty > 1) {
     lines.push(
-      `Bulk commercial order — minimum ${minQty} identical packs`,
+      `Bulk order — minimum ${minQty} identical packs`,
       `Requested quantity: ${minQty}+`,
     )
   }

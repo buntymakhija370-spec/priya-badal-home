@@ -70,7 +70,6 @@ const BUILD_SCOPE_CATEGORIES = new Set([
   'kitchen',
   'wardrobe',
   'temple',
-  'sculpted-furniture',
 ])
 
 export function supportsBuildScope(categoryId: string): boolean {
@@ -148,10 +147,10 @@ const BOARD_SUPPLY_LOOKUP: Record<BoardSupplyId, BoardSupplyOption> = {
   'cnc-carve-hd': BOARD_SUPPLIES[1]!,
 }
 
-/** Categories that do not offer CNC-Carve HD Board (unique / bulk packs) */
+/** Categories that do not offer CNC-Carve HD Board (unique / soft goods) */
 const CNC_BOARD_EXCLUDED = new Set([
   'live-edge-furniture',
-  'commercials',
+  'sculpted-furniture',
   'silaibunai',
   'handles',
 ])
@@ -160,21 +159,24 @@ export function supportsBoardSupply(categoryId: string): boolean {
   return !CNC_BOARD_EXCLUDED.has(categoryId)
 }
 
-/** Category allows CNC, unless the product sets cncAvailable: false */
+/**
+ * CNC-Carve HD Board is retired from the price calculator.
+ * Catalog fields (cncCarveHdRate, etc.) remain for reference only.
+ */
 export function productSupportsCnc(
-  categoryId: string,
-  product?: Pick<Product, 'cncAvailable'> | null,
+  _categoryId: string,
+  _product?: Pick<Product, 'cncAvailable'> | null,
 ): boolean {
-  if (product?.cncAvailable === false) return false
-  return supportsBoardSupply(categoryId)
+  return false
 }
 
 export function getBoardSupply(id: string): BoardSupplyOption {
   return BOARD_SUPPLY_LOOKUP[id as BoardSupplyId] ?? BOARD_SUPPLY_LOOKUP.finished
 }
 
-export function getBoardSupplyOptions(categoryId: string): BoardSupplyOption[] {
-  return supportsBoardSupply(categoryId) ? BOARD_SUPPLIES : []
+/** Board-supply picker: finished only (CNC-Carve HD removed from calculator) */
+export function getBoardSupplyOptions(_categoryId: string): BoardSupplyOption[] {
+  return [BOARD_SUPPLY_LOOKUP.finished]
 }
 
 export type PriceConfig = {
@@ -207,6 +209,16 @@ export function getCncCarveHdRate(
 const FINISH_LOOKUP: Record<string, FinishOption> = {
   pu: { id: 'pu', name: 'PU', multiplier: 1 },
   laminated: { id: 'laminated', name: 'Laminated', multiplier: 1 },
+  'pu-front-laminate-back': {
+    id: 'pu-front-laminate-back',
+    name: 'Front PU · back laminated',
+    multiplier: 1,
+  },
+  'laminate-pu-border': {
+    id: 'laminate-pu-border',
+    name: 'Laminated · PU border · back laminated',
+    multiplier: 1,
+  },
   'laminate-solid-wood': {
     id: 'laminate-solid-wood',
     name: 'Laminate + solid wood',
@@ -224,24 +236,43 @@ const FINISH_LOOKUP: Record<string, FinishOption> = {
     name: 'Ceramic coating (+20%)',
     multiplier: 1.2,
   },
+  'ceramic-front-laminate-back': {
+    id: 'ceramic-front-laminate-back',
+    name: 'Front ceramic · back laminated',
+    multiplier: 1,
+  },
   'ceramic-ss': {
     id: 'ceramic-ss',
     name: 'Ceramic + stainless steel',
     multiplier: 1,
   },
-  /** 30% above ceramic / product base finish */
-  oxidised: { id: 'oxidised', name: 'Oxidised finish (+30%)', multiplier: 1.3 },
+  /** 30% above ceramic / product base finish when used as an upgrade option */
+  oxidised: { id: 'oxidised', name: 'Oxidised finish', multiplier: 1.3 },
   'iron-metallic': {
     id: 'iron-metallic',
     name: 'Iron metallic coating',
     multiplier: 1,
   },
   metallic: { id: 'metallic', name: 'Metallic', multiplier: 1 },
+  'pu-metallic-both': {
+    id: 'pu-metallic-both',
+    name: 'PU metallic · both sides',
+    multiplier: 1,
+  },
+  veneer: { id: 'veneer', name: 'Veneer', multiplier: 1 },
+  /** Oxidised at list price (not a +30% upgrade) */
+  'oxidised-base': {
+    id: 'oxidised-base',
+    name: 'Oxidised · both sides similar',
+    multiplier: 1,
+  },
 }
 
 const THICKNESS_LOOKUP: Record<string, ThicknessOption> = {
   '6': { id: '6', label: '6 mm', mm: 6, multiplier: 1 },
+  '8': { id: '8', label: '8 mm', mm: 8, multiplier: 1 },
   '12': { id: '12', label: '12 mm', mm: 12, multiplier: 0.82 },
+  '14': { id: '14', label: '14 mm', mm: 14, multiplier: 1 },
   '16': { id: '16', label: '16 mm', mm: 16, multiplier: 1 },
   '18': { id: '18', label: '18 mm', mm: 18, multiplier: 0.92 },
   '22': { id: '22', label: '22 mm', mm: 22, multiplier: 1 },
@@ -249,6 +280,13 @@ const THICKNESS_LOOKUP: Record<string, ThicknessOption> = {
   '28': { id: '28', label: '28 mm', mm: 28, multiplier: 1 },
   '30': { id: '30', label: '30 mm', mm: 30, multiplier: 1 },
   '32': { id: '32', label: '32 mm', mm: 32, multiplier: 1.18 },
+  '40': { id: '40', label: '40 mm', mm: 40, multiplier: 1 },
+  '42': { id: '42', label: '42 mm', mm: 42, multiplier: 1 },
+  '43': { id: '43', label: '43 mm', mm: 43, multiplier: 1 },
+  '44': { id: '44', label: '44 mm', mm: 44, multiplier: 1 },
+  '45': { id: '45', label: '45 mm', mm: 45, multiplier: 1 },
+  '50': { id: '50', label: '50 mm', mm: 50, multiplier: 1 },
+  '55': { id: '55', label: '55 mm', mm: 55, multiplier: 1 },
 }
 
 /** @deprecated Prefer getFinishOptionsForProduct — kept for lookups only */
@@ -524,11 +562,7 @@ export function calculatePrice(
       ? getBuildScopeRate(product, buildScope.id)
       : product.price
 
-    if (product.categoryId === 'commercials') {
-      // Bulk packs are quoted per fixed package — not resized on the calculator
-      sizeFactor = 1
-      boardPrice = Math.round(baseRate * finishMult * thicknessMult)
-    } else if (product.pricingMode === 'per-sqft') {
+    if (product.pricingMode === 'per-sqft') {
       sizeFactor = sqft
       boardPrice = Math.round(baseRate * sqft * finishMult * thicknessMult)
     } else {

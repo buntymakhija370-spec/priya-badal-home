@@ -132,7 +132,14 @@ export function CarcassPlannerPage() {
   })
 
   useEffect(() => {
-    void fetchCarcassAiStatus().then((s) => setAiConfigured(s.configured))
+    void fetchCarcassAiStatus().then((s) => {
+      setAiConfigured(s.configured)
+      if (s.configured && s.publicOpen) {
+        setKeyMsg(
+          `Complimentary AI open until ${s.publicOpenUntil || '24 Aug'} — no personal key needed.`,
+        )
+      }
+    })
   }, [])
 
   const planKey = [
@@ -293,7 +300,11 @@ export function CarcassPlannerPage() {
           {keyMsg ? <p className="carcass__key-ok">{keyMsg}</p> : null}
         </div>
       ) : (
-        <p className="carcass__ai-ready">Live-size AI ready</p>
+        <p className="carcass__ai-ready">
+          {keyMsg?.includes('Complimentary') || keyMsg?.includes('open')
+            ? keyMsg
+            : 'Live-size AI ready — open for everyone until 24 Aug'}
+        </p>
       )}
 
       <div className="carcass__tabs" role="tablist" aria-label="Carcass type">

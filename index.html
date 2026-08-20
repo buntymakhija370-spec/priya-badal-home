@@ -30,7 +30,20 @@
       href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,500;9..144,600;9..144,700&family=Outfit:wght@300;400;500;600&display=swap"
       rel="stylesheet"
     />
+    <link rel="canonical" href="https://www.priyabadalhomes.com/" />
+    <meta property="og:url" content="https://www.priyabadalhomes.com/" />
     <title>Priyabadal Homes</title>
+    <script>
+      // Apex has no reliable DNS unless CNAME is set; keep traffic on www.
+      if (location.hostname === 'priyabadalhomes.com') {
+        location.replace(
+          'https://www.priyabadalhomes.com' +
+            location.pathname +
+            location.search +
+            location.hash,
+        )
+      }
+    </script>
   </head>
   <body>
     <div id="root"></div>

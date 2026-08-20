@@ -793,10 +793,20 @@ function attach(middlewares: Connect.Server) {
   middlewares.use('/api/visualise-status', (_req, res) => {
     sendJson(res, 200, {
       configured: Boolean(getFalKey()),
-      mode: getFalKey() ? 'paid-ai' : 'needs-key',
+      publicOpen: Boolean(getFalKey()) && Date.now() < Date.parse('2026-08-24T23:59:59+05:30'),
+      publicOpenUntil: '24 Aug 2026',
+      mode: getFalKey()
+        ? Date.now() < Date.parse('2026-08-24T23:59:59+05:30')
+          ? 'public-ai'
+          : 'paid-ai'
+        : 'needs-key',
       model: getCreateModel(),
       refineModel: getRefineModel(),
       chatModel: getChatModel(),
+      message:
+        getFalKey() && Date.now() < Date.parse('2026-08-24T23:59:59+05:30')
+          ? 'Complimentary AI is open for all visitors until 24 Aug 2026.'
+          : undefined,
     })
   })
 }

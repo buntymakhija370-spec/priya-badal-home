@@ -1,7 +1,6 @@
 import { useEffect, useRef, useState, type FormEvent, type KeyboardEvent } from 'react'
-import { Link, useNavigate } from 'react-router-dom'
+import { Link, useSearchParams } from 'react-router-dom'
 import { askPriyaBadalAI } from '../lib/chatAI'
-import { CARCASS_ASSEMBLY_PATH } from '../data/carcassSpec'
 import {
   buildChatWhatsAppUrl,
   colourFromBrief,
@@ -29,7 +28,7 @@ type AttachMode = 'photo' | 'drawing'
 
 export function ChatPage() {
   useCurrency()
-  const navigate = useNavigate()
+  const [searchParams, setSearchParams] = useSearchParams()
   const [messages, setMessages] = useState<ChatMessage[]>([createWelcomeMessage()])
   const [brief, setBrief] = useState<ConsultBrief>({})
   const [input, setInput] = useState('')
@@ -39,6 +38,7 @@ export function ChatPage() {
   const [savingKey, setSavingKey] = useState(false)
   const [keyMsg, setKeyMsg] = useState<string | null>(null)
   const [showKey, setShowKey] = useState(false)
+  const [publicOpen, setPublicOpen] = useState(false)
   const [attachMode, setAttachMode] = useState<AttachMode>('photo')
   const [pendingFile, setPendingFile] = useState<{
     dataUrl: string
@@ -49,6 +49,7 @@ export function ChatPage() {
   const stickToBottomRef = useRef(true)
   const fileRef = useRef<HTMLInputElement>(null)
   const inputRef = useRef<HTMLTextAreaElement>(null)
+  const bootstrappedRef = useRef(false)
 
   /** Scroll only the chat thread — never the whole page */
   const scrollThreadToBottom = (smooth = false) => {
@@ -68,9 +69,11 @@ export function ChatPage() {
     const prevBody = document.body.style.overflow
     document.documentElement.style.overflow = 'hidden'
     document.body.style.overflow = 'hidden'
+    document.body.classList.add('pbai-open')
     return () => {
       document.documentElement.style.overflow = prevHtml
       document.body.style.overflow = prevBody
+      document.body.classList.remove('pbai-open')
     }
   }, [])
 
@@ -83,9 +86,70 @@ export function ChatPage() {
   useEffect(() => {
     void fetchVisualiseStatus().then((s) => {
       setAiConfigured(s.configured)
-      if (!s.configured) setShowKey(false)
+      setPublicOpen(Boolean(s.configured && s.publicOpen))
+      if (s.configured && s.publicOpen) {
+        setShowKey(false)
+      } else if (!s.configured) {
+        // Do not auto-open the key sheet — only when the user taps AI key
+        setShowKey(false)
+      }
     })
   }, [])
+
+  /** Deep links from shop / old Design·Visualise·Carcass URLs */
+  useEffect(() => {
+    if (bootstrappedRef.current) return
+    const productId = searchParams.get('product')
+    const intent = (searchParams.get('intent') || searchParams.get('type') || '').toLowerCase()
+    if (!productId && !intent) return
+    bootstrappedRef.current = true
+
+    const product = productId ? getProductById(productId) : undefined
+    const extras: ChatMessage[] = []
+    let nextBrief: ConsultBrief = {}
+
+    if (product) {
+      nextBrief = {
+        selectedProductId: product.id,
+        categoryId: product.categoryId,
+        room: product.rooms[0],
+      }
+      setBrief((prev) => ({ ...prev, ...nextBrief }))
+      extras.push(messageForProductSelected(product, nextBrief))
+    }
+
+    if (intent.includes('carcass') || intent === 'kitchen' || intent === 'wardrobe') {
+      extras.push({
+        id: crypto.randomUUID(),
+        role: 'assistant',
+        text: [
+          'Carcass help is right here in chat.',
+          '',
+          'Ask shutter vs carcass rates, share size in feet (e.g. 8×7), or say “Visualise carcass” for a live-size open carcass elevation.',
+        ].join('\n'),
+        suggestions: [
+          'Visualise carcass',
+          'What is carcass pricing?',
+          'Price with carcass for 8×7',
+          'What materials do you use?',
+        ],
+      })
+    } else if (intent.includes('visual') || intent.includes('design') || productId) {
+      extras.push({
+        id: crypto.randomUUID(),
+        role: 'assistant',
+        text: [
+          'Visualisation lives in this chat.',
+          '',
+          'Attach a room photo, pick a product if you haven’t, then say “visualise”.',
+        ].join('\n'),
+        suggestions: ['Attach room photo', 'Visualise my look', 'Suggest styles'],
+      })
+    }
+
+    if (extras.length) setMessages((prev) => [...prev, ...extras])
+    setSearchParams({}, { replace: true })
+  }, [searchParams, setSearchParams])
 
   const onThreadScroll = () => {
     const el = scrollRef.current
@@ -226,15 +290,14 @@ export function ChatPage() {
           id: crypto.randomUUID(),
           role: 'assistant',
           text: [
-            'Opening the carcass assembly guide — BWP plywood, both-side 1 mm laminate, 2 mm edge banding, install drawing, and QR for easy assembly.',
+            'Our carcass standard: BWP plywood, both-side 1 mm laminate, and 2 mm edge banding.',
             '',
-            `Path: ${CARCASS_ASSEMBLY_PATH}`,
+            'Ask me for shutter vs carcass rates, a size estimate in feet, or WhatsApp — our team shares the install drawing with your order.',
           ].join('\n'),
-          suggestions: ['What is carcass pricing?', 'Material specs', 'Suggest styles'],
+          suggestions: ['What is carcass pricing?', 'Material specs', 'WhatsApp quote'],
         },
       )
       setInput('')
-      navigate(CARCASS_ASSEMBLY_PATH)
       return
     }
 
@@ -491,87 +554,82 @@ export function ChatPage() {
   }
 
   const whatsapp = buildChatWhatsAppUrl(brief)
-  const selected = brief.selectedProductId
-    ? getProductById(brief.selectedProductId)
-    : undefined
   const latestSuggestions =
     [...messages].reverse().find((m) => m.role === 'assistant' && m.suggestions?.length)
       ?.suggestions ?? []
-  const showWelcomeHero = messages.length <= 1 && !busy
 
   return (
-    <main className="pbai">
+    <main className={`pbai${showKey && !aiConfigured ? ' pbai--unlock' : ''}`}>
       <header className="pbai__top">
         <div className="pbai__brand">
+          <Link className="pbai__back" to="/" aria-label="Back to home">
+            ←
+          </Link>
           <img
             src="/brand/priyabadal-homes-logo.svg"
             alt=""
             className="pbai__logo"
           />
-          <div>
-            <p className="pbai__title">Priya Badal AI</p>
+          <div className="pbai__brand-text">
+            <p className="pbai__title">AI Chat</p>
             <p className="pbai__subtitle">
-              Live AI · any product · price · carcass · materials · visualise
+              Products · price · carcass · visualise
             </p>
           </div>
         </div>
         <div className="pbai__top-actions">
           <span className={`pbai__status ${aiConfigured ? 'is-live' : ''}`}>
-            {aiConfigured ? 'Visualise on' : 'Connect AI'}
+            {aiConfigured ? 'AI on' : 'Connect AI'}
           </span>
-          <button
-            type="button"
-            className="pbai__ghost"
-            onClick={() => setShowKey((v) => !v)}
-          >
-            {showKey ? 'Close' : 'AI key'}
-          </button>
+          {!aiConfigured ? (
+            <button
+              type="button"
+              className="pbai__ghost"
+              onClick={() => setShowKey((v) => !v)}
+            >
+              {showKey ? 'Close' : 'AI key'}
+            </button>
+          ) : null}
         </div>
       </header>
 
-      {showKey || !aiConfigured ? (
-        <section className="pbai__key" aria-label="Connect AI">
-          <p>
-            Paste your Fal.ai key for live AI chat answers + visualisations (same key as
-            Visualise).{' '}
-            <a href="https://fal.ai/dashboard/billing" target="_blank" rel="noreferrer">
-              Billing
-            </a>
-          </p>
-          <form onSubmit={onConnectKey}>
-            <input
-              type="password"
-              value={falKeyInput}
-              onChange={(e) => setFalKeyInput(e.target.value)}
-              placeholder="Fal.ai API key"
-              autoComplete="off"
-              required
-            />
-            <button className="btn btn--dark" type="submit" disabled={savingKey}>
-              {savingKey ? 'Connecting…' : 'Connect'}
-            </button>
-          </form>
-          {keyMsg ? <p className="pbai__key-msg">{keyMsg}</p> : null}
-        </section>
+      {!aiConfigured && showKey ? (
+        <div className="pbai__sheet" role="dialog" aria-modal="true" aria-label="Connect AI">
+          <button
+            type="button"
+            className="pbai__sheet-backdrop"
+            aria-label="Close"
+            onClick={() => setShowKey(false)}
+          />
+          <section className="pbai__sheet-card pbai__key" aria-label="Connect AI">
+            <p>
+              Paste your Fal.ai key for live AI chat answers + visualisations (same key as
+              Visualise).{' '}
+              <a href="https://fal.ai/dashboard/billing" target="_blank" rel="noreferrer">
+                Billing
+              </a>
+            </p>
+            <form onSubmit={onConnectKey}>
+              <input
+                type="password"
+                value={falKeyInput}
+                onChange={(e) => setFalKeyInput(e.target.value)}
+                placeholder="Fal.ai API key"
+                autoComplete="off"
+                required
+              />
+              <button className="btn btn--dark" type="submit" disabled={savingKey}>
+                {savingKey ? 'Connecting…' : 'Connect'}
+              </button>
+            </form>
+            {keyMsg ? <p className="pbai__key-msg">{keyMsg}</p> : null}
+          </section>
+        </div>
+      ) : keyMsg && !publicOpen ? (
+        <p className="pbai__key-msg" role="status">
+          {keyMsg}
+        </p>
       ) : null}
-
-      <div className="pbai__brief-bar" aria-label="Session brief">
-        <span>{brief.room ?? 'Space?'}</span>
-        <span>
-          {brief.widthFt != null && brief.heightFt != null
-            ? `${brief.widthFt}×${brief.heightFt}${brief.depthFt != null ? `×${brief.depthFt}` : ''} ft`
-            : 'Size?'}
-        </span>
-        <span>{selected?.name ?? 'Product?'}</span>
-        <span>
-          {brief.roomPhotoDataUrl
-            ? brief.attachmentKind === 'drawing'
-              ? 'Drawing'
-              : 'Photo'
-            : 'Attach?'}
-        </span>
-        <span>{brief.aiImageUrl ? 'AI ready' : 'No AI yet'}</span>
-      </div>
 
       <div
         className="pbai__scroll"
@@ -581,22 +639,6 @@ export function ChatPage() {
         onScroll={onThreadScroll}
       >
         <div className="pbai__thread">
-          {showWelcomeHero ? (
-            <div className="pbai__hero">
-              <img
-                src="/brand/priyabadal-homes-logo.svg"
-                alt="Priyabadal Homes"
-                className="pbai__hero-logo"
-              />
-              <h1>Priya Badal AI</h1>
-              <p>
-                Ask anything about any Priyabadal product — design, price, carcass,
-                materials. I’ll answer in natural conversation from our catalog. Attach a
-                photo when you want to visualise.
-              </p>
-            </div>
-          ) : null}
-
           {messages.map((msg) => (
             <article key={msg.id} className={`pbai-msg pbai-msg--${msg.role}`}>
               {msg.role === 'assistant' ? (

@@ -5,7 +5,6 @@ import {
   type SpecRow,
 } from '../data/catalog'
 import {
-  CARCASS_ASSEMBLY_PATH,
   CARCASS_CONSTRUCTION_SHORT,
   CARCASS_SPEC_ROWS,
   productUsesCarcassConstruction,
@@ -26,10 +25,14 @@ const FINISH_LABELS: Record<string, string> = {
   textured: 'Textured finish',
   ceramic: 'Ceramic coating',
   'ceramic-20': 'Ceramic coating (+20%)',
+  'ceramic-front-laminate-back': 'Front ceramic · back laminated',
   'ceramic-ss': 'Ceramic + stainless steel',
   oxidised: 'Oxidised finish',
   'iron-metallic': 'Iron metallic coating',
   metallic: 'Metallic finish',
+  'pu-front-laminate-back': 'Front PU · back laminated',
+  'laminate-pu-border': 'Laminated · PU border · back laminated',
+  'pu-metallic-both': 'PU metallic · both sides',
 }
 
 function finishLabel(product: Product) {
@@ -104,7 +107,6 @@ function liveEdgePresentation(product: Product) {
       value:
         'Because this is natural teak, size and form vary piece to piece. WhatsApp our team to confirm the exact piece.',
     },
-    { label: 'Assembly', value: 'Ready piece / light on-site placement' },
     { label: 'Room Type', value: roomType(product) || 'Home' },
     { label: 'Warranty', value: PRODUCT_WARRANTY },
     { label: 'Weight', value: 'Shared on WhatsApp confirmation for the selected piece' },
@@ -189,18 +191,11 @@ export function resolveProductPresentation(product: Product) {
       product.defaultFinishId ? finish : null,
       product.defaultThicknessId ? `${thickness} board` : null,
       usesCarcass ? CARCASS_CONSTRUCTION_SHORT : null,
-      'On-site carpenter assembly',
       'Made in India',
     ].filter(Boolean) as string[]
 
   const defaultDetails: SpecRow[] = [
     { label: 'Brand', value: brand },
-    {
-      label: 'Assembly',
-      value: usesCarcass
-        ? `Carpenter assembly (on-site) · QR guide ${CARCASS_ASSEMBLY_PATH}`
-        : 'Carpenter Assembly (on-site)',
-    },
     { label: 'Collection', value: collection },
     {
       label: 'Dimensions',
@@ -260,8 +255,8 @@ export function resolveProductPresentation(product: Product) {
             value: '2 mm edge banding',
           },
           {
-            label: 'Install drawing / QR',
-            value: `Scan QR or open ${CARCASS_ASSEMBLY_PATH}`,
+            label: 'Install drawing',
+            value: 'Shared with your WhatsApp order confirmation',
           },
         ]
       : []),
@@ -295,9 +290,6 @@ export function resolveProductPresentation(product: Product) {
         : product.defaultThicknessId
           ? `Built on ${thickness} board for everyday durability`
           : 'Built for everyday home use',
-      usesCarcass
-        ? 'Installation drawing + QR code for easy carcass assembly'
-        : null,
       'Hardware and soft-close options available on customisation',
       'Storage layout can be tuned to your needs',
       'Low-maintenance surfaces for easy cleaning',

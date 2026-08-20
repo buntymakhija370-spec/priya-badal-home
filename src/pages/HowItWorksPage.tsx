@@ -17,7 +17,7 @@ export function HowItWorksPage() {
         <h1>How your custom order works</h1>
         <p>
           Every Priyabadal Homes piece is made to measure. Follow these steps from
-          choosing a look to carpenter fitting — with clear prices and WhatsApp
+          choosing a look to WhatsApp quote — with clear prices and WhatsApp
           support throughout.
         </p>
         <ul className="how__stats" aria-label="Priyabadal Homes reach">
@@ -90,14 +90,11 @@ export function HowItWorksPage() {
         <h2>Ready to start your custom order?</h2>
         <p>Pick a product, set your size, and send a WhatsApp quote.</p>
         <div className="how__hero-actions">
-          <Link className="btn btn--dark" to="/design">
-            Design my space
+          <Link className="btn btn--dark" to="/chat">
+            AI Chat
           </Link>
           <Link className="btn btn--outline" to="/shop">
             Browse products
-          </Link>
-          <Link className="btn btn--outline" to="/visualise">
-            Visualise in my room
           </Link>
         </div>
       </section>

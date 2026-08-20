@@ -1,6 +1,5 @@
 import { categories, type Product } from '../data/catalog'
 import {
-  CARCASS_ASSEMBLY_PATH,
   CARCASS_CONSTRUCTION_DETAIL,
   CARCASS_CONSTRUCTION_SHORT,
   CARCASS_SPEC_ROWS,
@@ -174,7 +173,6 @@ export function buildCatalogKnowledge(brief: ConsultBrief, query = ''): string {
     CARCASS_CONSTRUCTION_SHORT,
     CARCASS_CONSTRUCTION_DETAIL,
     ...CARCASS_SPEC_ROWS.map((r) => `${r.label}: ${r.value}`),
-    `Assembly guide URL path: ${CARCASS_ASSEMBLY_PATH}`,
     '',
     '=== CATALOG PRIORITY PRODUCTS (detail) ===',
     ...top.map(productLine),

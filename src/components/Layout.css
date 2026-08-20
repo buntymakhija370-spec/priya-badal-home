@@ -97,6 +97,14 @@
   opacity: 1;
 }
 
+.nav__desktop--open-all {
+  flex-wrap: wrap;
+  justify-content: flex-end;
+  gap: 0.35rem 0.85rem;
+  max-width: min(62vw, 44rem);
+  font-size: 0.82rem;
+}
+
 .nav--open .nav__desktop {
   display: none;
 }
@@ -107,7 +115,7 @@
   }
 
   .nav__brand {
-    max-width: min(42vw, 20rem);
+    max-width: min(42vw, 18rem);
   }
 }
 
@@ -185,6 +193,80 @@
   letter-spacing: 0.16em;
   text-transform: uppercase;
   color: rgba(244, 248, 245, 0.55);
+}
+
+.nav__categories {
+  display: flex;
+  flex-direction: column;
+  align-items: stretch;
+  width: min(22rem, 100%);
+  gap: 0.35rem;
+  margin-bottom: 0.15rem;
+}
+
+.nav__categories-btn {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1rem;
+  width: 100%;
+  margin: 0;
+  padding: 0.35rem 0;
+  border: 0;
+  background: transparent;
+  color: inherit;
+  font-family: var(--font-display);
+  font-size: clamp(1.45rem, 4.5vw, 1.9rem);
+  line-height: 1.25;
+  text-align: left;
+  cursor: pointer;
+}
+
+.nav__categories-btn:focus-visible {
+  outline: 2px solid rgba(244, 248, 245, 0.45);
+  outline-offset: 4px;
+}
+
+.nav__categories-chevron {
+  flex-shrink: 0;
+  width: 0.55rem;
+  height: 0.55rem;
+  border-right: 1.5px solid currentColor;
+  border-bottom: 1.5px solid currentColor;
+  transform: rotate(45deg);
+  opacity: 0.7;
+  transition: transform 0.25s var(--ease-out);
+}
+
+.nav__categories-btn.is-open .nav__categories-chevron {
+  transform: translateY(0.15rem) rotate(225deg);
+}
+
+.nav__categories-panel {
+  display: none;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 0.2rem;
+  padding: 0.35rem 0 0.55rem 0.15rem;
+}
+
+.nav__categories-panel.is-open {
+  display: flex;
+}
+
+.nav__categories-panel .nav__category {
+  font-size: clamp(1.05rem, 3.2vw, 1.25rem);
+  opacity: 0.88;
+}
+
+.nav__categories-panel .nav__category--all {
+  margin-top: 0.35rem;
+  font-family: var(--font-body);
+  font-size: 0.95rem;
+  font-weight: 500;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  opacity: 0.7;
 }
 
 .nav__divider {
@@ -269,20 +351,32 @@
   display: grid;
   gap: 0.65rem;
   align-content: start;
+  min-width: 0;
 }
 
 .footer__logo {
   display: block;
-  width: min(22rem, 100%);
+  width: auto;
+  max-width: min(9.5rem, 68%);
+  max-height: 2.5rem;
   height: auto;
+  object-fit: contain;
+  object-position: left center;
   filter: brightness(0) invert(1);
   opacity: 0.95;
+}
+
+@media (min-width: 720px) {
+  .footer__logo {
+    max-width: 11rem;
+    max-height: 2.85rem;
+  }
 }
 
 .footer__tag {
   font-size: 0.88rem;
   line-height: 1.5;
-  max-width: 28ch;
+  max-width: 40ch;
 }
 
 .footer__cols {

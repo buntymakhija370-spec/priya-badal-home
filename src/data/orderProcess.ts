@@ -18,7 +18,7 @@ export const ORDER_STEPS: OrderStep[] = [
     title: 'Customise size & finish',
     summary: 'Set width, height, thickness, and finish for your space.',
     detail:
-      'Use the customise sheet to set size in feet, choose Finished product or unfinished CNC-Carve HD Board (white canvas — no paint), and see an estimated price before you enquire.',
+      'Use the customise sheet to set size in feet, choose finish and thickness, and see an estimated price before you enquire.',
   },
   {
     id: 'quote',
@@ -43,17 +43,17 @@ export const ORDER_STEPS: OrderStep[] = [
   },
   {
     id: 'install',
-    title: 'Delivery & fitting',
-    summary: 'On-site assembly with drawing + QR guide.',
+    title: 'Delivery',
+    summary: 'We coordinate delivery to your city.',
     detail:
-      'We coordinate delivery and carpenter fitting. Scan the carcass QR (or open /guides/carcass-assembly) for the installation drawing and step-by-step box assembly. After install, keep WhatsApp open for finishing notes.',
+      'We arrange delivery after production. Confirm your city / pin code on WhatsApp so we can plan shipping and share timelines.',
   },
 ]
 
 export const ORDER_NOTES = [
   {
     title: 'Transparent estimates',
-    body: 'On-site prices are estimates from your size and finish. Final quote is confirmed on WhatsApp after review.',
+    body: 'Catalog prices are estimates from your size and finish. Final quote is confirmed on WhatsApp after review.',
   },
   {
     title: 'What to keep ready',
@@ -65,7 +65,7 @@ export const ORDER_NOTES = [
   },
   {
     title: 'Carcass construction',
-    body: 'BWP plywood · both-side 1 mm laminate · 2 mm edge banding, with installation drawing and QR for easy assembly.',
+    body: 'BWP plywood · both-side 1 mm laminate · 2 mm edge banding. Install drawing shared on WhatsApp with your order.',
   },
   {
     title: '10-year warranty',

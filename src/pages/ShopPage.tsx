@@ -1,7 +1,7 @@
 import { Link, useParams } from 'react-router-dom'
 import { useEffect, useMemo, useState } from 'react'
 import { categories, getCategory, getSubcategory } from '../data/catalog'
-import { getProductsByCategory, getAllProducts } from '../lib/products'
+import { getProductsByCategory } from '../lib/products'
 import { ProductCard } from '../components/ProductCard'
 import { shopPath } from '../lib/links'
 import './ShopPage.css'
@@ -27,7 +27,7 @@ export function ShopPage() {
   }, [categoryId, subcategoryId])
 
   const baseProducts = useMemo(() => {
-    if (!categoryId) return getAllProducts()
+    if (!categoryId) return []
     if (subcategoryId) return getProductsByCategory(categoryId, subcategoryId)
     return getProductsByCategory(categoryId)
   }, [categoryId, subcategoryId])
@@ -51,44 +51,73 @@ export function ShopPage() {
   }, [baseProducts, query, sort])
 
   const subcats = category?.subcategories ?? []
-  const isLiveEdge = category?.id === 'live-edge-furniture'
-  const hideCategoryChips = Boolean(category && isLiveEdge)
   const lede =
     subcategory?.description ??
     category?.description ??
-    'Customise sizes and request WhatsApp quotes.'
+    'Pick a collection to see products, sizes, and WhatsApp quotes.'
+
+  // Shop entry: ask which collection — do not dump every product.
+  if (!categoryId) {
+    return (
+      <main className="shop page-pad shop--landing">
+        <header className="shop__header">
+          <p className="eyebrow">Shop</p>
+          <h1>Choose a collection</h1>
+          <p className="shop__lede">{lede}</p>
+        </header>
+
+        <aside className="shop__pick-banner" aria-label="How to shop">
+          <p className="shop__pick-banner-kicker">Start here</p>
+          <p>
+            Tap a category banner below. Products open only after you choose a
+            collection — so you see the right shutters, panels, or furniture first.
+          </p>
+        </aside>
+
+        <div className="shop__pick" aria-label="Shop collections">
+          {categories.map((cat) => (
+            <Link
+              key={cat.id}
+              className="shop__pick-card"
+              to={shopPath(cat.id)}
+              aria-label={`Open ${cat.name}`}
+            >
+              <span className="shop__pick-media" aria-hidden="true">
+                <img src={cat.image} alt="" loading="lazy" />
+              </span>
+              <span className="shop__pick-copy">
+                <strong>{cat.name}</strong>
+                <span>
+                  {cat.caption ??
+                    cat.description.split(/[.!?]/)[0]?.trim() ??
+                    'View products'}
+                </span>
+              </span>
+            </Link>
+          ))}
+        </div>
+      </main>
+    )
+  }
 
   return (
-    <main className={`shop page-pad ${category?.id === 'commercials' ? 'shop--commercials' : ''}`}>
+    <main className="shop page-pad">
       <header className="shop__header">
         <p className="eyebrow">Shop</p>
         <h1>
           {subcategory?.name ?? (category ? category.name : 'All products')}
         </h1>
         {category?.caption &&
-        (category.id === 'commercials' || category.id === 'live-edge-furniture') ? (
+        (category.id === 'live-edge-furniture' ||
+          category.id === 'sculpted-furniture' ||
+          category.id === 'doors') ? (
           <p className="shop__caption">{category.caption}</p>
         ) : null}
         <p className="shop__lede">{lede}</p>
-        {category ? (
-          <p className="shop__back">
-            <Link to="/shop">← All collections</Link>
-          </p>
-        ) : null}
+        <p className="shop__back">
+          <Link to="/shop">← All collections</Link>
+        </p>
       </header>
-
-      {category?.id === 'commercials' && category.conceptNote ? (
-        <aside className="shop__concept" aria-label="Commercials concept">
-          <p className="shop__concept-kicker">How commercials work</p>
-          <p>{category.conceptNote}</p>
-          <ul>
-            <li>Lowest project cost through bulk manufacture</li>
-            <li>Minimum order: {category.minOrderQuantity ?? 10} identical packs</li>
-            <li>Choose 1BHK, 2BHK, or 3BHK package type</li>
-            <li>WhatsApp quote with your project quantity (10+)</li>
-          </ul>
-        </aside>
-      ) : null}
 
       {category?.id === 'live-edge-furniture' && category.conceptNote ? (
         <aside className="shop__concept" aria-label="Live Edge Furniture information">
@@ -103,23 +132,33 @@ export function ShopPage() {
         </aside>
       ) : null}
 
-      {!hideCategoryChips ? (
-        <div className="shop__cats" aria-label="Categories">
-          <Link className={`chip ${!categoryId ? 'chip--active' : ''}`} to="/shop">
-            All
-          </Link>
-          {categories.map((cat) => (
-            <Link
-              key={cat.id}
-              className={`chip ${categoryId === cat.id ? 'chip--active' : ''}`}
-              to={shopPath(cat.id)}
-            >
-              {cat.name}
-            </Link>
-          ))}
-        </div>
+      {category?.id === 'sculpted-furniture' && category.conceptNote ? (
+        <aside className="shop__concept" aria-label="Sculpted Furniture information">
+          <p className="shop__concept-kicker">About Sculpted Furniture</p>
+          <p>{category.conceptNote}</p>
+          <ul>
+            <li>Art furniture &amp; sculptures made to order</li>
+            <li>Dining tables, consoles, pedestals, lamps &amp; outdoor pieces</li>
+            <li>Confirm finish, size, and placement on WhatsApp</li>
+            <li>Browse this collection only — no other categories here</li>
+          </ul>
+        </aside>
       ) : null}
 
+      {category?.id === 'doors' && category.conceptNote ? (
+        <aside className="shop__concept" aria-label="Doors information">
+          <p className="shop__concept-kicker">About Doors</p>
+          <p>{category.conceptNote}</p>
+          <ul>
+            <li>Main doors, room doors &amp; flush shutters</li>
+            <li>Carved, fluted, metal-inlay &amp; smart options</li>
+            <li>Made to your opening size</li>
+            <li>Share width, height &amp; finish on WhatsApp for a firm quote</li>
+          </ul>
+        </aside>
+      ) : null}
+
+      {/* Stay focused on this collection — switch via ← All collections */}
       {category && subcats.length > 0 && (
         <div className="shop__subs" aria-label="Subcategories">
           <Link
@@ -147,7 +186,7 @@ export function ShopPage() {
             type="search"
             value={query}
             onChange={(e) => setQuery(e.target.value)}
-            placeholder="Search products…"
+            placeholder="Search this collection…"
           />
         </label>
         <label className="shop__sort">

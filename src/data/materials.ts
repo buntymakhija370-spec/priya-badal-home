@@ -31,11 +31,6 @@ export const MATERIAL_POINTS: MaterialPoint[] = [
     body: 'Exposed carcass edges get 2 mm edge banding for a neat factory finish and everyday knock resistance.',
   },
   {
-    id: 'assembly',
-    title: 'Install drawing + QR',
-    body: 'Every carcass order includes an installation drawing and QR code so carpenters can assemble the box easily on site.',
-  },
-  {
     id: 'finishes',
     title: 'Premium shutter finishes',
     body: 'PU, laminate, and designer surfaces from trusted Indian brands for colour depth and everyday durability on shutters and doors.',

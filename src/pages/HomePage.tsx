@@ -137,15 +137,15 @@ export function HomePage() {
             Made-to-measure interiors with clear prices.
           </h1>
           <p className="hero__lede reveal reveal--3">
-            Design your kitchen, wardrobe, or temple with AI — enter your size,
-            see the look, get an instant estimate, then WhatsApp for the final quote.
+            One chat for price, carcass, materials, and room visualisation — then
+            WhatsApp for the final quote.
           </p>
           <div className="hero__actions reveal reveal--4">
-            <Link className="btn btn--primary" to="/design">
-              Design my space
+            <Link className="btn btn--primary" to="/chat">
+              AI Chat
             </Link>
-            <Link className="btn btn--ghost" to="/install">
-              Get the App
+            <Link className="btn btn--ghost" to="/shop">
+              Browse shop
             </Link>
           </div>
         </div>
@@ -206,7 +206,7 @@ export function HomePage() {
           ) : (
             <Link className="home-cats__next home-cats__next--done" to="/shop">
               <span className="home-cats__next-label">Browse</span>
-              <strong>All products</strong>
+              <strong>All collections</strong>
             </Link>
           )}
         </div>
@@ -223,8 +223,8 @@ export function HomePage() {
             <span>See estimates before you enquire</span>
           </li>
           <li>
-            <strong>On-site assembly</strong>
-            <span>Carpenter installation support</span>
+            <strong>10-year warranty</strong>
+            <span>On manufacturing defects</span>
           </li>
           <li>
             <strong>WhatsApp quotes</strong>
@@ -254,7 +254,7 @@ export function HomePage() {
             <p className="eyebrow">Custom orders</p>
             <h2 id="home-process-title">How your custom order works</h2>
             <p>
-              From choosing a look to carpenter fitting — made to your wall size,
+              From choosing a look to WhatsApp quote — made to your wall size,
               with WhatsApp quotes at every step.
             </p>
           </div>
@@ -319,14 +319,14 @@ export function HomePage() {
       </section>
 
       <section className="home-cta">
-        <p className="eyebrow">Priya Badal AI</p>
-        <h2>Chitchat, drawings, and product visualisation.</h2>
+        <p className="eyebrow">Chat</p>
+        <h2>One place for every question.</h2>
         <p>
-          Talk through your interior, send a room photo or architect drawing, pick from our
-          catalog, and get an AI visualisation in chat.
+          Pricing, carcass help, materials, product info, and room visualisation — ask in
+          chat like a normal conversation. Attach a photo when you want to see the look.
         </p>
         <Link className="btn btn--dark" to="/chat">
-          Open Priya Badal AI
+          Open AI Chat
         </Link>
       </section>
     </main>

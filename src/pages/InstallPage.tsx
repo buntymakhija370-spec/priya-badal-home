@@ -1,5 +1,6 @@
 import { useEffect, useMemo, useState } from 'react'
 import { Link } from 'react-router-dom'
+import { SITE_ORIGIN } from '../lib/links'
 import './InstallPage.css'
 
 type BeforeInstallPromptEvent = Event & {
@@ -27,7 +28,7 @@ export function InstallPage() {
   const [standalone, setStandalone] = useState(false)
   const [deferred, setDeferred] = useState<BeforeInstallPromptEvent | null>(null)
   const [status, setStatus] = useState('')
-  const shareUrl = useMemo(() => window.location.origin, [])
+  const shareUrl = useMemo(() => SITE_ORIGIN, [])
 
   useEffect(() => {
     setPlatform(detectPlatform())

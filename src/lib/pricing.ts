@@ -259,6 +259,13 @@ const FINISH_LOOKUP: Record<string, FinishOption> = {
     name: 'PU metallic · both sides',
     multiplier: 1,
   },
+  veneer: { id: 'veneer', name: 'Veneer', multiplier: 1 },
+  /** Oxidised at list price (not a +30% upgrade) */
+  'oxidised-base': {
+    id: 'oxidised-base',
+    name: 'Oxidised · both sides similar',
+    multiplier: 1,
+  },
 }
 
 const THICKNESS_LOOKUP: Record<string, ThicknessOption> = {
@@ -273,6 +280,13 @@ const THICKNESS_LOOKUP: Record<string, ThicknessOption> = {
   '28': { id: '28', label: '28 mm', mm: 28, multiplier: 1 },
   '30': { id: '30', label: '30 mm', mm: 30, multiplier: 1 },
   '32': { id: '32', label: '32 mm', mm: 32, multiplier: 1.18 },
+  '40': { id: '40', label: '40 mm', mm: 40, multiplier: 1 },
+  '42': { id: '42', label: '42 mm', mm: 42, multiplier: 1 },
+  '43': { id: '43', label: '43 mm', mm: 43, multiplier: 1 },
+  '44': { id: '44', label: '44 mm', mm: 44, multiplier: 1 },
+  '45': { id: '45', label: '45 mm', mm: 45, multiplier: 1 },
+  '50': { id: '50', label: '50 mm', mm: 50, multiplier: 1 },
+  '55': { id: '55', label: '55 mm', mm: 55, multiplier: 1 },
 }
 
 /** @deprecated Prefer getFinishOptionsForProduct — kept for lookups only */

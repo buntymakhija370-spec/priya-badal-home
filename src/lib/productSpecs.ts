@@ -107,7 +107,6 @@ function liveEdgePresentation(product: Product) {
       value:
         'Because this is natural teak, size and form vary piece to piece. WhatsApp our team to confirm the exact piece.',
     },
-    { label: 'Assembly', value: 'Ready piece / light on-site placement' },
     { label: 'Room Type', value: roomType(product) || 'Home' },
     { label: 'Warranty', value: PRODUCT_WARRANTY },
     { label: 'Weight', value: 'Shared on WhatsApp confirmation for the selected piece' },
@@ -192,18 +191,11 @@ export function resolveProductPresentation(product: Product) {
       product.defaultFinishId ? finish : null,
       product.defaultThicknessId ? `${thickness} board` : null,
       usesCarcass ? CARCASS_CONSTRUCTION_SHORT : null,
-      'On-site carpenter assembly',
       'Made in India',
     ].filter(Boolean) as string[]
 
   const defaultDetails: SpecRow[] = [
     { label: 'Brand', value: brand },
-    {
-      label: 'Assembly',
-      value: usesCarcass
-        ? 'Carpenter assembly (on-site) — install drawing shared on WhatsApp'
-        : 'Carpenter Assembly (on-site)',
-    },
     { label: 'Collection', value: collection },
     {
       label: 'Dimensions',
@@ -298,9 +290,6 @@ export function resolveProductPresentation(product: Product) {
         : product.defaultThicknessId
           ? `Built on ${thickness} board for everyday durability`
           : 'Built for everyday home use',
-      usesCarcass
-        ? 'Installation drawing + QR code for easy carcass assembly'
-        : null,
       'Hardware and soft-close options available on customisation',
       'Storage layout can be tuned to your needs',
       'Low-maintenance surfaces for easy cleaning',

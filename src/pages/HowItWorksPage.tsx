@@ -17,7 +17,7 @@ export function HowItWorksPage() {
         <h1>How your custom order works</h1>
         <p>
           Every Priyabadal Homes piece is made to measure. Follow these steps from
-          choosing a look to carpenter fitting — with clear prices and WhatsApp
+          choosing a look to WhatsApp quote — with clear prices and WhatsApp
           support throughout.
         </p>
         <ul className="how__stats" aria-label="Priyabadal Homes reach">

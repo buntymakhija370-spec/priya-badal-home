@@ -203,8 +203,8 @@ export function ProductPage() {
             {customizable ? (
               <>
                 <li>10-year warranty</li>
-                <li>On-site assembly</li>
                 <li>Made to measure</li>
+                <li>WhatsApp quote</li>
               </>
             ) : (
               <>

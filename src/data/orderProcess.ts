@@ -43,17 +43,17 @@ export const ORDER_STEPS: OrderStep[] = [
   },
   {
     id: 'install',
-    title: 'Delivery & fitting',
-    summary: 'On-site assembly with install drawing.',
+    title: 'Delivery',
+    summary: 'We coordinate delivery to your city.',
     detail:
-      'We coordinate delivery and carpenter fitting. The install drawing is shared on WhatsApp with your order. After install, keep WhatsApp open for finishing notes.',
+      'We arrange delivery after production. Confirm your city / pin code on WhatsApp so we can plan shipping and share timelines.',
   },
 ]
 
 export const ORDER_NOTES = [
   {
     title: 'Transparent estimates',
-    body: 'On-site prices are estimates from your size and finish. Final quote is confirmed on WhatsApp after review.',
+    body: 'Catalog prices are estimates from your size and finish. Final quote is confirmed on WhatsApp after review.',
   },
   {
     title: 'What to keep ready',
@@ -65,7 +65,7 @@ export const ORDER_NOTES = [
   },
   {
     title: 'Carcass construction',
-    body: 'BWP plywood · both-side 1 mm laminate · 2 mm edge banding, with installation drawing and QR for easy assembly.',
+    body: 'BWP plywood · both-side 1 mm laminate · 2 mm edge banding. Install drawing shared on WhatsApp with your order.',
   },
   {
     title: '10-year warranty',

@@ -223,8 +223,8 @@ export function HomePage() {
             <span>See estimates before you enquire</span>
           </li>
           <li>
-            <strong>On-site assembly</strong>
-            <span>Carpenter installation support</span>
+            <strong>10-year warranty</strong>
+            <span>On manufacturing defects</span>
           </li>
           <li>
             <strong>WhatsApp quotes</strong>
@@ -254,7 +254,7 @@ export function HomePage() {
             <p className="eyebrow">Custom orders</p>
             <h2 id="home-process-title">How your custom order works</h2>
             <p>
-              From choosing a look to carpenter fitting — made to your wall size,
+              From choosing a look to WhatsApp quote — made to your wall size,
               with WhatsApp quotes at every step.
             </p>
           </div>

@@ -1,6 +1,6 @@
 import { Link, useParams } from 'react-router-dom'
 import { useEffect, useMemo, useState } from 'react'
-import { categories, getCategory, getSubcategory } from '../data/catalog'
+import { categories, getCategory } from '../data/catalog'
 import { getProductsByCategory } from '../lib/products'
 import { ProductCard } from '../components/ProductCard'
 import { shopPath } from '../lib/links'
@@ -9,12 +9,8 @@ import './ShopPage.css'
 type SortId = 'featured' | 'price-asc' | 'price-desc' | 'name'
 
 export function ShopPage() {
-  const { categoryId, subcategoryId } = useParams()
+  const { categoryId } = useParams()
   const category = categoryId ? getCategory(categoryId) : undefined
-  const subcategory =
-    categoryId && subcategoryId
-      ? getSubcategory(categoryId, subcategoryId)
-      : undefined
 
   const [query, setQuery] = useState('')
   const [sort, setSort] = useState<SortId>('featured')
@@ -24,13 +20,12 @@ export function ShopPage() {
   useEffect(() => {
     setQuery('')
     setSort('featured')
-  }, [categoryId, subcategoryId])
+  }, [categoryId])
 
   const baseProducts = useMemo(() => {
     if (!categoryId) return []
-    if (subcategoryId) return getProductsByCategory(categoryId, subcategoryId)
     return getProductsByCategory(categoryId)
-  }, [categoryId, subcategoryId])
+  }, [categoryId])
 
   const products = useMemo(() => {
     const q = query.trim().toLowerCase()
@@ -50,9 +45,7 @@ export function ShopPage() {
     return sorted
   }, [baseProducts, query, sort])
 
-  const subcats = category?.subcategories ?? []
   const lede =
-    subcategory?.description ??
     category?.description ??
     'Pick a collection to see products, sizes, and WhatsApp quotes.'
 
@@ -104,9 +97,7 @@ export function ShopPage() {
     <main className="shop page-pad">
       <header className="shop__header">
         <p className="eyebrow">Shop</p>
-        <h1>
-          {subcategory?.name ?? (category ? category.name : 'All products')}
-        </h1>
+        <h1>{category ? category.name : 'All products'}</h1>
         {category?.caption && category.id === 'live-edge-furniture' ? (
           <p className="shop__caption">{category.caption}</p>
         ) : null}
@@ -128,26 +119,6 @@ export function ShopPage() {
           </ul>
         </aside>
       ) : null}
-
-      {category && subcats.length > 0 && (
-        <div className="shop__subs" aria-label="Subcategories">
-          <Link
-            className={`chip ${!subcategoryId ? 'chip--active' : ''}`}
-            to={shopPath(category.id)}
-          >
-            All {category.name}
-          </Link>
-          {subcats.map((sub) => (
-            <Link
-              key={sub.id}
-              className={`chip ${subcategoryId === sub.id ? 'chip--active' : ''}`}
-              to={shopPath(category.id, sub.id)}
-            >
-              {sub.name}
-            </Link>
-          ))}
-        </div>
-      )}
 
       <div className="shop__toolbar">
         <label className="shop__search">

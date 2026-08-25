@@ -31,3 +31,4 @@ data/gemini-key.json
 *.sln
 *.sw?
 data/fal-key.json
+data/cloudflare-api-token.txt

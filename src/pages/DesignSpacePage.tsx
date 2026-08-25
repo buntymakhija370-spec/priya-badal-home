@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useState, type FormEvent } from 'react'
+import { useEffect, useMemo, useState } from 'react'
 import { Link } from 'react-router-dom'
 import { getAllProducts, getProductById } from '../lib/products'
 import {
@@ -11,12 +11,12 @@ import {
 } from '../lib/designSpace'
 import {
   VISUALISE_COLOURS,
-  connectFalKey,
   fetchVisualiseStatus,
   fileToDataUrl,
   generateVisualise,
   type VisualiseColour,
 } from '../lib/visualise'
+import { AiAccessBanner } from '../components/AiAccessBanner'
 import {
   getFinish,
   getFinishOptionsForProduct,
@@ -48,9 +48,6 @@ export function DesignSpacePage() {
 
   const [roomDataUrl, setRoomDataUrl] = useState<string | null>(null)
   const [aiConfigured, setAiConfigured] = useState(false)
-  const [falKeyInput, setFalKeyInput] = useState('')
-  const [savingKey, setSavingKey] = useState(false)
-  const [keyMsg, setKeyMsg] = useState<string | null>(null)
   const [busy, setBusy] = useState(false)
   const [aiUrl, setAiUrl] = useState<string | null>(null)
   const [statusMsg, setStatusMsg] = useState<string | null>(null)
@@ -127,22 +124,6 @@ export function DesignSpacePage() {
       setStatusMsg('Could not read that photo. Try another image.')
     } finally {
       setBusy(false)
-    }
-  }
-
-  const onConnectKey = async (e: FormEvent) => {
-    e.preventDefault()
-    setSavingKey(true)
-    setKeyMsg(null)
-    try {
-      const next = await connectFalKey(falKeyInput.trim())
-      setAiConfigured(next.configured)
-      setFalKeyInput('')
-      setKeyMsg('AI connected. You can generate a room look now.')
-    } catch (err) {
-      setStatusMsg(err instanceof Error ? err.message : 'Could not save AI key.')
-    } finally {
-      setSavingKey(false)
     }
   }
 
@@ -401,38 +382,16 @@ export function DesignSpacePage() {
                 for pricing. AI look can vary slightly — WhatsApp quote uses your exact feet.
               </p>
 
-              {!aiConfigured ? (
-                <div className="design__keybox">
-                  <h3>Connect AI for room visualisation</h3>
-                  <p>
-                    Same Fal.ai key as Visualise / Carcass. You also need Fal credits at{' '}
-                    <a
-                      href="https://fal.ai/dashboard/billing"
-                      target="_blank"
-                      rel="noreferrer"
-                    >
-                      fal.ai/dashboard/billing
-                    </a>
-                    .
-                  </p>
-                  <form onSubmit={onConnectKey} className="design__key-form">
-                    <input
-                      type="password"
-                      value={falKeyInput}
-                      onChange={(e) => setFalKeyInput(e.target.value)}
-                      placeholder="Fal.ai API key"
-                      autoComplete="off"
-                      required
-                    />
-                    <button className="btn btn--dark" type="submit" disabled={savingKey}>
-                      {savingKey ? 'Connecting…' : 'Connect AI'}
-                    </button>
-                  </form>
-                  {keyMsg ? <p className="design__ok">{keyMsg}</p> : null}
-                </div>
-              ) : (
-                <p className="design__ok">AI key connected — keep Fal credits topped up to generate.</p>
-              )}
+              <AiAccessBanner
+                onStatus={(s) =>
+                  setAiConfigured(
+                    Boolean(s.falConfigured && (!s.requireSubscription || s.subscribed)),
+                  )
+                }
+              />
+              {aiConfigured ? (
+                <p className="design__ok">Paid AI unlocked — monthly limits apply.</p>
+              ) : null}
 
               <div className="design__upload-box">
                 <p className="design__upload-label">Room photo (required for AI)</p>
@@ -481,7 +440,7 @@ export function DesignSpacePage() {
                     return
                   }
                   if (!aiConfigured) {
-                    setStatusMsg('Connect your Fal.ai key above first (and top up credits).')
+                    setStatusMsg('Connect your Gemini API key in /ai-admin first.')
                     return
                   }
                   void onGenerate()

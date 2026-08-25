@@ -33,7 +33,7 @@ export function InstallBanner() {
 
   useEffect(() => {
     if (isStandalone()) return
-    if (location.pathname === '/install') return
+    if (location.pathname === '/install' || location.pathname === '/chat') return
     if (sessionStorage.getItem(DISMISS_KEY) === '1') return
     if (!isMobile()) return
 

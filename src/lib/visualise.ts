@@ -1,4 +1,5 @@
 import type { Product } from '../data/catalog'
+import { aiAuthHeaders } from './aiAccess'
 import { WHATSAPP_QUOTE_NUMBER } from './whatsapp'
 
 export type VisualiseColour = {
@@ -16,6 +17,8 @@ export const VISUALISE_COLOURS: VisualiseColour[] = [
   { id: 'gloss-white', label: 'Gloss White', hex: '#ffffff' },
 ]
 
+export type VisualiseMode = 'replace' | 'install' | 'redesign'
+
 export type VisualiseRequest = {
   roomDataUrl: string
   product: Product
@@ -30,6 +33,8 @@ export type VisualiseRequest = {
   scopeLabel?: string
   /** Room photo vs architect drawing / plan / elevation */
   inputKind?: 'photo' | 'drawing'
+  /** replace existing furniture / install / full presentable redesign */
+  visualiseMode?: VisualiseMode
   /** Previous AI image to edit for follow-up change commands */
   refineImageUrl?: string
   changeRequest?: string
@@ -61,7 +66,11 @@ export function productReferencePaths(product: Product): {
     const mid = pool[1]!
     if (mid !== primary && !extras.includes(mid)) extras.push(mid)
   }
-  return { primary, extras: extras.slice(0, 2) }
+  if (pool.length > 3) {
+    const third = pool[2]!
+    if (third !== primary && !extras.includes(third)) extras.push(third)
+  }
+  return { primary, extras: extras.slice(0, 3) }
 }
 
 export type VisualiseResult = {
@@ -76,13 +85,15 @@ export type VisualiseStatus = {
   mode: string
   model?: string
   refineModel?: string
+  quality?: string
+  engine?: string
 }
 
 /** Compress / resize room photo for upload + AI (higher res = better room fidelity) */
 export async function fileToDataUrl(
   file: File,
-  maxSide = 2048,
-  quality = 0.9,
+  maxSide = 2400,
+  quality = 0.92,
 ): Promise<string> {
   const bitmap = await createImageBitmap(file)
   const scale = Math.min(1, maxSide / Math.max(bitmap.width, bitmap.height))
@@ -121,7 +132,9 @@ export async function urlToDataUrl(url: string): Promise<string> {
 
 export async function fetchVisualiseStatus(): Promise<VisualiseStatus> {
   try {
-    const res = await fetch('/api/visualise-status')
+    const res = await fetch('/api/visualise-status', {
+      headers: aiAuthHeaders(),
+    })
     if (!res.ok) return { configured: false, mode: 'needs-key' }
     return (await res.json()) as VisualiseStatus
   } catch {
@@ -129,11 +142,17 @@ export async function fetchVisualiseStatus(): Promise<VisualiseStatus> {
   }
 }
 
-export async function connectFalKey(key: string): Promise<VisualiseStatus> {
+/** Owner-only: set Fal key with admin PIN (not for customers). */
+export async function connectFalKey(
+  key: string,
+  adminPin?: string,
+): Promise<VisualiseStatus> {
   const res = await fetch('/api/visualise-config', {
     method: 'POST',
-    headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify({ key }),
+    headers: aiAuthHeaders(
+      adminPin ? { 'X-AI-Admin': adminPin } : undefined,
+    ),
+    body: JSON.stringify({ key, adminPin }),
   })
   const data = (await res.json()) as VisualiseStatus & { error?: string }
   if (!res.ok) throw new Error(data.error || 'Could not connect AI key')
@@ -156,7 +175,7 @@ export async function generateVisualise(
 
     const res = await fetch('/api/visualise', {
       method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
+      headers: aiAuthHeaders(),
       body: JSON.stringify({
         roomDataUrl: input.roomDataUrl,
         productImageUrl: productDataUrl,
@@ -172,6 +191,7 @@ export async function generateVisualise(
         finishLabel: input.finishLabel,
         scopeLabel: input.scopeLabel,
         inputKind: input.inputKind ?? 'photo',
+        visualiseMode: input.visualiseMode ?? 'replace',
         refineImageUrl: input.refineImageUrl,
         changeRequest: input.changeRequest,
       }),
@@ -182,51 +202,80 @@ export async function generateVisualise(
       error?: string
       code?: string
       hint?: string
+      quality?: string
+      model?: string
     }
 
     if (res.ok && data.imageUrl) {
+      const quality = data.quality ? ` · ${data.quality}` : ''
       const sizeHint =
         input.widthFt && input.heightFt
-          ? ` Furniture sized toward ${input.widthFt} × ${input.heightFt}` +
+          ? ` Sized toward ${input.widthFt} × ${input.heightFt}` +
             (input.depthFt ? ` × ${input.depthFt}` : '') +
-            ' ft. AI is a visual guide — final quote uses your exact measure.'
-          : ' Tip: share exact feet size for a closer scale match.'
+            ' ft. Presentation guide — final quote uses site measure.'
+          : ' Tip: add exact feet size for tighter scale.'
       const refineHint = input.changeRequest?.trim()
         ? ` Updated for: “${input.changeRequest.trim()}”.`
         : ''
+      const modeHint =
+        input.visualiseMode === 'redesign'
+          ? ' Presentable redesign with your Priyabadal product as the hero.'
+          : input.visualiseMode === 'install'
+            ? ' Product installed into your room photo.'
+            : ' Existing furniture replaced with your Priyabadal product.'
+      void quality
       return {
         imageUrl: data.imageUrl,
         source: 'ai',
         message:
           (input.refineImageUrl
-            ? 'Revised look from your change request, matching catalog references.'
-            : 'Higher-accuracy render: your room framing kept, catalog exterior (+ detail) matched.') +
+            ? 'Here’s the updated look from your change.'
+            : 'Here’s your room look with the Priyabadal product.') +
+          (input.refineImageUrl ? '' : modeHint) +
           refineHint +
           sizeHint,
       }
     }
 
-    const raw = data.error || data.hint || ''
+    const raw = (data.error || data.hint || '').trim()
     const exhausted =
       /exhausted balance|top up your balance|locked/i.test(raw)
+    const geminiQuota =
+      data.code === 'GEMINI_QUOTA' ||
+      /quota|rate[- ]?limit|billing|RESOURCE_EXHAUSTED|exceeded your current/i.test(
+        raw,
+      )
+    const code = geminiQuota
+      ? 'GEMINI_QUOTA'
+      : exhausted
+        ? 'FAL_BALANCE'
+        : data.code
+    const message =
+      code === 'SUBSCRIPTION_REQUIRED'
+        ? 'AI unlock is needed for visualisation. Tap AI access and enter your access code, then Try again.'
+        : code === 'QUOTA_EXCEEDED'
+          ? 'This month’s visualisation limit is reached. Upgrade or wait for next month.'
+          : code === 'MISSING_FAL_KEY'
+            ? 'Visualise unavailable — Gemini is not connected. Owner: set the key in /ai-admin, then tap Try again.'
+            : code === 'GEMINI_QUOTA'
+              ? 'Google AI image quota is empty on the server key. Owner: enable billing at aistudio.google.com (or wait for reset), then Try again.'
+              : exhausted
+                ? 'AI credits are temporarily unavailable. Please try later.'
+                : raw && raw.length < 220
+                  ? raw
+                  : 'I couldn’t update that look just now. Tap Try again, or say “start over from photo”.'
     return {
       source: 'error',
-      code: exhausted ? 'FAL_BALANCE' : data.code,
-      message:
-        data.code === 'MISSING_FAL_KEY'
-          ? 'Connect your Fal.ai key below to generate professional room renders.'
-          : exhausted
-            ? 'Fal.ai balance is empty. Top up credits at fal.ai/dashboard/billing, then try again.'
-            : raw ||
-              'Professional AI could not generate this look. Try again or WhatsApp us.',
+      code,
+      message,
     }
   } catch (err) {
     return {
       source: 'error',
       message:
-        err instanceof Error
-          ? err.message
-          : 'Could not reach professional AI. Check your key / connection.',
+        err instanceof Error && err.message.trim()
+          ? err.message.trim().slice(0, 220)
+          : 'Could not reach visualisation. Check your connection and try again.',
     }
   }
 }

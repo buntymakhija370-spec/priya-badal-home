@@ -33,6 +33,17 @@
       rel="stylesheet"
     />
     <title>Priyabadal Homes</title>
+    <script>
+      // Google often links to apex; prefer www once the page loads.
+      if (location.hostname === 'priyabadalhomes.com') {
+        location.replace(
+          'https://www.priyabadalhomes.com' +
+            location.pathname +
+            location.search +
+            location.hash,
+        )
+      }
+    </script>
   </head>
   <body>
     <div id="root"></div>

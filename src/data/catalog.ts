@@ -8978,7 +8978,7 @@ export const baseProducts: Product[] = [
     name: 'Chrome Root Live Edge Console',
     categoryId: 'live-edge-furniture',
     subcategoryId: 'consoles',
-    price: 48000,
+    price: 64000,
     currency: 'INR',
     brand: 'Priyabadal Homes',
     collection: 'Live Edge Consoles',

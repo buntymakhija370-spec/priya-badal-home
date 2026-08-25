@@ -8974,6 +8974,32 @@ export const baseProducts: Product[] = [
     ],
   },
   {
+    id: 'live-edge-console-05',
+    name: 'Chrome Root Live Edge Console',
+    categoryId: 'live-edge-furniture',
+    subcategoryId: 'consoles',
+    price: 48000,
+    currency: 'INR',
+    brand: 'Priyabadal Homes',
+    collection: 'Live Edge Consoles',
+    sku: 'PBH-LE-CONS-05',
+    description:
+      'Live-edge hardwood console with intertwining root legs in polished chrome — natural slab top with silver-coated organic base. One-of-a-kind Indonesian teak; confirm exact piece on WhatsApp.',
+    style: ['sculptural', 'natural', 'luxe'],
+    rooms: ['hallway', 'living room', 'lounge'],
+    image: '/products/live-edge/consoles/console-05.jpg',
+    images: [
+      '/products/live-edge/consoles/console-05.jpg',
+      '/products/live-edge/consoles/console-05-02.jpg',
+    ],
+    highlights: [
+      'Polished chrome root base',
+      'Live-edge slab top',
+      'Sculptural console form',
+      'One-of-a-kind hardwood',
+    ],
+  },
+  {
     id: 'forest-cell-bronze-wall-silai',
     name: 'Forest Cell Bronze Wall Silai',
     categoryId: 'silaibunai',

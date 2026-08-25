@@ -3,7 +3,6 @@ import { useMemo, useState } from 'react'
 import {
   formatPrice,
   getCategory,
-  getSubcategory,
   isProductCustomizable,
   type SpecRow,
 } from '../data/catalog'
@@ -24,8 +23,6 @@ import { shopPath } from '../lib/links'
 import { isApproxDisplayCurrency } from '../lib/currency'
 import { productUsesCarcassConstruction } from '../data/carcassSpec'
 import {
-  readBrowseOrigin,
-  readLastShopBrowse,
   resolveProductBackTarget,
   type ProductBrowseState,
 } from '../lib/browseReturn'
@@ -77,7 +74,6 @@ export function ProductPage() {
   }
 
   const category = getCategory(product.categoryId)
-  const subcategory = getSubcategory(product.categoryId, product.subcategoryId)
   const media = getProductMedia(product)
   const presentation = resolveProductPresentation(product)
   const customizable = isProductCustomizable(product)
@@ -100,37 +96,6 @@ export function ProductPage() {
     })
   }
 
-  const goToShopList = (path: string) => {
-    const fromState = browseState?.browseFrom || ''
-    const origin = readBrowseOrigin()
-    const lastShop = readLastShopBrowse()
-    const candidates = [fromState, origin?.path, lastShop?.path].filter(
-      Boolean,
-    ) as string[]
-    const match = candidates.find((p) => {
-      const base = p.split('?')[0] || ''
-      return (
-        base === path ||
-        base.startsWith(`${path}/`) ||
-        (path.startsWith('/shop/') && base.startsWith('/shop/'))
-      )
-    })
-    if (match) {
-      const scrollY =
-        match === fromState
-          ? browseState?.browseScrollY || 0
-          : match === origin?.path
-            ? origin?.scrollY || 0
-            : lastShop?.scrollY || 0
-      navigate(match, {
-        replace: true,
-        state: { restoreScrollY: scrollY },
-      })
-      return
-    }
-    navigate(path, { replace: true })
-  }
-
   return (
     <main className="product-page page-pad">
       <div className="product-page__back-row">
@@ -142,26 +107,6 @@ export function ProductPage() {
           ← Back
         </button>
       </div>
-      <nav className="crumbs" aria-label="Breadcrumb">
-        <button type="button" className="crumbs__link" onClick={() => goToShopList('/shop')}>
-          Shop
-        </button>
-        <span>/</span>
-        {category && (
-          <>
-            <button
-              type="button"
-              className="crumbs__link"
-              onClick={() => goToShopList(shopPath(category.id))}
-            >
-              {category.name}
-            </button>
-            <span>/</span>
-          </>
-        )}
-        {subcategory && <span>{subcategory.name}</span>}
-      </nav>
-
       <div className="product-page__layout">
         <div className="product-page__gallery">
           <ProductGallery key={product.id} media={media} alt={product.name} />

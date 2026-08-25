@@ -2,7 +2,10 @@ name: Deploy to Cloudflare Pages
 
 on:
   push:
-    branches: [main, cursor/cloudflare-pages-deploy-82c6]
+    branches:
+      - main
+      - cursor/cloudflare-pages-deploy-82c6
+      - cursor/upload-silaibunai-live-82c6
   workflow_dispatch:
 
 jobs:

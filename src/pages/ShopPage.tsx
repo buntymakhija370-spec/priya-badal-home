@@ -133,7 +133,7 @@ export function ShopPage() {
             value={sort}
             onChange={(e) => setSort(e.target.value as SortId)}
           >
-            <option value="featured">Featured</option>
+            <option value="featured">Newest first</option>
             <option value="price-asc">Price: Low to High</option>
             <option value="price-desc">Price: High to Low</option>
             <option value="name">Name A–Z</option>

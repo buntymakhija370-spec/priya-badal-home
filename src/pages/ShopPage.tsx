@@ -45,9 +45,7 @@ export function ShopPage() {
     return sorted
   }, [baseProducts, query, sort])
 
-  const lede =
-    category?.description ??
-    'Pick a collection to see products, sizes, and WhatsApp quotes.'
+  const landingLede = 'Pick a collection to see products, sizes, and WhatsApp quotes.'
 
   // Shop entry: ask which collection — do not dump every product.
   if (!categoryId) {
@@ -56,7 +54,7 @@ export function ShopPage() {
         <header className="shop__header">
           <p className="eyebrow">Shop</p>
           <h1>Choose a collection</h1>
-          <p className="shop__lede">{lede}</p>
+          <p className="shop__lede">{landingLede}</p>
         </header>
 
         <aside className="shop__pick-banner" aria-label="How to shop">
@@ -101,7 +99,6 @@ export function ShopPage() {
         {category?.caption && category.id === 'live-edge-furniture' ? (
           <p className="shop__caption">{category.caption}</p>
         ) : null}
-        <p className="shop__lede">{lede}</p>
         <p className="shop__back">
           <Link to="/shop">← All collections</Link>
         </p>

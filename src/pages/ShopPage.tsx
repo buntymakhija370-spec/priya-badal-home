@@ -109,17 +109,13 @@ export function ShopPage() {
   }
 
   return (
-    <main className={`shop page-pad ${category?.id === 'commercials' ? 'shop--commercials' : ''}`}>
+    <main className="shop page-pad">
       <header className="shop__header">
         <p className="eyebrow">Shop</p>
         <h1>
           {subcategory?.name ?? (category ? category.name : 'All products')}
         </h1>
-        {category?.caption &&
-        (category.id === 'commercials' ||
-          category.id === 'live-edge-furniture' ||
-          category.id === 'carcass-selection' ||
-          category.id === 'liquid-stone') ? (
+        {category?.caption && category.id === 'live-edge-furniture' ? (
           <p className="shop__caption">{category.caption}</p>
         ) : null}
         <p className="shop__lede">{lede}</p>
@@ -127,19 +123,6 @@ export function ShopPage() {
           <Link to="/shop">← All collections</Link>
         </p>
       </header>
-
-      {category?.id === 'commercials' && category.conceptNote ? (
-        <aside className="shop__concept" aria-label="Commercials concept">
-          <p className="shop__concept-kicker">How commercials work</p>
-          <p>{category.conceptNote}</p>
-          <ul>
-            <li>Lowest project cost through bulk manufacture</li>
-            <li>Minimum order: {category.minOrderQuantity ?? 10} identical packs</li>
-            <li>Choose 1BHK, 2BHK, or 3BHK package type</li>
-            <li>WhatsApp quote with your project quantity (10+)</li>
-          </ul>
-        </aside>
-      ) : null}
 
       {category?.id === 'live-edge-furniture' && category.conceptNote ? (
         <aside className="shop__concept" aria-label="Live Edge Furniture information">
@@ -174,21 +157,6 @@ export function ShopPage() {
               Open WhatsApp
             </a>
           </div>
-        </aside>
-      ) : null}
-
-      {category?.id === 'carcass-selection' && category.conceptNote ? (
-        <aside className="shop__concept" aria-label="Carcass Selection information">
-          <p className="shop__concept-kicker">How carcass selection works</p>
-          <p>{category.conceptNote}</p>
-          <ul>
-            <li>BWP plywood core for wardrobe &amp; kitchen boxes</li>
-            <li>1 mm laminate on both sides · 2 mm edge banding</li>
-            <li>Install drawing + QR for easy carpenter assembly</li>
-            <li>
-              <Link to="/chat?intent=carcass">Ask Chat</Link> for bay layouts &amp; carcass rates
-            </li>
-          </ul>
         </aside>
       ) : null}
 

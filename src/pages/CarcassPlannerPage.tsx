@@ -49,15 +49,7 @@ export function CarcassPlannerPage() {
   const sizeLimits = defaultSize(category)
 
   const styleProducts = useMemo(() => {
-    const matching = products.filter((p) => p.categoryId === category)
-    const carcassBoxes = products.filter((p) => {
-      if (p.categoryId !== 'carcass-selection') return false
-      if (category === 'kitchen') return p.subcategoryId === 'kitchen-carcass'
-      return (
-        p.subcategoryId === 'wardrobe-carcass' || p.subcategoryId === 'modules'
-      )
-    })
-    return [...matching, ...carcassBoxes]
+    return products.filter((p) => p.categoryId === category)
   }, [products, category])
 
   const [productId, setProductId] = useState(() => {

@@ -72,7 +72,6 @@ export function productUsesCarcassConstruction(categoryId: string, hasCarcassPri
     categoryId === 'wardrobe' ||
     categoryId === 'kitchen' ||
     categoryId === 'temple' ||
-    categoryId === 'sculpted-furniture' ||
-    categoryId === 'carcass-selection'
+    categoryId === 'sculpted-furniture'
   )
 }

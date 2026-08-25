@@ -263,7 +263,7 @@ export function answerPriceQuestion(
         'I can quote from our catalog — pick a product first (or name one), then ask for price.',
         brief.categoryId
           ? `You’re looking at ${brief.room ?? brief.categoryId}. Ask me to “suggest styles”, then tap a product.`
-          : 'Tell me kitchen / wardrobe / temple / panels / mouldings / partitions / carcass, or ask me to suggest styles.',
+          : 'Tell me kitchen / wardrobe / temple / panels / doors, or ask me to suggest styles.',
         '',
         'Tip: share size in feet (e.g. 8 x 7) for a size-based estimate.',
         'Or say “economic wall panel range” and I’ll send designs with tentative rates.',
@@ -481,7 +481,7 @@ export function answerDesignQuestion(
       [
         'I can explain any Priyabadal catalog design — shutters, layout idea, finish language, and when to use it.',
         '',
-        'Tell me the room (kitchen / wardrobe / temple / panels / mouldings / partitions / carcass) or ask me to suggest styles, then tap a product and say “tell me about this design”.',
+        'Tell me the room (kitchen / wardrobe / temple / panels / doors) or ask me to suggest styles, then tap a product and say “tell me about this design”.',
       ].join('\n'),
       {
         suggestions: [

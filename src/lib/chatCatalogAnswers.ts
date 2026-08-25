@@ -25,19 +25,43 @@ export type CatalogIntent =
   | 'specs'
   | 'materials'
   | 'design'
+  | 'range'
   | null
 
-/** Detect sales Q&A intents (price / carcass / specs / materials / design explain) */
+/** Detect sales Q&A intents (price / carcass / specs / materials / design / range) */
 export function detectCatalogIntent(text: string): CatalogIntent {
   const t = text.trim().toLowerCase()
   if (!t) return null
 
+  // Visualisation requests are handled by the chat router — not catalog Q&A
   if (
-    /\b(carcass|with[- ]?carcass|cabinet box|shutter only|shutter vs|box rate|carcus)\b/i.test(
+    /\bvisuali[sz](?:e|es|ed|ing|ation|ations)\b/i.test(t) ||
+    /\b(open[- ]?carcass|live[- ]?size carcass)\b/i.test(t)
+  ) {
+    return null
+  }
+
+  if (
+    /\b(carcass|kaka|kakas|with[- ]?carcass|cabinet box|shutter only|shutter vs|box rate|carcus)\b/i.test(
       t,
     )
   ) {
     return 'carcass'
+  }
+
+  // Economic / collection range asks — salesperson pitches options + tentative rates
+  if (
+    /\b(economic|economy|affordable|cheap|entry[- ]?level|low[- ]?cost)\b/i.test(t) ||
+    /\b(wall )?panel(s)? range\b/i.test(t) ||
+    /\b(g[- ]?series|poly coating|hdr panels?|pu panels?)\b/i.test(t) ||
+    /\b(show|give|send|share|list)\b.{0,48}\b(economic|budget|affordable|g[- ]?series).{0,40}\b(panel|range|design|option)/i.test(
+      t,
+    ) ||
+    /\b(range of|collection of)\b.{0,30}\b(panel|kitchen|wardrobe|temple|door)/i.test(t) ||
+    /\b(budget|value)\b.{0,24}\b(panel|kitchen|wardrobe|range|collection)\b/i.test(t) ||
+    /^show more g[- ]?series$/i.test(t)
+  ) {
+    return 'range'
   }
 
   if (
@@ -159,7 +183,7 @@ function rateLines(product: Product): string[] {
     )
   } else if (supportsBuildScope(product.categoryId)) {
     lines.push(
-      '• Carcass: not listed separately on this product — ask WhatsApp for carcass scope, or use Carcass Planner for layout rates.',
+      '• Carcass: not listed separately on this product — ask WhatsApp for carcass scope, or ask me for layout rates in this chat.',
     )
   }
   return lines
@@ -231,21 +255,25 @@ export function answerPriceQuestion(
 ): ChatMessage {
   const product = resolveChatProduct(brief, text)
   if (!product) {
+    // No SKU yet — pitch the economic / collection range like a salesperson
+    const range = answerRangeQuestion(brief, text)
+    if (range) return range
     return msg(
       [
         'I can quote from our catalog — pick a product first (or name one), then ask for price.',
         brief.categoryId
           ? `You’re looking at ${brief.room ?? brief.categoryId}. Ask me to “suggest styles”, then tap a product.`
-          : 'Tell me kitchen / wardrobe / temple / panels, or ask me to suggest styles.',
+          : 'Tell me kitchen / wardrobe / temple / panels / doors, or ask me to suggest styles.',
         '',
         'Tip: share size in feet (e.g. 8 x 7) for a size-based estimate.',
+        'Or say “economic wall panel range” and I’ll send designs with tentative rates.',
       ].join('\n'),
       {
         suggestions: [
+          'Economic wall panel range',
           'Suggest styles',
           'Wardrobe price for 8x7',
           'What is carcass pricing?',
-          'Material specs',
         ],
       },
     )
@@ -295,7 +323,7 @@ export function answerCarcassQuestion(
     '• With carcass — shutter rate + carcass rate (both added), when the product lists a carcass rate.',
     '• Many wardrobes & temple walls are priced per sq ft for each rate.',
     '',
-    'For bay layouts (hanging + drawers + shelves), open Carcass Planner — it adds module extras on top of carcass rates.',
+    'For bay layouts (hanging + drawers + shelves), tell me your width and preferred modules — I’ll estimate carcass rates plus typical module add-ons.',
   ]
 
   if (!product) {
@@ -326,7 +354,7 @@ export function answerCarcassQuestion(
       ? estimateBlock(product, brief, scopeFromText(text) ?? 'with-carcass')
       : [
           'This product doesn’t list a separate carcass rate in the catalog.',
-          'Use Design my space / Carcass Planner, or WhatsApp us for a full unit quote.',
+          'Ask me here for a size-based estimate, or WhatsApp us for a full unit quote.',
         ]),
   ]
 
@@ -453,7 +481,7 @@ export function answerDesignQuestion(
       [
         'I can explain any Priyabadal catalog design — shutters, layout idea, finish language, and when to use it.',
         '',
-        'Tell me the room (kitchen / wardrobe / temple / panels) or ask me to suggest styles, then tap a product and say “tell me about this design”.',
+        'Tell me the room (kitchen / wardrobe / temple / panels / doors) or ask me to suggest styles, then tap a product and say “tell me about this design”.',
       ].join('\n'),
       {
         suggestions: [
@@ -517,6 +545,174 @@ export function answerDesignQuestion(
   })
 }
 
+/**
+ * Salesperson pitch: economic / collection ranges with real catalog rates,
+ * finishes, thicknesses, tentative size quote, visualise + WhatsApp next steps.
+ */
+export function answerRangeQuestion(
+  brief: ConsultBrief,
+  text: string,
+): ChatMessage | null {
+  const t = text.toLowerCase()
+  const wantsPanels =
+    /\b(wall )?panels?|feature wall|g[- ]?series|cladding|hdr|poly coating|pu panel\b/i.test(
+      t,
+    ) ||
+    brief.categoryId === 'wall-panels' ||
+    /\bpanel\b/i.test(t)
+
+  const wantsKitchen = /\bkitchen\b/i.test(t) || brief.categoryId === 'kitchen'
+  const wantsWardrobe =
+    /\bwardrobe|almirah|cupboard\b/i.test(t) || brief.categoryId === 'wardrobe'
+
+  // Default economic asks → wall panels (most common “economic range” request)
+  if (wantsPanels || (!wantsKitchen && !wantsWardrobe)) {
+    return answerEconomicWallPanelRange(brief, text)
+  }
+
+  if (wantsWardrobe) return answerCategoryValueRange(brief, 'wardrobe', text)
+  if (wantsKitchen) return answerCategoryValueRange(brief, 'kitchen', text)
+  return answerEconomicWallPanelRange(brief, text)
+}
+
+function answerEconomicWallPanelRange(
+  brief: ConsultBrief,
+  _text: string,
+): ChatMessage {
+  const all = getAllProducts().filter((p) => p.categoryId === 'wall-panels')
+  const gSeries = all.filter((p) => p.subcategoryId === 'g-series')
+  const premium = all.filter((p) => p.subcategoryId !== 'g-series')
+  const cards = gSeries.slice(0, 6)
+  const sample = gSeries[0] ?? premium[0]
+
+  const w = brief.widthFt
+  const h = brief.heightFt
+  let estimateLines: string[] = []
+  if (sample && w != null && h != null) {
+    const quote = calculatePrice(
+      sample,
+      buildConfig(sample, brief, 'shutter'),
+    )
+    estimateLines = [
+      '',
+      `Tentative quote for your ${w} × ${h} ft wall (G-Series poly HDR @ ${formatPrice(sample.price)}/sq ft):`,
+      `• Area ≈ ${quote.sqft.toFixed(1)} sq ft`,
+      `• Catalog estimate ≈ ${formatPrice(quote.unitPrice)}`,
+      '• Final after colour / layout confirm on WhatsApp',
+    ]
+  } else {
+    estimateLines = [
+      '',
+      'Share wall size in feet (e.g. 10 × 9) and I’ll send a tentative total for the economic G-Series.',
+    ]
+  }
+
+  const premiumLines =
+    premium.length > 0
+      ? [
+          '',
+          'Step-up (if you want thicker boards / richer finishes):',
+          ...premium.map((p) => {
+            const finishes = (p.finishOptionIds ?? [p.defaultFinishId ?? 'pu'])
+              .map((id) => id.replace(/-/g, ' '))
+              .join(', ')
+            const thick = (p.thicknessOptionIds ?? [p.defaultThicknessId ?? '18'])
+              .map((id) => `${id} mm`)
+              .join(' / ')
+            return `• ${p.name} — ${formatPrice(p.price)}/sq ft · ${thick} · finishes: ${finishes}`
+          }),
+        ]
+      : []
+
+  return msg(
+    [
+      'Happy to help — here’s the Priyabadal Homes economic wall panel range.',
+      '',
+      'G-Series (value line we recommend first):',
+      '• HDR engineered board with poly / PU coating',
+      '• Thickness: 6 mm',
+      '• Finish: poly (PU) coating · custom colour (unlimited colour options)',
+      `• Rate: ${formatPrice(600)}/sq ft (same for every G design)`,
+      '• Sheet: 2440 × 1220 mm (8 × 4 ft) · made-to-measure layouts',
+      `• Designs: ${gSeries.length} catalog patterns (G01–G20) — tap a card below; we can also custom-match colour to your room`,
+      '',
+      'What you get as a client:',
+      '• Tentative price from catalog rates (below)',
+      '• Room visualisation after you attach a photo + pick a design',
+      '• WhatsApp quotation after size / colour confirm',
+      ...estimateLines,
+      ...premiumLines,
+      '',
+      'Tap a G-Series design card, tell me your wall size, or say “Visualise my look”.',
+    ].join('\n'),
+    {
+      products: cards.length ? cards : all.slice(0, 6),
+      suggestions: [
+        brief.widthFt != null ? 'WhatsApp quote' : 'Wall size 10×9',
+        'Visualise my look',
+        'Show more G-Series',
+        'Material specs',
+      ],
+    },
+  )
+}
+
+function answerCategoryValueRange(
+  brief: ConsultBrief,
+  categoryId: 'wardrobe' | 'kitchen',
+  _text: string,
+): ChatMessage {
+  const list = getAllProducts()
+    .filter((p) => p.categoryId === categoryId)
+    .sort((a, b) => a.price - b.price)
+  const cards = list.slice(0, 6)
+  const label = categoryId === 'wardrobe' ? 'wardrobe' : 'kitchen'
+  if (!cards.length) {
+    return msg(`I don’t have ${label} options loaded yet — WhatsApp us for a quote.`, {
+      suggestions: ['Economic wall panel range', 'WhatsApp quote'],
+    })
+  }
+
+  const lines = cards.map((p) => {
+    const unit = p.pricingMode === 'per-sqft' ? '/sq ft' : ''
+    const thick = p.defaultThicknessId ? `${p.defaultThicknessId} mm` : 'made to measure'
+    const finish = (p.defaultFinishId ?? 'catalog finish').replace(/-/g, ' ')
+    return `• ${p.name} — from ${formatPrice(p.price)}${unit} · ${thick} · ${finish}`
+  })
+
+  let estimate = ''
+  const sample = cards[0]!
+  if (brief.widthFt != null && brief.heightFt != null) {
+    const scope: BuildScopeId = productHasCarcass(sample)
+      ? 'with-carcass'
+      : 'shutter'
+    const quote = calculatePrice(sample, buildConfig(sample, brief, scope))
+    estimate = `\n\nTentative for ${brief.widthFt} × ${brief.heightFt} ft on ${sample.name}: ${formatPrice(quote.unitPrice)} (catalog estimate — confirm on WhatsApp).`
+  }
+
+  return msg(
+    [
+      `Here’s a value-focused ${label} range from Priyabadal Homes (lowest catalog rates first):`,
+      '',
+      ...lines,
+      estimate,
+      '',
+      'Tap a card for exact shutter/carcass rates, ask for a size estimate, visualise, or WhatsApp quote.',
+    ]
+      .filter(Boolean)
+      .join('\n'),
+    {
+      products: cards,
+      suggestions: [
+        'Price with carcass',
+        brief.widthFt != null ? 'WhatsApp quote' : 'Size 8×7',
+        'Visualise my look',
+        'Economic wall panel range',
+      ],
+    },
+  )
+}
+
 /** Route a catalog sales intent to the right answer (catalog-backed only) */
 export function answerCatalogIntent(
   brief: ConsultBrief,
@@ -535,6 +731,8 @@ export function answerCatalogIntent(
       return answerMaterialsQuestion(brief, text)
     case 'design':
       return answerDesignQuestion(brief, text)
+    case 'range':
+      return answerRangeQuestion(brief, text)
     default:
       return null
   }

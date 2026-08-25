@@ -1,10 +1,8 @@
-import { Link, useParams } from 'react-router-dom'
+import { Link, useLocation, useNavigate, useParams } from 'react-router-dom'
 import { useMemo, useState } from 'react'
 import {
   formatPrice,
   getCategory,
-  getMinOrderQuantity,
-  getSubcategory,
   isProductCustomizable,
   type SpecRow,
 } from '../data/catalog'
@@ -24,6 +22,10 @@ import { useCurrency } from '../hooks/useCurrency'
 import { shopPath } from '../lib/links'
 import { isApproxDisplayCurrency } from '../lib/currency'
 import { productUsesCarcassConstruction } from '../data/carcassSpec'
+import {
+  resolveProductBackTarget,
+  type ProductBrowseState,
+} from '../lib/browseReturn'
 import './ProductPage.css'
 
 type SectionId = 'details' | 'specs' | 'features'
@@ -46,11 +48,14 @@ function SpecTable({ rows, caption }: { rows: SpecRow[]; caption: string }) {
 
 export function ProductPage() {
   const { productId } = useParams()
+  const navigate = useNavigate()
+  const location = useLocation()
   const product = productId ? getProductById(productId) : undefined
   useProductSeo(product)
   const { currency } = useCurrency()
   const [section, setSection] = useState<SectionId>('details')
   const [added, setAdded] = useState(false)
+  const browseState = (location.state || null) as ProductBrowseState | null
 
   const related = useMemo(() => {
     if (!product) return []
@@ -69,31 +74,39 @@ export function ProductPage() {
   }
 
   const category = getCategory(product.categoryId)
-  const subcategory = getSubcategory(product.categoryId, product.subcategoryId)
   const media = getProductMedia(product)
   const presentation = resolveProductPresentation(product)
-  const minQty = getMinOrderQuantity(product)
-  const isCommercial = product.categoryId === 'commercials'
   const customizable = isProductCustomizable(product)
   const showCarcassSpec = productUsesCarcassConstruction(
     product.categoryId,
     product.carcassPrice != null,
   )
 
+  /** Return to the list page + scroll where the client opened this product */
+  const goBackToBrowse = () => {
+    const target = resolveProductBackTarget({
+      categoryShopPath: category ? shopPath(category.id) : '/shop',
+      productId: product.id,
+      locationState: browseState,
+    })
+    // replace: leave product out of history so another Back doesn’t bounce here
+    navigate(target.path, {
+      replace: true,
+      state: { restoreScrollY: target.scrollY || 0 },
+    })
+  }
+
   return (
     <main className="product-page page-pad">
-      <nav className="crumbs" aria-label="Breadcrumb">
-        <Link to="/shop">Shop</Link>
-        <span>/</span>
-        {category && (
-          <>
-            <Link to={shopPath(category.id)}>{category.name}</Link>
-            <span>/</span>
-          </>
-        )}
-        {subcategory && <span>{subcategory.name}</span>}
-      </nav>
-
+      <div className="product-page__back-row">
+        <button
+          type="button"
+          className="product-page__back"
+          onClick={goBackToBrowse}
+        >
+          ← Back
+        </button>
+      </div>
       <div className="product-page__layout">
         <div className="product-page__gallery">
           <ProductGallery key={product.id} media={media} alt={product.name} />
@@ -102,12 +115,6 @@ export function ProductPage() {
         <div className="product-page__info">
           <p className="product-page__brand">by {presentation.brand}</p>
           <h1>{product.name}</h1>
-
-          {isCommercial ? (
-            <p className="product-page__bulk-caption">
-              Lowest cost commercial pack · Minimum {minQty} copies
-            </p>
-          ) : null}
 
           <div className="product-page__price-block">
             {customizable ? (
@@ -119,9 +126,6 @@ export function ProductPage() {
                 /sq ft{product.carcassPrice != null ? ' shutter' : ''}
               </span>
             )}
-            {isCommercial ? (
-              <span className="product-page__price-unit">/pack</span>
-            ) : null}
           </div>
           {product.carcassPrice != null && product.pricingMode === 'per-sqft' ? (
             <p className="product-page__price-alt">
@@ -141,13 +145,7 @@ export function ProductPage() {
           ) : null}
 
           <ul className="product-page__trust">
-            {isCommercial ? (
-              <>
-                <li>Bulk only · min {minQty}</li>
-                <li>Lowest commercial rate</li>
-                <li>Project WhatsApp quote</li>
-              </>
-            ) : customizable ? (
+            {customizable ? (
               <>
                 <li>10-year warranty</li>
                 <li>On-site assembly</li>
@@ -205,24 +203,10 @@ export function ProductPage() {
           </div>
           <Link
             className="btn btn--outline product-page__visualise"
-            to={`/visualise?product=${product.id}`}
+            to={`/chat?product=${product.id}`}
           >
-            Visualise in my room (AI)
+            Ask in Chat — price, carcass & visualise
           </Link>
-          <Link
-            className="btn btn--outline product-page__visualise"
-            to="/design"
-          >
-            Design my space & quote
-          </Link>
-          {product.categoryId === 'wardrobe' || product.categoryId === 'kitchen' ? (
-            <Link
-              className="btn btn--outline product-page__visualise"
-              to={`/carcass?type=${product.categoryId}&product=${product.id}`}
-            >
-              Plan carcass & price
-            </Link>
-          ) : null}
           {customizable ? (
             <Link className="product-page__how" to="/how-it-works">
               How your custom order works

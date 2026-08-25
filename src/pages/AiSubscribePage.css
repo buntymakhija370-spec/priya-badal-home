@@ -1,0 +1,154 @@
+.ai-sub.page-pad {
+  padding-top: calc(var(--nav-h) + env(safe-area-inset-top, 0px) + 0.75rem);
+  padding-bottom: 3rem;
+  max-width: 52rem;
+}
+
+.ai-sub__header {
+  margin-bottom: 1.25rem;
+  max-width: 40rem;
+}
+
+.ai-sub__header h1 {
+  font-family: var(--font-display);
+  font-size: clamp(1.6rem, 4.5vw, 2.4rem);
+  letter-spacing: -0.03em;
+  margin: 0.2rem 0 0.45rem;
+}
+
+.ai-sub__header p {
+  color: var(--ink-soft);
+  line-height: 1.5;
+  font-size: 0.95rem;
+}
+
+.ai-sub__rate {
+  margin: 0 0 1.15rem;
+  padding: 0.95rem 1rem;
+  border: 1px solid rgba(138, 106, 79, 0.28);
+  background: linear-gradient(135deg, #fff9f0, #fff);
+}
+
+.ai-sub__rate-label {
+  margin: 0 0 0.2rem;
+  font-size: 0.72rem;
+  font-weight: 700;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: #8a6a4f;
+}
+
+.ai-sub__rate-value {
+  margin: 0 0 0.3rem;
+  font-family: var(--font-display);
+  font-size: clamp(1.6rem, 4vw, 2rem);
+  letter-spacing: -0.02em;
+  color: var(--ink);
+}
+
+.ai-sub__rate-note {
+  margin: 0;
+  font-size: 0.88rem;
+  color: var(--ink-soft);
+  line-height: 1.4;
+}
+
+.ai-sub__pack-math {
+  margin: -0.35rem 0 0.65rem;
+  font-size: 0.82rem;
+  color: var(--ink-soft);
+}
+
+.ai-sub__plans {
+  display: grid;
+  gap: 0.85rem;
+  grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+  margin-bottom: 1.4rem;
+}
+
+.ai-sub__plan {
+  padding: 1rem;
+  border: 1px solid rgba(31, 26, 23, 0.12);
+  background: #fff;
+}
+
+.ai-sub__plan h2 {
+  margin: 0 0 0.25rem;
+  font-size: 1.15rem;
+}
+
+.ai-sub__price {
+  margin: 0 0 0.7rem;
+  font-weight: 700;
+  color: #8a6a4f;
+}
+
+.ai-sub__plan ul {
+  margin: 0 0 0.9rem;
+  padding-left: 1.1rem;
+  color: var(--ink-soft);
+  font-size: 0.9rem;
+  line-height: 1.45;
+}
+
+.ai-sub__unlock {
+  padding: 1rem;
+  border: 1px solid rgba(31, 26, 23, 0.12);
+  background: linear-gradient(180deg, #f7f3ec 0%, #fff 100%);
+  margin-bottom: 1rem;
+}
+
+.ai-sub__unlock h2 {
+  margin: 0 0 0.4rem;
+  font-size: 1.1rem;
+}
+
+.ai-sub__unlock > p {
+  margin: 0 0 0.8rem;
+  color: var(--ink-soft);
+  font-size: 0.9rem;
+  line-height: 1.45;
+}
+
+.ai-sub__form {
+  display: grid;
+  gap: 0.55rem;
+  max-width: 22rem;
+}
+
+.ai-sub__form label {
+  display: grid;
+  gap: 0.25rem;
+}
+
+.ai-sub__form span {
+  font-size: 0.78rem;
+  font-weight: 600;
+}
+
+.ai-sub__form input {
+  min-height: 2.5rem;
+  padding: 0.45rem 0.7rem;
+  border: 1px solid rgba(31, 26, 23, 0.18);
+  font: inherit;
+  letter-spacing: 0.04em;
+}
+
+.ai-sub__active p {
+  margin: 0 0 0.4rem;
+}
+
+.ai-sub__msg {
+  margin: 0.7rem 0 0;
+  font-size: 0.88rem;
+  color: #7a3e2a;
+}
+
+.ai-sub__help {
+  font-size: 0.85rem;
+  color: var(--ink-soft);
+}
+
+.ai-sub__help a {
+  color: var(--moss);
+}

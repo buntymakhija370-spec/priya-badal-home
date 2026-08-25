@@ -130,6 +130,23 @@
   gap: 0.65rem;
 }
 
+.product-card__title-btn {
+  display: block;
+  width: 100%;
+  margin: 0;
+  padding: 0;
+  border: 0;
+  background: transparent;
+  color: inherit;
+  font: inherit;
+  text-align: left;
+  cursor: pointer;
+}
+
+.product-card__title-btn:hover {
+  color: var(--moss, #4f6a58);
+}
+
 .product-card__body h3 {
   font-family: var(--font-display);
   font-size: 1.15rem;

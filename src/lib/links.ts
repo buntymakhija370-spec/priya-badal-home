@@ -1,10 +1,12 @@
+import { SITE_ORIGIN } from './site'
+
 /** Clean product path for routing and sharing, e.g. /product/taupe-panel-hinged-wardrobe */
 export function productPath(productId: string) {
   return `/product/${productId}`
 }
 
 /** Absolute URL for Instagram / WhatsApp / bio links */
-export function productShareUrl(productId: string, origin = window.location.origin) {
+export function productShareUrl(productId: string, origin = SITE_ORIGIN) {
   return `${origin.replace(/\/$/, '')}${productPath(productId)}`
 }
 

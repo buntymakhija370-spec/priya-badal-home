@@ -110,7 +110,13 @@ export function ProductGallery({ media, alt }: Props) {
   }
 
   return (
-    <div className="product-gallery">
+    <div
+      className={
+        gallery.length > 1
+          ? 'product-gallery'
+          : 'product-gallery product-gallery--single'
+      }
+    >
       {gallery.length > 1 && (
         <div className="product-gallery__thumbs" role="tablist" aria-label="Product media">
           {gallery.map((item, index) => (

@@ -287,7 +287,7 @@ def cover(c: canvas.Canvas, products: list[dict], body: str, bold: str, page: in
     c.drawRightString(
         w - 14 * mm,
         20 * mm,
-        f"{len(products)} looks  ·  per-sqft rates  ·  all photo angles inside",
+        f"{len(products)} looks  ·  all photo angles inside",
     )
     c.drawRightString(w - 14 * mm, 14 * mm, f"{page} / {total}")
 
@@ -311,8 +311,8 @@ def notes_page(c: canvas.Canvas, body: str, bold: str, page: int, total: int) ->
             f"Visit {WEBSITE} — open Silai Bunai, choose the look name or SKU, and send your enquiry from the product page.",
         ),
         (
-            "Pricing",
-            "Rates shown are per sq ft in INR. Final quote is confirmed after on-site or shared measurements.",
+            "Made to measure",
+            "Final fabric, foam thickness, and size are confirmed after measure on the website.",
         ),
         (
             "Thickness",
@@ -379,17 +379,14 @@ def product_page(
     )
 
     meta_y = name_bottom - 6 * mm
-    c.setFillColor(HONEY)
-    c.setFont(bold, 12)
-    rate = price_line(product)
-    c.drawString(margin, meta_y, rate)
     thick = thickness_line(product)
     if thick:
         c.setFillColor(INK_SOFT)
         c.setFont(body, 9)
-        c.drawString(margin + c.stringWidth(rate, bold, 12) + 8, meta_y + 1, f"·  {thick}")
-
-    sku_y = meta_y - 6 * mm
+        c.drawString(margin, meta_y, thick)
+        sku_y = meta_y - 5 * mm
+    else:
+        sku_y = meta_y
     c.setFillColor(INK_SOFT)
     c.setFont(body, 8.5)
     sku = product.get("sku") or ""
@@ -436,7 +433,7 @@ def closing(c: canvas.Canvas, body: str, bold: str, page: int, total: int, count
     c.drawCentredString(
         w / 2,
         h / 2 - 36,
-        "Browse Silai Bunai · Share look name or SKU · We confirm fabric, measure & quote",
+        "Browse Silai Bunai · Share look name or SKU · Enquire on the website",
     )
     c.setFont(bold, 12)
     c.setFillColor(HexColor("#e8f0ea"))

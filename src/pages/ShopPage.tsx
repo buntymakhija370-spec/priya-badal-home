@@ -122,7 +122,7 @@ export function ShopPage() {
           <p className="shop__concept-kicker">WhatsApp catalogue</p>
           <p>
             Download the full Silai Bunai lookbook — every photo angle, name,
-            thickness, and per-sqft rate — ready to share on WhatsApp.
+            and thickness — ready to share on WhatsApp.
           </p>
           <p className="shop__pdf-link">
             <a href="/catalogs/priyabadal-silai-bunai.pdf" download>
@@ -136,8 +136,8 @@ export function ShopPage() {
         <aside className="shop__concept shop__concept--pdf" aria-label="Kitchen catalogue">
           <p className="shop__concept-kicker">WhatsApp catalogue</p>
           <p>
-            Download the full Kitchen lookbook — every façade photo, shutter and
-            carcass rates — ready to share on WhatsApp.
+            Download the full Kitchen lookbook — every façade photo and design
+            name — ready to share on WhatsApp.
           </p>
           <p className="shop__pdf-link">
             <a href="/catalogs/priyabadal-kitchen.pdf" download>

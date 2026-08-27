@@ -290,7 +290,7 @@ def cover(c: canvas.Canvas, products: list[dict], body: str, bold: str, page: in
     c.drawRightString(
         w - 14 * mm,
         20 * mm,
-        f"{len(products)} kitchens  ·  shutter + carcass rates  ·  all façades inside",
+        f"{len(products)} kitchens  ·  all façades inside",
     )
     c.drawRightString(w - 14 * mm, 14 * mm, f"{page} / {total}")
 
@@ -312,10 +312,6 @@ def notes_page(c: canvas.Canvas, body: str, bold: str, page: int, total: int) ->
         (
             "Enquire on the website",
             f"Visit {WEBSITE} — open Kitchen, choose the design name or SKU, and send your enquiry from the product page.",
-        ),
-        (
-            "Pricing",
-            "Shutter and carcass are priced separately per sq ft in INR. Final quote is confirmed after kitchen measure.",
         ),
         (
             "What's included",
@@ -382,23 +378,14 @@ def product_page(
     )
 
     meta_y = name_bottom - 6 * mm
-    c.setFillColor(HONEY)
-    c.setFont(bold, 11)
-    shutter = shutter_rate(product)
-    c.drawString(margin, meta_y, shutter)
     thick = thickness_line(product)
     if thick:
         c.setFillColor(INK_SOFT)
         c.setFont(body, 9)
-        c.drawString(margin + c.stringWidth(shutter, bold, 11) + 8, meta_y + 1, f"·  {thick}")
-
-    carcass = carcass_rate(product)
-    sku_y = meta_y - 5 * mm
-    if carcass:
-        c.setFillColor(INK_SOFT)
-        c.setFont(body, 9)
-        c.drawString(margin, sku_y, carcass)
-        sku_y -= 5 * mm
+        c.drawString(margin, meta_y, thick)
+        sku_y = meta_y - 5 * mm
+    else:
+        sku_y = meta_y
 
     c.setFillColor(INK_SOFT)
     c.setFont(body, 8.5)
@@ -446,7 +433,7 @@ def closing(c: canvas.Canvas, body: str, bold: str, page: int, total: int, count
     c.drawCentredString(
         w / 2,
         h / 2 - 36,
-        "Browse Kitchen · Share design name or SKU · We confirm measure & quote",
+        "Browse Kitchen · Share design name or SKU · Enquire on the website",
     )
     c.setFont(bold, 12)
     c.setFillColor(HexColor("#e8f0ea"))

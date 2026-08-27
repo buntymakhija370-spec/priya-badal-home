@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Generate Priyabadal Homes Silai Bunai PDF for WhatsApp sharing."""
+"""Generate Priyabadal Homes Silai Bunai photo catalogue PDF (website only, no phone)."""
 
 from __future__ import annotations
 
@@ -28,9 +28,8 @@ MOSS = HexColor("#4f6a58")
 LINE = HexColor("#ddd4c8")
 PAPER = HexColor("#faf7f2")
 BRAND = "Priyabadal Homes"
-
-WHATSAPP = "+91 81099 49649"
-WA_LINK = "https://wa.me/918109949649"
+WEBSITE = "www.priyabadalhomes.com"
+WEBSITE_URL = "https://www.priyabadalhomes.com"
 
 SECTION_LABELS = {
     "sofa-upholstery": "Sofa Upholstery",
@@ -233,7 +232,7 @@ def footer(c: canvas.Canvas, page: int, total: int, body: str) -> None:
     c.line(14 * mm, 12 * mm, w - 14 * mm, 12 * mm)
     c.setFillColor(INK_SOFT)
     c.setFont(body, 8)
-    c.drawString(14 * mm, 7 * mm, f"{BRAND}  ·  Silai Bunai  ·  WhatsApp {WHATSAPP}")
+    c.drawString(14 * mm, 7 * mm, f"{BRAND}  ·  Silai Bunai  ·  {WEBSITE}")
     c.drawRightString(w - 14 * mm, 7 * mm, f"{page} / {total}")
 
 
@@ -245,7 +244,7 @@ def cover(c: canvas.Canvas, products: list[dict], body: str, bold: str, page: in
     header_bottom = h - 46 * mm
     c.setFillColor(MOSS)
     c.setFont(body, 9)
-    c.drawString(14 * mm, h - 16 * mm, "CATALOGUE · WHATSAPP READY")
+    c.drawString(14 * mm, h - 16 * mm, "CATALOGUE")
     c.setFillColor(INK)
     c.setFont(bold, 26)
     c.drawString(14 * mm, h - 28 * mm, BRAND)
@@ -281,10 +280,10 @@ def cover(c: canvas.Canvas, products: list[dict], body: str, bold: str, page: in
 
     c.setFillColor(INK)
     c.setFont(bold, 11)
-    c.drawString(14 * mm, 20 * mm, f"WhatsApp {WHATSAPP}")
+    c.drawString(14 * mm, 20 * mm, WEBSITE)
     c.setFont(body, 9)
     c.setFillColor(INK_SOFT)
-    c.drawString(14 * mm, 14 * mm, WA_LINK)
+    c.drawString(14 * mm, 14 * mm, WEBSITE_URL)
     c.drawRightString(
         w - 14 * mm,
         20 * mm,
@@ -308,8 +307,8 @@ def notes_page(c: canvas.Canvas, body: str, bold: str, page: int, total: int) ->
             "Upholstery, cushion stitch, wardrobe shutters, and feature walls — made to your size and fabric choice.",
         ),
         (
-            "Confirm on WhatsApp",
-            f"Message {WHATSAPP} with the look name or SKU. We confirm fabric, foam thickness, measure, and final quote.",
+            "Enquire on the website",
+            f"Visit {WEBSITE} — open Silai Bunai, choose the look name or SKU, and send your enquiry from the product page.",
         ),
         (
             "Pricing",
@@ -337,7 +336,7 @@ def notes_page(c: canvas.Canvas, body: str, bold: str, page: int, total: int) ->
     c.drawString(18 * mm, 40 * mm, "Ready to enquire?")
     c.setFont(body, 10)
     c.setFillColor(INK_SOFT)
-    c.drawString(18 * mm, 32 * mm, f"WhatsApp {WHATSAPP}  ·  {WA_LINK}")
+    c.drawString(18 * mm, 32 * mm, WEBSITE_URL)
 
     footer(c, page, total, body)
 
@@ -427,17 +426,17 @@ def closing(c: canvas.Canvas, body: str, bold: str, page: int, total: int, count
 
     c.setFillColor(white)
     c.setFont(bold, 22)
-    c.drawCentredString(w / 2, h / 2 + 28, "Order on WhatsApp")
+    c.drawCentredString(w / 2, h / 2 + 28, "Visit our website")
     c.setFont(body, 14)
-    c.drawCentredString(w / 2, h / 2 + 6, WHATSAPP)
+    c.drawCentredString(w / 2, h / 2 + 6, WEBSITE)
     c.setFont(body, 11)
     c.setFillColor(HexColor("#c9d6cd"))
-    c.drawCentredString(w / 2, h / 2 - 14, WA_LINK)
+    c.drawCentredString(w / 2, h / 2 - 14, WEBSITE_URL)
     c.setFont(body, 10)
     c.drawCentredString(
         w / 2,
         h / 2 - 36,
-        "Send look name or SKU · We confirm fabric, measure & final quote",
+        "Browse Silai Bunai · Share look name or SKU · We confirm fabric, measure & quote",
     )
     c.setFont(bold, 12)
     c.setFillColor(HexColor("#e8f0ea"))
@@ -463,7 +462,7 @@ def main() -> None:
     c = canvas.Canvas(str(OUT), pagesize=A4)
     c.setTitle("Priyabadal Homes — Silai Bunai")
     c.setAuthor("Priyabadal Homes")
-    c.setSubject("Silai Bunai catalogue for WhatsApp")
+    c.setSubject("Silai Bunai catalogue")
 
     cover(c, products, body, bold, 1, total)
     c.showPage()
@@ -481,7 +480,7 @@ def main() -> None:
     photo_count = sum(len(p.get("images") or []) for p in products)
     print(
         f"Wrote {OUT} ({size_mb:.2f} MB, {total} pages, "
-        f"{len(products)} products, {photo_count} photos, WhatsApp {WHATSAPP})"
+        f"{len(products)} products, {photo_count} photos, {WEBSITE})"
     )
 
 

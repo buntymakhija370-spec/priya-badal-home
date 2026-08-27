@@ -287,7 +287,7 @@ def cover(c: canvas.Canvas, products: list[dict], body: str, bold: str, page: in
     c.drawRightString(
         w - 14 * mm,
         20 * mm,
-        f"{len(products)} looks  ·  all photo angles inside",
+        f"{len(products)} looks  ·  photos & names only  ·  prices on website",
     )
     c.drawRightString(w - 14 * mm, 14 * mm, f"{page} / {total}")
 

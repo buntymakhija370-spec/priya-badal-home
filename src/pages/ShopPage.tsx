@@ -117,6 +117,21 @@ export function ShopPage() {
         </aside>
       ) : null}
 
+      {category?.id === 'silaibunai' ? (
+        <aside className="shop__concept shop__concept--pdf" aria-label="Silai Bunai catalogue">
+          <p className="shop__concept-kicker">WhatsApp catalogue</p>
+          <p>
+            Download the full Silai Bunai lookbook — every photo angle, name,
+            thickness, and per-sqft rate — ready to share on WhatsApp.
+          </p>
+          <p className="shop__pdf-link">
+            <a href="/catalogs/priyabadal-silai-bunai.pdf" download>
+              Download Silai Bunai PDF
+            </a>
+          </p>
+        </aside>
+      ) : null}
+
       <div className="shop__toolbar">
         <label className="shop__search">
           <span className="sr-only">Search products</span>

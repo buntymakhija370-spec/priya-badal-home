@@ -189,6 +189,29 @@
   background: var(--honey-deep);
 }
 
+.shop__pdf-link {
+  margin: 0 !important;
+}
+
+.shop__pdf-link a {
+  display: inline-flex;
+  align-items: center;
+  min-height: 2.4rem;
+  padding: 0.45rem 0.85rem;
+  border-radius: 0.35rem;
+  background: var(--ink);
+  color: #fff;
+  font-size: 0.84rem;
+  font-weight: 600;
+  text-decoration: none;
+}
+
+.shop__pdf-link a:hover,
+.shop__pdf-link a:focus-visible {
+  background: var(--moss, #4f6a58);
+  color: #fff;
+}
+
 .shop__pdf-actions {
   display: flex;
   flex-wrap: wrap;

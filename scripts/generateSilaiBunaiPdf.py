@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Generate Priyabadal Homes Silai Bunai photo lookbook PDF (no prices, no phone)."""
+"""Generate Priyabadal Homes Silai Bunai PDF for WhatsApp sharing."""
 
 from __future__ import annotations
 
@@ -23,9 +23,33 @@ PUBLIC = ROOT / "public"
 
 INK = HexColor("#171411")
 INK_SOFT = HexColor("#6a6158")
+HONEY = HexColor("#7d5c30")
+MOSS = HexColor("#4f6a58")
 LINE = HexColor("#ddd4c8")
 PAPER = HexColor("#faf7f2")
 BRAND = "Priyabadal Homes"
+
+WHATSAPP = "+91 81099 49649"
+WA_LINK = "https://wa.me/918109949649"
+
+SECTION_LABELS = {
+    "sofa-upholstery": "Sofa Upholstery",
+    "cushions": "Cushions & Covers",
+    "custom-stitch": "Custom Stitch",
+}
+
+
+def format_inr(n: int | float) -> str:
+    s = f"{int(n)}"
+    if len(s) <= 3:
+        return f"₹{s}"
+    last3 = s[-3:]
+    rest = s[:-3]
+    parts = []
+    while rest:
+        parts.append(rest[-2:])
+        rest = rest[:-2]
+    return "₹" + ",".join(reversed(parts)) + "," + last3
 
 
 def register_fonts() -> tuple[str, str]:
@@ -87,7 +111,6 @@ def wrap_lines(
     if max_lines is not None and len(lines) > max_lines:
         lines = lines[:max_lines]
         if lines:
-            # ellipsis if truncated
             last = lines[-1]
             while c.stringWidth(last + "…", font, size) > width and len(last) > 3:
                 last = last[:-1]
@@ -107,7 +130,6 @@ def draw_text_block(
     color: Color,
     max_lines: int | None = None,
 ) -> float:
-    """Draw text downward from y_top; return y of last baseline."""
     lines = wrap_lines(c, text, width, font, size, max_lines)
     c.setFont(font, size)
     c.setFillColor(color)
@@ -128,7 +150,6 @@ def fit_draw(
     box_h: float,
     quality: int = 58,
 ) -> None:
-    """Draw image centered in box, contain (no crop), on paper fill."""
     iw, ih = img.size
     scale = min(box_w / iw, box_h / ih)
     dw, dh = iw * scale, ih * scale
@@ -140,21 +161,18 @@ def fit_draw(
 
 
 def photo_cells(count: int, left: float, bottom: float, width: float, height: float, gap: float) -> list[tuple[float, float, float, float]]:
-    """Return list of (x, y, w, h) cells for N photos — full page photo area."""
     cells: list[tuple[float, float, float, float]] = []
     if count <= 0:
         return cells
     if count == 1:
         return [(left, bottom, width, height)]
     if count == 2:
-        # side by side
         w = (width - gap) / 2
         return [
             (left, bottom, w, height),
             (left + w + gap, bottom, w, height),
         ]
     if count == 3:
-        # large top + two bottom
         top_h = height * 0.58
         bot_h = height - top_h - gap
         w = (width - gap) / 2
@@ -164,7 +182,6 @@ def photo_cells(count: int, left: float, bottom: float, width: float, height: fl
             (left + w + gap, bottom, w, bot_h),
         ]
     if count == 4:
-        # 2x2
         w = (width - gap) / 2
         h = (height - gap) / 2
         return [
@@ -173,8 +190,6 @@ def photo_cells(count: int, left: float, bottom: float, width: float, height: fl
             (left, bottom, w, h),
             (left + w + gap, bottom, w, h),
         ]
-    # 5+: hero left/top + grid of remaining
-    # Layout: top row hero full width ~45%, then remaining in rows of 2 or 3
     hero_h = height * 0.42
     rest_h = height - hero_h - gap
     cells.append((left, bottom + rest_h + gap, width, hero_h))
@@ -186,7 +201,6 @@ def photo_cells(count: int, left: float, bottom: float, width: float, height: fl
     for i in range(rest):
         r = i // cols
         col = i % cols
-        # fill last row centered if incomplete? keep left-aligned for clarity
         cells.append(
             (
                 left + col * (cell_w + gap),
@@ -198,6 +212,20 @@ def photo_cells(count: int, left: float, bottom: float, width: float, height: fl
     return cells
 
 
+def price_line(product: dict) -> str:
+    price = format_inr(product["price"])
+    if product.get("pricingMode") == "per-sqft":
+        return f"{price} / sq ft"
+    return price
+
+
+def thickness_line(product: dict) -> str:
+    mm = product.get("thicknessMm")
+    if mm:
+        return f"{int(mm)} mm"
+    return ""
+
+
 def footer(c: canvas.Canvas, page: int, total: int, body: str) -> None:
     w, _ = A4
     c.setStrokeColor(LINE)
@@ -205,7 +233,7 @@ def footer(c: canvas.Canvas, page: int, total: int, body: str) -> None:
     c.line(14 * mm, 12 * mm, w - 14 * mm, 12 * mm)
     c.setFillColor(INK_SOFT)
     c.setFont(body, 8)
-    c.drawString(14 * mm, 7 * mm, f"{BRAND}  ·  Silai Bunai Lookbook")
+    c.drawString(14 * mm, 7 * mm, f"{BRAND}  ·  Silai Bunai  ·  WhatsApp {WHATSAPP}")
     c.drawRightString(w - 14 * mm, 7 * mm, f"{page} / {total}")
 
 
@@ -214,20 +242,19 @@ def cover(c: canvas.Canvas, products: list[dict], body: str, bold: str, page: in
     c.setFillColor(PAPER)
     c.rect(0, 0, w, h, fill=1, stroke=0)
 
-    # reserved header band — no overlap with photos
-    header_bottom = h - 42 * mm
-    c.setFillColor(INK)
+    header_bottom = h - 46 * mm
+    c.setFillColor(MOSS)
     c.setFont(body, 9)
-    c.drawString(14 * mm, h - 16 * mm, "LOOKBOOK")
+    c.drawString(14 * mm, h - 16 * mm, "CATALOGUE · WHATSAPP READY")
+    c.setFillColor(INK)
     c.setFont(bold, 26)
     c.drawString(14 * mm, h - 28 * mm, BRAND)
     c.setFont(bold, 16)
     c.setFillColor(INK_SOFT)
     c.drawString(14 * mm, h - 36 * mm, "Silai Bunai")
 
-    # photo mosaic — all first photos, clean grid
     mosaic_top = header_bottom - 4 * mm
-    mosaic_bottom = 20 * mm
+    mosaic_bottom = 28 * mm
     mosaic_h = mosaic_top - mosaic_bottom
     left = 14 * mm
     width = w - 28 * mm
@@ -252,11 +279,67 @@ def cover(c: canvas.Canvas, products: list[dict], body: str, bold: str, page: in
             y = mosaic_top - (r + 1) * cell_h - r * gap
             fit_draw(c, img, x, y, cell_w, cell_h, quality=58)
 
+    c.setFillColor(INK)
+    c.setFont(bold, 11)
+    c.drawString(14 * mm, 20 * mm, f"WhatsApp {WHATSAPP}")
+    c.setFont(body, 9)
     c.setFillColor(INK_SOFT)
-    c.setFont(body, 8.5)
-    c.drawString(14 * mm, 14 * mm, f"{n} looks  ·  All photograph angles inside  ·  Custom stitch & soft finishes")
-    # page mark only (no phone)
+    c.drawString(14 * mm, 14 * mm, WA_LINK)
+    c.drawRightString(
+        w - 14 * mm,
+        20 * mm,
+        f"{len(products)} looks  ·  per-sqft rates  ·  all photo angles inside",
+    )
     c.drawRightString(w - 14 * mm, 14 * mm, f"{page} / {total}")
+
+
+def notes_page(c: canvas.Canvas, body: str, bold: str, page: int, total: int) -> None:
+    w, h = A4
+    c.setFillColor(PAPER)
+    c.rect(0, 0, w, h, fill=1, stroke=0)
+
+    c.setFillColor(INK)
+    c.setFont(bold, 18)
+    c.drawString(18 * mm, h - 28 * mm, "Before you order")
+
+    notes = [
+        (
+            "Custom silai bunai",
+            "Upholstery, cushion stitch, wardrobe shutters, and feature walls — made to your size and fabric choice.",
+        ),
+        (
+            "Confirm on WhatsApp",
+            f"Message {WHATSAPP} with the look name or SKU. We confirm fabric, foam thickness, measure, and final quote.",
+        ),
+        (
+            "Pricing",
+            "Rates shown are per sq ft in INR. Final quote is confirmed after on-site or shared measurements.",
+        ),
+        (
+            "Thickness",
+            "Foam / padding thickness is listed per design (3 mm to 25 mm). Heavier leather shutters use 25 mm.",
+        ),
+    ]
+
+    y = h - 42 * mm
+    for title, text in notes:
+        c.setFillColor(HexColor("#ffffff"))
+        c.setStrokeColor(LINE)
+        c.roundRect(18 * mm, y - 28 * mm, w - 36 * mm, 30 * mm, 5, fill=1, stroke=1)
+        c.setFillColor(MOSS)
+        c.setFont(bold, 11)
+        c.drawString(24 * mm, y - 8 * mm, title)
+        draw_text_block(c, text, 24 * mm, y - 16 * mm, w - 48 * mm, body, 9.5, 13, INK_SOFT, max_lines=2)
+        y -= 36 * mm
+
+    c.setFillColor(INK)
+    c.setFont(bold, 12)
+    c.drawString(18 * mm, 40 * mm, "Ready to enquire?")
+    c.setFont(body, 10)
+    c.setFillColor(INK_SOFT)
+    c.drawString(18 * mm, 32 * mm, f"WhatsApp {WHATSAPP}  ·  {WA_LINK}")
+
+    footer(c, page, total, body)
 
 
 def product_page(
@@ -273,16 +356,15 @@ def product_page(
     c.setFillColor(PAPER)
     c.rect(0, 0, w, h, fill=1, stroke=0)
 
-    # Fixed header zone (never overlaps photos)
     margin = 12 * mm
     header_top = h - 12 * mm
-    # line 1: brand + index
+    section = SECTION_LABELS.get(product.get("subcategoryId", ""), "Silai Bunai")
+
     c.setFillColor(INK_SOFT)
     c.setFont(body, 8)
-    c.drawString(margin, header_top, BRAND)
+    c.drawString(margin, header_top, f"{BRAND}  ·  {section}")
     c.drawRightString(w - margin, header_top, f"{index} / {count}")
 
-    # line 2: product name (max 2 lines, reserved height)
     name_top = header_top - 10 * mm
     name_bottom = draw_text_block(
         c,
@@ -296,19 +378,29 @@ def product_page(
         INK,
         max_lines=2,
     )
-    # line 3: sku only (no phone, no long description)
-    sku_y = name_bottom - 6 * mm
+
+    meta_y = name_bottom - 6 * mm
+    c.setFillColor(HONEY)
+    c.setFont(bold, 12)
+    rate = price_line(product)
+    c.drawString(margin, meta_y, rate)
+    thick = thickness_line(product)
+    if thick:
+        c.setFillColor(INK_SOFT)
+        c.setFont(body, 9)
+        c.drawString(margin + c.stringWidth(rate, bold, 12) + 8, meta_y + 1, f"·  {thick}")
+
+    sku_y = meta_y - 6 * mm
     c.setFillColor(INK_SOFT)
     c.setFont(body, 8.5)
     sku = product.get("sku") or ""
     c.drawString(margin, sku_y, sku)
 
+    rule_y = sku_y - 4 * mm
     c.setStrokeColor(LINE)
     c.setLineWidth(0.5)
-    rule_y = sku_y - 4 * mm
     c.line(margin, rule_y, w - margin, rule_y)
 
-    # Photo zone — everything below the rule, above footer
     photo_top = rule_y - 4 * mm
     photo_bottom = 16 * mm
     photo_h = photo_top - photo_bottom
@@ -330,26 +422,35 @@ def product_page(
 
 def closing(c: canvas.Canvas, body: str, bold: str, page: int, total: int, count: int) -> None:
     w, h = A4
-    c.setFillColor(PAPER)
+    c.setFillColor(INK)
     c.rect(0, 0, w, h, fill=1, stroke=0)
 
-    c.setFillColor(INK)
+    c.setFillColor(white)
     c.setFont(bold, 22)
-    c.drawCentredString(w / 2, h / 2 + 18, BRAND)
-    c.setFont(bold, 14)
-    c.setFillColor(INK_SOFT)
-    c.drawCentredString(w / 2, h / 2 - 2, "Silai Bunai")
+    c.drawCentredString(w / 2, h / 2 + 28, "Order on WhatsApp")
+    c.setFont(body, 14)
+    c.drawCentredString(w / 2, h / 2 + 6, WHATSAPP)
+    c.setFont(body, 11)
+    c.setFillColor(HexColor("#c9d6cd"))
+    c.drawCentredString(w / 2, h / 2 - 14, WA_LINK)
     c.setFont(body, 10)
-    c.drawCentredString(w / 2, h / 2 - 20, f"{count} looks  ·  Every photograph angle included")
-    c.drawCentredString(w / 2, h / 2 - 34, "Custom stitch & soft furnishing finishes")
-    c.drawCentredString(w / 2, h / 2 - 48, "Ask for a quote after fabric choice and measure")
+    c.drawCentredString(
+        w / 2,
+        h / 2 - 36,
+        "Send look name or SKU · We confirm fabric, measure & final quote",
+    )
+    c.setFont(bold, 12)
+    c.setFillColor(HexColor("#e8f0ea"))
+    c.drawCentredString(w / 2, 40 * mm, BRAND)
+    c.setFont(body, 9)
+    c.setFillColor(HexColor("#9db4b8"))
+    c.drawCentredString(w / 2, 32 * mm, f"Silai Bunai · {count} looks · Custom stitch & soft finishes")
 
     footer(c, page, total, body)
 
 
 def main() -> None:
     products = json.loads(DATA.read_text())
-    # keep catalogue order from JSON
     for p in products:
         if not p.get("images"):
             p["images"] = [p["image"]] if p.get("image") else []
@@ -357,16 +458,17 @@ def main() -> None:
     body, bold = register_fonts()
     OUT.parent.mkdir(parents=True, exist_ok=True)
 
-    # cover + one page per product + closing
-    total = 1 + len(products) + 1
+    total = 2 + len(products) + 1
 
     c = canvas.Canvas(str(OUT), pagesize=A4)
-    c.setTitle("Priyabadal Homes — Silai Bunai Lookbook")
+    c.setTitle("Priyabadal Homes — Silai Bunai")
     c.setAuthor("Priyabadal Homes")
-    c.setSubject("Silai Bunai photo lookbook for WhatsApp (no rates, no phone)")
+    c.setSubject("Silai Bunai catalogue for WhatsApp")
 
     cover(c, products, body, bold, 1, total)
-    page = 2
+    c.showPage()
+    notes_page(c, body, bold, 2, total)
+    page = 3
     for i, product in enumerate(products, start=1):
         c.showPage()
         product_page(c, product, body, bold, page, total, i, len(products))
@@ -379,7 +481,7 @@ def main() -> None:
     photo_count = sum(len(p.get("images") or []) for p in products)
     print(
         f"Wrote {OUT} ({size_mb:.2f} MB, {total} pages, "
-        f"{len(products)} products, {photo_count} photos, no phone, no prices)"
+        f"{len(products)} products, {photo_count} photos, WhatsApp {WHATSAPP})"
     )
 
 

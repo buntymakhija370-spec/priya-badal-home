@@ -71,7 +71,7 @@ export async function fetchAiAccessStatus(): Promise<AiAccessStatus> {
       return {
         falConfigured: false,
         subscribed: false,
-        requireSubscription: true,
+        requireSubscription: false,
         plans: [],
       }
     }
@@ -80,7 +80,7 @@ export async function fetchAiAccessStatus(): Promise<AiAccessStatus> {
     return {
       falConfigured: false,
       subscribed: false,
-      requireSubscription: true,
+      requireSubscription: false,
       plans: [],
     }
   }

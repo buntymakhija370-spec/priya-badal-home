@@ -104,14 +104,15 @@ const INTERIOR_SYSTEM_PROMPT = [
 hydrateGeminiEnv(process.env.NODE_ENV === 'production' ? 'production' : 'development')
 hydrateFalEnv(process.env.NODE_ENV === 'production' ? 'production' : 'development')
 
-/** True when Fal and/or Gemini key is available. Prefer Fal for event demos. */
+/** True when Gemini and/or Fal key is available. Prefer Gemini. */
 function aiConfigured() {
-  return falConfigured() || Boolean(getGeminiKey())
+  return Boolean(getGeminiKey()) || falConfigured()
 }
 
 function activeProvider(): 'fal' | 'gemini' | 'none' {
-  if (falConfigured()) return 'fal'
+  // Gemini first — owner preference (not Fal)
   if (getGeminiKey()) return 'gemini'
+  if (falConfigured()) return 'fal'
   return 'none'
 }
 
@@ -809,6 +810,8 @@ async function handleAiAdmin(req: IncomingMessage, res: ServerResponse) {
         subscribers: listSubscribers(),
         plans: listPlans(),
         falConfigured: aiConfigured(),
+        geminiConfigured: Boolean(getGeminiKey()),
+        provider: activeProvider(),
         requireSubscription: requireSubscription(),
       })
       return

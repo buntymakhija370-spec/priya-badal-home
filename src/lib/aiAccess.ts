@@ -26,12 +26,23 @@ export type AiSubscriberPublic = {
 
 export type AiAccessStatus = {
   falConfigured: boolean
+  geminiConfigured?: boolean
   subscribed: boolean
   requireSubscription: boolean
   subscriber?: AiSubscriberPublic
   plans: AiPlan[]
   configured?: boolean
   mode?: string
+  provider?: string
+}
+
+/** Server has Gemini (or legacy Fal) ready for Visualise / chat. */
+export function isAiServerReady(status: AiAccessStatus): boolean {
+  return Boolean(status.falConfigured || status.geminiConfigured || status.configured)
+}
+
+export function isAiReadyForUse(status: AiAccessStatus): boolean {
+  return isAiServerReady(status) && (!status.requireSubscription || status.subscribed)
 }
 
 export function getAiAccessToken(): string | null {
@@ -70,6 +81,7 @@ export async function fetchAiAccessStatus(): Promise<AiAccessStatus> {
     if (!res.ok) {
       return {
         falConfigured: false,
+        geminiConfigured: false,
         subscribed: false,
         requireSubscription: false,
         plans: [],
@@ -79,6 +91,7 @@ export async function fetchAiAccessStatus(): Promise<AiAccessStatus> {
   } catch {
     return {
       falConfigured: false,
+      geminiConfigured: false,
       subscribed: false,
       requireSubscription: false,
       plans: [],
@@ -104,7 +117,7 @@ export async function unlockAiAccess(code: string): Promise<AiAccessStatus & { t
     throw new Error(data.error || 'Could not unlock AI')
   }
   setAiAccessToken(data.token)
-  // Re-check server so falConfigured reflects reality (don’t assume Fal is on)
+  // Re-check server so geminiConfigured reflects reality
   const status = await fetchAiAccessStatus()
   return {
     ...status,
@@ -121,8 +134,8 @@ export function clearAiAccess() {
 
 export function subscribeWhatsAppUrl(planName?: string) {
   const text = [
-    'Hi Priyabadal Homes, I want to subscribe to paid AI access.',
-    'Rate: ₹25 per AI image (visualise / carcass).',
+    'Hi Priyabadal Homes, I want to subscribe to Gemini Visualise access.',
+    'Rate: ₹25 per image (visualise / carcass).',
     planName ? `Plan: ${planName}` : '',
     '',
     'Please share payment details and my access code.',

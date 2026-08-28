@@ -167,9 +167,9 @@ export function AiAdminPage() {
         <p className="eyebrow">Owner only</p>
         <h1>Gemini admin</h1>
         <p>
-          Paste your <strong>Google Gemini</strong> API key here. Chat and Visualise use Gemini
-          (not Fal). Customers never see this key. Admin PIN default:{' '}
-          <code>AI_ADMIN_PIN</code> / <code>2468</code>.
+          Paste your <strong>Google Gemini</strong> API key. Chat and Visualise use{' '}
+          <strong>Gemini only</strong> — not Fal / paid AI unlock. Customers never see this key.
+          Admin PIN default: <code>2468</code>.
         </p>
       </header>
 
@@ -222,8 +222,11 @@ export function AiAdminPage() {
               >
                 aistudio.google.com/apikey
               </a>
-              . Enable billing if image quota is empty. On Cloudflare Pages, also set the same key
-              as env <code>GEMINI_API_KEY</code> so production keeps it after redeploys.
+              . On the <strong>live</strong> site (www.priyabadalhomes.com), “Save” here cannot
+              store secrets — add the same key as Cloudflare Pages →{' '}
+              <code>priya-badal-home</code> → Settings → Environment variables → Production →{' '}
+              <code>GEMINI_API_KEY</code> (Encrypt), then redeploy. Local preview can use this form
+              or a <code>.env</code> file.
             </p>
           </section>
 

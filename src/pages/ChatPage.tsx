@@ -31,7 +31,7 @@ import {
   suggestLayout,
 } from '../lib/carcassPlanner'
 import { AiAccessBanner } from '../components/AiAccessBanner'
-import { fetchAiAccessStatus } from '../lib/aiAccess'
+import { fetchAiAccessStatus, isAiReadyForUse } from '../lib/aiAccess'
 import { getCategory, formatPrice, type Product } from '../data/catalog'
 import { getProductById } from '../lib/products'
 import { useCurrency } from '../hooks/useCurrency'
@@ -46,22 +46,22 @@ function friendlyChatError(
 ): string {
   const t = (raw || '').trim()
   if (/subscription|access code|unlock|SUBSCRIPTION/i.test(t)) {
-    return 'AI unlock is needed for that step. Tap AI access above, enter your code, then tap Try again.'
+    return 'A Gemini access code is needed for that step. Tap Gemini access above, enter your code, then tap Try again.'
   }
   if (/GEMINI_QUOTA|Google AI image quota|billing|rate[- ]?limit|RESOURCE_EXHAUSTED|exceeded your current quota/i.test(t)) {
-    return 'Google AI image quota is empty on the server key.\n\nOwner: open aistudio.google.com → enable billing for this Gemini project (free-tier image quota is often 0). Then come back and tap Try again.\n\nYour access code is fine — this is a Google billing/quota issue, not unlock.'
+    return 'Google Gemini image quota is empty on the server key.\n\nOwner: open aistudio.google.com → enable billing for this Gemini project (free-tier image quota is often 0). Then come back and tap Try again.'
   }
   if (/QUOTA|limit|monthly/i.test(t)) {
-    return 'This month’s AI looks are used up. You can still ask price and carcass questions, or WhatsApp us.'
+    return 'This month’s Gemini looks are used up. You can still ask price and carcass questions, or WhatsApp us.'
   }
   if (
-    /MISSING_FAL|not connected|Professional AI|needs-key|Gemini key|Fal|balance|credit|Visualise unavailable|Visualize unavailable/i.test(
+    /MISSING_FAL|MISSING_GEMINI|not connected|Professional AI|needs-key|Gemini key|Fal|balance|credit|Visualise unavailable|Visualize unavailable/i.test(
       t,
     )
   ) {
     return kind === 'visualise' || kind === 'carcass'
-      ? 'Visualise unavailable — Gemini is not connected on the server right now.\n\nOwner: open /ai-admin and paste your Google Gemini API key (aistudio.google.com/apikey). On live Cloudflare Pages, also set GEMINI_API_KEY in project Environment variables.\n\nThen tap Try again.'
-      : 'Live chat isn’t available right now. Catalog price answers still work — send again in a moment.'
+      ? 'Visualise unavailable — Google Gemini is not connected on the server yet.\n\nOwner: open /ai-admin (PIN 2468) or set GEMINI_API_KEY in Cloudflare Pages. We use Gemini only — not Fal.\n\nThen tap Try again.'
+      : 'Live Gemini chat isn’t available right now. Catalog price answers still work — send again in a moment.'
   }
   if (t && t.length < 160 && !/[A-Z_]{3,}/.test(t) && !/[{}[\]|]/.test(t)) {
     return t
@@ -93,8 +93,10 @@ export function ChatPage() {
   const [busyIsUpdate, setBusyIsUpdate] = useState(false)
   /** Thumbnail shown on the wait screen while updating */
   const [busyPreviewUrl, setBusyPreviewUrl] = useState<string | null>(null)
-  /** True when Fal is on the server AND this device is unlocked */
+  /** True when Gemini is on the server AND this device may use it */
   const [aiConfigured, setAiConfigured] = useState(false)
+  /** When true, show unlock-code sheet; when false, Gemini is open (no codes) */
+  const [needSubscription, setNeedSubscription] = useState(false)
   const [showKey, setShowKey] = useState(false)
   const [attachMode, setAttachMode] = useState<AttachMode>('photo')
   const [pendingFile, setPendingFile] = useState<{
@@ -141,11 +143,10 @@ export function ChatPage() {
 
   useEffect(() => {
     void fetchAiAccessStatus().then((s) => {
-      const ready = Boolean(
-        s.falConfigured && (!s.requireSubscription || s.subscribed),
-      )
+      setNeedSubscription(Boolean(s.requireSubscription))
+      const ready = isAiReadyForUse(s)
       setAiConfigured(ready)
-      // Never auto-open the unlock sheet — only on Visualise or AI access tap
+      // Never auto-open the unlock sheet — only on Visualise or Gemini access tap
       if (ready) setShowKey(false)
     })
   }, [])
@@ -273,14 +274,14 @@ export function ChatPage() {
 
     if (!aiConfigured) {
       clearRenderWait()
-      setShowKey(true)
+      if (needSubscription) setShowKey(true)
       if (!unlockNagRef.current) {
         unlockNagRef.current = true
         push({
           id: crypto.randomUUID(),
           role: 'assistant',
-          text: 'Open carcass visualisation needs Google Gemini connected on the server first.\n\nOwner: open /ai-admin (PIN 2468) and paste your Gemini API key. On live Cloudflare Pages, set GEMINI_API_KEY in Environment variables.\n\nYou can still ask about price and materials anytime.',
-          suggestions: ['Price with carcass', 'What materials do you use?', 'Open AI admin'],
+          text: 'Open carcass visualisation needs Google Gemini connected on the server first.\n\nOwner: open /ai-admin (PIN 2468) and paste your Gemini API key, or set GEMINI_API_KEY in Cloudflare Pages. We use Gemini only — not Fal / paid AI unlock.\n\nYou can still ask about price and materials anytime.',
+          suggestions: ['Price with carcass', 'What materials do you use?', 'Open Gemini admin'],
         })
       }
       return
@@ -349,17 +350,18 @@ export function ChatPage() {
       } else {
         if (
           result.code === 'MISSING_FAL_KEY' ||
+          result.code === 'MISSING_GEMINI_KEY' ||
           result.code === 'SUBSCRIPTION_REQUIRED' ||
           result.code === 'QUOTA_EXCEEDED'
         ) {
           setAiConfigured(false)
-          setShowKey(true)
+          if (needSubscription || result.code === 'SUBSCRIPTION_REQUIRED') setShowKey(true)
         }
         push({
           id: crypto.randomUUID(),
           role: 'assistant',
           text: friendlyChatError(result.message, 'carcass'),
-          suggestions: ['Price with carcass', 'WhatsApp quote'],
+          suggestions: ['Price with carcass', 'WhatsApp quote', 'Open Gemini admin'],
         })
       }
     } catch {
@@ -403,14 +405,14 @@ export function ChatPage() {
 
     if (!aiConfigured) {
       clearRenderWait()
-      setShowKey(true)
+      if (needSubscription) setShowKey(true)
       if (!unlockNagRef.current) {
         unlockNagRef.current = true
         push({
           id: crypto.randomUUID(),
           role: 'assistant',
-          text: 'Room visualisation needs Google Gemini connected on the server first.\n\nOwner: open /ai-admin (PIN 2468) and paste your Gemini API key from aistudio.google.com/apikey. On the live site, also add GEMINI_API_KEY in Cloudflare Pages → Environment variables.\n\nMeanwhile you can still ask price, carcass, and materials anytime.',
-          suggestions: ['Price with carcass', 'What materials do you use?', 'Open AI admin'],
+          text: 'Room visualisation needs Google Gemini connected on the server first.\n\nOwner: open /ai-admin (PIN 2468) and paste your Gemini API key from aistudio.google.com/apikey, or set GEMINI_API_KEY in Cloudflare Pages. We use Gemini only — not Fal.\n\nMeanwhile you can still ask price, carcass, and materials anytime.',
+          suggestions: ['Price with carcass', 'What materials do you use?', 'Open Gemini admin'],
         })
       }
       return
@@ -521,11 +523,12 @@ export function ChatPage() {
       } else {
         if (
           result.code === 'MISSING_FAL_KEY' ||
+          result.code === 'MISSING_GEMINI_KEY' ||
           result.code === 'SUBSCRIPTION_REQUIRED' ||
           result.code === 'QUOTA_EXCEEDED'
         ) {
           setAiConfigured(false)
-          setShowKey(true)
+          if (needSubscription || result.code === 'SUBSCRIPTION_REQUIRED') setShowKey(true)
         }
         push({
           id: crypto.randomUUID(),
@@ -536,17 +539,17 @@ export function ChatPage() {
               ? ['Try again', 'Give me another option', 'Price with carcass']
               : shouldRefine
                 ? ['Try again', 'Slightly ajar — render now', 'Start over from photo']
-                : ['Try again', 'Give me another option', 'Price with carcass'],
+                : ['Try again', 'Give me another option', 'Open Gemini admin'],
         })
       }
     } catch {
       push({
         id: crypto.randomUUID(),
         role: 'assistant',
-        text: 'Something interrupted that visualise step. Tap Try again — or AI access if unlock expired.',
-        suggestions: ['Try again', 'Slightly ajar — render now', 'Start over from photo'],
+        text: 'Something interrupted that visualise step. Tap Try again — or Open Gemini admin if the key is missing.',
+        suggestions: ['Try again', 'Open Gemini admin', 'Start over from photo'],
       })
-      setShowKey(true)
+      if (needSubscription) setShowKey(true)
     } finally {
       clearRenderWait()
     }
@@ -595,6 +598,24 @@ export function ChatPage() {
         editExisting,
         detectVisualiseMode(brief.lastChangeRequest || 'replace existing'),
       )
+      return
+    }
+
+    if (
+      /^(open )?gemini admin$/i.test(trimmed) ||
+      /^(open )?ai admin$/i.test(trimmed)
+    ) {
+      push(
+        { id: crypto.randomUUID(), role: 'user', text: trimmed },
+        {
+          id: crypto.randomUUID(),
+          role: 'assistant',
+          text: 'Opening Gemini admin — paste your Google Gemini API key there (PIN 2468). On the live site, Cloudflare also needs GEMINI_API_KEY in Environment variables.',
+          suggestions: ['Price with carcass', 'Visualise my look'],
+        },
+      )
+      setInput('')
+      navigate('/ai-admin')
       return
     }
 
@@ -835,11 +856,11 @@ export function ChatPage() {
     } catch (err) {
       const msg = err instanceof Error ? err.message : ''
       const needsKey =
-        /subscription|access code|QUOTA|MISSING_FAL_KEY|not connected|unavailable|Paid AI|unlock/i.test(
+        /subscription|access code|QUOTA|MISSING_FAL_KEY|MISSING_GEMINI|not connected|unavailable|Paid AI|unlock|Gemini/i.test(
           msg,
         )
       if (needsKey) {
-        setShowKey(true)
+        if (needSubscription) setShowKey(true)
         setAiConfigured(false)
         setMessages((prev) => [
           ...prev,
@@ -853,11 +874,14 @@ export function ChatPage() {
               '',
               turn.reply.text,
               '',
-              'For live AI chat and room looks, tap AI access above. Price and carcass answers stay free.',
+              needSubscription
+                ? 'For Gemini chat and room looks, tap Gemini access above. Price and carcass answers stay free.'
+                : 'For Gemini chat and room looks, the owner must connect a Gemini API key in /ai-admin (or Cloudflare GEMINI_API_KEY). Price and carcass answers stay free.',
             ].join('\n'),
             products: turn.reply.products,
             suggestions: [
               'Price with carcass',
+              'Open Gemini admin',
               ...(turn.reply.suggestions ?? []),
             ],
           },
@@ -1033,21 +1057,33 @@ export function ChatPage() {
             }`}
             title={
               showWorkOverlay
-                ? 'AI is rendering'
+                ? 'Gemini is rendering'
                 : aiConfigured
-                  ? 'Paid AI on'
-                  : 'AI subscription'
+                  ? 'Google Gemini on'
+                  : 'Gemini not connected'
             }
           >
-            {showWorkOverlay ? 'Working' : aiConfigured ? 'AI on' : 'Unlock'}
+            {showWorkOverlay ? 'Working' : aiConfigured ? 'Gemini on' : 'Needs Gemini'}
           </span>
           {!showWorkOverlay ? (
             <button
               type="button"
               className="pbai__ghost"
-              onClick={() => setShowKey((v) => !v)}
+              onClick={() => {
+                if (!needSubscription && !aiConfigured) {
+                  navigate('/ai-admin')
+                  return
+                }
+                setShowKey((v) => !v)
+              }}
             >
-              {showKey ? 'Close' : 'AI access'}
+              {showKey
+                ? 'Close'
+                : needSubscription
+                  ? 'Gemini access'
+                  : aiConfigured
+                    ? 'Gemini'
+                    : 'Connect Gemini'}
             </button>
           ) : null}
         </div>
@@ -1539,21 +1575,20 @@ export function ChatPage() {
           className="pbai__sheet"
           role="dialog"
           aria-modal="true"
-          aria-label="AI unlock"
+          aria-label={needSubscription ? 'Gemini unlock' : 'Connect Gemini'}
         >
           <button
             type="button"
             className="pbai__sheet-backdrop"
-            aria-label="Close AI unlock"
+            aria-label="Close"
             onClick={() => setShowKey(false)}
           />
           <div className="pbai__sheet-card">
             <AiAccessBanner
               compact
               onStatus={(s) => {
-                const ready = Boolean(
-                  s.falConfigured && (!s.requireSubscription || s.subscribed),
-                )
+                setNeedSubscription(Boolean(s.requireSubscription))
+                const ready = isAiReadyForUse(s)
                 setAiConfigured(ready)
                 if (ready) {
                   unlockNagRef.current = false

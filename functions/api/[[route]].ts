@@ -52,8 +52,8 @@ export async function onRequest(context: Ctx): Promise<Response> {
         chatModel: CHAT_MODEL,
         quality: 'flash-image',
         engine: ready
-          ? 'Priyabadal Interior AI · Google Gemini Flash Image'
-          : 'Priyabadal Interior AI · not connected',
+          ? 'Priyabadal · Google Gemini'
+          : 'Priyabadal · Gemini not connected',
         requireSubscription: needsSub,
         plans: [],
       })

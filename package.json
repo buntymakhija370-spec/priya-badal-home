@@ -7,7 +7,11 @@
     "dev": "vite",
     "build": "tsc -b && vite build",
     "lint": "oxlint",
-    "preview": "vite preview"
+    "preview": "vite preview",
+    "export:silai": "tsx scripts/exportSilaiBunaiProducts.mjs",
+    "pdf:silai": "npm run export:silai && python3 scripts/generateSilaiBunaiPdf.py",
+    "export:kitchen": "tsx scripts/exportKitchenProducts.mjs",
+    "pdf:kitchen": "npm run export:kitchen && python3 scripts/generateKitchenPdf.py"
   },
   "dependencies": {
     "react": "^19.2.7",

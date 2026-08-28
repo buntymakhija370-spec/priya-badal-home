@@ -20,8 +20,8 @@ export function CarcassAssemblyPage() {
           <strong>{CARCASS_CONSTRUCTION_SHORT}</strong>. Use this drawing and QR guide on site.
         </p>
         <div className="cguide__actions">
-          <Link className="btn btn--dark" to="/carcass">
-            Open Carcass Planner
+          <Link className="btn btn--dark" to="/chat?intent=carcass">
+            Ask Chat about carcass
           </Link>
           <a className="btn btn--outline" href={CARCASS_ASSEMBLY_DRAWING_SRC} download>
             Download install drawing
@@ -92,15 +92,12 @@ export function CarcassAssemblyPage() {
       <section className="cguide__help">
         <h2>Need a layout drawing for your size?</h2>
         <p>
-          Plan bays and get a size-based carcass quote in Carcass Planner, or ask Priya Badal AI /
-          WhatsApp for your confirmed feet size.
+          Ask Chat for bay layouts and a size-based carcass quote, or WhatsApp us with your
+          confirmed feet size.
         </p>
         <div className="cguide__actions">
-          <Link className="btn btn--dark" to="/carcass">
-            Carcass Planner
-          </Link>
-          <Link className="btn btn--outline" to="/chat">
-            Ask Priya Badal AI
+          <Link className="btn btn--dark" to="/chat?intent=carcass">
+            Ask Chat about carcass
           </Link>
         </div>
       </section>

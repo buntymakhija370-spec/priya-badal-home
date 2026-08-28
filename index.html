@@ -24,6 +24,8 @@
       name="description"
       content="Priyabadal Homes — wardrobes, kitchens, wall panels, shutters, and doors. Customise finishes and get WhatsApp quotes."
     />
+    <link rel="canonical" href="https://www.priyabadalhomes.com/" />
+    <meta property="og:url" content="https://www.priyabadalhomes.com/" />
     <link rel="preconnect" href="https://fonts.googleapis.com" />
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
     <link
@@ -31,6 +33,17 @@
       rel="stylesheet"
     />
     <title>Priyabadal Homes</title>
+    <script>
+      // Google often links to apex; prefer www once the page loads.
+      if (location.hostname === 'priyabadalhomes.com') {
+        location.replace(
+          'https://www.priyabadalhomes.com' +
+            location.pathname +
+            location.search +
+            location.hash,
+        )
+      }
+    </script>
   </head>
   <body>
     <div id="root"></div>

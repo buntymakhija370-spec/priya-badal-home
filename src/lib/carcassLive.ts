@@ -4,6 +4,7 @@ import {
   urlToDataUrl,
   type VisualiseStatus,
 } from './visualise'
+import { aiAuthHeaders } from './aiAccess'
 import type { CarcassCategory, CarcassQuote } from './carcassPlanner'
 import { getFinish, getThickness } from './pricing'
 
@@ -36,7 +37,7 @@ export async function generateLiveCarcass(input: {
 
     const res = await fetch('/api/carcass-live', {
       method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
+      headers: aiAuthHeaders(),
       body: JSON.stringify({
         carcassImageUrl,
         productName: input.productName,
@@ -72,11 +73,15 @@ export async function generateLiveCarcass(input: {
       source: 'error',
       code: exhausted ? 'FAL_BALANCE' : data.code,
       message:
-        data.code === 'MISSING_FAL_KEY'
-          ? 'Connect your Fal.ai key below to generate live-size carcass AI.'
-          : exhausted
-            ? 'Fal.ai balance is empty. Top up credits at fal.ai/dashboard/billing, then try again.'
-            : raw || 'Live-size AI could not generate this carcass. Try again.',
+        data.code === 'SUBSCRIPTION_REQUIRED'
+          ? 'AI unlock is needed for carcass visualisation. Enter your access code first.'
+          : data.code === 'QUOTA_EXCEEDED'
+            ? 'This month’s carcass AI looks are used up. Try again next month or WhatsApp us.'
+            : data.code === 'MISSING_FAL_KEY'
+              ? 'Carcass visualisation isn’t available right now. Please try later.'
+              : exhausted
+                ? 'AI credits are temporarily unavailable. Please try later.'
+                : raw || 'Could not generate the open carcass just now. Try again.',
     }
   } catch (err) {
     return {
@@ -84,7 +89,7 @@ export async function generateLiveCarcass(input: {
       message:
         err instanceof Error
           ? err.message
-          : 'Could not reach live-size AI. Check connection / key.',
+          : 'Could not reach live-size AI. Check your connection.',
     }
   }
 }

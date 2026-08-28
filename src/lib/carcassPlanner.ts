@@ -322,6 +322,7 @@ export function ratesFromProduct(
     product.price > 0 &&
     product.price < 20000
 
+  // Carcass listings priced the box use catalog per-sqft when set.
   return {
     shutterPerSqft: useCatalogRates ? product.price : fallback.shutterPerSqft,
     carcassPerSqft:
@@ -527,4 +528,16 @@ export function getProductCarcassImage(product?: Product | null): string | null 
   if (!photos.length) return null
   if (photos.length === 1) return photos[0]!
   return photos[photos.length - 1]!
+}
+
+/** Map a catalog product / chat brief to wardrobe vs kitchen carcass planning */
+export function resolveCarcassCategory(
+  product?: Product | null,
+  categoryId?: string | null,
+): CarcassCategory | null {
+  if (product?.categoryId === 'kitchen') return 'kitchen'
+  if (product?.categoryId === 'wardrobe') return 'wardrobe'
+  if (categoryId === 'kitchen') return 'kitchen'
+  if (categoryId === 'wardrobe') return 'wardrobe'
+  return null
 }

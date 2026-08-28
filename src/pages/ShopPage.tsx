@@ -1,7 +1,7 @@
 import { Link, useParams } from 'react-router-dom'
 import { useEffect, useMemo, useState } from 'react'
-import { categories, getCategory, getSubcategory } from '../data/catalog'
-import { getProductsByCategory, getAllProducts } from '../lib/products'
+import { categories, getCategory } from '../data/catalog'
+import { getProductsByCategory } from '../lib/products'
 import { ProductCard } from '../components/ProductCard'
 import { shopPath } from '../lib/links'
 import './ShopPage.css'
@@ -9,12 +9,8 @@ import './ShopPage.css'
 type SortId = 'featured' | 'price-asc' | 'price-desc' | 'name'
 
 export function ShopPage() {
-  const { categoryId, subcategoryId } = useParams()
+  const { categoryId } = useParams()
   const category = categoryId ? getCategory(categoryId) : undefined
-  const subcategory =
-    categoryId && subcategoryId
-      ? getSubcategory(categoryId, subcategoryId)
-      : undefined
 
   const [query, setQuery] = useState('')
   const [sort, setSort] = useState<SortId>('featured')
@@ -24,13 +20,12 @@ export function ShopPage() {
   useEffect(() => {
     setQuery('')
     setSort('featured')
-  }, [categoryId, subcategoryId])
+  }, [categoryId])
 
   const baseProducts = useMemo(() => {
-    if (!categoryId) return getAllProducts()
-    if (subcategoryId) return getProductsByCategory(categoryId, subcategoryId)
+    if (!categoryId) return []
     return getProductsByCategory(categoryId)
-  }, [categoryId, subcategoryId])
+  }, [categoryId])
 
   const products = useMemo(() => {
     const q = query.trim().toLowerCase()
@@ -50,45 +45,64 @@ export function ShopPage() {
     return sorted
   }, [baseProducts, query, sort])
 
-  const subcats = category?.subcategories ?? []
-  const isLiveEdge = category?.id === 'live-edge-furniture'
-  const hideCategoryChips = Boolean(category && isLiveEdge)
-  const lede =
-    subcategory?.description ??
-    category?.description ??
-    'Customise sizes and request WhatsApp quotes.'
+  const landingLede = 'Pick a collection to see products, sizes, and WhatsApp quotes.'
+
+  // Shop entry: ask which collection — do not dump every product.
+  if (!categoryId) {
+    return (
+      <main className="shop page-pad shop--landing">
+        <header className="shop__header">
+          <p className="eyebrow">Shop</p>
+          <h1>Choose a collection</h1>
+          <p className="shop__lede">{landingLede}</p>
+        </header>
+
+        <aside className="shop__pick-banner" aria-label="How to shop">
+          <p className="shop__pick-banner-kicker">Start here</p>
+          <p>
+            Tap a category banner below. Products open only after you choose a
+            collection — so you see the right shutters, panels, or furniture first.
+          </p>
+        </aside>
+
+        <div className="shop__pick" aria-label="Shop collections">
+          {categories.map((cat) => (
+            <Link
+              key={cat.id}
+              className="shop__pick-card"
+              to={shopPath(cat.id)}
+              aria-label={`Open ${cat.name}`}
+            >
+              <span className="shop__pick-media" aria-hidden="true">
+                <img src={cat.image} alt="" loading="lazy" />
+              </span>
+              <span className="shop__pick-copy">
+                <strong>{cat.name}</strong>
+                <span>
+                  {cat.caption ??
+                    cat.description.split(/[.!?]/)[0]?.trim() ??
+                    'View products'}
+                </span>
+              </span>
+            </Link>
+          ))}
+        </div>
+      </main>
+    )
+  }
 
   return (
-    <main className={`shop page-pad ${category?.id === 'commercials' ? 'shop--commercials' : ''}`}>
+    <main className="shop page-pad">
       <header className="shop__header">
         <p className="eyebrow">Shop</p>
-        <h1>
-          {subcategory?.name ?? (category ? category.name : 'All products')}
-        </h1>
-        {category?.caption &&
-        (category.id === 'commercials' || category.id === 'live-edge-furniture') ? (
+        <h1>{category ? category.name : 'All products'}</h1>
+        {category?.caption && category.id === 'live-edge-furniture' ? (
           <p className="shop__caption">{category.caption}</p>
         ) : null}
-        <p className="shop__lede">{lede}</p>
-        {category ? (
-          <p className="shop__back">
-            <Link to="/shop">← All collections</Link>
-          </p>
-        ) : null}
+        <p className="shop__back">
+          <Link to="/shop">← All collections</Link>
+        </p>
       </header>
-
-      {category?.id === 'commercials' && category.conceptNote ? (
-        <aside className="shop__concept" aria-label="Commercials concept">
-          <p className="shop__concept-kicker">How commercials work</p>
-          <p>{category.conceptNote}</p>
-          <ul>
-            <li>Lowest project cost through bulk manufacture</li>
-            <li>Minimum order: {category.minOrderQuantity ?? 10} identical packs</li>
-            <li>Choose 1BHK, 2BHK, or 3BHK package type</li>
-            <li>WhatsApp quote with your project quantity (10+)</li>
-          </ul>
-        </aside>
-      ) : null}
 
       {category?.id === 'live-edge-furniture' && category.conceptNote ? (
         <aside className="shop__concept" aria-label="Live Edge Furniture information">
@@ -103,42 +117,35 @@ export function ShopPage() {
         </aside>
       ) : null}
 
-      {!hideCategoryChips ? (
-        <div className="shop__cats" aria-label="Categories">
-          <Link className={`chip ${!categoryId ? 'chip--active' : ''}`} to="/shop">
-            All
-          </Link>
-          {categories.map((cat) => (
-            <Link
-              key={cat.id}
-              className={`chip ${categoryId === cat.id ? 'chip--active' : ''}`}
-              to={shopPath(cat.id)}
-            >
-              {cat.name}
-            </Link>
-          ))}
-        </div>
+      {category?.id === 'silaibunai' ? (
+        <aside className="shop__concept shop__concept--pdf" aria-label="Silai Bunai catalogue">
+          <p className="shop__concept-kicker">WhatsApp catalogue</p>
+          <p>
+            Download the full Silai Bunai lookbook — photos and names only
+            (no prices). Share on WhatsApp; enquire on the website.
+          </p>
+          <p className="shop__pdf-link">
+            <a href="/catalogs/priyabadal-silai-bunai.pdf?v=3" download>
+              Download Silai Bunai PDF
+            </a>
+          </p>
+        </aside>
       ) : null}
 
-      {category && subcats.length > 0 && (
-        <div className="shop__subs" aria-label="Subcategories">
-          <Link
-            className={`chip ${!subcategoryId ? 'chip--active' : ''}`}
-            to={shopPath(category.id)}
-          >
-            All {category.name}
-          </Link>
-          {subcats.map((sub) => (
-            <Link
-              key={sub.id}
-              className={`chip ${subcategoryId === sub.id ? 'chip--active' : ''}`}
-              to={shopPath(category.id, sub.id)}
-            >
-              {sub.name}
-            </Link>
-          ))}
-        </div>
-      )}
+      {category?.id === 'kitchen' ? (
+        <aside className="shop__concept shop__concept--pdf" aria-label="Kitchen catalogue">
+          <p className="shop__concept-kicker">WhatsApp catalogue</p>
+          <p>
+            Download the full Kitchen lookbook — photos and names only (no
+            prices). Share on WhatsApp; enquire on the website.
+          </p>
+          <p className="shop__pdf-link">
+            <a href="/catalogs/priyabadal-kitchen.pdf?v=3" download>
+              Download Kitchen PDF
+            </a>
+          </p>
+        </aside>
+      ) : null}
 
       <div className="shop__toolbar">
         <label className="shop__search">
@@ -147,7 +154,7 @@ export function ShopPage() {
             type="search"
             value={query}
             onChange={(e) => setQuery(e.target.value)}
-            placeholder="Search products…"
+            placeholder="Search this collection…"
           />
         </label>
         <label className="shop__sort">
@@ -156,7 +163,7 @@ export function ShopPage() {
             value={sort}
             onChange={(e) => setSort(e.target.value as SortId)}
           >
-            <option value="featured">Featured</option>
+            <option value="featured">Newest first</option>
             <option value="price-asc">Price: Low to High</option>
             <option value="price-desc">Price: High to Low</option>
             <option value="name">Name A–Z</option>

@@ -1,0 +1,466 @@
+[
+  {
+    "id": "forest-cell-bronze-wall-silai",
+    "name": "Cellula Bronze",
+    "subcategoryId": "custom-stitch",
+    "price": 4000,
+    "pricingMode": "per-sqft",
+    "thicknessMm": 12,
+    "sku": "PBH-SILAI-01",
+    "description": "Hunter-green padded cell panels in a hammered bronze frame — statement silai bunai wall art. Custom measured; confirm fabric and stitch on WhatsApp.",
+    "collection": "Silai Bunai",
+    "image": "/products/silaibunai/silai-1/01.jpg",
+    "images": [
+      "/products/silaibunai/silai-1/01.jpg",
+      "/products/silaibunai/silai-1/02.jpg"
+    ]
+  },
+  {
+    "id": "taupe-framed-feature-panel-silai",
+    "name": "Chamfer Inset",
+    "subcategoryId": "custom-stitch",
+    "price": 1500,
+    "pricingMode": "per-sqft",
+    "thicknessMm": 6,
+    "sku": "PBH-SILAI-02",
+    "description": "Tall taupe upholstered feature panel with a soft padded frame and neat top-stitch. Custom silai bunai for lounge walls — confirm fabric on WhatsApp.",
+    "collection": "Silai Bunai",
+    "image": "/products/silaibunai/silai-2/01.jpg",
+    "images": [
+      "/products/silaibunai/silai-2/01.jpg",
+      "/products/silaibunai/silai-2/02.jpg"
+    ]
+  },
+  {
+    "id": "cognac-grid-lounge-wall-silai",
+    "name": "Twin Stitch",
+    "subcategoryId": "custom-stitch",
+    "price": 1500,
+    "pricingMode": "per-sqft",
+    "thicknessMm": 3,
+    "sku": "PBH-SILAI-03",
+    "description": "Warm cognac leather-look square wall panels with cream inset stitch — lounge / dining feature wall. Custom silai bunai measured to your piece.",
+    "collection": "Silai Bunai",
+    "image": "/products/silaibunai/silai-3/01.jpg",
+    "images": [
+      "/products/silaibunai/silai-3/01.jpg",
+      "/products/silaibunai/silai-3/02.jpg"
+    ]
+  },
+  {
+    "id": "blush-beaded-panel-set-silai",
+    "name": "Arc Flute",
+    "subcategoryId": "custom-stitch",
+    "price": 1500,
+    "pricingMode": "per-sqft",
+    "thicknessMm": 6,
+    "sku": "PBH-SILAI-04",
+    "description": "Dusty-blush moulded wall panels with beaded inner frames in a modular set. Soft silai bunai look for bedrooms and lounges — confirm layout on WhatsApp.",
+    "collection": "Silai Bunai",
+    "image": "/products/silaibunai/silai-4/01.jpg",
+    "images": [
+      "/products/silaibunai/silai-4/01.jpg",
+      "/products/silaibunai/silai-4/02.jpg"
+    ]
+  },
+  {
+    "id": "denim-mosaic-acoustic-wall-silai",
+    "name": "The Indigo",
+    "subcategoryId": "custom-stitch",
+    "price": 1700,
+    "pricingMode": "per-sqft",
+    "thicknessMm": 6,
+    "sku": "PBH-SILAI-05",
+    "description": "Denim-blue fabric mosaic wall panels with raised stitched borders — acoustic / feature wall. Custom silai bunai sized to your opening.",
+    "collection": "Silai Bunai",
+    "image": "/products/silaibunai/silai-5/01.jpg",
+    "images": [
+      "/products/silaibunai/silai-5/01.jpg",
+      "/products/silaibunai/silai-5/02.jpg"
+    ]
+  },
+  {
+    "id": "grey-stud-leather-panel-silai",
+    "name": "Atelier Knot",
+    "subcategoryId": "custom-stitch",
+    "price": 2100,
+    "pricingMode": "per-sqft",
+    "thicknessMm": 6,
+    "sku": "PBH-SILAI-06",
+    "description": "Light-grey leather-look panels with double top-stitch and textured gold stud grid. Luxury silai bunai finish — confirm fabric and studding on WhatsApp.",
+    "collection": "Silai Bunai",
+    "image": "/products/silaibunai/silai-6/01.jpg",
+    "images": [
+      "/products/silaibunai/silai-6/01.jpg",
+      "/products/silaibunai/silai-6/02.jpg"
+    ]
+  },
+  {
+    "id": "slate-cloud-applique-wardrobe-silai",
+    "name": "Slit and Shimmer",
+    "subcategoryId": "sofa-upholstery",
+    "price": 2900,
+    "pricingMode": "per-sqft",
+    "thicknessMm": 12,
+    "sku": "PBH-SILAI-07",
+    "description": "Slate-blue fabric wardrobe façade with organic cloud appliqué stitch and bronze pulls. Custom silai bunai shutters — confirm size on WhatsApp.",
+    "collection": "Silai Bunai",
+    "image": "/products/silaibunai/silai-7/01.jpg",
+    "images": [
+      "/products/silaibunai/silai-7/01.jpg",
+      "/products/silaibunai/silai-7/02.jpg"
+    ]
+  },
+  {
+    "id": "ivory-feather-bead-panel-silai",
+    "name": "Flora",
+    "subcategoryId": "custom-stitch",
+    "price": 2500,
+    "pricingMode": "per-sqft",
+    "thicknessMm": 4,
+    "sku": "PBH-SILAI-08",
+    "description": "Ivory pebble-grain panels with cross top-stitch and feather-and-bead ornament. Artisan silai bunai detail — confirm embellishment on WhatsApp.",
+    "collection": "Silai Bunai",
+    "image": "/products/silaibunai/silai-8/01.jpg",
+    "images": [
+      "/products/silaibunai/silai-8/01.jpg",
+      "/products/silaibunai/silai-8/02.jpg",
+      "/products/silaibunai/silai-8/03.jpg"
+    ]
+  },
+  {
+    "id": "tan-pearl-cascade-panel-silai",
+    "name": "Dune Mist",
+    "subcategoryId": "custom-stitch",
+    "price": 2500,
+    "pricingMode": "per-sqft",
+    "thicknessMm": 6,
+    "sku": "PBH-SILAI-09",
+    "description": "Tall tan leather-look panel with a cascading pearl and seed-bead spine stitch. Decorative silai bunai piece — confirm bead mix on WhatsApp.",
+    "collection": "Silai Bunai",
+    "image": "/products/silaibunai/silai-9/01.jpg",
+    "images": [
+      "/products/silaibunai/silai-9/01.jpg",
+      "/products/silaibunai/silai-9/02.jpg"
+    ]
+  },
+  {
+    "id": "denim-quilt-topstitch-silai",
+    "name": "Heritage Blue",
+    "subcategoryId": "custom-stitch",
+    "price": 1700,
+    "pricingMode": "per-sqft",
+    "thicknessMm": 6,
+    "sku": "PBH-SILAI-10",
+    "description": "Medium-wash denim with raised quilted rectangles and classic golden top-stitch. Silai bunai textile finish for panels or shutters — confirm on WhatsApp.",
+    "collection": "Silai Bunai",
+    "image": "/products/silaibunai/silai-10/01.jpg",
+    "images": [
+      "/products/silaibunai/silai-10/01.jpg",
+      "/products/silaibunai/silai-10/02.jpg"
+    ]
+  },
+  {
+    "id": "taupe-circle-grid-wall-silai",
+    "name": "Circa",
+    "subcategoryId": "custom-stitch",
+    "price": 1700,
+    "pricingMode": "per-sqft",
+    "thicknessMm": 12,
+    "sku": "PBH-SILAI-11",
+    "description": "Floor-to-ceiling taupe panels with centred circle motifs and stitched rims. Soft silai bunai feature wall — confirm grid size on WhatsApp.",
+    "collection": "Silai Bunai",
+    "image": "/products/silaibunai/silai-11/01.jpg",
+    "images": [
+      "/products/silaibunai/silai-11/01.jpg",
+      "/products/silaibunai/silai-11/02.jpg"
+    ]
+  },
+  {
+    "id": "pearl-button-taupe-panel-silai",
+    "name": "La Perle",
+    "subcategoryId": "custom-stitch",
+    "price": 2100,
+    "pricingMode": "per-sqft",
+    "thicknessMm": 12,
+    "sku": "PBH-SILAI-12",
+    "description": "Taupe padded panels with pearl and halo-pearl button detailing. Jewellery-like silai bunai wall finish — confirm pearl style on WhatsApp.",
+    "collection": "Silai Bunai",
+    "image": "/products/silaibunai/silai-12/01.jpg",
+    "images": [
+      "/products/silaibunai/silai-12/01.jpg",
+      "/products/silaibunai/silai-12/02.jpg"
+    ]
+  },
+  {
+    "id": "greige-tailored-stitch-panel-silai",
+    "name": "Saddle Stitch",
+    "subcategoryId": "custom-stitch",
+    "price": 1300,
+    "pricingMode": "per-sqft",
+    "thicknessMm": 6,
+    "sku": "PBH-SILAI-13",
+    "description": "Greige leather-look padded panels with precise perimeter top-stitch. Clean tailored silai bunai for walls or headboards — confirm fabric on WhatsApp.",
+    "collection": "Silai Bunai",
+    "image": "/products/silaibunai/silai-13/01.jpg",
+    "images": [
+      "/products/silaibunai/silai-13/01.jpg",
+      "/products/silaibunai/silai-13/02.jpg"
+    ]
+  },
+  {
+    "id": "denim-wave-embroidery-wardrobe-silai",
+    "name": "Beaded Whisper",
+    "subcategoryId": "sofa-upholstery",
+    "price": 2900,
+    "pricingMode": "per-sqft",
+    "thicknessMm": 6,
+    "sku": "PBH-SILAI-14",
+    "description": "Denim wardrobe / wall cladding with wave embroidery and golden knot texture. Statement silai bunai façade — confirm embroidery on WhatsApp.",
+    "collection": "Silai Bunai",
+    "image": "/products/silaibunai/silai-14/01.jpg",
+    "images": [
+      "/products/silaibunai/silai-14/01.jpg",
+      "/products/silaibunai/silai-14/02.jpg",
+      "/products/silaibunai/silai-14/03.jpg"
+    ]
+  },
+  {
+    "id": "tan-inset-stitch-grid-silai",
+    "name": "Tan Inset Stitch Grid Silai",
+    "subcategoryId": "custom-stitch",
+    "price": 14999,
+    "pricingMode": "unit",
+    "thicknessMm": null,
+    "sku": "PBH-SILAI-15",
+    "description": "Tan leather-look grid panels with inset rectangular top-stitch. Minimal silai bunai cladding — confirm panel size on WhatsApp.",
+    "collection": "Silai Bunai",
+    "image": "/products/silaibunai/silai-15/01.jpg",
+    "images": [
+      "/products/silaibunai/silai-15/01.jpg",
+      "/products/silaibunai/silai-15/02.jpg"
+    ]
+  },
+  {
+    "id": "cream-stitch-panel-wardrobe-silai",
+    "name": "Linear Leather Shutters",
+    "subcategoryId": "custom-stitch",
+    "price": 3000,
+    "pricingMode": "per-sqft",
+    "thicknessMm": 25,
+    "sku": "PBH-SILAI-16",
+    "description": "Cream shaker wardrobe doors with neat panel top-stitch and matte black bar handles. Custom silai bunai measured to your piece — confirm fabric and stitch on WhatsApp.",
+    "collection": "Silai Bunai",
+    "image": "/products/silaibunai/silai-16/01.jpg",
+    "images": [
+      "/products/silaibunai/silai-16/01.jpg",
+      "/products/silaibunai/silai-16/02.jpg",
+      "/products/silaibunai/silai-16/03.jpg",
+      "/products/silaibunai/silai-16/04.jpg",
+      "/products/silaibunai/silai-16/05.jpg"
+    ]
+  },
+  {
+    "id": "graphite-mosaic-office-wall-silai",
+    "name": "Heritage",
+    "subcategoryId": "custom-stitch",
+    "price": 1500,
+    "pricingMode": "per-sqft",
+    "thicknessMm": 12,
+    "sku": "PBH-SILAI-17",
+    "description": "Multi-tone grey padded wall panels with stitched borders — office / lounge feature wall. Custom silai bunai measured to your piece.",
+    "collection": "Silai Bunai",
+    "image": "/products/silaibunai/silai-17/01.jpg",
+    "images": [
+      "/products/silaibunai/silai-17/01.jpg",
+      "/products/silaibunai/silai-17/02.jpg",
+      "/products/silaibunai/silai-17/03.jpg"
+    ]
+  },
+  {
+    "id": "ivory-stitched-lounge-wall-silai",
+    "name": "Frame",
+    "subcategoryId": "sofa-upholstery",
+    "price": 1100,
+    "pricingMode": "per-sqft",
+    "thicknessMm": 3,
+    "sku": "PBH-SILAI-18",
+    "description": "Ivory faux-leather wall panels with perimeter top-stitch and soft padded finish. Custom silai bunai for lounge or bedroom walls.",
+    "collection": "Silai Bunai",
+    "image": "/products/silaibunai/silai-18/01.jpg",
+    "images": [
+      "/products/silaibunai/silai-18/01.jpg",
+      "/products/silaibunai/silai-18/02.jpg",
+      "/products/silaibunai/silai-18/03.jpg",
+      "/products/silaibunai/silai-18/04.jpg"
+    ]
+  },
+  {
+    "id": "camel-stitch-tallboy-silai",
+    "name": "Atelier Shutters",
+    "subcategoryId": "custom-stitch",
+    "price": 3000,
+    "pricingMode": "per-sqft",
+    "thicknessMm": 25,
+    "sku": "PBH-SILAI-19",
+    "description": "Camel upholstered tallboy with cream contrast top-stitch around each drawer front. Custom silai bunai furniture refresh — confirm size on WhatsApp.",
+    "collection": "Silai Bunai",
+    "image": "/products/silaibunai/silai-19/01.jpg",
+    "images": [
+      "/products/silaibunai/silai-19/01.jpg",
+      "/products/silaibunai/silai-19/02.jpg"
+    ]
+  },
+  {
+    "id": "tan-quilt-grid-wardrobe-silai",
+    "name": "Urban Leather Shutters",
+    "subcategoryId": "custom-stitch",
+    "price": 3000,
+    "pricingMode": "per-sqft",
+    "thicknessMm": 25,
+    "sku": "PBH-SILAI-20",
+    "description": "Tan padded square-grid wardrobe shutters with inset stitch and wrapped pulls. Custom silai bunai measured to your opening.",
+    "collection": "Silai Bunai",
+    "image": "/products/silaibunai/silai-20/01.jpg",
+    "images": [
+      "/products/silaibunai/silai-20/01.jpg",
+      "/products/silaibunai/silai-20/02.jpg"
+    ]
+  },
+  {
+    "id": "sand-square-headboard-wall-silai",
+    "name": "Milano",
+    "subcategoryId": "cushions",
+    "price": 1500,
+    "pricingMode": "per-sqft",
+    "thicknessMm": 12,
+    "sku": "PBH-SILAI-21",
+    "description": "Beige modular padded squares as a soft bedroom headboard wall. Custom silai bunai panels — confirm layout on WhatsApp.",
+    "collection": "Silai Bunai",
+    "image": "/products/silaibunai/silai-21/01.jpg",
+    "images": [
+      "/products/silaibunai/silai-21/01.jpg",
+      "/products/silaibunai/silai-21/02.jpg",
+      "/products/silaibunai/silai-21/03.jpg"
+    ]
+  },
+  {
+    "id": "slate-quilt-panel-wall-silai",
+    "name": "Pelle",
+    "subcategoryId": "cushions",
+    "price": 1500,
+    "pricingMode": "per-sqft",
+    "thicknessMm": 12,
+    "sku": "PBH-SILAI-22",
+    "description": "Grey quilted padded wall panels with inset perimeter stitch. Custom silai bunai headboard or feature wall finish.",
+    "collection": "Silai Bunai",
+    "image": "/products/silaibunai/silai-22/01.jpg",
+    "images": [
+      "/products/silaibunai/silai-22/01.jpg",
+      "/products/silaibunai/silai-22/02.jpg",
+      "/products/silaibunai/silai-22/03.jpg"
+    ]
+  },
+  {
+    "id": "cream-double-stitch-closet-silai",
+    "name": "Modu Leather Shutter",
+    "subcategoryId": "custom-stitch",
+    "price": 3000,
+    "pricingMode": "per-sqft",
+    "thicknessMm": 25,
+    "sku": "PBH-SILAI-23",
+    "description": "Off-white leather-look closet doors with double-edge and inset rectangle top-stitch. Tailored silai bunai shutter finish.",
+    "collection": "Silai Bunai",
+    "image": "/products/silaibunai/silai-23/01.jpg",
+    "images": [
+      "/products/silaibunai/silai-23/01.jpg",
+      "/products/silaibunai/silai-23/02.jpg",
+      "/products/silaibunai/silai-23/03.jpg",
+      "/products/silaibunai/silai-23/04.jpg",
+      "/products/silaibunai/silai-23/05.jpg",
+      "/products/silaibunai/silai-23/06.jpg"
+    ]
+  },
+  {
+    "id": "taupe-quilt-feature-wall-silai",
+    "name": "Chamfer Luxe",
+    "subcategoryId": "custom-stitch",
+    "price": 1500,
+    "pricingMode": "per-sqft",
+    "thicknessMm": 12,
+    "sku": "PBH-SILAI-24",
+    "description": "Taupe soft-touch padded quilt squares for TV / lounge feature walls. Custom silai bunai sized to your wall.",
+    "collection": "Silai Bunai",
+    "image": "/products/silaibunai/silai-24/01.jpg",
+    "images": [
+      "/products/silaibunai/silai-24/01.jpg",
+      "/products/silaibunai/silai-24/02.jpg"
+    ]
+  },
+  {
+    "id": "taupe-cushion-grid-panel-silai",
+    "name": "Angular Luxe",
+    "subcategoryId": "sofa-upholstery",
+    "price": 1500,
+    "pricingMode": "per-sqft",
+    "thicknessMm": 12,
+    "sku": "PBH-SILAI-25",
+    "description": "Light taupe cushioned grid wall panels with bevel stitch — living room accent cladding. Custom silai bunai measured on site.",
+    "collection": "Silai Bunai",
+    "image": "/products/silaibunai/silai-25/01.jpg",
+    "images": [
+      "/products/silaibunai/silai-25/01.jpg",
+      "/products/silaibunai/silai-25/02.jpg",
+      "/products/silaibunai/silai-25/03.jpg"
+    ]
+  },
+  {
+    "id": "denim-geometric-stitch-wardrobe-silai",
+    "name": "Denim Geometric Shutters",
+    "subcategoryId": "custom-stitch",
+    "price": 4000,
+    "pricingMode": "per-sqft",
+    "thicknessMm": 25,
+    "sku": "PBH-SILAI-26",
+    "description": "Denim-blue upholstered wardrobe shutters with geometric padded panels and perimeter top-stitch. Custom silai bunai measured to your wardrobe — confirm fabric and stitch on WhatsApp.",
+    "collection": "Silai Bunai",
+    "image": "/products/silaibunai/silai-26/01.jpg",
+    "images": [
+      "/products/silaibunai/silai-26/01.jpg",
+      "/products/silaibunai/silai-26/02.jpg"
+    ]
+  },
+  {
+    "id": "olive-wave-embroidery-wardrobe-silai",
+    "name": "Nawabee Leather Shutters",
+    "subcategoryId": "custom-stitch",
+    "price": 8000,
+    "pricingMode": "per-sqft",
+    "thicknessMm": 25,
+    "sku": "PBH-SILAI-27",
+    "description": "Olive upholstered wardrobe shutters with white wave embroidery and bead accents. Custom silai bunai for dressing-room wardrobes — confirm fabric and motif on WhatsApp.",
+    "collection": "Silai Bunai",
+    "image": "/products/silaibunai/silai-27/01.jpg",
+    "images": [
+      "/products/silaibunai/silai-27/01.jpg",
+      "/products/silaibunai/silai-27/02.jpg"
+    ]
+  },
+  {
+    "id": "taupe-gold-filigree-wardrobe-silai",
+    "name": "Zardosi Leather Shutters",
+    "subcategoryId": "custom-stitch",
+    "price": 7000,
+    "pricingMode": "per-sqft",
+    "thicknessMm": 25,
+    "sku": "PBH-SILAI-28",
+    "description": "Taupe upholstered wardrobe shutters with gold filigree floral embroidery. Premium silai bunai for bedroom wardrobes — confirm fabric and motif on WhatsApp.",
+    "collection": "Silai Bunai",
+    "image": "/products/silaibunai/silai-28/01.jpg",
+    "images": [
+      "/products/silaibunai/silai-28/01.jpg",
+      "/products/silaibunai/silai-28/02.jpg",
+      "/products/silaibunai/silai-28/03.jpg"
+    ]
+  }
+]

@@ -1,0 +1,4 @@
+# Cloudflare Pages — SPA fallback for React Router
+# Keep /api/* for Cloudflare Functions (do not rewrite to index.html)
+/api/*  /api/:splat  200
+/*      /index.html  200

@@ -189,6 +189,15 @@
   background: var(--honey-deep);
 }
 
+.shop__concept--leena {
+  border-color: rgba(92, 58, 32, 0.28);
+  background: linear-gradient(180deg, #f8f1e8 0%, #fff 100%);
+}
+
+.shop__concept--leena .shop__concept-kicker {
+  color: #5c3a20;
+}
+
 .shop__pdf-link {
   margin: 0 !important;
 }

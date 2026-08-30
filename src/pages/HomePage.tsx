@@ -73,7 +73,14 @@ function CategorySlide({
 }
 
 export function HomePage() {
-  const featured = useMemo(() => getAllProducts().slice(0, 4), [])
+  const featured = useMemo(() => {
+    const all = getAllProducts()
+    const leather = all.filter((p) => p.categoryId === 'leather-shutters').slice(0, 2)
+    const rest = all
+      .filter((p) => p.categoryId !== 'leather-shutters')
+      .slice(0, Math.max(0, 4 - leather.length))
+    return [...leather, ...rest]
+  }, [])
   const trackRef = useRef<HTMLDivElement>(null)
   const [activeIndex, setActiveIndex] = useState(0)
 
@@ -149,6 +156,28 @@ export function HomePage() {
             </Link>
           </div>
         </div>
+      </section>
+
+      <section className="home-leena" aria-label="Leena leather shutters">
+        <Link className="home-leena__link" to="/shop/leather-shutters">
+          <div className="home-leena__media" aria-hidden="true">
+            <img
+              src="/products/categories/leather-shutters.jpg"
+              alt=""
+              loading="eager"
+            />
+            <div className="home-leena__wash" />
+          </div>
+          <div className="home-leena__copy">
+            <p className="home-leena__brand">Leena</p>
+            <h2 className="home-leena__title">Leather Shutters</h2>
+            <p className="home-leena__lede">
+              High-demand padded leather façades — Linear, Urban, Modu, Nawabee
+              &amp; Zardosi — measured to your wardrobe.
+            </p>
+            <span className="home-leena__cta">Shop Leena leather shutters</span>
+          </div>
+        </Link>
       </section>
 
       <section className="home-cats" id="categories" aria-label="Shop categories">

@@ -109,6 +109,11 @@ const STYLE_WORDS = [
 const ROOM_MAP: { match: RegExp; label: string; categoryId?: string }[] = [
   { match: /\b(kitchen|modular kitchen|cabinets?)\b/i, label: 'kitchen', categoryId: 'kitchen' },
   {
+    match: /\b(leena|leather shutters?|leather doors?|padded shutters?)\b/i,
+    label: 'Leena leather shutters',
+    categoryId: 'leather-shutters',
+  },
+  {
     match: /\b(wardrobe|almirah|cupboard|walk[- ]?in|dressing)\b/i,
     label: 'wardrobe',
     categoryId: 'wardrobe',

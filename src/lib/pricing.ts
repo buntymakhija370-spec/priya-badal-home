@@ -152,6 +152,7 @@ const BOARD_SUPPLY_LOOKUP: Record<BoardSupplyId, BoardSupplyOption> = {
 const CNC_BOARD_EXCLUDED = new Set([
   'live-edge-furniture',
   'silaibunai',
+  'leather-shutters',
   'handles',
 ])
 
@@ -313,6 +314,19 @@ const SIZE_BY_CATEGORY: Record<string, Partial<SizeLimits>> = {
     maxHeight: 12,
   },
   silaibunai: {
+    defaultWidth: 6,
+    defaultHeight: 7,
+    defaultDepth: 0.1,
+    baseWidth: 6,
+    baseHeight: 7,
+    baseDepth: 0.1,
+    usesDepth: false,
+    minWidth: 1,
+    maxWidth: 14,
+    minHeight: 1,
+    maxHeight: 10,
+  },
+  'leather-shutters': {
     defaultWidth: 6,
     defaultHeight: 7,
     defaultDepth: 0.1,

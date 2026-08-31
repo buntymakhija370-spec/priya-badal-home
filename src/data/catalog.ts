@@ -10675,6 +10675,11 @@ export const baseProducts: Product[] = [
     categoryId: 'leather-shutters',
     subcategoryId: 'leather',
     price: 3500,
+    /**
+     * Special carcass rate when buying with this shutter (not the standalone ₹2,500).
+     * With carcass = shutter ₹3,500 + carcass ₹1,800.
+     */
+    carcassPrice: 1800,
     currency: 'INR',
     pricingMode: 'per-sqft',
     defaultThicknessId: '25',
@@ -10683,7 +10688,7 @@ export const baseProducts: Product[] = [
     collection: 'Leather Shutters',
     sku: 'PBH-SILAI-29',
     description:
-      'Sand leather-look wardrobe shutters with a flowing vertical wave stitch and recessed pulls. Leena leather shutter on 25 mm calibrated plywood base — measured to your wardrobe opening.',
+      'Sand leather-look wardrobe shutters with a flowing vertical wave stitch and recessed pulls. Leena leather shutter on 25 mm calibrated plywood base — measured to your wardrobe opening. Add carcass at the special shutter-buyer rate of ₹1,800 / sq ft (not ₹2,500).',
     style: ['custom', 'soft', 'modern'],
     rooms: ['bedroom', 'dressing room', 'lounge'],
     image: '/products/silaibunai/silai-29/01.jpg',
@@ -10700,9 +10705,9 @@ export const baseProducts: Product[] = [
       'Edge detail — leather wrap and handle stitch.',
     ],
     highlights: [
-      '₹3,500 / sq ft',
-      '25 mm',
-      'Base: calibrated plywood',
+      '₹3,500 / sq ft shutter',
+      'Carcass ₹1,800 / sq ft with shutter',
+      '25 mm calibrated plywood',
       'Leather shutter finish',
       'Wave stitch · recessed pulls',
       'On-site measurement',
@@ -10714,6 +10719,11 @@ export const baseProducts: Product[] = [
       { label: 'Sku', value: 'PBH-SILAI-29' },
       { label: 'Base', value: 'Calibrated plywood' },
       { label: 'Thickness', value: '25 mm' },
+      { label: 'Shutter rate', value: '₹3,500 / sq ft' },
+      {
+        label: 'Carcass with shutter',
+        value: '₹1,800 / sq ft (special — not ₹2,500)',
+      },
       { label: 'Service', value: 'Custom leather shutter finish' },
       { label: 'Warranty', value: 'Workmanship warranty confirmed on order' },
     ],
@@ -10722,17 +10732,25 @@ export const baseProducts: Product[] = [
       { label: 'Base', value: 'Calibrated plywood' },
       { label: 'Thickness', value: '25 mm' },
       { label: 'Category', value: 'Leena Leather Shutters' },
-      { label: 'Pricing', value: '₹3,500 / sq ft · confirm size on WhatsApp' },
+      {
+        label: 'Pricing',
+        value:
+          'Shutter ₹3,500 / sq ft · with carcass add ₹1,800 / sq ft (shutter-buyer special vs ₹2,500)',
+      },
       { label: 'Country of Origin', value: 'India' },
       { label: 'Care', value: 'Soft cloth wipe; avoid harsh solvents' },
     ],
     features: [
       '25 mm calibrated plywood base with leather-look wave stitch shutters',
+      'Optional carcass at ₹1,800 / sq ft when buying this shutter (not the ₹2,500 rate)',
       'Recessed pulls matched to the leather tone',
       'Made to your wardrobe opening after measure',
     ],
+    orderNotes: [
+      'Carcass with this shutter: ₹1,800 / sq ft special rate (standalone carcass is ₹2,500).',
+    ],
     disclaimer:
-      'Final leather tone, stitch path, and size are confirmed on WhatsApp before production.',
+      'Final leather tone, stitch path, carcass option, and size are confirmed on WhatsApp before production.',
   },
   {
     id: 'aura-leather-shutters-leena',
@@ -10740,6 +10758,11 @@ export const baseProducts: Product[] = [
     categoryId: 'leather-shutters',
     subcategoryId: 'leather',
     price: 4500,
+    /**
+     * Special carcass rate when buying with this shutter (not the standalone ₹2,500).
+     * With carcass = shutter ₹4,500 + carcass ₹1,800.
+     */
+    carcassPrice: 1800,
     currency: 'INR',
     pricingMode: 'per-sqft',
     defaultThicknessId: '25',
@@ -10748,7 +10771,7 @@ export const baseProducts: Product[] = [
     collection: 'Leather Shutters',
     sku: 'PBH-SILAI-30',
     description:
-      'Multi-tone grey and sand leather-look shutters with a continuous organic aura pattern across the doors. Leena leather shutter on 25 mm calibrated plywood base for bedroom wardrobes.',
+      'Multi-tone grey and sand leather-look shutters with a continuous organic aura pattern across the doors. Leena leather shutter on 25 mm calibrated plywood base. Add carcass at the special shutter-buyer rate of ₹1,800 / sq ft (not ₹2,500).',
     style: ['custom', 'luxe', 'modern'],
     rooms: ['bedroom', 'dressing room'],
     image: '/products/silaibunai/silai-30/01.jpg',
@@ -10765,9 +10788,9 @@ export const baseProducts: Product[] = [
       'Edge detail — leather seam and curve stitch.',
     ],
     highlights: [
-      '₹4,500 / sq ft',
-      '25 mm',
-      'Base: calibrated plywood',
+      '₹4,500 / sq ft shutter',
+      'Carcass ₹1,800 / sq ft with shutter',
+      '25 mm calibrated plywood',
       'Leather shutter finish',
       'Multi-tone aura pattern',
       'On-site measurement',
@@ -10779,6 +10802,11 @@ export const baseProducts: Product[] = [
       { label: 'Sku', value: 'PBH-SILAI-30' },
       { label: 'Base', value: 'Calibrated plywood' },
       { label: 'Thickness', value: '25 mm' },
+      { label: 'Shutter rate', value: '₹4,500 / sq ft' },
+      {
+        label: 'Carcass with shutter',
+        value: '₹1,800 / sq ft (special — not ₹2,500)',
+      },
       { label: 'Service', value: 'Custom leather shutter finish' },
       { label: 'Warranty', value: 'Workmanship warranty confirmed on order' },
     ],
@@ -10787,17 +10815,25 @@ export const baseProducts: Product[] = [
       { label: 'Base', value: 'Calibrated plywood' },
       { label: 'Thickness', value: '25 mm' },
       { label: 'Category', value: 'Leena Leather Shutters' },
-      { label: 'Pricing', value: '₹4,500 / sq ft · confirm size on WhatsApp' },
+      {
+        label: 'Pricing',
+        value:
+          'Shutter ₹4,500 / sq ft · with carcass add ₹1,800 / sq ft (shutter-buyer special vs ₹2,500)',
+      },
       { label: 'Country of Origin', value: 'India' },
       { label: 'Care', value: 'Soft cloth wipe; avoid harsh solvents' },
     ],
     features: [
       '25 mm calibrated plywood base with continuous multi-tone leather pattern',
+      'Optional carcass at ₹1,800 / sq ft when buying this shutter (not the ₹2,500 rate)',
       'Handle-less clean façade for bedroom wardrobes',
       'Made to your opening after on-site measurement',
     ],
+    orderNotes: [
+      'Carcass with this shutter: ₹1,800 / sq ft special rate (standalone carcass is ₹2,500).',
+    ],
     disclaimer:
-      'Final leather tones, pattern alignment, and size are confirmed on WhatsApp before production.',
+      'Final leather tones, pattern alignment, carcass option, and size are confirmed on WhatsApp before production.',
   },
 ]
 

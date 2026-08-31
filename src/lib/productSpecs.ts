@@ -278,7 +278,8 @@ export function resolveProductPresentation(product: Product) {
         product.categoryId === 'kitchen' ||
         product.categoryId === 'wardrobe' ||
         product.categoryId === 'temple' ||
-        product.categoryId === 'sculpted-furniture'
+        product.categoryId === 'sculpted-furniture' ||
+        product.categoryId === 'leather-shutters'
           ? product.pricingMode === 'per-sqft'
             ? 'Per sq ft — shutter only or with carcass'
             : 'Per unit — shutter only or with carcass'

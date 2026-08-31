@@ -65,12 +65,13 @@ const BUILD_SCOPE_LOOKUP: Record<BuildScopeId, BuildScopeOption> = {
   'with-carcass': BUILD_SCOPES[1]!,
 }
 
-/** Kitchen, wardrobe, temple & shutters use shutter vs carcass pricing */
+/** Kitchen, wardrobe, temple, shutters & Leena leather use shutter vs carcass pricing */
 const BUILD_SCOPE_CATEGORIES = new Set([
   'kitchen',
   'wardrobe',
   'temple',
   'sculpted-furniture',
+  'leather-shutters',
 ])
 
 export function supportsBuildScope(categoryId: string): boolean {

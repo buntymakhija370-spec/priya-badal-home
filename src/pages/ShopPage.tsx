@@ -116,7 +116,11 @@ export function ShopPage() {
           <ul>
             <li>Leather-look padded shutters for wardrobes &amp; closets</li>
             <li>Looks: Linear, Urban, Modu, Nawabee, Zardosi, Wave &amp; Aura</li>
-            <li>Priced per sq ft of shutter face · 25 mm board</li>
+            <li>Priced per sq ft of shutter face · 25 mm calibrated plywood</li>
+            <li>
+              Wave &amp; Aura: add carcass at ₹1,800 / sq ft (special shutter-buyer
+              rate — not ₹2,500)
+            </li>
             <li>Confirm leather tone, stitch, and handles on WhatsApp</li>
             <li>Made to your opening after on-site measurement</li>
           </ul>

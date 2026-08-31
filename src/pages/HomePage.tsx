@@ -159,25 +159,28 @@ export function HomePage() {
       </section>
 
       <section className="home-leena" aria-label="Leena leather shutters">
-        <Link className="home-leena__link" to="/shop/leather-shutters">
-          <div className="home-leena__media" aria-hidden="true">
-            <img
-              src="/products/categories/leather-shutters.jpg"
-              alt=""
-              loading="eager"
-            />
-            <div className="home-leena__wash" />
-          </div>
-          <div className="home-leena__copy">
-            <p className="home-leena__brand">Leena</p>
-            <h2 className="home-leena__title">Leather Shutters</h2>
-            <p className="home-leena__lede">
-              High-demand padded leather façades — Linear, Urban, Modu, Nawabee
-              &amp; Zardosi — measured to your wardrobe.
-            </p>
-            <span className="home-leena__cta">Shop Leena leather shutters</span>
-          </div>
-        </Link>
+        <div className="home-leena__frame">
+          <p className="home-leena__eyebrow">Featured collection</p>
+          <Link className="home-leena__link" to="/shop/leather-shutters">
+            <div className="home-leena__media" aria-hidden="true">
+              <img
+                src="/products/categories/leather-shutters.jpg"
+                alt=""
+                loading="eager"
+              />
+              <div className="home-leena__wash" />
+            </div>
+            <div className="home-leena__copy">
+              <p className="home-leena__brand">Leena</p>
+              <h2 className="home-leena__title">Leather Shutters</h2>
+              <p className="home-leena__lede">
+                High-demand padded leather façades — Linear, Urban, Modu, Nawabee
+                &amp; Zardosi — measured to your wardrobe.
+              </p>
+              <span className="home-leena__cta">Shop Leena leather shutters</span>
+            </div>
+          </Link>
+        </div>
       </section>
 
       <section className="home-cats" id="categories" aria-label="Shop categories">

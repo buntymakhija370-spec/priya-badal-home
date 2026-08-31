@@ -174,8 +174,8 @@ export function HomePage() {
               <p className="home-leena__brand">Leena</p>
               <h2 className="home-leena__title">Leather Shutters</h2>
               <p className="home-leena__lede">
-                High-demand padded leather façades — Linear, Urban, Modu, Nawabee
-                &amp; Zardosi — measured to your wardrobe.
+                High-demand padded leather façades — Linear, Urban, Modu, Nawabee,
+                Zardosi, Wave &amp; Aura — measured to your wardrobe.
               </p>
               <span className="home-leena__cta">Shop Leena leather shutters</span>
             </div>

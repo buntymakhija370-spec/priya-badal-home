@@ -155,21 +155,6 @@ export function ShopPage() {
         </aside>
       ) : null}
 
-      {category?.id === 'kitchen' ? (
-        <aside className="shop__concept shop__concept--pdf" aria-label="Kitchen catalogue">
-          <p className="shop__concept-kicker">WhatsApp catalogue</p>
-          <p>
-            Download the full Kitchen lookbook — photos and names only (no
-            prices). Share on WhatsApp; enquire on the website.
-          </p>
-          <p className="shop__pdf-link">
-            <a href="/catalogs/priyabadal-kitchen.pdf?v=3" download>
-              Download Kitchen PDF
-            </a>
-          </p>
-        </aside>
-      ) : null}
-
       <div className="shop__toolbar">
         <label className="shop__search">
           <span className="sr-only">Search products</span>

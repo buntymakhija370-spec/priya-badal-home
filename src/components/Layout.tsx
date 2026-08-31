@@ -1,34 +1,34 @@
-import { NavLink, Outlet } from 'react-router-dom'
+import { NavLink, Outlet, useLocation, useNavigate } from 'react-router-dom'
 import { useEffect, useState } from 'react'
 import { categories } from '../data/catalog'
 import { shopPath } from '../lib/links'
 import { useCartCount } from '../hooks/useCart'
+import { rememberCheckReturn } from '../lib/checkReturn'
 import {
   WHATSAPP_CHAT_URL,
   WHATSAPP_DISPLAY,
 } from '../lib/whatsapp'
 import { CurrencySelect } from './CurrencySelect'
-import { BottomNav } from './BottomNav'
-import { InstallBanner } from './InstallBanner'
+import { BottomNav, leaveCheckPage } from './BottomNav'
 import './Layout.css'
 
 const utilityLinks = [
-  { to: '/install', label: 'Get the App (iPhone & Android)' },
-  { to: '/design', label: 'Design my space' },
-  { to: '/shop', label: 'All products' },
+  { to: '/shop', label: 'Collections' },
   { to: '/how-it-works', label: 'How it works' },
-  { to: '/visualise', label: 'Visualise AI' },
-  { to: '/carcass', label: 'Carcass Planner' },
+  { to: '/chat', label: 'Chat' },
   { to: '/guides/carcass-assembly', label: 'Carcass assembly guide' },
   { to: '/favorites', label: 'Favorites' },
-  { to: '/chat', label: 'Priya Badal AI' },
   { to: '/add-product', label: 'Add Product' },
 ]
 
 export function Layout() {
   const [scrolled, setScrolled] = useState(false)
   const [menuOpen, setMenuOpen] = useState(false)
+  const [categoriesOpen, setCategoriesOpen] = useState(false)
   const cartCount = useCartCount()
+  const location = useLocation()
+  const navigate = useNavigate()
+  const onCheck = location.pathname === '/favorites'
 
   useEffect(() => {
     const onScroll = () => setScrolled(window.scrollY > 20)
@@ -44,13 +44,32 @@ export function Layout() {
     }
   }, [menuOpen])
 
-  const close = () => setMenuOpen(false)
+  // Keep last browse page so leaving Check can restore it
+  useEffect(() => {
+    rememberCheckReturn(location.pathname, location.search)
+  }, [location.pathname, location.search])
+
+  const close = () => {
+    setMenuOpen(false)
+    setCategoriesOpen(false)
+  }
 
   return (
     <div className="site">
       <div className="grain" aria-hidden="true" />
       <header className={`nav ${scrolled ? 'nav--scrolled' : ''} ${menuOpen ? 'nav--open' : ''}`}>
-        <NavLink className="nav__brand" to="/" onClick={close} aria-label="Priyabadal Homes home">
+        <NavLink
+          className="nav__brand"
+          to="/"
+          onClick={(e) => {
+            close()
+            if (onCheck) {
+              e.preventDefault()
+              leaveCheckPage(navigate)
+            }
+          }}
+          aria-label="Priyabadal Homes home"
+        >
           <img
             className="nav__logo"
             src="/brand/priyabadal-homes-logo.svg"
@@ -64,11 +83,8 @@ export function Layout() {
               {cat.name}
             </NavLink>
           ))}
-          <NavLink to="/design" onClick={close}>
-            Design
-          </NavLink>
-          <NavLink to="/visualise" onClick={close}>
-            Visualise
+          <NavLink to="/chat" onClick={close}>
+            Chat
           </NavLink>
           <NavLink to="/shop" onClick={close}>
             All
@@ -95,17 +111,37 @@ export function Layout() {
         </div>
 
         <nav className={`nav__links ${menuOpen ? 'is-open' : ''}`} aria-label="Primary">
-          <p className="nav__section-label">Categories</p>
-          {categories.map((cat) => (
-            <NavLink
-              key={cat.id}
-              className="nav__category"
-              to={shopPath(cat.id)}
-              onClick={close}
+          <div className="nav__categories">
+            <button
+              className={`nav__categories-btn ${categoriesOpen ? 'is-open' : ''}`}
+              type="button"
+              aria-expanded={categoriesOpen}
+              aria-controls="nav-all-categories"
+              onClick={() => setCategoriesOpen((v) => !v)}
             >
-              {cat.name}
-            </NavLink>
-          ))}
+              <span>All categories</span>
+              <span className="nav__categories-chevron" aria-hidden="true" />
+            </button>
+            <div
+              id="nav-all-categories"
+              className={`nav__categories-panel ${categoriesOpen ? 'is-open' : ''}`}
+              aria-hidden={!categoriesOpen}
+            >
+              {categories.map((cat) => (
+                <NavLink
+                  key={cat.id}
+                  className="nav__category"
+                  to={shopPath(cat.id)}
+                  onClick={close}
+                >
+                  {cat.name}
+                </NavLink>
+              ))}
+              <NavLink className="nav__category nav__category--all" to="/shop" onClick={close}>
+                View full shop
+              </NavLink>
+            </div>
+          </div>
 
           <div className="nav__divider" aria-hidden="true" />
 
@@ -149,9 +185,6 @@ export function Layout() {
             <p className="footer__heading">Help</p>
             <ul>
               <li>
-                <NavLink to="/install">Get the App</NavLink>
-              </li>
-              <li>
                 <NavLink to="/how-it-works">How your order works</NavLink>
               </li>
               <li>
@@ -161,16 +194,7 @@ export function Layout() {
                 <NavLink to="/favorites">Favorites</NavLink>
               </li>
               <li>
-                <NavLink to="/design">Design my space</NavLink>
-              </li>
-              <li>
-                <NavLink to="/visualise">Visualise AI</NavLink>
-              </li>
-              <li>
-                <NavLink to="/carcass">Carcass Planner</NavLink>
-              </li>
-              <li>
-                <NavLink to="/chat">Priya Badal AI</NavLink>
+                <NavLink to="/chat">Chat</NavLink>
               </li>
               <li>
                 <a href={WHATSAPP_CHAT_URL} target="_blank" rel="noopener noreferrer">
@@ -193,7 +217,6 @@ export function Layout() {
       </a>
 
       <BottomNav />
-      <InstallBanner />
     </div>
   )
 }

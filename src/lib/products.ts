@@ -18,7 +18,8 @@ function writeCustom(products: Product[]) {
 }
 
 export function getAllProducts(): Product[] {
-  return [...baseProducts, ...readCustom()]
+  // Catalog appends new products at the end — reverse so newest appear first.
+  return [...baseProducts, ...readCustom()].reverse()
 }
 
 export function getProductById(id: string): Product | undefined {

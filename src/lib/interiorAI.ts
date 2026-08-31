@@ -41,11 +41,47 @@ export type ConsultBrief = {
   lastChangeRequest?: string | null
 }
 
-/** Strict: only clear edit-the-AI-photo commands (not general chitchat) */
+/** Client wants style cards to pick — never auto-generate a visualisation */
+export function isOptionsRequest(text: string): boolean {
+  const t = text.trim().toLowerCase()
+  if (!t) return false
+  if (
+    /^(suggest( other)? styles?|show (me )?options|more options|other options|another option|another options|give me (another |more )?options?|different (option|style|design)|show (me )?(more |other )?(styles?|designs?|options?)|options please)$/i.test(
+      t,
+    )
+  ) {
+    return true
+  }
+  return /\b(another option|other options|more options|different options?|give me (an? )?options?|show (me )?(the )?options?|pick (from )?options?|style options?|design options?|other styles?|another style|more styles?|suggest (other )?styles?|recommend (other )?styles?)\b/i.test(
+    t,
+  )
+}
+
+/** Clear edit-the-AI-photo commands (not general chitchat) */
 export function isChangeRequest(text: string): boolean {
   const t = text.trim()
   if (!t) return false
-  return /\b(change (the|this|it|colour|color|finish|doors?|handles?)|changes?:|update (the|this|it)|edit (the|this|it)|revise|modify|adjust|tweak|redo (the|this|it)|make (it|the|them|this|doors?|colour|color) |make it |lighter|darker|brighter|softer|warmer|cooler|remove (the )?handles?|add more (hanging|drawers|shelves)|no handles|more hanging|more drawers|less drawers|different (colour|color|finish)|on this (photo|image|look|visual)|apply (this )?change)\b/i.test(
+  // Options / style picks are never “edit this AI look”
+  if (isOptionsRequest(t)) return false
+  return /\b(change(s|d)?|update(d)?|edit(ed)?|revise(d)?|revision|modify|adjust|tweak|redo|correct(ion)?|fix (this|it|the look)|make (it|the|them|this|doors?|colour|color|handles?|shutters?) |make it |lighter|darker|brighter|softer|warmer|cooler|whiter|cream(ier)?|remove (the )?handles?|add (more )?(hanging|drawers|shelves|handles?)|no handles|more hanging|more drawers|less drawers|different (colour|color|finish|handle)|on this (photo|image|look|visual)|apply (this )?change|instead of|rather than|too (dark|light|bright|small|big|heavy)|a bit more|a bit less|slightly|ajar|half[- ]?open|partly open|partially open|(slightly |soft )?open (the )?(shutter|shutters|door|doors)|show (the )?inside|peek inside|same (look|image|photo|visual)? ?(?:but|with|without)|keep (this|the same)|continue (with |on )?(this|the )?(look|image|visual)|try again|do (it )?again|one more (time|edit)|another (edit|tweak|change)|also |now (make|change|add|remove|open|close))\b/i.test(
+    t,
+  )
+}
+
+/** Short “keep going on this same AI look” phrasing (not a brand-new job) */
+export function isContinueSameLookRequest(text: string): boolean {
+  const t = text.trim().toLowerCase()
+  if (!t) return false
+  return /^(again|same again|same look|continue|keep going|next change|update this|edit this|apply|apply change|do again|try again|one more|one more time|please update|please change)$/i.test(
+    t,
+  )
+}
+
+/** Explicit request to regenerate from the original room photo (not edit current AI) */
+export function isFreshVisualiseRequest(text: string): boolean {
+  const t = text.trim().toLowerCase()
+  if (!t) return false
+  return /\b(start over|from scratch|new visual|fresh visual|from (my |the )?(room )?photo again|regenerate from (room )?photo|ignore (the )?previous|discard (the )?(ai|previous) (look|image|photo)|visuali[sz]e again from (the )?(room )?photo)\b/i.test(
     t,
   )
 }
@@ -72,6 +108,11 @@ const STYLE_WORDS = [
 
 const ROOM_MAP: { match: RegExp; label: string; categoryId?: string }[] = [
   { match: /\b(kitchen|modular kitchen|cabinets?)\b/i, label: 'kitchen', categoryId: 'kitchen' },
+  {
+    match: /\b(leena|leather shutters?|leather doors?|padded shutters?)\b/i,
+    label: 'Leena leather shutters',
+    categoryId: 'leather-shutters',
+  },
   {
     match: /\b(wardrobe|almirah|cupboard|walk[- ]?in|dressing)\b/i,
     label: 'wardrobe',
@@ -189,8 +230,14 @@ function scoreProduct(product: Product, brief: ConsultBrief, text: string) {
   return score
 }
 
-export function suggestProducts(brief: ConsultBrief, text = '', limit = 3): Product[] {
-  const products = getAllProducts()
+export function suggestProducts(
+  brief: ConsultBrief,
+  text = '',
+  limit = 6,
+  options?: { excludeSelected?: boolean },
+): Product[] {
+  const excludeId = options?.excludeSelected ? brief.selectedProductId : undefined
+  const products = getAllProducts().filter((p) => p.id !== excludeId)
   const scored = products
     .map((product) => ({ product, score: scoreProduct(product, brief, text) }))
     .filter((row) => row.score > 0)
@@ -297,22 +344,64 @@ export function createWelcomeMessage(): ChatMessage {
     id: crypto.randomUUID(),
     role: 'assistant',
     text: [
-      'Hi — I’m Priya Badal AI.',
+      'Hi — I’m your Priyabadal Homes salesperson in chat. One conversation for everything:',
       '',
-      'Ask me anything about our catalog — any wardrobe, kitchen, temple, panel, price, carcass, material, finish, or which design fits your home.',
+      '• Economic ranges — e.g. wall panels with poly / HDR finishes & tentative prices',
+      '• Pricing — shutter & carcass rates from our catalog (INR)',
+      '• Finishes & thickness — what’s available on each product',
+      '• Carcass help — BWP boxes, laminate, edge banding, assembly',
+      '• Room visualisation — attach a photo and say “visualise”',
+      '• WhatsApp quotation — after we lock size, design, and rates',
       '',
-      'I speak naturally and answer from Priyabadal Homes product data (INR). Share size in feet for estimates, or attach a room photo to visualise.',
-      '',
-      'What would you like to know?',
+      'Tell me what you need — like “give me economic wall panel range”.',
     ].join('\n'),
     suggestions: [
-      'Which wardrobe suits a small bedroom?',
-      'Carcass vs shutter price for 8x7',
-      'Compare temple wall designs',
-      'What materials do you use?',
+      'Economic wall panel range',
+      'Price wardrobe 8×7 with carcass',
+      'Visualise my look',
       'Suggest kitchen styles',
     ],
   }
+}
+
+/** Open carcass / live-size carcass elevation (not room photo with shutters) */
+export function isCarcassVisualiseRequest(text: string): boolean {
+  const t = text.trim().toLowerCase()
+  if (!t) return false
+  // visualise / visualize / visualisation / visualization (+ common endings)
+  const viz = String.raw`visuali[sz](?:e|es|ed|ing|ation|ations)`
+  if (new RegExp(`^${viz}\\s+carcass$`, 'i').test(t)) return true
+  if (
+    /\b(open[- ]?carcass|live[- ]?size carcass|carcass (elevation|interior|inside|structure|box|assembly guide))\b/i.test(
+      t,
+    )
+  ) {
+    return true
+  }
+  if (
+    new RegExp(String.raw`\bcarcass\b.{0,28}\b${viz}\b`, 'i').test(t) ||
+    new RegExp(String.raw`\b${viz}\b.{0,28}\bcarcass\b`, 'i').test(t)
+  ) {
+    return true
+  }
+  if (
+    /\b(show|make|generate|render|create)(?:\s+\w+){0,4}\s+carcass\b/i.test(t) &&
+    new RegExp(String.raw`\b(${viz}|image|photo|look|render|elevation|open)\b`, 'i').test(t)
+  ) {
+    return true
+  }
+  return false
+}
+
+function missingForCarcassVisualise(brief: ConsultBrief): string[] {
+  const missing: string[] = []
+  if (!brief.selectedProductId) {
+    missing.push('pick a wardrobe, kitchen, or carcass style from our list')
+  }
+  if (brief.widthFt == null || brief.heightFt == null) {
+    missing.push('size in feet (e.g. 8×6)')
+  }
+  return missing
 }
 
 export type ConsultTurnResult = {
@@ -320,57 +409,81 @@ export type ConsultTurnResult = {
   reply: ChatMessage
   /** True when client should run Fal visualise next */
   shouldVisualise?: boolean
+  /** Live-size open carcass elevation (no room photo required) */
+  shouldCarcassVisualise?: boolean
   /** Edit the existing AI photo instead of starting from the room photo only */
   refine?: boolean
+  /** Catalog price/carcass/materials answer — Chat should prefer this for rates */
+  catalogLocal?: boolean
+  /** Intent label when catalogLocal */
+  catalogIntent?: string
+  /** Preferred visualisation mode for runVisualise */
+  visualiseMode?: 'replace' | 'install' | 'redesign'
+  /** Show style cards only — never call LLM or auto-generate an image */
+  optionsPick?: boolean
+}
+
+/** Detect replace / install / redesign wording for chat visualise */
+export function detectVisualiseMode(
+  text: string,
+): 'replace' | 'install' | 'redesign' {
+  const t = text.toLowerCase()
+  if (/\b(redesign|presentable|client[- ]ready|full look|makeover|restyle)\b/.test(t)) {
+    return 'redesign'
+  }
+  if (/\b(install|place|put|add (?:the |our )?product|into (?:my )?room)\b/.test(t)) {
+    return 'install'
+  }
+  if (/\b(replace|swap|change (?:the )?(?:existing|old)|instead of)\b/.test(t)) {
+    return 'replace'
+  }
+  return 'replace'
 }
 
 function productSuggestionMessage(
   brief: ConsultBrief,
   text: string,
   intro: string,
+  opts?: { excludeSelected?: boolean },
 ): ChatMessage {
-  const products = suggestProducts(brief, text, 3)
+  const products = suggestProducts(brief, text, 6, {
+    excludeSelected: opts?.excludeSelected,
+  })
   const sizeLine =
     brief.widthFt != null && brief.heightFt != null
       ? `Size on file: ${brief.widthFt} × ${brief.heightFt}${
           brief.depthFt != null ? ` × ${brief.depthFt}` : ''
         } ft.`
-      : 'Share size in feet anytime (e.g. 8 x 7).'
+      : null
   const photoLine = brief.roomPhotoDataUrl
     ? brief.attachmentKind === 'drawing'
       ? 'Architect drawing is attached.'
       : 'Room photo is attached.'
-    : 'You can attach a room photo or architect drawing when ready.'
+    : null
+  const nextStep = brief.roomPhotoDataUrl
+    ? 'Tap a style card to select it — I will not make a new AI image until you tap Visualise my look.'
+    : 'Tap a style card to select it. Attach a room photo, then tap Visualise my look when you want the image.'
 
   return {
     id: crypto.randomUUID(),
     role: 'assistant',
-    text: [
-      intro,
-      '',
-      ...products.map((p, i) => {
-        const carcass =
-          productHasCarcass(p) && p.carcassPrice != null
-            ? ` · carcass ${formatPrice(p.carcassPrice)}${
-                p.pricingMode === 'per-sqft' ? '/sq ft' : ''
-              }`
-            : ''
-        return `${i + 1}. ${p.name} — shutter from ${formatPrice(p.price)}${
-          p.pricingMode === 'per-sqft' ? '/sq ft' : ''
-        }${carcass}`
-      }),
-      '',
-      sizeLine,
-      photoLine,
-      'Tap Use this, then ask price / carcass / material specs, or visualise.',
-    ].join('\n'),
+    text: [intro, '', nextStep, sizeLine, photoLine].filter(Boolean).join('\n'),
     products,
-    suggestions: brief.aiImageUrl
-      ? ['Price estimate', 'Material specs', 'WhatsApp quote']
-      : brief.roomPhotoDataUrl
-        ? ['Visualise my look', 'Price estimate', 'Material specs']
-        : ['Price estimate', 'What is carcass pricing?', 'Attach room photo'],
+    suggestions: brief.roomPhotoDataUrl
+      ? ['Visualise my look', 'Give me another option', 'Price estimate']
+      : ['Attach room photo', 'Give me another option', 'Price estimate'],
   }
+}
+
+/** Drop numbered product dumps when the UI already shows image cards */
+export function cleanChatProductText(text: string, hasProducts: boolean): string {
+  if (!hasProducts || !text.trim()) return text
+  return text
+    .replace(/^PRODUCTS:\s*.+$/gim, '')
+    .replace(/^SUGGESTIONS:\s*.+$/gim, '')
+    .replace(/^\s*[-*•]?\s*\d+[.)]\s+.+$/gm, '')
+    .replace(/\n{3,}/g, '\n\n')
+    .trim()
 }
 
 /** Normal chitchat reply — listens and continues the consultation without forcing a new visual */
@@ -504,15 +617,21 @@ export function processConsultTurn(
     Boolean(next.categoryId) &&
     (!before.categoryId || before.categoryId !== next.categoryId)
 
+  const wantsCarcassVisualise = isCarcassVisualiseRequest(text)
+
   const wantsVisualise =
-    /\b(visuali[sz]e|render|show (?:me )?(?:the )?look|generate (?:again|look|image|visual))\b/i.test(
+    !wantsCarcassVisualise &&
+    (/\b(visuali[sz]e|render|show (?:me )?(?:the )?look|generate (?:again|look|image|visual))\b/i.test(
       text,
-    ) || /^visualise my look$/i.test(lower)
+    ) ||
+      /^visualise my look$/i.test(lower))
 
   const wantsSuggest =
-    /\b(suggest|recommend|show (?:me )?options|ideas?|other styles|another style|what (?:do you|can you) suggest|product list|styles)\b/i.test(
+    isOptionsRequest(text) ||
+    /\b(suggest|recommend|show (?:me )?options|ideas?|other styles|another style|another option|more options|different (style|option|design)|what (?:do you|can you) suggest|product list|styles)\b/i.test(
       text,
-    ) || /^suggest styles$/i.test(lower)
+    ) ||
+    /^suggest styles$/i.test(lower)
 
   const wantsSummary =
     /\b(summary|what do you have|my details|brief|what do you recommend next)\b/i.test(
@@ -522,23 +641,138 @@ export function processConsultTurn(
   const wantsDrawingHelp =
     /\b(architect drawing|floor plan|elevation|i have (?:an? )?drawing|cad|blueprint)\b/i.test(
       lower,
-    )
+    ) && !wantsCarcassVisualise
 
-  // 1) Explicit photo edit only — never treat normal chat as refine
+  // 0) Open carcass / live-size carcass visualisation (no room photo)
+  if (wantsCarcassVisualise) {
+    const missing = missingForCarcassVisualise(next)
+    if (missing.length) {
+      return {
+        brief: next,
+        reply: {
+          id: crypto.randomUUID(),
+          role: 'assistant',
+          text: [
+            'Yes — I can generate an open carcass visualisation (live-size interior elevation, no shutters).',
+            `Still need: ${missing.join(' and ')}.`,
+            '',
+            briefSummary(next),
+          ].join('\n'),
+          products: next.selectedProductId
+            ? undefined
+            : suggestProducts(
+                {
+                  ...next,
+                  categoryId:
+                    next.categoryId === 'kitchen' || next.categoryId === 'wardrobe'
+                      ? next.categoryId
+                      : next.categoryId ?? 'wardrobe',
+                },
+                text,
+                6,
+              ),
+          suggestions: missing.some((m) => m.includes('size'))
+            ? ['Wardrobe 8×6', 'Kitchen 10×8', 'Suggest styles']
+            : ['Suggest wardrobe styles', 'Suggest kitchen styles', 'Price with carcass'],
+        },
+      }
+    }
+
+    return {
+      brief: next,
+      shouldCarcassVisualise: true,
+      reply: {
+        id: crypto.randomUUID(),
+        role: 'assistant',
+        text: `Generating your open carcass visualisation at ${next.widthFt} × ${next.heightFt}${
+          next.depthFt != null ? ` × ${next.depthFt}` : ''
+        } ft — interior elevation only (no shutters)…`,
+      },
+    }
+  }
+
+  // 0b) “Another option” — always show selectable cards first (never auto-visualise)
+  if (wantsSuggest && !wantsVisualise && !wantsCarcassVisualise) {
+    const excludeSelected = Boolean(brief.selectedProductId) || Boolean(brief.aiImageUrl)
+    return {
+      brief: next,
+      optionsPick: true,
+      reply: productSuggestionMessage(
+        next,
+        text,
+        excludeSelected
+          ? `Here are other Priyabadal options for your ${next.room ?? 'space'} — pick one card first:`
+          : `Here are Priyabadal style options for your ${next.room ?? 'space'} — pick one card first:`,
+        { excludeSelected },
+      ),
+    }
+  }
+
+  // 1) Edit the CURRENT AI photo — do not regenerate from the room photo
   const canRefine =
     Boolean(brief.aiImageUrl) &&
     Boolean(brief.selectedProductId) &&
     Boolean(brief.roomPhotoDataUrl)
+  const wantsFresh = isFreshVisualiseRequest(text)
+  const continueSameLook = isContinueSameLookRequest(text)
 
-  if (canRefine && isChangeRequest(text) && !wantsSuggest && !wantsSummary) {
-    const changeText = text.trim()
+  // Shutter open asks → pick a pose first, then render (never silent / surprise generate)
+  const confirmedShutterRender =
+    /— render now$/i.test(text.trim()) ||
+    /^(slightly ajar|half-open peek|open carcass look)( — render now)?$/i.test(
+      text.trim(),
+    )
+  const askingShutterPose =
+    canRefine &&
+    !confirmedShutterRender &&
+    /\b(shutter|shutters|door|doors|ajar|slightly open|open (the )?(shutter|shutters|door|doors)|(shutter|shutters|door|doors) open|show (the )?inside|peek)\b/i.test(
+      text,
+    )
+
+  if (askingShutterPose && !wantsVisualise && !wantsCarcassVisualise) {
+    return {
+      brief: next,
+      optionsPick: true,
+      reply: {
+        id: crypto.randomUUID(),
+        role: 'assistant',
+        text: [
+          'Choose how open you want the shutters — tap one option, then I’ll render that look:',
+          '',
+          '1) Slightly ajar — soft showroom peek (1–2 doors)',
+          '2) Half-open peek — more interior visible',
+          '3) Open carcass — full inside layout',
+        ].join('\n'),
+        suggestions: [
+          'Slightly ajar — render now',
+          'Half-open peek — render now',
+          'Open carcass look — render now',
+        ],
+      },
+    }
+  }
+
+  if (
+    canRefine &&
+    !wantsFresh &&
+    !wantsSuggest &&
+    !wantsSummary &&
+    !wantsCarcassVisualise &&
+    (isChangeRequest(text) || continueSameLook || confirmedShutterRender)
+  ) {
+    const changeText = continueSameLook
+      ? brief.lastChangeRequest?.trim() ||
+        'Keep this same visualisation — polish lighting and realism only; do not change the product or room.'
+      : /slightly ajar/i.test(text)
+        ? 'Slightly open shutters — soft showroom ajar on 1–2 doors only (20–35°).'
+        : /half-open peek/i.test(text)
+          ? 'Half-open shutters — clearer peek of the interior, keep façade identity.'
+          : /open carcass look/i.test(text)
+            ? 'Open carcass — show the interior layout clearly.'
+            : text.trim()
     next = {
       ...next,
       lastChangeRequest: changeText,
-      notes: [brief.notes, `Change request: ${changeText}`]
-        .filter(Boolean)
-        .join(' · ')
-        .slice(0, 500),
     }
     return {
       brief: next,
@@ -547,12 +781,11 @@ export function processConsultTurn(
       reply: {
         id: crypto.randomUUID(),
         role: 'assistant',
-        text: `Understood — revising your current AI photo for: “${changeText}”.`,
+        text: `Rendering your update: “${changeText}”. Please wait on the progress screen…`,
         suggestions: [
           'Make it lighter',
           'Make it darker',
-          'Add more hanging',
-          'Remove handles',
+          'Give me another option',
           'WhatsApp quote',
         ],
       },
@@ -604,63 +837,108 @@ export function processConsultTurn(
     }
   }
 
-  // 3b) Catalog sales Q&A — price, carcass, specs, materials, design
+  // 3b) Catalog sales Q&A — price, carcass, specs, materials, design, ranges
   const catalogIntent = detectCatalogIntent(text)
-  if (catalogIntent && !wantsVisualise && !wantsSuggest) {
+  if (catalogIntent && !wantsVisualise && !wantsSuggest && !wantsCarcassVisualise) {
     const reply = answerCatalogIntent(next, text, catalogIntent)
     if (reply) {
-      return { brief: next, reply }
+      const briefOut =
+        catalogIntent === 'range' &&
+        (/\bwall panels?\b/i.test(text) ||
+          /\bg[- ]?series\b/i.test(text) ||
+          /\bpanel\b/i.test(text) ||
+          (!/\b(kitchen|wardrobe|temple|door)\b/i.test(text) &&
+            next.categoryId !== 'kitchen' &&
+            next.categoryId !== 'wardrobe'))
+          ? {
+              ...next,
+              categoryId: next.categoryId ?? ('wall-panels' as const),
+              room: next.room ?? 'wall panels',
+            }
+          : next
+      return {
+        brief: briefOut,
+        reply,
+        catalogLocal: true,
+        catalogIntent,
+      }
     }
   }
 
-  // 4) Visualise on demand only
+  // 4) Visualise on demand
   if (wantsVisualise) {
     const missing = missingForVisualise(next)
+    const mode = detectVisualiseMode(text)
     if (missing.length) {
       return {
         brief: next,
+        visualiseMode: mode,
         reply: {
           id: crypto.randomUUID(),
           role: 'assistant',
-          text: `I can visualise — still need: ${missing.join(' and ')}.\n\n${briefSummary(next)}`,
+          text: `I can visualise in chat — still need: ${missing.join(' and ')}.\n\n${briefSummary(next)}`,
           products: next.selectedProductId
             ? undefined
-            : suggestProducts(next, text, 3),
+            : suggestProducts(next, text, 6),
           suggestions: missing.some((m) => m.includes('upload'))
             ? ['Attach room photo', 'I have an architect drawing']
-            : ['Suggest styles'],
+            : ['Suggest styles', 'Price with carcass'],
         },
       }
     }
-    const refineAgain = Boolean(
-      next.aiImageUrl && next.lastChangeRequest?.trim() && isChangeRequest(text),
-    )
+
+    // Prefer editing the current AI image unless the user asks to start over.
+    // Saying “Visualise my look” again after a render must CONTINUE the same look,
+    // not kick off a brand-new job from the room photo.
+    const refineAgain = Boolean(next.aiImageUrl) && !wantsFresh
+
+    if (refineAgain && (isChangeRequest(text) || continueSameLook)) {
+      next = {
+        ...next,
+        lastChangeRequest: continueSameLook
+          ? next.lastChangeRequest?.trim() ||
+            'Keep this same visualisation — polish lighting and realism only; do not change the product or room.'
+          : text.trim(),
+      }
+    }
+    if (refineAgain && !next.lastChangeRequest?.trim()) {
+      next = {
+        ...next,
+        lastChangeRequest:
+          'Keep this same visualisation — polish lighting and realism only; do not change the product or room.',
+      }
+    }
+
     return {
       brief: next,
       shouldVisualise: true,
       refine: refineAgain,
+      visualiseMode: mode,
       reply: {
         id: crypto.randomUUID(),
         role: 'assistant',
         text: refineAgain
-          ? `Revising your current visualisation with: “${next.lastChangeRequest}”…`
-          : next.aiImageUrl
-            ? 'Generating a fresh visualisation from your photo/drawing and selected product…'
-            : 'Generating your AI visualisation with the selected Priyabadal product…',
+          ? `Continuing your current AI look${
+              next.lastChangeRequest
+                ? ` — “${next.lastChangeRequest}”`
+                : ''
+            }…`
+          : wantsFresh && next.aiImageUrl
+            ? `Starting a fresh ${mode} visualisation from your original photo/drawing…`
+            : `Generating your ${mode} AI visualisation with the selected Priyabadal product…`,
       },
     }
   }
 
-  // 5) Product suggestions only when asked, or when room is newly chosen
-  if (wantsSuggest || roomJustSet) {
+  // 5) Product suggestions when room is newly chosen (options asks handled earlier)
+  if (roomJustSet) {
     return {
       brief: next,
+      optionsPick: true,
       reply: productSuggestionMessage(
         next,
         text,
-        roomJustSet
-          ? `Got it — ${next.room}. Here are Priyabadal styles from our list that fit:`
-          : `Here are Priyabadal styles I’d suggest for your ${next.room ?? 'space'}:`,
+        `Got it — ${next.room}. Here are Priyabadal styles from our list that fit — tap one to select:`,
       ),
     }
   }
@@ -675,20 +953,26 @@ export function processConsultTurn(
 export function messageForPhotoAttached(brief: ConsultBrief): ChatMessage {
   const products = brief.selectedProductId
     ? undefined
-    : suggestProducts(brief, brief.room ?? '', 3)
+    : suggestProducts(brief, brief.room ?? '', 6)
   const isDrawing = brief.attachmentKind === 'drawing'
   return {
     id: crypto.randomUUID(),
     role: 'assistant',
     text: brief.selectedProductId
-      ? `${isDrawing ? 'Drawing' : 'Photo'} received. I have your selected Priyabadal style ready.\n\n${briefSummary(brief)}\n\nSay “Visualise my look” — I’ll build a photoreal look from our product list${isDrawing ? ' following your architect drawing' : ' in your room'}.`
-      : `${isDrawing ? 'Architect drawing received — I’ll read the layout, wall runs, and openings.' : 'Room photo received — thanks.'} ${
-          brief.room ? `Planning for ${brief.room}. ` : ''
-        }Pick a product from our list below (or tell me room/size), then we’ll visualise.`,
+      ? `${isDrawing ? 'Drawing' : 'Photo'} received. Your selected style is ready.\n\n${briefSummary(brief)}\n\nSay “Visualise my look” when you want the photoreal room render.`
+      : [
+          isDrawing
+            ? 'Architect drawing received — I’ll follow the layout and openings.'
+            : 'Room photo received — thanks.',
+          brief.room ? `Planning for ${brief.room}.` : null,
+          'Pick a style card below, then we can price, check carcass, or visualise.',
+        ]
+          .filter(Boolean)
+          .join(' '),
     products,
     suggestions: brief.selectedProductId
       ? ['Visualise my look', 'Suggest other styles']
-      : ['Kitchen remodel', 'Bedroom wardrobe 8x7', 'Temple wall modern'],
+      : ['Suggest wardrobe styles', 'Suggest kitchen styles', 'Bedroom wardrobe 8x7'],
   }
 }
 
@@ -697,45 +981,45 @@ export function messageForProductSelected(product: Product, brief: ConsultBrief)
   const needAttach = missing.some((m) => m.includes('upload'))
   const withProduct = { ...brief, selectedProductId: product.id }
   const estimate = chatEstimateSummary(withProduct)
-  const carcassHint = productHasCarcass(product)
-    ? `Carcass listed at ${formatPrice(product.carcassPrice!)}${
-        product.pricingMode === 'per-sqft' ? '/sq ft' : ''
-      } (plus shutter).`
+  const blurb = product.description?.trim()
+    ? product.description.trim().slice(0, 160) +
+      (product.description.trim().length > 160 ? '…' : '')
     : null
 
   return {
     id: crypto.randomUUID(),
     role: 'assistant',
     text: [
-      `Selected: ${product.name}.`,
-      product.description?.trim()
-        ? product.description.trim().slice(0, 220) +
-          (product.description.trim().length > 220 ? '…' : '')
-        : null,
+      `Nice choice — ${product.name} is selected for this chat.`,
+      blurb,
       '',
-      ...[
-        `Shutter / catalog: ${formatPrice(product.price)}${
+      [
+        `Shutter ${formatPrice(product.price)}${
           product.pricingMode === 'per-sqft' ? '/sq ft' : ''
         }`,
-        carcassHint,
-        estimate,
-      ].filter(Boolean),
+        productHasCarcass(product) && product.carcassPrice != null
+          ? `carcass ${formatPrice(product.carcassPrice)}${
+              product.pricingMode === 'per-sqft' ? '/sq ft' : ''
+            }`
+          : null,
+      ]
+        .filter(Boolean)
+        .join(' · '),
+      estimate,
       '',
-      briefSummary(withProduct),
-      '',
-      'Ask me: price estimate · carcass pricing · material specs · tell me about this design',
-      missing.length
-        ? `To visualise: ${missing.join(' and ')}.`
-        : 'Ready to visualise anytime.',
+      'What next?',
+      needAttach
+        ? 'Attach a room photo, then tap Visualise my look — I only make the AI image after you ask.'
+        : 'Tap Visualise my look when you want the AI image for this selected style (I won’t generate until you ask).',
     ]
-      .filter((line) => line != null)
+      .filter((line) => line != null && line !== '')
       .join('\n'),
     products: [product],
     suggestions: [
-      'Price estimate',
-      productHasCarcass(product) ? 'Explain carcass pricing' : 'Material specs',
-      'Tell me about this design',
       needAttach ? 'Attach room photo' : 'Visualise my look',
+      'Give me another option',
+      'Price estimate',
+      productHasCarcass(product) ? 'Visualise carcass' : 'Material specs',
     ],
   }
 }
@@ -753,7 +1037,7 @@ export function buildChatWhatsAppUrl(brief: ConsultBrief): string | null {
 
   const estimate = chatEstimateSummary(brief)
   const lines = [
-    'Hi Priyabadal Homes — Priya Badal AI consultation:',
+    'Hi Priyabadal Homes — chat consultation:',
     '',
     brief.room ? `Space: ${brief.room}` : null,
     `Product: ${product.name}`,

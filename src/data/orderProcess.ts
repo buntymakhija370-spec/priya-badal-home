@@ -11,7 +11,7 @@ export const ORDER_STEPS: OrderStep[] = [
     title: 'Choose your piece',
     summary: 'Browse categories and pick the look you like.',
     detail:
-      'Explore wardrobes, kitchens, wall panels, doors, handles, temples, sculpted furniture, or silai bunai. Open a product to see finishes, sizes, and details.',
+      'Explore wardrobes, kitchens, wall panels, doors, handles, temples, sculpted furniture, live edge furniture, or silai bunai. Open a product to see finishes, sizes, and details.',
   },
   {
     id: 'customise',
@@ -25,7 +25,7 @@ export const ORDER_STEPS: OrderStep[] = [
     title: 'Request a WhatsApp quote',
     summary: 'Send your selection — we confirm the final price.',
     detail:
-      'Add items to cart and tap WhatsApp quote, or message us from any product. Share room photos or Visualise AI looks so we can refine the estimate.',
+      'Add items to cart and tap WhatsApp quote, or ask in Chat from any product. Share room photos or chat visualisations so we can refine the estimate.',
   },
   {
     id: 'measure',
@@ -61,7 +61,7 @@ export const ORDER_NOTES = [
   },
   {
     title: 'Made in India',
-    body: 'Priyabadal Homes builds made-to-measure interiors for Indian homes — shutters, doors, wall panels, wardrobes, kitchens, and more.',
+    body: 'Priyabadal Homes builds made-to-measure interiors for Indian homes — shutters, doors, wall panels, wardrobes, kitchens, temples, sculpted furniture, and more.',
   },
   {
     title: 'Carcass construction',

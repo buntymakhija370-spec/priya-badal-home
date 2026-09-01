@@ -3,6 +3,26 @@
   margin-bottom: 1.75rem;
 }
 
+.favorites__back {
+  display: inline-flex;
+  align-items: center;
+  margin: 0 0 0.65rem;
+  padding: 0;
+  border: 0;
+  background: none;
+  color: var(--moss, #2f5d45);
+  font-size: 0.9rem;
+  font-weight: 600;
+  cursor: pointer;
+  text-decoration: underline;
+  text-underline-offset: 0.15em;
+}
+
+.favorites__back:hover,
+.favorites__back:focus-visible {
+  color: var(--ink);
+}
+
 .favorites__header h1 {
   font-family: var(--font-display);
   font-size: clamp(2.2rem, 5vw, 3.2rem);

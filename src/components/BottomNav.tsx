@@ -1,5 +1,10 @@
-import { NavLink } from 'react-router-dom'
+import { NavLink, useLocation, useNavigate } from 'react-router-dom'
 import { useCartCount } from '../hooks/useCart'
+import {
+  readBrowseOrigin,
+  readLastShopPath,
+} from '../lib/browseReturn'
+import { readCheckReturn, rememberCheckReturn } from '../lib/checkReturn'
 import './BottomNav.css'
 
 const tabs = [
@@ -42,30 +47,8 @@ const tabs = [
     ),
   },
   {
-    to: '/design',
-    label: 'Design',
-    icon: (
-      <svg viewBox="0 0 24 24" aria-hidden="true">
-        <path
-          d="M4.5 16.5 14.2 6.8a2.1 2.1 0 0 1 3 3L7.5 19.5H4.5v-3Z"
-          fill="none"
-          stroke="currentColor"
-          strokeWidth="1.7"
-          strokeLinejoin="round"
-        />
-        <path
-          d="M12.5 8.5 15.5 11.5"
-          fill="none"
-          stroke="currentColor"
-          strokeWidth="1.7"
-          strokeLinecap="round"
-        />
-      </svg>
-    ),
-  },
-  {
     to: '/chat',
-    label: 'AI Chat',
+    label: 'Chat',
     icon: (
       <svg viewBox="0 0 24 24" aria-hidden="true">
         <path
@@ -99,10 +82,44 @@ const tabs = [
       </svg>
     ),
   },
+  {
+    to: '/favorites',
+    label: 'Check',
+    icon: (
+      <svg viewBox="0 0 24 24" aria-hidden="true">
+        <path
+          d="M5 12.2 9.4 16.5 19 6.5"
+          fill="none"
+          stroke="currentColor"
+          strokeWidth="1.9"
+          strokeLinecap="round"
+          strokeLinejoin="round"
+        />
+      </svg>
+    ),
+  },
 ] as const
+
+/** Leave Check and restore the page the client was on before opening it. */
+export function leaveCheckPage(navigate: ReturnType<typeof useNavigate>) {
+  // Prefer history back so scroll position is restored (POP)
+  if (window.history.length > 1) {
+    navigate(-1)
+    return
+  }
+  const saved = readCheckReturn()
+  if (saved) {
+    navigate(saved)
+    return
+  }
+  navigate('/')
+}
 
 export function BottomNav() {
   const cartCount = useCartCount()
+  const location = useLocation()
+  const navigate = useNavigate()
+  const onCheck = location.pathname === '/favorites'
 
   return (
     <nav className="tabbar" aria-label="App navigation">
@@ -114,6 +131,64 @@ export function BottomNav() {
           className={({ isActive }) =>
             isActive ? 'tabbar__item is-active' : 'tabbar__item'
           }
+          onClick={(e) => {
+            // Opening Check: remember current browse page to return later
+            if (tab.to === '/favorites' && !onCheck) {
+              rememberCheckReturn(location.pathname, location.search)
+              return
+            }
+
+            // Leaving Check via Home / Shop / Chat — go back to that page,
+            // not a freshly remounted homepage (unless that was the return page).
+            if (onCheck && tab.to !== '/favorites' && tab.to !== '/cart') {
+              const saved = readCheckReturn()
+              if (tab.to === '/') {
+                e.preventDefault()
+                leaveCheckPage(navigate)
+                return
+              }
+              // Shop / Chat: if return path is under that tab, prefer it
+              if (
+                saved &&
+                ((tab.to === '/shop' &&
+                  (saved === '/shop' ||
+                    saved.startsWith('/shop/') ||
+                    saved.startsWith('/product/'))) ||
+                  (tab.to === '/chat' && saved.startsWith('/chat')))
+              ) {
+                e.preventDefault()
+                if (saved.startsWith('/product/')) {
+                  const origin = readBrowseOrigin()
+                  navigate(origin?.path || readLastShopPath(), {
+                    state: { restoreScrollY: origin?.scrollY ?? 0 },
+                  })
+                } else {
+                  navigate(saved)
+                }
+                return
+              }
+            }
+
+            // Shop tab from Home / product / elsewhere → last collection + scroll
+            if (tab.to === '/shop' && !onCheck) {
+              const origin = readBrowseOrigin()
+              const lastShop = readLastShopPath()
+              const alreadyThere =
+                location.pathname === lastShop ||
+                `${location.pathname}${location.search}` === lastShop
+              if (!alreadyThere && lastShop !== '/shop') {
+                e.preventDefault()
+                navigate(lastShop, {
+                  state: {
+                    restoreScrollY: origin?.scrollY ?? 0,
+                  },
+                })
+              }
+            }
+
+            // On a product page, Home should not wipe the saved browse spot —
+            // just go home; Shop tab will resume the list later.
+          }}
         >
           <span className="tabbar__icon">
             {tab.icon}

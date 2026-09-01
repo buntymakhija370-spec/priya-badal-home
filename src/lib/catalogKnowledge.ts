@@ -11,6 +11,8 @@ import {
   calculatePrice,
   defaultConfig,
   describeConfig,
+  getFinish,
+  getThickness,
   productHasCarcass,
   type BuildScopeId,
 } from './pricing'
@@ -23,6 +25,18 @@ function productLine(p: Product): string {
     p.carcassPrice != null
       ? ` | carcass ${p.carcassPrice}${mode}`
       : ''
+  const finishIds = p.finishOptionIds?.length
+    ? p.finishOptionIds
+    : p.defaultFinishId
+      ? [p.defaultFinishId]
+      : []
+  const thickIds = p.thicknessOptionIds?.length
+    ? p.thicknessOptionIds
+    : p.defaultThicknessId
+      ? [p.defaultThicknessId]
+      : []
+  const finishes = finishIds.map((id) => getFinish(id).name).join('/')
+  const thicknesses = thickIds.map((id) => getThickness(id).label).join('/')
   const specs = (p.specifications ?? [])
     .slice(0, 3)
     .map((s) => `${s.label}:${s.value}`)
@@ -30,6 +44,8 @@ function productLine(p: Product): string {
   return [
     `${p.id} | ${p.name} | ${p.categoryId}/${p.subcategoryId}`,
     `shutter ${p.price}${mode}${carcass}`,
+    finishes ? `finishes:${finishes}` : '',
+    thicknesses ? `thickness:${thicknesses}` : '',
     `styles:${p.style.join(',') || '-'} rooms:${p.rooms.join(',') || '-'}`,
     p.description?.slice(0, 140) || '',
     specs ? `specs:${specs}` : '',
@@ -37,6 +53,34 @@ function productLine(p: Product): string {
   ]
     .filter(Boolean)
     .join(' · ')
+}
+
+function wallPanelRangesBlock(): string {
+  const panels = getAllProducts().filter((p) => p.categoryId === 'wall-panels')
+  const gCount = panels.filter((p) => p.subcategoryId === 'g-series').length
+  const premium = panels.filter((p) => p.subcategoryId !== 'g-series')
+  const premiumLines = premium.map((p) => {
+    const finishes = (p.finishOptionIds ?? [p.defaultFinishId ?? 'pu'])
+      .map((id) => getFinish(id).name)
+      .join(', ')
+    const thick = (p.thicknessOptionIds ?? [p.defaultThicknessId ?? '18'])
+      .map((id) => getThickness(id).label)
+      .join(', ')
+    return `- ${p.name}: ₹${p.price}/sqft · ${thick} · finishes ${finishes}`
+  })
+  return [
+    '=== WALL PANEL RANGES (salesperson — trusted) ===',
+    'Economic / value line = G-Series wall panels:',
+    '- Material: HDR engineered board with poly / PU (polyurethane) coating',
+    '- Thickness: 6 mm only on G-Series',
+    '- Finish: poly / PU coating · custom colour (treat as unlimited colour options for client matching)',
+    '- Rate: ₹600 / sq ft for every G design',
+    `- Designs: ${gCount} catalog patterns (G01–G20) — show cards; client can pick any`,
+    '- Sheet: 2440 × 1220 mm (8 × 4 ft); made-to-measure layouts',
+    '- Pitch: tentative catalog price → visualise with room photo → WhatsApp final quotation',
+    'Step-up wall panels (thicker boards / richer finishes):',
+    ...premiumLines,
+  ].join('\n')
 }
 
 /** Compact full-catalog knowledge for the sales LLM */
@@ -161,6 +205,13 @@ export function buildCatalogKnowledge(brief: ConsultBrief, query = ''): string {
     '=== PRIYABADAL HOMES SESSION FACTS (trusted — use these numbers) ===',
     facts.length ? facts.join('\n') : 'No product selected yet.',
     '',
+    '=== SALES PLAYBOOK ===',
+    'Act as Priyabadal Homes salesperson. For economic/budget wall panels, lead with G-Series poly-coated HDR panels at ₹600/sq ft.',
+    'Always state finish + thickness from catalog, give tentative size estimate when feet are known, invite Visualise + WhatsApp quotation.',
+    'Do not invent rates. Unlimited design options = many G-Series patterns + custom poly colour — prices stay on catalog rates.',
+    '',
+    wallPanelRangesBlock(),
+    '',
     '=== CATEGORIES ===',
     ...categoryLines,
     '',
@@ -196,7 +247,7 @@ export function parseAiProductIds(text: string): string[] {
     .split(/[,|]/)
     .map((s) => s.trim())
     .filter(Boolean)
-    .slice(0, 4)
+    .slice(0, 6)
 }
 
 export function parseAiSuggestions(text: string): string[] {

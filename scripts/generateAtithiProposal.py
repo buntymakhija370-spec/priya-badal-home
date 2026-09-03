@@ -85,7 +85,7 @@ ITEMS = [
     {
         "no": 2,
         "name": "Bed-back panels",
-        "spec": "Custom timber headboard wall with horizontal slats / cane niches, integrated warm LED backlight niches",
+        "spec": "Custom headboard wall in 1 mm laminate with horizontal slats / cane niches, integrated warm LED backlight niches",
         "qty": "1 Set",
         "unit": 28000,
         "zone": "Sleeping",
@@ -93,7 +93,7 @@ ITEMS = [
     {
         "no": 3,
         "name": "Bedside units",
-        "spec": "Pair of floating timber bedside tables with soft-close storage; phone & control panel ready",
+        "spec": "Pair of floating bedside tables in 1 mm laminate with soft-close storage; phone & control panel ready",
         "qty": "2 Units",
         "unit": 18000,
         "zone": "Sleeping",
@@ -101,7 +101,7 @@ ITEMS = [
     {
         "no": 4,
         "name": "Wardrobe",
-        "spec": "Full-height guest wardrobe in matching veneer; hanging + shelf zones, soft-close hardware",
+        "spec": "Full-height guest wardrobe in matching 1 mm laminate finish; hanging + shelf zones, soft-close hardware",
         "qty": "1 Unit",
         "unit": 38000,
         "zone": "Storage",
@@ -109,7 +109,7 @@ ITEMS = [
     {
         "no": 5,
         "name": "Luggage rack",
-        "spec": "Hospitality luggage bench / rack in timber with protective top surface",
+        "spec": "Hospitality luggage bench / rack in 1 mm laminate with protective top surface",
         "qty": "1 Unit",
         "unit": 8000,
         "zone": "Storage",
@@ -117,7 +117,7 @@ ITEMS = [
     {
         "no": 6,
         "name": "TV unit",
-        "spec": "Floor-to-ceiling media wall with veneer panel, recessed TV niche, fluted console & cove lighting",
+        "spec": "Floor-to-ceiling media wall with 1 mm laminate panel, recessed TV niche, fluted console & cove lighting",
         "qty": "1 Unit",
         "unit": 22000,
         "zone": "Media",
@@ -125,7 +125,7 @@ ITEMS = [
     {
         "no": 7,
         "name": "Study table",
-        "spec": "Wall-mounted / built-in study desk with light stone / marble-look top and power-data panel provision",
+        "spec": "Wall-mounted / built-in study desk in 1 mm laminate with light stone / marble-look top and power-data panel provision",
         "qty": "1 Unit",
         "unit": 16000,
         "zone": "Work",
@@ -141,7 +141,7 @@ ITEMS = [
     {
         "no": 9,
         "name": "Bar unit",
-        "spec": "In-room beverage / mini-bar cabinet with matching stone countertop & lower storage",
+        "spec": "In-room beverage / mini-bar cabinet in 1 mm laminate with matching stone countertop & lower storage",
         "qty": "1 Unit",
         "unit": 18000,
         "zone": "Refreshment",
@@ -173,7 +173,7 @@ ITEMS = [
     {
         "no": 13,
         "name": "Sofa back panels",
-        "spec": "Vertical fluted / ribbed feature wall panel behind lounge seating",
+        "spec": "Vertical fluted / ribbed feature wall panel in 1 mm laminate behind lounge seating",
         "qty": "1 Set",
         "unit": 12000,
         "zone": "Lounge",
@@ -189,7 +189,7 @@ ITEMS = [
     {
         "no": 15,
         "name": "Bathroom vanity",
-        "spec": "Custom bathroom vanity carcass & shutters with countertop-ready structure",
+        "spec": "Custom bathroom vanity carcass & shutters in 1 mm laminate; countertop-ready structure",
         "qty": "1 Unit",
         "unit": 16000,
         "zone": "Bathroom",
@@ -197,7 +197,7 @@ ITEMS = [
     {
         "no": 16,
         "name": "Curtains pelmet",
-        "spec": "Window pelmet box for sheer + blackout curtain tracks (fabric by client / separate)",
+        "spec": "Window pelmet box in 1 mm laminate for sheer + blackout curtain tracks (fabric by client / separate)",
         "qty": "1 Unit",
         "unit": 6000,
         "zone": "Window",
@@ -624,7 +624,7 @@ def about_page(story, S, content_w):
     story.append(Paragraph("Design Intent", S["H2"]))
     story.append(
         Paragraph(
-            "A warm, contemporary hospitality suite: light oak / walnut veneers, soft terracotta upholstery, "
+            "A warm, contemporary hospitality suite finished in <b>1 mm laminate</b> (not veneer), soft terracotta upholstery, "
             "stone-look worktops, matte black metal accents, and integrated LED cove lighting. The package "
             "delivers a cohesive room identity suitable for premium guest experience and efficient housekeeping.",
             S["Body"],
@@ -643,7 +643,7 @@ def about_page(story, S, content_w):
         [
             Paragraph(
                 "• Custom carcass, shutters &amp; frames as listed<br/>"
-                "• Specified veneers / laminates / fabrics for furniture<br/>"
+                "• Specified 1 mm laminate finishes &amp; fabrics for furniture<br/>"
                 "• Soft-close hardware &amp; installation of supplied items<br/>"
                 "• On-site fitting within agreed lead time<br/>"
                 "• Design coordination to client drawings",
@@ -684,12 +684,12 @@ def about_page(story, S, content_w):
     story.append(Spacer(1, 3 * mm))
     mats = [
         ["Element", "Proposed Direction"],
-        ["Timber / veneer", "Warm oak or walnut veneer for panels, wardrobe & cabinetry"],
+        ["Primary finish", "1 mm laminate on all exposed panels, wardrobe & cabinetry (veneer not included)"],
         ["Stone / tops", "Light beige marble / travertine look for desk & bar counter"],
         ["Upholstery", "Terracotta bed base & chair; cream/oatmeal sofa fabric"],
         ["Metal", "Matte black for hanging bar, pendants & mirror frames"],
         ["Lighting niches", "Warm LED cove / backlight integrated with joinery (driver by electrical)"],
-        ["Flooring note", "Dark or light timber flooring by client — furniture finishes coordinate"],
+        ["Flooring note", "Dark or light timber flooring by client — furniture laminate finishes coordinate"],
     ]
     mat_data = []
     for i, (a, b) in enumerate(mats):
@@ -753,7 +753,7 @@ def gallery_page(story, S, content_w):
         (
             ASSETS / "view-bed-lounge.jpg",
             "View B — Sleeping zone with lounge seating",
-            "Upholstered bed, timber headboard with LED backlight, 2-seater sofa, round center table, and pendant lighting.",
+            "Upholstered bed, laminate headboard with LED backlight, 2-seater sofa, round center table, and pendant lighting.",
         ),
     ]
 
@@ -774,7 +774,7 @@ def gallery_page(story, S, content_w):
     story.append(fit_image(ASSETS / "view-suite-overview.jpg", content_w, 88 * mm))
     story.append(
         Paragraph(
-            "Integrated cane / timber bed wall, floating bedside units, lounge with fluted back panel, "
+            "Integrated cane / laminate bed wall, floating bedside units, lounge with fluted back panel, "
             "and floor-to-ceiling window treatments with pelmet.",
             S["Caption"],
         )

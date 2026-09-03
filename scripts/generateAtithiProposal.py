@@ -823,13 +823,20 @@ def gallery_page(story, S, content_w):
 
 
 def quotation_pages(story, S, content_w):
-    story.append(SectionBanner("5  •  Detailed Product-Wise Commercial Quotation", content_w))
+    story.append(SectionBanner("5  •  Schedule of Items — Guest Room Package", content_w))
     story.append(Spacer(1, 3 * mm))
     story.append(
         Paragraph(
             "Quote Ref: <b>PBH/2026/QT-1048-R3</b> &nbsp;|&nbsp; Date: <b>03 September 2026</b> &nbsp;|&nbsp; "
             "Validity: <b>30 Days</b> &nbsp;|&nbsp; Currency: <b>INR</b>",
             S["BodySmall"],
+        )
+    )
+    story.append(
+        Paragraph(
+            "The following items are included in the <b>complete guest room package</b>. "
+            "Pricing is quoted as a <b>single whole-room package</b> only (not item-wise).",
+            S["Body"],
         )
     )
     story.append(Spacer(1, 3 * mm))
@@ -839,10 +846,8 @@ def quotation_pages(story, S, content_w):
         Paragraph("<b>Item &amp; Specification</b>", ParagraphStyle("h2", parent=S["CellCenter"], textColor=white)),
         Paragraph("<b>Zone</b>", ParagraphStyle("h3", parent=S["CellCenter"], textColor=white)),
         Paragraph("<b>Qty</b>", ParagraphStyle("h4", parent=S["CellCenter"], textColor=white)),
-        Paragraph("<b>Amount (Rs.)</b>", ParagraphStyle("h5", parent=S["CellCenter"], textColor=white)),
     ]
 
-    # Split items across pages for readability: first 9, then rest + totals
     def build_item_rows(items):
         rows = [header]
         for it in items:
@@ -856,17 +861,15 @@ def quotation_pages(story, S, content_w):
                     name_block,
                     Paragraph(it["zone"], S["CellCenter"]),
                     Paragraph(it["qty"], S["CellCenter"]),
-                    Paragraph(inr(it["unit"]), S["CellRight"]),
                 ]
             )
         return rows
 
     col_w = [
-        content_w * 0.06,
-        content_w * 0.48,
-        content_w * 0.14,
-        content_w * 0.12,
-        content_w * 0.20,
+        content_w * 0.07,
+        content_w * 0.58,
+        content_w * 0.18,
+        content_w * 0.17,
     ]
 
     def table_style(nrows):
@@ -891,27 +894,15 @@ def quotation_pages(story, S, content_w):
                 cmds.append(("BACKGROUND", (0, r), (-1, r), white))
         return TableStyle(cmds)
 
-    first = ITEMS[:9]
-    rows1 = build_item_rows(first)
-    t1 = Table(rows1, colWidths=col_w, repeatRows=1)
-    t1.setStyle(table_style(len(rows1)))
-    story.append(t1)
-    story.append(Spacer(1, 3 * mm))
-    story.append(Paragraph("Continued on next page…", S["BodySmall"]))
-    story.append(PageBreak())
-
-    story.append(SectionBanner("5  •  Product-Wise Quotation (continued)", content_w))
-    story.append(Spacer(1, 3 * mm))
-
-    rest = ITEMS[9:]
-    rows2 = build_item_rows(rest)
-    t2 = Table(rows2, colWidths=col_w, repeatRows=1)
-    t2.setStyle(table_style(len(rows2)))
-    story.append(t2)
+    # All 16 items in one schedule (no per-item amounts)
+    rows = build_item_rows(ITEMS)
+    t = Table(rows, colWidths=col_w, repeatRows=1)
+    t.setStyle(table_style(len(rows)))
+    story.append(t)
     story.append(Spacer(1, 5 * mm))
 
-    # Financial summary
-    story.append(SectionBanner("6  •  Financial Summary", content_w))
+    # Financial summary — whole package only
+    story.append(SectionBanner("6  •  Package Pricing (Whole Room)", content_w))
     story.append(Spacer(1, 3 * mm))
 
     fin = [
@@ -920,7 +911,7 @@ def quotation_pages(story, S, content_w):
             Paragraph("<b>Amount</b>", ParagraphStyle("f2", parent=S["CellCenter"], textColor=white)),
         ],
         [
-            Paragraph("Total Room Package — 16 custom furniture / joinery items", S["CellName"]),
+            Paragraph("Complete Guest Room Furniture Package (all 16 items as listed above)", S["CellName"]),
             Paragraph(inr(285000), S["CellRight"]),
         ],
         [
@@ -928,7 +919,7 @@ def quotation_pages(story, S, content_w):
             Paragraph("Extra as applicable", S["CellRight"]),
         ],
         [
-            Paragraph("<b>Total Price (Exclusive of Tax)</b>", S["CellName"]),
+            Paragraph("<b>Total Package Price (Exclusive of Tax)</b>", S["CellName"]),
             Paragraph(f"<b>{inr(285000)}</b>", S["CellRight"]),
         ],
         [
@@ -964,12 +955,14 @@ def quotation_pages(story, S, content_w):
     story.append(Spacer(1, 4 * mm))
     story.append(
         Paragraph(
-            "Unit rates above are for <b>one complete guest room package</b>. Multi-room project pricing "
+            "This quotation is for <b>one complete guest room package</b> as a whole. "
+            "Individual item rates are not quoted separately. Multi-room project pricing "
             "can be extended on the same specification upon confirmation of room count and final drawings.",
             S["BodySmall"],
         )
     )
-    story.append(PageBreak())
+    story.append(Spacer(1, 6 * mm))
+    # Continue into terms on the same page when space allows (no forced page break)
 
 
 def terms_page(story, S, content_w):

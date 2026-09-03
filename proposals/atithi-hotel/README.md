@@ -7,8 +7,8 @@ Client proposal & commercial quotation PDF for **Atithi Hotel, Ujjain**.
 | Quote Ref | `PBH/2026/QT-1048-R3` |
 | Date | 03 September 2026 |
 | Validity | 30 Days |
-| Package total | ₹2,85,000.00 (excl. GST) |
-| Items | 16 custom furniture / joinery pieces |
+| Package total | ₹2,85,000.00 (excl. GST) — whole-room package only (no item-wise rates) |
+| Items | 16 custom furniture / joinery pieces (schedule listed without individual prices) |
 
 ## Output
 

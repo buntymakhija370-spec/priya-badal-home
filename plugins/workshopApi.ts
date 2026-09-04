@@ -70,9 +70,19 @@ type DepartmentReport = {
   at: string
 }
 
+type ClientAccount = {
+  id: string
+  loginId: string
+  pin: string
+  name: string
+  phone: string
+  active: boolean
+}
+
 type WorkshopDb = {
   version: 1
   partners: Partner[]
+  clients?: ClientAccount[]
   orders: WorkshopOrder[]
   reports: DepartmentReport[]
   nextOrderSeq: number
@@ -99,6 +109,7 @@ function readDb(): WorkshopDb {
     const seed: WorkshopDb = {
       version: 1,
       partners: [],
+      clients: [],
       orders: [],
       reports: [],
       nextOrderSeq: 1001,
@@ -135,6 +146,23 @@ function send(res: ServerResponse, status: number, data: unknown) {
   res.statusCode = status
   res.setHeader('Content-Type', 'application/json')
   res.end(JSON.stringify(data))
+}
+
+function normalizePhone(phone: string) {
+  return String(phone || '').replace(/\D/g, '').slice(-10)
+}
+
+function findClient(db: WorkshopDb, loginId: string, pin: string) {
+  const id = loginId.trim().toUpperCase()
+  const clients = db.clients || []
+  return clients.find(
+    (c) => c.active !== false && c.loginId.toUpperCase() === id && c.pin === pin,
+  )
+}
+
+function ordersForClient(db: WorkshopDb, client: ClientAccount) {
+  const phone = normalizePhone(client.phone)
+  return db.orders.filter((o) => normalizePhone(o.customerPhone) === phone)
 }
 
 function workshopMiddleware(): Connect.NextHandleFunction {
@@ -259,6 +287,29 @@ function workshopMiddleware(): Connect.NextHandleFunction {
         else db.partners.push(body)
         writeDb(db)
         return send(res, 200, body)
+      }
+
+      if (req.method === 'POST' && url === '/api/workshop/client/login') {
+        const body = (await readBody(req)) as { loginId?: string; pin?: string }
+        const db = readDb()
+        const client = findClient(db, body.loginId || '', body.pin || '')
+        if (!client) return send(res, 401, { error: 'Invalid login ID or PIN' })
+        return send(res, 200, {
+          client: {
+            loginId: client.loginId,
+            name: client.name,
+            phone: client.phone,
+          },
+          orders: ordersForClient(db, client),
+        })
+      }
+
+      if (req.method === 'POST' && url === '/api/workshop/client/orders') {
+        const body = (await readBody(req)) as { loginId?: string; pin?: string }
+        const db = readDb()
+        const client = findClient(db, body.loginId || '', body.pin || '')
+        if (!client) return send(res, 401, { error: 'Invalid login ID or PIN' })
+        return send(res, 200, { orders: ordersForClient(db, client) })
       }
 
       return send(res, 404, { error: 'Not found' })

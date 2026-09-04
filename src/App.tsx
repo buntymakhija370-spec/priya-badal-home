@@ -14,6 +14,7 @@ import { CarcassPlannerPage } from './pages/CarcassPlannerPage'
 import { CarcassAssemblyPage } from './pages/CarcassAssemblyPage'
 import { DesignSpacePage } from './pages/DesignSpacePage'
 import { InstallPage } from './pages/InstallPage'
+import { ClientPortalPage } from './client-portal/ClientPortalPage'
 import { WorkshopLayout } from './workshop/WorkshopLayout'
 import { WorkshopDashboard } from './workshop/pages/WorkshopDashboard'
 import { WorkshopOrdersPage } from './workshop/pages/WorkshopOrdersPage'
@@ -54,6 +55,7 @@ export default function App() {
           <Route path="favorites" element={<FavoritesPage />} />
           <Route path="cart" element={<CartPage />} />
           <Route path="chat" element={<ChatPage />} />
+          <Route path="my-orders" element={<ClientPortalPage />} />
           <Route path="add-product" element={<AddProductPage />} />
           <Route path="*" element={<Navigate to="/" replace />} />
         </Route>

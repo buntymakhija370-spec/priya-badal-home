@@ -82,11 +82,18 @@ export type WorkshopOrder = {
 }
 
 export type WorkshopDb = {
-  version: 1
+  version: 1 | 2
   partners: Partner[]
   orders: WorkshopOrder[]
   reports: DepartmentReport[]
   nextOrderSeq: number
+  clients?: Array<{
+    id: string
+    loginId: string
+    name: string
+    phone: string
+    active: boolean
+  }>
 }
 
 export const DEPARTMENTS: {

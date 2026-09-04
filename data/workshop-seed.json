@@ -1,5 +1,6 @@
 {
-  "version": 2,
+  "version": 1,
+  "nextOrderSeq": 1003,
   "partners": [
     {
       "id": "partner-indore-01",
@@ -7,15 +8,14 @@
       "phone": "919876543210",
       "city": "Indore",
       "active": true,
-      "notes": "Sample channel partner — replace with real partners"
+      "notes": "Sample channel partner \u2014 replace with real partners"
     }
   ],
   "clients": [
     {
       "id": "cli_demo",
       "loginId": "DEMO01",
-      "pinHash": "b5a1bdb5e039bc4db754e8a0d3c14dcc056c16633b143783a3d296163db26b4b",
-      "pinSalt": "7029468b5887fe535d054ef88c5d42a3",
+      "pin": "1234",
       "name": "Riya Sharma",
       "phone": "9876543210",
       "active": true
@@ -23,8 +23,7 @@
     {
       "id": "cli_badal",
       "loginId": "BADAL01",
-      "pinHash": "874bb4e17413cfe58d7132ac1c7d1af217bfc1236a206bd1f0edaffca4a02e5e",
-      "pinSalt": "059d016c177c96f3ad5115d9b9502fcc",
+      "pin": "2468",
       "name": "Badal",
       "phone": "8109949649",
       "active": true
@@ -136,25 +135,5 @@
       "note": "Paint booth started",
       "at": "2026-09-04T18:30:00.000Z"
     }
-  ],
-  "sessions": [
-    {
-      "token": "tok_10199c030cb156bbf48de9c7f7ae6d8d8ee2fb6ec4b3845f",
-      "role": "client",
-      "clientId": "cli_demo",
-      "createdAt": "2026-09-04T21:53:12.201Z",
-      "expiresAt": "2026-09-05T09:53:12.201Z"
-    },
-    {
-      "token": "tok_22adc5bf2820b7a7e9c13deb5736c4d8205d492af86c527b",
-      "role": "staff",
-      "createdAt": "2026-09-04T21:53:12.156Z",
-      "expiresAt": "2026-09-05T09:53:12.156Z"
-    }
-  ],
-  "nextOrderSeq": 1003,
-  "staff": {
-    "pinSalt": "f85856cd61d1ff68e8cdce1b58d7d7fb",
-    "pinHash": "c04c43b61d4600d23359196231fd36e75c5f8d7d402a082271aa11040aef6eb7"
-  }
+  ]
 }

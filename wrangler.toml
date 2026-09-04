@@ -1,0 +1,14 @@
+# Cloudflare Pages — Priyabadal Homes (workshop secure Phase B)
+name = "priya-badal-home"
+compatibility_date = "2026-08-01"
+pages_build_output_dir = "dist"
+
+# Private workshop DB (create with: npx wrangler d1 create priyabadal-workshop)
+# [[d1_databases]]
+# binding = "WORKSHOP_DB"
+# database_name = "priyabadal-workshop"
+# database_id = "REPLACE_AFTER_CREATE"
+
+# Secrets (Cloudflare dashboard → Settings → Environment variables):
+# WORKSHOP_STAFF_PIN = (your private staff PIN)
+# SESSION_SECRET = (long random string)

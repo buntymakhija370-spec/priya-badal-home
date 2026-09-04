@@ -1,6 +1,6 @@
 import { NavLink, Outlet, useNavigate } from 'react-router-dom'
 import { useEffect, useState } from 'react'
-import { isWorkshopAuthed, setWorkshopAuthed, WORKSHOP_PIN } from './api'
+import { isWorkshopAuthed, staffLogin, staffLogout } from './api'
 import './workshop.css'
 
 const nav = [
@@ -17,6 +17,7 @@ export function WorkshopLayout() {
   const [authed, setAuthed] = useState(isWorkshopAuthed())
   const [pin, setPin] = useState('')
   const [error, setError] = useState('')
+  const [loading, setLoading] = useState(false)
 
   useEffect(() => {
     document.body.classList.add('workshop-body')
@@ -27,20 +28,23 @@ export function WorkshopLayout() {
     return (
       <div className="ws-login">
         <div className="ws-login__card">
-          <p className="ws-login__eyebrow">Priyabadal Homes</p>
+          <p className="ws-login__eyebrow">Priyabadal Homes · Private</p>
           <h1>Workshop Panel</h1>
           <p className="ws-login__lede">
-            Manufacturing · channel partners · production & dispatch copies
+            Staff only. Orders, CNC, paint booth, dispatch, and accounts stay behind this login.
           </p>
           <form
-            onSubmit={(e) => {
+            onSubmit={async (e) => {
               e.preventDefault()
-              if (pin.trim() === WORKSHOP_PIN) {
-                setWorkshopAuthed(true)
+              setLoading(true)
+              setError('')
+              try {
+                await staffLogin(pin.trim())
                 setAuthed(true)
-                setError('')
-              } else {
-                setError('Wrong PIN. Ask workshop admin.')
+              } catch (err) {
+                setError(err instanceof Error ? err.message : 'Login failed')
+              } finally {
+                setLoading(false)
               }
             }}
           >
@@ -53,14 +57,17 @@ export function WorkshopLayout() {
                 onChange={(e) => setPin(e.target.value)}
                 placeholder="••••"
                 autoFocus
+                autoComplete="current-password"
               />
             </label>
             {error ? <p className="ws-login__error">{error}</p> : null}
-            <button type="submit" className="ws-btn ws-btn--primary">
-              Enter workshop
+            <button type="submit" className="ws-btn ws-btn--primary" disabled={loading}>
+              {loading ? 'Checking…' : 'Enter workshop'}
             </button>
           </form>
-          <p className="ws-login__hint">Demo PIN: 2468 · change before production go-live</p>
+          <p className="ws-login__hint">
+            Ask admin for staff PIN. Demo PIN still works in this preview environment.
+          </p>
           <button type="button" className="ws-linkish" onClick={() => navigate('/')}>
             ← Back to website
           </button>
@@ -78,30 +85,22 @@ export function WorkshopLayout() {
         </div>
         <nav className="ws-side__nav" aria-label="Workshop">
           {nav.map((item) => (
-            <NavLink
-              key={item.to}
-              to={item.to}
-              end={item.end}
-              className={({ isActive }) => (isActive ? 'is-active' : undefined)}
-            >
+            <NavLink key={item.to} to={item.to} end={item.end}>
               {item.label}
             </NavLink>
           ))}
         </nav>
-        <div className="ws-side__foot">
-          <a href="/" target="_blank" rel="noreferrer">
-            Open website
-          </a>
-          <button
-            type="button"
-            onClick={() => {
-              setWorkshopAuthed(false)
-              setAuthed(false)
-            }}
-          >
-            Lock panel
-          </button>
-        </div>
+        <button
+          type="button"
+          className="ws-btn ws-btn--ghost"
+          style={{ margin: '1rem' }}
+          onClick={async () => {
+            await staffLogout()
+            setAuthed(false)
+          }}
+        >
+          Sign out
+        </button>
       </aside>
       <div className="ws-main">
         <Outlet />

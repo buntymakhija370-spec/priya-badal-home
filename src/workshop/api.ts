@@ -11,25 +11,44 @@ import type {
 } from './types'
 import { emptyJobs } from './types'
 
-const PIN_KEY = 'pbh-workshop-pin-ok'
+const STAFF_TOKEN_KEY = 'pbh-workshop-staff-token'
+const STAFF_EXPIRES_KEY = 'pbh-workshop-staff-expires'
+
+export function getStaffToken(): string | null {
+  const token = sessionStorage.getItem(STAFF_TOKEN_KEY)
+  const expires = sessionStorage.getItem(STAFF_EXPIRES_KEY)
+  if (!token || !expires) return null
+  if (new Date(expires).getTime() <= Date.now()) {
+    clearStaffSession()
+    return null
+  }
+  return token
+}
 
 export function isWorkshopAuthed() {
-  return sessionStorage.getItem(PIN_KEY) === '1'
+  return Boolean(getStaffToken())
 }
 
-export function setWorkshopAuthed(ok: boolean) {
-  if (ok) sessionStorage.setItem(PIN_KEY, '1')
-  else sessionStorage.removeItem(PIN_KEY)
+export function clearStaffSession() {
+  sessionStorage.removeItem(STAFF_TOKEN_KEY)
+  sessionStorage.removeItem(STAFF_EXPIRES_KEY)
 }
 
-/** Default workshop PIN — change in Workshop settings later / env */
-export const WORKSHOP_PIN = '2468'
+export function setStaffSession(token: string, expiresAt: string) {
+  sessionStorage.setItem(STAFF_TOKEN_KEY, token)
+  sessionStorage.setItem(STAFF_EXPIRES_KEY, expiresAt)
+}
 
 async function api<T>(path: string, init?: RequestInit): Promise<T> {
-  const res = await fetch(path, {
-    headers: { 'Content-Type': 'application/json', ...(init?.headers || {}) },
-    ...init,
-  })
+  const headers: Record<string, string> = {
+    'Content-Type': 'application/json',
+    ...(init?.headers as Record<string, string> | undefined),
+  }
+  const token = getStaffToken()
+  if (token && !headers.Authorization) {
+    headers.Authorization = `Bearer ${token}`
+  }
+  const res = await fetch(path, { ...init, headers })
   if (!res.ok) {
     const err = await res.json().catch(() => ({}))
     throw new Error((err as { error?: string }).error || `Request failed (${res.status})`)
@@ -37,15 +56,26 @@ async function api<T>(path: string, init?: RequestInit): Promise<T> {
   return res.json() as Promise<T>
 }
 
-export function fetchWorkshopDb() {
-  return api<WorkshopDb>('/api/workshop')
+export async function staffLogin(pin: string) {
+  const res = await api<{ token: string; expiresAt: string; role: string }>(
+    '/api/workshop/staff/login',
+    { method: 'POST', body: JSON.stringify({ pin }) },
+  )
+  setStaffSession(res.token, res.expiresAt)
+  return res
 }
 
-export function saveWorkshopDb(db: WorkshopDb) {
-  return api<WorkshopDb>('/api/workshop', {
-    method: 'PUT',
-    body: JSON.stringify(db),
-  })
+export async function staffLogout() {
+  try {
+    await api('/api/workshop/logout', { method: 'POST', body: '{}' })
+  } catch {
+    // ignore network errors on logout
+  }
+  clearStaffSession()
+}
+
+export function fetchWorkshopDb() {
+  return api<WorkshopDb>('/api/workshop')
 }
 
 export function createOrder(input: {
@@ -75,7 +105,13 @@ export function updateOrder(id: string, patch: Partial<WorkshopOrder>) {
   })
 }
 
-export function setJobStatus(orderId: string, departmentId: DepartmentId, status: JobStatus, note?: string, assignee?: string) {
+export function setJobStatus(
+  orderId: string,
+  departmentId: DepartmentId,
+  status: JobStatus,
+  note?: string,
+  assignee?: string,
+) {
   return api<{ order: WorkshopOrder; report: DepartmentReport }>('/api/workshop/jobs', {
     method: 'POST',
     body: JSON.stringify({ orderId, departmentId, status, note, assignee }),

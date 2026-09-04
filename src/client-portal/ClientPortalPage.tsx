@@ -1,12 +1,11 @@
 import { useCallback, useEffect, useState, type FormEvent } from 'react'
-import { Link } from 'react-router-dom'
 import { WHATSAPP_CHAT_URL } from '../lib/whatsapp'
 import { formatInr, type WorkshopOrder } from '../workshop/types'
 import {
   clientLogin,
+  clientLogout,
   getClientSession,
   refreshClientOrders,
-  setClientSession,
   type ClientSession,
 } from './api'
 import { buildClientStages, clientStatusLabel } from './stages'
@@ -41,7 +40,6 @@ export function ClientPortalPage() {
         })
       } catch {
         if (!cancelled) {
-          setClientSession(null)
           setSession(null)
         }
       }
@@ -60,9 +58,7 @@ export function ClientPortalPage() {
     setLoading(true)
     try {
       const res = await clientLogin(loginId.trim(), pin.trim())
-      const next = { ...res.client, pin: pin.trim() }
-      setClientSession(next)
-      setSession(next)
+      setSession(res.session)
       setOrders(res.orders)
       setSelectedId(res.orders[0]?.id || null)
     } catch (err) {
@@ -72,8 +68,8 @@ export function ClientPortalPage() {
     }
   }
 
-  function logout() {
-    setClientSession(null)
+  async function logout() {
+    await clientLogout(session)
     setSession(null)
     setOrders([])
     setSelectedId(null)
@@ -145,7 +141,7 @@ export function ClientPortalPage() {
           <button type="button" className="client-portal__btn client-portal__btn--ghost" onClick={() => void refresh(session)}>
             Refresh
           </button>
-          <button type="button" className="client-portal__btn client-portal__btn--ghost" onClick={logout}>
+          <button type="button" className="client-portal__btn client-portal__btn--ghost" onClick={() => void logout()}>
             Sign out
           </button>
         </div>
@@ -188,7 +184,10 @@ export function ClientPortalPage() {
       </div>
 
       <p className="client-portal__staff">
-        Workshop staff? <Link to="/workshop">Open workshop panel</Link>
+        Need help?{' '}
+        <a href={WHATSAPP_CHAT_URL} target="_blank" rel="noreferrer">
+          Message us on WhatsApp
+        </a>
       </p>
     </main>
   )

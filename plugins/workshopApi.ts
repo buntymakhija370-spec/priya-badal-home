@@ -3,6 +3,7 @@ import type { Connect, Plugin } from 'vite'
 import {
   createSession,
   emptyJobs,
+  emptyChecklists,
   findClientByLogin,
   ordersForClient,
   publicDbView,
@@ -200,6 +201,8 @@ function workshopMiddleware(): Connect.NextHandleFunction {
           dueDate: body.dueDate,
           productionNotes: body.productionNotes,
           jobs: emptyJobs(),
+          checklists: emptyChecklists(),
+          transport: {},
         }
         db.orders.unshift(order)
         writeDb(db)
@@ -225,6 +228,8 @@ function workshopMiddleware(): Connect.NextHandleFunction {
           createdAt: prev.createdAt,
           updatedAt: new Date().toISOString(),
           jobs: body.jobs || prev.jobs || emptyJobs(),
+          checklists: body.checklists !== undefined ? body.checklists : prev.checklists || emptyChecklists(),
+          transport: body.transport !== undefined ? body.transport : prev.transport || {},
         }
         db.orders[idx] = next
         writeDb(db)
@@ -249,7 +254,11 @@ function workshopMiddleware(): Connect.NextHandleFunction {
         order.jobs[body.departmentId] = body.status
         order.updatedAt = new Date().toISOString()
 
-        if (body.status === 'in_progress' && order.status === 'confirmed') {
+        if (!order.checklists) order.checklists = emptyChecklists()
+        if (body.status === 'in_progress' && (order.status === 'confirmed' || order.status === 'enquiry')) {
+          order.status = 'in_production'
+        }
+        if (body.departmentId === 'review' && body.status === 'done' && order.status === 'confirmed') {
           order.status = 'in_production'
         }
         if (body.departmentId === 'qc' && body.status === 'done') {
@@ -258,6 +267,9 @@ function workshopMiddleware(): Connect.NextHandleFunction {
         if (body.departmentId === 'dispatch' && body.status === 'done') {
           order.status = 'dispatched'
           order.dispatchedAt = order.dispatchedAt || new Date().toISOString()
+        }
+        if (body.departmentId === 'transport' && body.status === 'done') {
+          order.status = 'delivered'
         }
 
         const report: DepartmentReport = {
@@ -273,6 +285,35 @@ function workshopMiddleware(): Connect.NextHandleFunction {
         db.reports = db.reports.slice(0, 500)
         writeDb(db)
         return send(res, 200, { order, report })
+      }
+
+
+      if (req.method === 'POST' && url === '/api/workshop/checklist') {
+        const db = readDb()
+        if (!requireStaff(db, authHeader(req))) {
+          return send(res, 401, { error: 'Staff login required' })
+        }
+        const body = (await readBody(req)) as {
+          orderId: string
+          departmentId: DepartmentId
+          itemId: string
+          done: boolean
+          assignee?: string
+        }
+        const order = db.orders.find((o) => o.id === body.orderId)
+        if (!order) return send(res, 404, { error: 'Order not found' })
+        if (!order.checklists) order.checklists = emptyChecklists()
+        if (!order.checklists[body.departmentId]) order.checklists[body.departmentId] = {}
+        order.checklists[body.departmentId]![body.itemId] = Boolean(body.done)
+        if (!order.jobs) order.jobs = emptyJobs()
+        // Auto-start stage when first tick happens
+        if (body.done && order.jobs[body.departmentId] === 'queued') {
+          order.jobs[body.departmentId] = 'in_progress'
+          if (order.status === 'confirmed' || order.status === 'enquiry') order.status = 'in_production'
+        }
+        order.updatedAt = new Date().toISOString()
+        writeDb(db)
+        return send(res, 200, { order })
       }
 
       if (req.method === 'POST' && url === '/api/workshop/partners') {

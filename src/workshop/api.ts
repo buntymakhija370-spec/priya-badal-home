@@ -118,6 +118,19 @@ export function setJobStatus(
   })
 }
 
+export function setChecklistItem(
+  orderId: string,
+  departmentId: DepartmentId,
+  itemId: string,
+  done: boolean,
+  assignee?: string,
+) {
+  return api<{ order: WorkshopOrder }>('/api/workshop/checklist', {
+    method: 'POST',
+    body: JSON.stringify({ orderId, departmentId, itemId, done, assignee }),
+  })
+}
+
 export function upsertPartner(partner: Partner) {
   return api<Partner>('/api/workshop/partners', {
     method: 'POST',

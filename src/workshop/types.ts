@@ -12,17 +12,29 @@ export type OrderStatus =
   | 'delivered'
   | 'cancelled'
 
+/** Workshop production pipeline (order job sheet flow) */
 export type DepartmentId =
+  | 'review'
+  | 'design'
   | 'cutting'
-  | 'cnc'
-  | 'carcass'
-  | 'finishing'
-  | 'hardware'
+  | 'phase2_finishing'
   | 'qc'
-  | 'packing'
   | 'dispatch'
+  | 'transport'
 
 export type JobStatus = 'queued' | 'assigned' | 'in_progress' | 'done' | 'blocked'
+
+export type StageChecklist = Record<string, boolean>
+
+export type TransportDetails = {
+  vehicleNo?: string
+  driverName?: string
+  driverPhone?: string
+  lrNo?: string
+  handoverAt?: string
+  receivedBy?: string
+  notes?: string
+}
 
 export type Partner = {
   id: string
@@ -79,6 +91,10 @@ export type WorkshopOrder = {
   dispatchedAt?: string
   /** Department job board for this order */
   jobs: Record<DepartmentId, JobStatus>
+  /** Tick lists per department (designing / cutting / phase2 / etc.) */
+  checklists?: Partial<Record<DepartmentId, StageChecklist>>
+  /** Transport handover after dispatch */
+  transport?: TransportDetails
 }
 
 export type WorkshopDb = {
@@ -191,14 +207,13 @@ export const DEPARTMENTS: {
   name: string
   short: string
 }[] = [
-  { id: 'cutting', name: 'Cutting / Board', short: 'Cut' },
-  { id: 'cnc', name: 'CNC / Carve', short: 'CNC' },
-  { id: 'carcass', name: 'Carcass Assembly', short: 'Carcass' },
-  { id: 'finishing', name: 'Shutter / Finish', short: 'Finish' },
-  { id: 'hardware', name: 'Hardware Fitting', short: 'Hardware' },
-  { id: 'qc', name: 'Quality Check', short: 'QC' },
-  { id: 'packing', name: 'Packing', short: 'Pack' },
+  { id: 'review', name: 'Review — Priya & Badal', short: 'Review' },
+  { id: 'design', name: 'Designing', short: 'Design' },
+  { id: 'cutting', name: 'Cutting', short: 'Cut' },
+  { id: 'phase2_finishing', name: 'Phase 2 — Finishing', short: 'Phase 2' },
+  { id: 'qc', name: 'QC — Quality Check', short: 'QC' },
   { id: 'dispatch', name: 'Dispatch', short: 'Dispatch' },
+  { id: 'transport', name: 'Transport & handover', short: 'Transport' },
 ]
 
 export const ORDER_STATUSES: { id: OrderStatus; label: string }[] = [
@@ -221,14 +236,13 @@ export const ORDER_SOURCES: { id: OrderSource; label: string }[] = [
 
 export function emptyJobs(): Record<DepartmentId, JobStatus> {
   return {
+    review: 'queued',
+    design: 'queued',
     cutting: 'queued',
-    cnc: 'queued',
-    carcass: 'queued',
-    finishing: 'queued',
-    hardware: 'queued',
+    phase2_finishing: 'queued',
     qc: 'queued',
-    packing: 'queued',
     dispatch: 'queued',
+    transport: 'queued',
   }
 }
 

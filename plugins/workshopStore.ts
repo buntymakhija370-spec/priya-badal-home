@@ -11,14 +11,13 @@ import { createHash, randomBytes, timingSafeEqual } from 'node:crypto'
 
 export type JobStatus = 'queued' | 'assigned' | 'in_progress' | 'done' | 'blocked'
 export type DepartmentId =
+  | 'review'
+  | 'design'
   | 'cutting'
-  | 'cnc'
-  | 'carcass'
-  | 'finishing'
-  | 'hardware'
+  | 'phase2_finishing'
   | 'qc'
-  | 'packing'
   | 'dispatch'
+  | 'transport'
 
 export type OrderLine = {
   id: string
@@ -55,6 +54,16 @@ export type WorkshopOrder = {
   vehicleNo?: string
   dispatchedAt?: string
   jobs: Record<string, JobStatus>
+  checklists?: Partial<Record<DepartmentId, Record<string, boolean>>>
+  transport?: {
+    vehicleNo?: string
+    driverName?: string
+    driverPhone?: string
+    lrNo?: string
+    handoverAt?: string
+    receivedBy?: string
+    notes?: string
+  }
 }
 
 export type Partner = {
@@ -195,16 +204,44 @@ export type WorkshopDb = {
 const SESSION_TTL_MS = 1000 * 60 * 60 * 12 // 12 hours
 const DEFAULT_STAFF_PIN = process.env.WORKSHOP_STAFF_PIN || '2468'
 
+
+export function normalizeOrderJobs(jobs?: Record<string, JobStatus> | null): Record<string, JobStatus> {
+  const base = emptyJobs()
+  if (!jobs) return base
+  for (const key of Object.keys(base)) {
+    if (jobs[key]) base[key] = jobs[key]
+  }
+  // map legacy departments into nearest new stages when present
+  if (!jobs.review && (jobs.cnc || jobs.carcass)) base.review = 'done'
+  if (!jobs.design && jobs.cnc === 'done') base.design = 'done'
+  if (!jobs.phase2_finishing && (jobs.finishing || jobs.hardware)) {
+    base.phase2_finishing = jobs.finishing === 'done' || jobs.hardware === 'done' ? 'done' : (jobs.finishing || jobs.hardware || 'queued')
+  }
+  if (!jobs.transport && jobs.dispatch === 'done') base.transport = 'queued'
+  return base
+}
+
 export function emptyJobs(): Record<string, JobStatus> {
   return {
+    review: 'queued',
+    design: 'queued',
     cutting: 'queued',
-    cnc: 'queued',
-    carcass: 'queued',
-    finishing: 'queued',
-    hardware: 'queued',
+    phase2_finishing: 'queued',
     qc: 'queued',
-    packing: 'queued',
     dispatch: 'queued',
+    transport: 'queued',
+  }
+}
+
+export function emptyChecklists(): Record<string, Record<string, boolean>> {
+  return {
+    review: {},
+    design: {},
+    cutting: {},
+    phase2_finishing: {},
+    qc: {},
+    dispatch: {},
+    transport: {},
   }
 }
 
@@ -452,7 +489,12 @@ function migrateDb(raw: Record<string, unknown>): WorkshopDb {
     version: 2,
     partners: (raw.partners as Partner[]) || [],
     clients: clients.length ? clients : defaultSeed().clients,
-    orders: (raw.orders as WorkshopOrder[]) || [],
+    orders: ((raw.orders as WorkshopOrder[]) || []).map((o) => ({
+      ...o,
+      jobs: normalizeOrderJobs(o.jobs),
+      checklists: o.checklists || emptyChecklists(),
+      transport: o.transport || {},
+    })),
     reports: (raw.reports as DepartmentReport[]) || [],
     sessions: Array.isArray(raw.sessions) ? (raw.sessions as SessionRecord[]) : [],
     cutRecords: Array.isArray(raw.cutRecords) ? (raw.cutRecords as CutRecord[]) : [],

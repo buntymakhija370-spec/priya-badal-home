@@ -13,6 +13,10 @@ const blankLine = (): DraftLine => ({
   qty: 1,
   unitPrice: 0,
   notes: '',
+  widthFt: undefined,
+  heightFt: undefined,
+  depthFt: undefined,
+  finish: '',
 })
 
 export function WorkshopNewOrderPage() {
@@ -87,7 +91,7 @@ export function WorkshopNewOrderPage() {
       <div className="ws-page-head">
         <div>
           <h1>New order</h1>
-          <p>Post WhatsApp, offline, website, or partner orders into the workshop</p>
+          <p>Post each client order with product job-sheet details — then workshop pipeline starts with Priya & Badal review</p>
         </div>
         <Link className="ws-btn ws-btn--ghost" to="/workshop/orders">
           Back to orders
@@ -156,7 +160,7 @@ export function WorkshopNewOrderPage() {
         </div>
 
         <div>
-          <h2 style={{ margin: '0 0 0.55rem', fontSize: '1rem' }}>Products / lines</h2>
+          <h2 style={{ margin: '0 0 0.55rem', fontSize: '1rem' }}>Job sheet — products</h2>
           <div className="ws-lines">
             {lines.map((line, idx) => (
               <div className="ws-line" key={idx}>
@@ -208,6 +212,59 @@ export function WorkshopNewOrderPage() {
                       setLines(next)
                     }}
                   />
+                </div>
+                <div className="ws-field">
+                  <label>Finish / laminate</label>
+                  <input
+                    value={line.finish || ''}
+                    onChange={(e) => {
+                      const next = [...lines]
+                      next[idx] = { ...line, finish: e.target.value }
+                      setLines(next)
+                    }}
+                    placeholder="e.g. Outer 8378"
+                  />
+                </div>
+                <div className="ws-field">
+                  <label>W × H × D (ft)</label>
+                  <div className="ws-form__row" style={{ gap: '0.35rem' }}>
+                    <input
+                      type="number"
+                      min={0}
+                      step={0.1}
+                      placeholder="W"
+                      value={line.widthFt ?? ''}
+                      onChange={(e) => {
+                        const next = [...lines]
+                        next[idx] = { ...line, widthFt: e.target.value ? Number(e.target.value) : undefined }
+                        setLines(next)
+                      }}
+                    />
+                    <input
+                      type="number"
+                      min={0}
+                      step={0.1}
+                      placeholder="H"
+                      value={line.heightFt ?? ''}
+                      onChange={(e) => {
+                        const next = [...lines]
+                        next[idx] = { ...line, heightFt: e.target.value ? Number(e.target.value) : undefined }
+                        setLines(next)
+                      }}
+                    />
+                    <input
+                      type="number"
+                      min={0}
+                      step={0.1}
+                      placeholder="D"
+                      value={line.depthFt ?? ''}
+                      onChange={(e) => {
+                        const next = [...lines]
+                        next[idx] = { ...line, depthFt: e.target.value ? Number(e.target.value) : undefined }
+                        setLines(next)
+                      }}
+                    />
+                  </div>
                 </div>
                 <button
                   type="button"

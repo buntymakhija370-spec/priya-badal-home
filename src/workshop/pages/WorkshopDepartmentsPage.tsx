@@ -6,7 +6,7 @@ import { DEPARTMENTS } from '../types'
 
 export function WorkshopDepartmentsPage() {
   const [db, setDb] = useState<WorkshopDb | null>(null)
-  const [dept, setDept] = useState<DepartmentId>('cutting')
+  const [dept, setDept] = useState<DepartmentId>('review')
   const [busy, setBusy] = useState(false)
 
   const reload = () => fetchWorkshopDb().then(setDb)
@@ -32,7 +32,7 @@ export function WorkshopDepartmentsPage() {
       <div className="ws-page-head">
         <div>
           <h1>Departments</h1>
-          <p>Each workshop section updates job status — reports feed the backend board</p>
+          <p>Review → Design → Cutting → Phase 2 → QC → Dispatch → Transport. Open the order to tick checklist items.</p>
         </div>
       </div>
 

@@ -37,6 +37,9 @@ export function WorkshopDashboard() {
           <Link className="ws-btn ws-btn--primary" to="/workshop/new-order">
             New order
           </Link>
+          <Link className="ws-btn ws-btn--ghost" to="/workshop/modular">
+            Modular mfg
+          </Link>
           <Link className="ws-btn ws-btn--ghost" to="/workshop/display">
             Floor display
           </Link>

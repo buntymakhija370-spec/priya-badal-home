@@ -23,6 +23,7 @@ import { WorkshopOrderDetailPage } from './workshop/pages/WorkshopOrderDetailPag
 import { WorkshopDepartmentsPage } from './workshop/pages/WorkshopDepartmentsPage'
 import { WorkshopPartnersPage } from './workshop/pages/WorkshopPartnersPage'
 import { WorkshopDisplayPage } from './workshop/pages/WorkshopDisplayPage'
+import { WorkshopModularPage } from './workshop/pages/WorkshopModularPage'
 import './App.css'
 
 export default function App() {
@@ -36,6 +37,7 @@ export default function App() {
           <Route path="orders/:orderId" element={<WorkshopOrderDetailPage />} />
           <Route path="new-order" element={<WorkshopNewOrderPage />} />
           <Route path="departments" element={<WorkshopDepartmentsPage />} />
+          <Route path="modular" element={<WorkshopModularPage />} />
           <Route path="partners" element={<WorkshopPartnersPage />} />
           <Route path="display" element={<WorkshopDisplayPage />} />
         </Route>

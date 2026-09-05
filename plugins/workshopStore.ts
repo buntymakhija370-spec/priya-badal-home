@@ -94,6 +94,37 @@ export type SessionRecord = {
   expiresAt: string
 }
 
+export type CutBoardLine = {
+  lengthMm: number
+  widthMm: number
+  thicknessMm: number
+  quantity: number
+  face: 'inner' | 'outer' | 'both' | 'plain'
+  materialCode: string
+  raw: string
+}
+
+export type CutRecord = {
+  id: string
+  jobName: string
+  materialText: string
+  sawWidthMm: number
+  utilizationPercent: number
+  notes?: string
+  orderNo?: string
+  customerName?: string
+  createdAt: string
+  updatedAt: string
+  boards: CutBoardLine[]
+  totals: {
+    totalSheets: number
+    byFace: Record<'inner' | 'outer' | 'both' | 'plain', number>
+    byThickness: Record<string, number>
+    byMaterial: Record<string, number>
+    areaSqft: number
+  }
+}
+
 export type WorkshopDb = {
   version: 2
   partners: Partner[]
@@ -101,6 +132,7 @@ export type WorkshopDb = {
   orders: WorkshopOrder[]
   reports: DepartmentReport[]
   sessions: SessionRecord[]
+  cutRecords: CutRecord[]
   nextOrderSeq: number
   staff: {
     pinHash: string
@@ -309,6 +341,7 @@ function defaultSeed(): WorkshopDb {
     ],
     reports: [],
     sessions: [],
+    cutRecords: [],
     nextOrderSeq: 1003,
     staff: makeStaff(),
   }
@@ -320,6 +353,7 @@ function publicDbView(db: WorkshopDb) {
     partners: db.partners,
     orders: db.orders,
     reports: db.reports,
+    cutRecords: db.cutRecords || [],
     nextOrderSeq: db.nextOrderSeq,
     clients: db.clients.map((c) => ({
       id: c.id,
@@ -367,6 +401,7 @@ function migrateDb(raw: Record<string, unknown>): WorkshopDb {
     orders: (raw.orders as WorkshopOrder[]) || [],
     reports: (raw.reports as DepartmentReport[]) || [],
     sessions: Array.isArray(raw.sessions) ? (raw.sessions as SessionRecord[]) : [],
+    cutRecords: Array.isArray(raw.cutRecords) ? (raw.cutRecords as CutRecord[]) : [],
     nextOrderSeq: Number(raw.nextOrderSeq || 1001),
     staff,
   }

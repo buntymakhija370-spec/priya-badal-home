@@ -125,6 +125,30 @@ export function upsertPartner(partner: Partner) {
   })
 }
 
+export function fetchCutRecords() {
+  return api<{ cutRecords: import('./types').CutRecord[] }>('/api/workshop/cut-records')
+}
+
+export function saveCutRecord(record: Omit<import('./types').CutRecord, 'id' | 'createdAt' | 'updatedAt'> & {
+  jobName: string
+  materialText: string
+  sawWidthMm: number
+  utilizationPercent: number
+  boards: import('./types').CutRecord['boards']
+  totals: import('./types').CutRecord['totals']
+}) {
+  return api<import('./types').CutRecord>('/api/workshop/cut-records', {
+    method: 'POST',
+    body: JSON.stringify(record),
+  })
+}
+
+export function deleteCutRecord(id: string) {
+  return api<{ ok: boolean }>(`/api/workshop/cut-records/${encodeURIComponent(id)}`, {
+    method: 'DELETE',
+  })
+}
+
 export function newLocalLine(partial: Omit<OrderLine, 'id'>): OrderLine {
   return { id: crypto.randomUUID(), ...partial }
 }

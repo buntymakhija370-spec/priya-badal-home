@@ -9,6 +9,7 @@ import {
   readDb,
   requireClient,
   requireStaff,
+  type CutRecord,
   type DepartmentId,
   type DepartmentReport,
   type JobStatus,
@@ -251,7 +252,69 @@ function workshopMiddleware(): Connect.NextHandleFunction {
         return send(res, 200, body)
       }
 
-      // Block old unauthenticated client login pin-replay path was replaced above
+      if (req.method === 'GET' && (url === '/api/workshop/cut-records' || url.startsWith('/api/workshop/cut-records?'))) {
+        const db = readDb()
+        if (!requireStaff(db, authHeader(req))) {
+          return send(res, 401, { error: 'Staff login required' })
+        }
+        return send(res, 200, { cutRecords: db.cutRecords || [] })
+      }
+
+      if (req.method === 'POST' && url === '/api/workshop/cut-records') {
+        const db = readDb()
+        if (!requireStaff(db, authHeader(req))) {
+          return send(res, 401, { error: 'Staff login required' })
+        }
+        const body = (await readBody(req)) as {
+          jobName?: string
+          materialText?: string
+          sawWidthMm?: number
+          utilizationPercent?: number
+          notes?: string
+          orderNo?: string
+          customerName?: string
+          boards?: CutRecord['boards']
+          totals?: CutRecord['totals']
+        }
+        const now = new Date().toISOString()
+        const record: CutRecord = {
+          id: `cut_${Date.now().toString(36)}_${Math.random().toString(36).slice(2, 7)}`,
+          jobName: body.jobName || 'Cut job',
+          materialText: body.materialText || '',
+          sawWidthMm: Number(body.sawWidthMm) || 0,
+          utilizationPercent: Number(body.utilizationPercent) || 0,
+          notes: body.notes,
+          orderNo: body.orderNo,
+          customerName: body.customerName,
+          createdAt: now,
+          updatedAt: now,
+          boards: body.boards || [],
+          totals: body.totals || {
+            totalSheets: 0,
+            byFace: { inner: 0, outer: 0, both: 0, plain: 0 },
+            byThickness: {},
+            byMaterial: {},
+            areaSqft: 0,
+          },
+        }
+        if (!db.cutRecords) db.cutRecords = []
+        db.cutRecords.unshift(record)
+        writeDb(db)
+        return send(res, 201, record)
+      }
+
+      const cutDelete = url.match(/^\/api\/workshop\/cut-records\/([^/?]+)/)
+      if (req.method === 'DELETE' && cutDelete) {
+        const db = readDb()
+        if (!requireStaff(db, authHeader(req))) {
+          return send(res, 401, { error: 'Staff login required' })
+        }
+        const id = decodeURIComponent(cutDelete[1])
+        db.cutRecords = (db.cutRecords || []).filter((r) => r.id !== id)
+        writeDb(db)
+        return send(res, 200, { ok: true })
+      }
+
       return send(res, 404, { error: 'Not found' })
     } catch (e) {
       return send(res, 500, {

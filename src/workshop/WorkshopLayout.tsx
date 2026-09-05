@@ -9,6 +9,7 @@ const nav = [
   { to: '/workshop/new-order', label: 'New order' },
   { to: '/workshop/departments', label: 'Departments' },
   { to: '/workshop/modular', label: 'Modular mfg' },
+  { to: '/workshop/cut-records', label: 'Cut records' },
   { to: '/workshop/partners', label: 'Partners' },
   { to: '/workshop/display', label: 'Floor display' },
 ]

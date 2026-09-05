@@ -680,3 +680,15 @@
     grid-template-columns: 1fr;
   }
 }
+
+.ws-hint { margin: 0.35rem 0 0.75rem; font-size: 0.84rem; color: #3a4a40; }
+.ws-error { margin: 0.4rem 0; color: #9a4f2d; font-size: 0.9rem; }
+.ws-linkish { border: 0; background: none; color: #4f6a58; text-decoration: underline; cursor: pointer; font: inherit; padding: 0; }
+.ws-cut-list { list-style: none; margin: 0; padding: 0; display: grid; gap: 0.45rem; }
+.ws-cut-list li { display: grid; grid-template-columns: 1fr auto; gap: 0.4rem; align-items: center; }
+.ws-cut-list li > button:first-child { text-align: left; border: 1px solid rgba(21, 32, 25, 0.1); border-radius: 0.5rem; background: #f4f7f5; padding: 0.65rem 0.75rem; cursor: pointer; font: inherit; color: inherit; display: grid; gap: 0.15rem; }
+.ws-cut-list li > button:first-child.is-active { border-color: #4f6a58; background: #e7efe9; }
+.ws-cut-list li > button:first-child span { font-size: 0.82rem; color: #3a4a40; }
+.ws-face--inner { color: #2f5d45; font-weight: 600; }
+.ws-face--outer { color: #6b4f2a; font-weight: 600; }
+.ws-face--both { color: #3a4a70; font-weight: 600; }

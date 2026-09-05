@@ -10,17 +10,50 @@ import {
   requireClient,
   requireStaff,
   type CutRecord,
+  type DailyCutUpdate,
   type DepartmentId,
   type DepartmentReport,
   type JobStatus,
   type OrderLine,
   type Partner,
   type WorkshopOrder,
+  type WorkshopProject,
   verifyClientPin,
   verifyStaffPin,
   writeDb,
   clientPublic,
 } from './workshopStore.ts'
+
+function emptyInv() {
+  return {
+    plywoodByThickness: {} as Record<string, number>,
+    innerByCode: {} as Record<string, number>,
+    outerByCode: {} as Record<string, number>,
+    bothByCode: {} as Record<string, number>,
+    plainSheets: 0,
+    totalSheets: 0,
+    totalAreaSqft: 0,
+  }
+}
+
+function rebuildInventoryFromUpdates(updates: DailyCutUpdate[]) {
+  const inv = emptyInv()
+  for (const u of updates) {
+    for (const b of u.boards || []) {
+      const th = `${b.thicknessMm}mm`
+      inv.plywoodByThickness[th] = (inv.plywoodByThickness[th] || 0) + b.quantity
+      inv.totalSheets += b.quantity
+      inv.totalAreaSqft += (b.lengthMm * b.widthMm * b.quantity) / 92903.04
+      const code = b.materialCode || '—'
+      if (b.face === 'inner') inv.innerByCode[code] = (inv.innerByCode[code] || 0) + b.quantity
+      else if (b.face === 'outer') inv.outerByCode[code] = (inv.outerByCode[code] || 0) + b.quantity
+      else if (b.face === 'both') inv.bothByCode[code] = (inv.bothByCode[code] || 0) + b.quantity
+      else inv.plainSheets += b.quantity
+    }
+  }
+  inv.totalAreaSqft = Math.round(inv.totalAreaSqft * 100) / 100
+  return inv
+}
 
 function readBody(req: Connect.IncomingMessage): Promise<unknown> {
   return new Promise((resolve, reject) => {
@@ -313,6 +346,152 @@ function workshopMiddleware(): Connect.NextHandleFunction {
         db.cutRecords = (db.cutRecords || []).filter((r) => r.id !== id)
         writeDb(db)
         return send(res, 200, { ok: true })
+      }
+
+      // --- Projects (daily cutting + inventory) ---
+      if (req.method === 'GET' && (url === '/api/workshop/projects' || url.startsWith('/api/workshop/projects?'))) {
+        const db = readDb()
+        if (!requireStaff(db, authHeader(req))) {
+          return send(res, 401, { error: 'Staff login required' })
+        }
+        if (!db.projects) db.projects = []
+        return send(res, 200, { projects: db.projects })
+      }
+
+      if (req.method === 'POST' && url === '/api/workshop/projects') {
+        const db = readDb()
+        if (!requireStaff(db, authHeader(req))) {
+          return send(res, 401, { error: 'Staff login required' })
+        }
+        const body = (await readBody(req)) as {
+          name?: string
+          clientName?: string
+          orderNo?: string
+          notes?: string
+        }
+        const now = new Date().toISOString()
+        const project: WorkshopProject = {
+          id: `prj_${Date.now().toString(36)}_${Math.random().toString(36).slice(2, 6)}`,
+          name: (body.name || 'New project').trim(),
+          clientName: (body.clientName || '').trim(),
+          orderNo: body.orderNo?.trim() || undefined,
+          status: 'open',
+          createdAt: now,
+          updatedAt: now,
+          notes: body.notes,
+          inventory: {
+            plywoodByThickness: {},
+            innerByCode: {},
+            outerByCode: {},
+            bothByCode: {},
+            plainSheets: 0,
+            totalSheets: 0,
+            totalAreaSqft: 0,
+          },
+          dailyUpdates: [],
+        }
+        if (!db.projects) db.projects = []
+        db.projects.unshift(project)
+        writeDb(db)
+        return send(res, 201, project)
+      }
+
+      const projectMatch = url.match(/^\/api\/workshop\/projects\/([^/?]+)$/)
+      if (req.method === 'GET' && projectMatch) {
+        const db = readDb()
+        if (!requireStaff(db, authHeader(req))) {
+          return send(res, 401, { error: 'Staff login required' })
+        }
+        const id = decodeURIComponent(projectMatch[1])
+        const project = (db.projects || []).find((p) => p.id === id)
+        if (!project) return send(res, 404, { error: 'Project not found' })
+        return send(res, 200, project)
+      }
+
+      if (req.method === 'PATCH' && projectMatch) {
+        const db = readDb()
+        if (!requireStaff(db, authHeader(req))) {
+          return send(res, 401, { error: 'Staff login required' })
+        }
+        const id = decodeURIComponent(projectMatch[1])
+        const idx = (db.projects || []).findIndex((p) => p.id === id)
+        if (idx < 0) return send(res, 404, { error: 'Project not found' })
+        const body = (await readBody(req)) as Partial<WorkshopProject>
+        const prev = db.projects[idx]
+        db.projects[idx] = {
+          ...prev,
+          name: body.name ?? prev.name,
+          clientName: body.clientName ?? prev.clientName,
+          orderNo: body.orderNo !== undefined ? body.orderNo : prev.orderNo,
+          status: body.status ?? prev.status,
+          notes: body.notes !== undefined ? body.notes : prev.notes,
+          updatedAt: new Date().toISOString(),
+          inventory: prev.inventory,
+          dailyUpdates: prev.dailyUpdates,
+        }
+        writeDb(db)
+        return send(res, 200, db.projects[idx])
+      }
+
+      if (req.method === 'DELETE' && projectMatch) {
+        const db = readDb()
+        if (!requireStaff(db, authHeader(req))) {
+          return send(res, 401, { error: 'Staff login required' })
+        }
+        const id = decodeURIComponent(projectMatch[1])
+        db.projects = (db.projects || []).filter((p) => p.id !== id)
+        writeDb(db)
+        return send(res, 200, { ok: true })
+      }
+
+      const projectUpdateMatch = url.match(/^\/api\/workshop\/projects\/([^/?]+)\/updates$/)
+      if (req.method === 'POST' && projectUpdateMatch) {
+        const db = readDb()
+        if (!requireStaff(db, authHeader(req))) {
+          return send(res, 401, { error: 'Staff login required' })
+        }
+        const id = decodeURIComponent(projectUpdateMatch[1])
+        const idx = (db.projects || []).findIndex((p) => p.id === id)
+        if (idx < 0) return send(res, 404, { error: 'Project not found' })
+        const body = (await readBody(req)) as {
+          materialText?: string
+          sawWidthMm?: number
+          utilizationPercent?: number
+          notes?: string
+          postedBy?: string
+          date?: string
+          boards?: DailyCutUpdate['boards']
+          totals?: DailyCutUpdate['totals']
+        }
+        if (!body.materialText?.trim()) {
+          return send(res, 400, { error: 'Paste cutting list material text' })
+        }
+        const now = new Date()
+        const update: DailyCutUpdate = {
+          id: `upd_${now.getTime().toString(36)}_${Math.random().toString(36).slice(2, 6)}`,
+          date: body.date || now.toISOString().slice(0, 10),
+          postedAt: now.toISOString(),
+          postedBy: body.postedBy || 'Operator',
+          materialText: body.materialText,
+          sawWidthMm: Number(body.sawWidthMm) || 0,
+          utilizationPercent: Number(body.utilizationPercent) || 0,
+          notes: body.notes,
+          boards: body.boards || [],
+          totals: body.totals || {
+            totalSheets: 0,
+            byFace: { inner: 0, outer: 0, both: 0, plain: 0 },
+            byThickness: {},
+            byMaterial: {},
+            areaSqft: 0,
+          },
+        }
+        const project = db.projects[idx]
+        project.dailyUpdates = [update, ...(project.dailyUpdates || [])]
+        project.inventory = rebuildInventoryFromUpdates(project.dailyUpdates)
+        project.status = project.status === 'open' ? 'in_progress' : project.status
+        project.updatedAt = now.toISOString()
+        writeDb(db)
+        return send(res, 201, { project, update })
       }
 
       return send(res, 404, { error: 'Not found' })

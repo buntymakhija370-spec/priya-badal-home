@@ -692,3 +692,69 @@
 .ws-face--inner { color: #2f5d45; font-weight: 600; }
 .ws-face--outer { color: #6b4f2a; font-weight: 600; }
 .ws-face--both { color: #3a4a70; font-weight: 600; }
+
+.ws-projects__grid {
+  display: grid;
+  grid-template-columns: minmax(240px, 300px) 1fr;
+  gap: 1rem;
+  align-items: start;
+}
+.ws-projects__main { display: grid; gap: 1rem; }
+.ws-projects__head {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: space-between;
+  gap: 0.75rem;
+  align-items: flex-start;
+  margin-bottom: 0.75rem;
+}
+.ws-projects aside.ws-card label,
+.ws-projects__main .ws-card label {
+  display: grid;
+  gap: 0.35rem;
+  margin-bottom: 0.65rem;
+  font-size: 0.86rem;
+}
+.ws-projects aside.ws-card input,
+.ws-projects__main .ws-card input,
+.ws-projects__main .ws-card textarea,
+.ws-projects__main .ws-card select {
+  width: 100%;
+  font: inherit;
+  padding: 0.55rem 0.65rem;
+  border: 1px solid rgba(21, 32, 25, 0.14);
+  border-radius: 0.45rem;
+  background: #fff;
+}
+.ws-inv-grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 0.85rem;
+}
+.ws-inv-card {
+  border: 1px solid rgba(21, 32, 25, 0.1);
+  border-radius: 0.55rem;
+  padding: 0.75rem 0.85rem;
+  background: #f7faf8;
+}
+.ws-inv-card h3 {
+  margin: 0 0 0.5rem;
+  font-size: 0.95rem;
+}
+.ws-inv-card ul {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: grid;
+  gap: 0.35rem;
+}
+.ws-inv-card li {
+  display: flex;
+  justify-content: space-between;
+  gap: 0.5rem;
+  font-size: 0.9rem;
+}
+@media (max-width: 900px) {
+  .ws-projects__grid { grid-template-columns: 1fr; }
+  .ws-inv-grid { grid-template-columns: 1fr; }
+}

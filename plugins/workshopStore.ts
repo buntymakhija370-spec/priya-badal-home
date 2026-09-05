@@ -125,6 +125,42 @@ export type CutRecord = {
   }
 }
 
+export type ProjectInventory = {
+  plywoodByThickness: Record<string, number>
+  innerByCode: Record<string, number>
+  outerByCode: Record<string, number>
+  bothByCode: Record<string, number>
+  plainSheets: number
+  totalSheets: number
+  totalAreaSqft: number
+}
+
+export type DailyCutUpdate = {
+  id: string
+  date: string
+  postedAt: string
+  postedBy?: string
+  materialText: string
+  sawWidthMm: number
+  utilizationPercent: number
+  notes?: string
+  boards: CutBoardLine[]
+  totals: CutRecord['totals']
+}
+
+export type WorkshopProject = {
+  id: string
+  name: string
+  clientName: string
+  orderNo?: string
+  status: 'open' | 'in_progress' | 'completed' | 'on_hold'
+  createdAt: string
+  updatedAt: string
+  notes?: string
+  inventory: ProjectInventory
+  dailyUpdates: DailyCutUpdate[]
+}
+
 export type WorkshopDb = {
   version: 2
   partners: Partner[]
@@ -133,6 +169,7 @@ export type WorkshopDb = {
   reports: DepartmentReport[]
   sessions: SessionRecord[]
   cutRecords: CutRecord[]
+  projects: WorkshopProject[]
   nextOrderSeq: number
   staff: {
     pinHash: string
@@ -342,6 +379,7 @@ function defaultSeed(): WorkshopDb {
     reports: [],
     sessions: [],
     cutRecords: [],
+    projects: [],
     nextOrderSeq: 1003,
     staff: makeStaff(),
   }
@@ -354,6 +392,7 @@ function publicDbView(db: WorkshopDb) {
     orders: db.orders,
     reports: db.reports,
     cutRecords: db.cutRecords || [],
+    projects: db.projects || [],
     nextOrderSeq: db.nextOrderSeq,
     clients: db.clients.map((c) => ({
       id: c.id,
@@ -402,6 +441,7 @@ function migrateDb(raw: Record<string, unknown>): WorkshopDb {
     reports: (raw.reports as DepartmentReport[]) || [],
     sessions: Array.isArray(raw.sessions) ? (raw.sessions as SessionRecord[]) : [],
     cutRecords: Array.isArray(raw.cutRecords) ? (raw.cutRecords as CutRecord[]) : [],
+    projects: Array.isArray(raw.projects) ? (raw.projects as WorkshopProject[]) : [],
     nextOrderSeq: Number(raw.nextOrderSeq || 1001),
     staff,
   }

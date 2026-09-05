@@ -88,6 +88,7 @@ export type WorkshopDb = {
   reports: DepartmentReport[]
   nextOrderSeq: number
   cutRecords?: CutRecord[]
+  projects?: WorkshopProject[]
   clients?: Array<{
     id: string
     loginId: string
@@ -124,6 +125,42 @@ export type CutRecord = {
     byMaterial: Record<string, number>
     areaSqft: number
   }
+}
+
+export type ProjectInventory = {
+  plywoodByThickness: Record<string, number>
+  innerByCode: Record<string, number>
+  outerByCode: Record<string, number>
+  bothByCode: Record<string, number>
+  plainSheets: number
+  totalSheets: number
+  totalAreaSqft: number
+}
+
+export type DailyCutUpdate = {
+  id: string
+  date: string
+  postedAt: string
+  postedBy?: string
+  materialText: string
+  sawWidthMm: number
+  utilizationPercent: number
+  notes?: string
+  boards: CutRecord['boards']
+  totals: CutRecord['totals']
+}
+
+export type WorkshopProject = {
+  id: string
+  name: string
+  clientName: string
+  orderNo?: string
+  status: 'open' | 'in_progress' | 'completed' | 'on_hold'
+  createdAt: string
+  updatedAt: string
+  notes?: string
+  inventory: ProjectInventory
+  dailyUpdates: DailyCutUpdate[]
 }
 
 export const DEPARTMENTS: {

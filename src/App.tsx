@@ -25,6 +25,7 @@ import { WorkshopPartnersPage } from './workshop/pages/WorkshopPartnersPage'
 import { WorkshopDisplayPage } from './workshop/pages/WorkshopDisplayPage'
 import { WorkshopModularPage } from './workshop/pages/WorkshopModularPage'
 import { WorkshopCutRecordsPage } from './workshop/pages/WorkshopCutRecordsPage'
+import { WorkshopProjectsPage } from './workshop/pages/WorkshopProjectsPage'
 import './App.css'
 
 export default function App() {
@@ -40,6 +41,7 @@ export default function App() {
           <Route path="departments" element={<WorkshopDepartmentsPage />} />
           <Route path="modular" element={<WorkshopModularPage />} />
           <Route path="cut-records" element={<WorkshopCutRecordsPage />} />
+          <Route path="projects" element={<WorkshopProjectsPage />} />
           <Route path="partners" element={<WorkshopPartnersPage />} />
           <Route path="display" element={<WorkshopDisplayPage />} />
         </Route>

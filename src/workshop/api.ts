@@ -149,6 +149,60 @@ export function deleteCutRecord(id: string) {
   })
 }
 
+export function fetchProjects() {
+  return api<{ projects: import('./types').WorkshopProject[] }>('/api/workshop/projects')
+}
+
+export function createProject(input: {
+  name: string
+  clientName?: string
+  orderNo?: string
+  notes?: string
+}) {
+  return api<import('./types').WorkshopProject>('/api/workshop/projects', {
+    method: 'POST',
+    body: JSON.stringify(input),
+  })
+}
+
+export function updateProject(
+  id: string,
+  patch: Partial<Pick<import('./types').WorkshopProject, 'name' | 'clientName' | 'orderNo' | 'status' | 'notes'>>,
+) {
+  return api<import('./types').WorkshopProject>(`/api/workshop/projects/${encodeURIComponent(id)}`, {
+    method: 'PATCH',
+    body: JSON.stringify(patch),
+  })
+}
+
+export function deleteProject(id: string) {
+  return api<{ ok: boolean }>(`/api/workshop/projects/${encodeURIComponent(id)}`, {
+    method: 'DELETE',
+  })
+}
+
+export function postProjectUpdate(
+  projectId: string,
+  input: {
+    materialText: string
+    sawWidthMm: number
+    utilizationPercent: number
+    notes?: string
+    postedBy?: string
+    date?: string
+    boards: import('./types').DailyCutUpdate['boards']
+    totals: import('./types').DailyCutUpdate['totals']
+  },
+) {
+  return api<{ project: import('./types').WorkshopProject; update: import('./types').DailyCutUpdate }>(
+    `/api/workshop/projects/${encodeURIComponent(projectId)}/updates`,
+    {
+      method: 'POST',
+      body: JSON.stringify(input),
+    },
+  )
+}
+
 export function newLocalLine(partial: Omit<OrderLine, 'id'>): OrderLine {
   return { id: crypto.randomUUID(), ...partial }
 }

@@ -10,6 +10,7 @@ const nav = [
   { to: '/workshop/departments', label: 'Departments' },
   { to: '/workshop/modular', label: 'Modular mfg' },
   { to: '/workshop/cut-records', label: 'Cut records' },
+  { to: '/workshop/projects', label: 'Projects' },
   { to: '/workshop/partners', label: 'Partners' },
   { to: '/workshop/display', label: 'Floor display' },
 ]

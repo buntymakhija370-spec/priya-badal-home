@@ -1,7 +1,7 @@
 import { useEffect, useMemo, useState } from 'react'
 import { Link, useParams } from 'react-router-dom'
 import { fetchWorkshopDb, setChecklistItem, setJobStatus, updateOrder } from '../api'
-import { PIPELINE_STAGES, checklistProgress } from '../pipeline'
+import { PIPELINE_STAGES, checklistProgress, hasStagePhotoProof, stagePhotoCount } from '../pipeline'
 import type {
   DepartmentId,
   JobStatus,
@@ -12,6 +12,7 @@ import type {
 } from '../types'
 import { DEPARTMENTS, ORDER_STATUSES, emptyJobs, formatInr } from '../types'
 import { JobSheetList } from '../components/JobSheetList'
+import { StagePhotoProofPanel } from '../components/StagePhotoProofPanel'
 
 export function WorkshopOrderDetailPage() {
   const { orderId = '' } = useParams()
@@ -49,6 +50,8 @@ export function WorkshopOrderDetailPage() {
   const stage = PIPELINE_STAGES.find((s) => s.id === activeStage) || PIPELINE_STAGES[0]
   const stageChecks = order.checklists?.[activeStage] || {}
   const progress = checklistProgress(activeStage, stageChecks)
+  const photoCount = stagePhotoCount(order.photos, activeStage)
+  const hasPhotos = hasStagePhotoProof(order.photos, activeStage)
 
   async function patchStatus(status: OrderStatus) {
     setBusy(true)
@@ -67,6 +70,9 @@ export function WorkshopOrderDetailPage() {
     setError('')
     setMessage('')
     try {
+      if (status === 'done' && !hasStagePhotoProof(order!.photos, departmentId)) {
+        throw new Error('Post at least one product photo proof before marking this department done')
+      }
       const res = await setJobStatus(order!.id, departmentId, status, note, assignee || undefined)
       setOrder(res.order)
       setNote('')
@@ -89,15 +95,19 @@ export function WorkshopOrderDetailPage() {
       setOrder(res.order)
       const prog = checklistProgress(departmentId, res.order.checklists?.[departmentId])
       if (prog.complete && res.order.jobs?.[departmentId] !== 'done') {
-        await setJobStatus(
-          order!.id,
-          departmentId,
-          'done',
-          note || 'Checklist complete',
-          assignee || undefined,
-        )
-        setMessage('All ticks done — stage marked complete')
-        await reload()
+        if (!hasStagePhotoProof(res.order.photos, departmentId)) {
+          setMessage('Checklist complete — still need product photo proof before confirming')
+        } else {
+          await setJobStatus(
+            order!.id,
+            departmentId,
+            'done',
+            note || 'Checklist complete with photo proof',
+            assignee || undefined,
+          )
+          setMessage('All ticks + photo proof done — stage marked complete')
+          await reload()
+        }
       }
     } catch (e) {
       setError(e instanceof Error ? e.message : 'Checklist update failed')
@@ -226,13 +236,15 @@ export function WorkshopOrderDetailPage() {
           <div className="ws-card">
             <h2>Workshop management pipeline</h2>
             <p className="ws-hint">
-              Order posted for this client → Priya & Badal review → Designing → Cutting → Phase 2
-              Finishing → QC → Dispatch → Transport handover. Each stage ticks its checklist.
+              After Review starts: Designing → Cutting → Paint Booth → QC → Dispatch → Transport.
+              Every department must post product photo proof before confirming and handing to the
+              next stage.
             </p>
             <div className="ws-pipeline">
               {PIPELINE_STAGES.map((s) => {
                 const st = jobs[s.id] || 'queued'
                 const prog = checklistProgress(s.id, order.checklists?.[s.id])
+                const pics = stagePhotoCount(order.photos, s.id)
                 return (
                   <button
                     key={s.id}
@@ -243,7 +255,7 @@ export function WorkshopOrderDetailPage() {
                     <strong>{s.short}</strong>
                     <span>{st.replace('_', ' ')}</span>
                     <em>
-                      {prog.done}/{prog.total} ticks
+                      {prog.done}/{prog.total} ticks · {pics} photo{pics === 1 ? '' : 's'}
                     </em>
                   </button>
                 )
@@ -270,7 +282,8 @@ export function WorkshopOrderDetailPage() {
                 <button
                   type="button"
                   className="ws-btn ws-btn--primary"
-                  disabled={busy}
+                  disabled={busy || !hasPhotos}
+                  title={hasPhotos ? 'Confirm stage' : 'Upload photo proof first'}
                   onClick={() => void updateJob(activeStage, 'done')}
                 >
                   Mark stage done
@@ -297,12 +310,25 @@ export function WorkshopOrderDetailPage() {
               </label>
             </div>
 
-            <h3>
+            <StagePhotoProofPanel
+              orderId={order.id}
+              departmentId={activeStage}
+              departmentLabel={stage.name}
+              photos={order.photos?.[activeStage] || []}
+              uploadedBy={assignee}
+              disabled={busy}
+              onOrderChange={setOrder}
+              onError={setError}
+              onMessage={setMessage}
+            />
+
+            <h3 style={{ marginTop: '1.25rem' }}>
               Tick list ({progress.done}/{progress.total})
+              {photoCount ? ` · ${photoCount} proof photo(s)` : ' · photo proof needed'}
             </h3>
             <p className="ws-hint">
-              See the client job sheet, then tick each item when done. When all ticks are complete,
-              stage auto-marks done.
+              Tick each item when done. Stage only auto-confirms when all ticks are complete and
+              product photo proof is posted.
             </p>
             <ul className="ws-ticks">
               {stage.checklist.map((item) => {
@@ -313,7 +339,7 @@ export function WorkshopOrderDetailPage() {
                       <input
                         type="checkbox"
                         checked={checked}
-                        disabled={busy}
+                        disabled={busy || (item.id === 'photo_proof' && !hasPhotos && !checked)}
                         onChange={(e) => void toggleTick(activeStage, item.id, e.target.checked)}
                       />
                       <span>{item.label}</span>
@@ -374,6 +400,7 @@ export function WorkshopOrderDetailPage() {
           <h2>Transport & handover details</h2>
           <p className="ws-hint">
             After QC and dispatch, enter vehicle / driver details for finished product handover.
+            Post handover photo proof on the Transport stage in the pipeline tab.
           </p>
           <div className="ws-form__row">
             <label className="ws-field">
@@ -449,7 +476,7 @@ export function WorkshopOrderDetailPage() {
             <button
               type="button"
               className="ws-btn ws-btn--ghost"
-              disabled={busy}
+              disabled={busy || !hasStagePhotoProof(order.photos, 'transport')}
               onClick={() => void updateJob('transport', 'done')}
             >
               Mark transport complete

@@ -2,7 +2,9 @@ import { useEffect, useMemo, useState } from 'react'
 import { Link } from 'react-router-dom'
 import { fetchWorkshopDb, setJobStatus } from '../api'
 import { JobSheetList } from '../components/JobSheetList'
-import type { DepartmentId, WorkshopDb } from '../types'
+import { StagePhotoProofPanel } from '../components/StagePhotoProofPanel'
+import { hasStagePhotoProof, stagePhotoCount } from '../pipeline'
+import type { DepartmentId, WorkshopDb, WorkshopOrder } from '../types'
 import { DEPARTMENTS } from '../types'
 
 export function WorkshopDepartmentsPage() {
@@ -10,6 +12,8 @@ export function WorkshopDepartmentsPage() {
   const [dept, setDept] = useState<DepartmentId>('review')
   const [busy, setBusy] = useState(false)
   const [openId, setOpenId] = useState<string | null>(null)
+  const [error, setError] = useState('')
+  const [message, setMessage] = useState('')
 
   const reload = () => fetchWorkshopDb().then(setDb)
 
@@ -29,18 +33,31 @@ export function WorkshopDepartmentsPage() {
 
   const deptName = DEPARTMENTS.find((d) => d.id === dept)?.name || dept
 
+  function patchOrderInDb(next: WorkshopOrder) {
+    setDb((prev) => {
+      if (!prev) return prev
+      return {
+        ...prev,
+        orders: prev.orders.map((o) => (o.id === next.id ? next : o)),
+      }
+    })
+  }
+
   return (
     <div>
       <div className="ws-page-head">
         <div>
           <h1>Departments</h1>
           <p>
-            Open a department to see client orders waiting. Each order shows full product details —
-            coating number/colour, laminate paste codes, leather, thickness — so the team knows
-            exactly what to do.
+            Open a department to see client orders waiting. Post product photo proof for each order,
+            then confirm — Designing, Cutting, Paint Booth, QC, Dispatch and Transport all require
+            photographs before the next stage.
           </p>
         </div>
       </div>
+
+      {error ? <p className="ws-error">{error}</p> : null}
+      {message ? <p className="ws-hint">{message}</p> : null}
 
       <div className="ws-actions" style={{ marginBottom: '1rem' }}>
         {DEPARTMENTS.map((d) => (
@@ -51,6 +68,8 @@ export function WorkshopDepartmentsPage() {
             onClick={() => {
               setDept(d.id)
               setOpenId(null)
+              setError('')
+              setMessage('')
             }}
           >
             {d.short}
@@ -66,6 +85,8 @@ export function WorkshopDepartmentsPage() {
           <div className="ws-dept-queue">
             {queue.map(({ order, status }) => {
               const expanded = openId === order.id
+              const pics = stagePhotoCount(order.photos, dept)
+              const canDone = hasStagePhotoProof(order.photos, dept)
               return (
                 <article className="ws-dept-job" key={order.id}>
                   <header className="ws-dept-job__head">
@@ -81,7 +102,12 @@ export function WorkshopDepartmentsPage() {
                         {order.lines.length} product(s):{' '}
                         {order.lines.map((l) => l.productName).filter(Boolean).join(', ') || '—'}
                       </p>
-                      <span className="ws-pill">{status.replace('_', ' ')}</span>
+                      <div className="ws-actions" style={{ marginTop: '0.35rem' }}>
+                        <span className="ws-pill">{status.replace('_', ' ')}</span>
+                        <span className={`ws-pill ${canDone ? 'ws-pill--ok' : 'ws-pill--warn'}`}>
+                          {canDone ? `${pics} photo proof` : 'Photo proof needed'}
+                        </span>
+                      </div>
                     </div>
                     <div className="ws-actions">
                       <button
@@ -89,7 +115,7 @@ export function WorkshopDepartmentsPage() {
                         className="ws-btn ws-btn--ghost"
                         onClick={() => setOpenId(expanded ? null : order.id)}
                       >
-                        {expanded ? 'Hide details' : 'Show full job sheet'}
+                        {expanded ? 'Hide details' : 'Show job + photo proof'}
                       </button>
                       <button
                         type="button"
@@ -97,9 +123,12 @@ export function WorkshopDepartmentsPage() {
                         disabled={busy}
                         onClick={async () => {
                           setBusy(true)
+                          setError('')
                           try {
                             await setJobStatus(order.id, dept, 'in_progress', `${deptName} started`)
                             await reload()
+                          } catch (e) {
+                            setError(e instanceof Error ? e.message : 'Could not start')
                           } finally {
                             setBusy(false)
                           }
@@ -110,18 +139,30 @@ export function WorkshopDepartmentsPage() {
                       <button
                         type="button"
                         className="ws-btn ws-btn--primary"
-                        disabled={busy}
+                        disabled={busy || !canDone}
+                        title={canDone ? 'Confirm with photo proof' : 'Upload photo proof first'}
                         onClick={async () => {
                           setBusy(true)
+                          setError('')
+                          setMessage('')
                           try {
-                            await setJobStatus(order.id, dept, 'done', `${deptName} completed`)
+                            await setJobStatus(
+                              order.id,
+                              dept,
+                              'done',
+                              `${deptName} completed with photo proof`,
+                            )
+                            setMessage(`${order.orderNo}: ${deptName} confirmed with photo proof`)
                             await reload()
+                          } catch (e) {
+                            setError(e instanceof Error ? e.message : 'Could not mark done')
+                            setOpenId(order.id)
                           } finally {
                             setBusy(false)
                           }
                         }}
                       >
-                        Report done
+                        Confirm with photo
                       </button>
                     </div>
                   </header>
@@ -133,6 +174,16 @@ export function WorkshopDepartmentsPage() {
                           <strong>Order notes:</strong> {order.productionNotes}
                         </p>
                       ) : null}
+                      <StagePhotoProofPanel
+                        orderId={order.id}
+                        departmentId={dept}
+                        departmentLabel={deptName}
+                        photos={order.photos?.[dept] || []}
+                        disabled={busy}
+                        onOrderChange={patchOrderInDb}
+                        onError={setError}
+                        onMessage={setMessage}
+                      />
                       <JobSheetList
                         lines={order.lines}
                         title={`${deptName} must follow these product details`}

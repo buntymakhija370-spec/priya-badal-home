@@ -5,6 +5,7 @@ import type {
   OrderSource,
   OrderStatus,
   Partner,
+  StagePhotoProof,
   WorkshopDb,
   WorkshopOrder,
   OrderLine,
@@ -129,6 +130,28 @@ export function setChecklistItem(
     method: 'POST',
     body: JSON.stringify({ orderId, departmentId, itemId, done, assignee }),
   })
+}
+
+export function uploadStagePhoto(input: {
+  orderId: string
+  departmentId: DepartmentId
+  dataUrl: string
+  caption?: string
+  uploadedBy?: string
+  fileName?: string
+}) {
+  return api<{ order: WorkshopOrder; photo: StagePhotoProof }>('/api/workshop/photos', {
+    method: 'POST',
+    body: JSON.stringify(input),
+  })
+}
+
+export function deleteStagePhoto(orderId: string, departmentId: DepartmentId, photoId: string) {
+  const q = new URLSearchParams({ orderId, departmentId })
+  return api<{ order: WorkshopOrder }>(
+    `/api/workshop/photos/${encodeURIComponent(photoId)}?${q.toString()}`,
+    { method: 'DELETE', body: JSON.stringify({ orderId, departmentId }) },
+  )
 }
 
 export function upsertPartner(partner: Partner) {

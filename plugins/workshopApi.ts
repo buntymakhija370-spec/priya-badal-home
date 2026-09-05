@@ -4,6 +4,7 @@ import {
   createSession,
   emptyJobs,
   emptyChecklists,
+  emptyPhotos,
   findClientByLogin,
   ordersForClient,
   publicDbView,
@@ -202,6 +203,7 @@ function workshopMiddleware(): Connect.NextHandleFunction {
           productionNotes: body.productionNotes,
           jobs: emptyJobs(),
           checklists: emptyChecklists(),
+          photos: emptyPhotos(),
           transport: {},
         }
         db.orders.unshift(order)
@@ -229,6 +231,7 @@ function workshopMiddleware(): Connect.NextHandleFunction {
           updatedAt: new Date().toISOString(),
           jobs: body.jobs || prev.jobs || emptyJobs(),
           checklists: body.checklists !== undefined ? body.checklists : prev.checklists || emptyChecklists(),
+          photos: body.photos !== undefined ? body.photos : prev.photos || emptyPhotos(),
           transport: body.transport !== undefined ? body.transport : prev.transport || {},
         }
         db.orders[idx] = next
@@ -251,10 +254,21 @@ function workshopMiddleware(): Connect.NextHandleFunction {
         const order = db.orders.find((o) => o.id === body.orderId)
         if (!order) return send(res, 404, { error: 'Order not found' })
         if (!order.jobs) order.jobs = emptyJobs()
+        if (!order.photos) order.photos = emptyPhotos()
+        if (!order.checklists) order.checklists = emptyChecklists()
+
+        // Photo proof required before any department can mark done
+        if (body.status === 'done') {
+          const proofs = order.photos[body.departmentId] || []
+          if (!proofs.length) {
+            return send(res, 400, {
+              error: 'Post at least one product photo proof before marking this department done',
+            })
+          }
+        }
+
         order.jobs[body.departmentId] = body.status
         order.updatedAt = new Date().toISOString()
-
-        if (!order.checklists) order.checklists = emptyChecklists()
         if (body.status === 'in_progress' && (order.status === 'confirmed' || order.status === 'enquiry')) {
           order.status = 'in_production'
         }
@@ -310,6 +324,92 @@ function workshopMiddleware(): Connect.NextHandleFunction {
         if (body.done && order.jobs[body.departmentId] === 'queued') {
           order.jobs[body.departmentId] = 'in_progress'
           if (order.status === 'confirmed' || order.status === 'enquiry') order.status = 'in_production'
+        }
+        order.updatedAt = new Date().toISOString()
+        writeDb(db)
+        return send(res, 200, { order })
+      }
+
+
+      if (req.method === 'POST' && url === '/api/workshop/photos') {
+        const db = readDb()
+        if (!requireStaff(db, authHeader(req))) {
+          return send(res, 401, { error: 'Staff login required' })
+        }
+        const body = (await readBody(req)) as {
+          orderId: string
+          departmentId: DepartmentId
+          dataUrl: string
+          caption?: string
+          uploadedBy?: string
+          fileName?: string
+        }
+        if (!body.orderId || !body.departmentId || !body.dataUrl) {
+          return send(res, 400, { error: 'orderId, departmentId and photo data required' })
+        }
+        if (!String(body.dataUrl).startsWith('data:image/')) {
+          return send(res, 400, { error: 'Photo must be an image data URL' })
+        }
+        // Limit ~1.8MB compressed data URL
+        if (body.dataUrl.length > 1_800_000) {
+          return send(res, 400, { error: 'Photo too large — compress or use a smaller image' })
+        }
+        const order = db.orders.find((o) => o.id === body.orderId)
+        if (!order) return send(res, 404, { error: 'Order not found' })
+        if (!order.photos) order.photos = emptyPhotos()
+        if (!order.photos[body.departmentId]) order.photos[body.departmentId] = []
+        const list = order.photos[body.departmentId]!
+        if (list.length >= 8) {
+          return send(res, 400, { error: 'Maximum 8 proof photos per department' })
+        }
+        const photo = {
+          id: `pho_${Date.now().toString(36)}_${Math.random().toString(36).slice(2, 6)}`,
+          dataUrl: body.dataUrl,
+          caption: body.caption?.trim() || undefined,
+          uploadedBy: body.uploadedBy?.trim() || undefined,
+          uploadedAt: new Date().toISOString(),
+          fileName: body.fileName,
+        }
+        list.push(photo)
+        if (!order.jobs) order.jobs = emptyJobs()
+        if (!order.checklists) order.checklists = emptyChecklists()
+        if (!order.checklists[body.departmentId]) order.checklists[body.departmentId] = {}
+        order.checklists[body.departmentId]!.photo_proof = true
+        if (order.jobs[body.departmentId] === 'queued') {
+          order.jobs[body.departmentId] = 'in_progress'
+          if (order.status === 'confirmed' || order.status === 'enquiry') order.status = 'in_production'
+        }
+        order.updatedAt = new Date().toISOString()
+        writeDb(db)
+        return send(res, 201, { order, photo })
+      }
+
+      if (req.method === 'DELETE' && url.startsWith('/api/workshop/photos/')) {
+        const db = readDb()
+        if (!requireStaff(db, authHeader(req))) {
+          return send(res, 401, { error: 'Staff login required' })
+        }
+        const rawPath = url.slice('/api/workshop/photos/'.length)
+        const [idPart, queryPart = ''] = rawPath.split('?')
+        const photoId = decodeURIComponent(idPart)
+        const qs = new URLSearchParams(queryPart)
+        let body: { orderId?: string; departmentId?: DepartmentId } = {}
+        try {
+          body = (await readBody(req)) as { orderId?: string; departmentId?: DepartmentId }
+        } catch {
+          body = {}
+        }
+        const orderId = String(qs.get('orderId') || body.orderId || '')
+        const departmentId = String(qs.get('departmentId') || body.departmentId || '') as DepartmentId
+        if (!orderId || !departmentId || !photoId) {
+          return send(res, 400, { error: 'orderId, departmentId and photoId required' })
+        }
+        const order = db.orders.find((o) => o.id === orderId)
+        if (!order) return send(res, 404, { error: 'Order not found' })
+        if (!order.photos) order.photos = emptyPhotos()
+        order.photos[departmentId] = (order.photos[departmentId] || []).filter((p) => p.id !== photoId)
+        if (!(order.photos[departmentId]?.length) && order.checklists?.[departmentId]) {
+          order.checklists[departmentId]!.photo_proof = false
         }
         order.updatedAt = new Date().toISOString()
         writeDb(db)

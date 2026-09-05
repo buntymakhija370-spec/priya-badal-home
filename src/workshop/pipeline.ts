@@ -32,6 +32,7 @@ export const PIPELINE_STAGES: PipelineStageDef[] = [
       { id: 'sizes_finish', label: 'Sizes, finish & laminate codes confirmed' },
       { id: 'priya_ok', label: 'Priya review OK' },
       { id: 'badal_ok', label: 'Badal review OK' },
+      { id: 'photo_proof', label: 'Photo proof of reviewed job sheet / products posted' },
       { id: 'order_ok', label: 'Final OK — send to designing' },
     ],
   },
@@ -39,13 +40,14 @@ export const PIPELINE_STAGES: PipelineStageDef[] = [
     id: 'design',
     name: 'Designing',
     short: 'Design',
-    description: 'Designer opens product details from the job sheet and ticks each design task done.',
+    description: 'Designer opens product details from the job sheet and ticks each design task done. Photo proof required before confirming.',
     checklist: [
       { id: 'read_job_sheet', label: 'Read full product / job sheet details' },
       { id: 'layout_drawing', label: 'Layout / drawing prepared' },
       { id: 'cut_list_ready', label: 'Cut list / nesting ready for cutting' },
       { id: 'edge_band_plan', label: 'Edge banding / laminate plan noted' },
       { id: 'hardware_plan', label: 'Hardware plan noted' },
+      { id: 'photo_proof', label: 'Design photo proof posted (drawing / layout / product view)' },
       { id: 'design_signed', label: 'Design signed off for cutting' },
     ],
   },
@@ -53,27 +55,29 @@ export const PIPELINE_STAGES: PipelineStageDef[] = [
     id: 'cutting',
     name: 'Cutting',
     short: 'Cut',
-    description: 'Cutting department works from the approved design / cut list.',
+    description: 'Cutting department works from the approved design / cut list. Must post cut-product photos before confirming.',
     checklist: [
       { id: 'boards_issued', label: 'Plywood / boards issued as per list' },
       { id: 'laminate_issued', label: 'Inner / outer laminate issued' },
       { id: 'cut_complete', label: 'All panels cut as per nesting' },
       { id: 'edge_banding', label: 'Edge banding done (if required here)' },
       { id: 'parts_labelled', label: 'Parts labelled for Phase 2' },
+      { id: 'photo_proof', label: 'Cutting photo proof posted (cut panels / labelled parts)' },
       { id: 'cut_handover', label: 'Handover to Phase 2 finishing' },
     ],
   },
   {
     id: 'phase2_finishing',
-    name: 'Phase 2 — Finishing',
-    short: 'Phase 2',
-    description: 'Proper finishing department — paint, polish, shutters, assembly finish options.',
+    name: 'Phase 2 — Finishing / Paint Booth',
+    short: 'Paint Booth',
+    description: 'Finishing & paint booth — paint, polish, shutters, assembly. Product photos required before confirm.',
     checklist: [
       { id: 'carcass_assy', label: 'Carcass / box assembly done' },
       { id: 'shutter_fit', label: 'Shutters / doors fitted' },
-      { id: 'surface_finish', label: 'Paint / polish / laminate finish done' },
+      { id: 'surface_finish', label: 'Paint booth / polish / laminate finish done' },
       { id: 'hardware_fit', label: 'Hardware fitted (hinges, channels, handles)' },
       { id: 'glass_mirror', label: 'Glass / mirror / special finish (if any)' },
+      { id: 'photo_proof', label: 'Paint booth / finishing photo proof posted' },
       { id: 'phase2_clean', label: 'Cleaned & ready for QC' },
     ],
   },
@@ -81,13 +85,14 @@ export const PIPELINE_STAGES: PipelineStageDef[] = [
     id: 'qc',
     name: 'QC — Quality Check',
     short: 'QC',
-    description: 'Quality check against job sheet before dispatch.',
+    description: 'Quality check against job sheet before dispatch. Photo proof of inspected product required.',
     checklist: [
       { id: 'size_check', label: 'Sizes match job sheet' },
       { id: 'finish_check', label: 'Finish / colour match approved' },
       { id: 'hardware_check', label: 'Hardware working & complete' },
       { id: 'damage_check', label: 'No damage / scratches' },
       { id: 'packing_check', label: 'Packed / protected for transport' },
+      { id: 'photo_proof', label: 'QC photo proof posted (finished product)' },
       { id: 'qc_pass', label: 'QC PASS — release to dispatch' },
     ],
   },
@@ -95,11 +100,11 @@ export const PIPELINE_STAGES: PipelineStageDef[] = [
     id: 'dispatch',
     name: 'Dispatch',
     short: 'Dispatch',
-    description: 'Prepare finished product for handover / loading.',
+    description: 'Prepare finished product for handover / loading. Loading photo proof required.',
     checklist: [
       { id: 'items_listed', label: 'Dispatch list vs job sheet matched' },
       { id: 'loaded', label: 'Loaded on vehicle' },
-      { id: 'photos', label: 'Loading photos taken (optional)' },
+      { id: 'photo_proof', label: 'Dispatch / loading photo proof posted' },
       { id: 'docs_ready', label: 'Invoice / challan / papers ready' },
       { id: 'dispatch_ok', label: 'Dispatch cleared' },
     ],
@@ -108,12 +113,13 @@ export const PIPELINE_STAGES: PipelineStageDef[] = [
     id: 'transport',
     name: 'Transport & handover',
     short: 'Transport',
-    description: 'Transport details after finished product is handed over.',
+    description: 'Transport details after finished product is handed over. Site / handover photo proof required.',
     checklist: [
       { id: 'vehicle_entered', label: 'Vehicle number entered' },
       { id: 'driver_entered', label: 'Driver name & phone entered' },
       { id: 'lr_entered', label: 'LR / bilty / reference entered (if any)' },
       { id: 'site_handover', label: 'Handed over at site / client received' },
+      { id: 'photo_proof', label: 'Handover photo proof posted at site' },
       { id: 'client_sign', label: 'Client acknowledgement / sign' },
       { id: 'transport_closed', label: 'Transport closed' },
     ],
@@ -146,4 +152,19 @@ export function checklistProgress(
   const total = items.length
   const done = items.filter((i) => state?.[i.id]).length
   return { done, total, complete: total > 0 && done === total }
+}
+
+/** Every department must post ≥1 product photo before stage can be marked done */
+export function stagePhotoCount(
+  photos: Partial<Record<DepartmentId, { id: string }[]>> | undefined,
+  stageId: DepartmentId,
+): number {
+  return photos?.[stageId]?.length || 0
+}
+
+export function hasStagePhotoProof(
+  photos: Partial<Record<DepartmentId, { id: string }[]>> | undefined,
+  stageId: DepartmentId,
+): boolean {
+  return stagePhotoCount(photos, stageId) > 0
 }

@@ -26,6 +26,16 @@ export type JobStatus = 'queued' | 'assigned' | 'in_progress' | 'done' | 'blocke
 
 export type StageChecklist = Record<string, boolean>
 
+/** Photo proof posted by a department before stage can be marked done */
+export type StagePhotoProof = {
+  id: string
+  dataUrl: string
+  caption?: string
+  uploadedBy?: string
+  uploadedAt: string
+  fileName?: string
+}
+
 export type TransportDetails = {
   vehicleNo?: string
   driverName?: string
@@ -111,6 +121,8 @@ export type WorkshopOrder = {
   jobs: Record<DepartmentId, JobStatus>
   /** Tick lists per department (designing / cutting / phase2 / etc.) */
   checklists?: Partial<Record<DepartmentId, StageChecklist>>
+  /** Photo proofs per department — required before stage done */
+  photos?: Partial<Record<DepartmentId, StagePhotoProof[]>>
   /** Transport handover after dispatch */
   transport?: TransportDetails
 }
@@ -228,7 +240,7 @@ export const DEPARTMENTS: {
   { id: 'review', name: 'Review — Priya & Badal', short: 'Review' },
   { id: 'design', name: 'Designing', short: 'Design' },
   { id: 'cutting', name: 'Cutting', short: 'Cut' },
-  { id: 'phase2_finishing', name: 'Phase 2 — Finishing', short: 'Phase 2' },
+  { id: 'phase2_finishing', name: 'Phase 2 — Finishing / Paint Booth', short: 'Paint Booth' },
   { id: 'qc', name: 'QC — Quality Check', short: 'QC' },
   { id: 'dispatch', name: 'Dispatch', short: 'Dispatch' },
   { id: 'transport', name: 'Transport & handover', short: 'Transport' },

@@ -926,6 +926,83 @@
   align-items: flex-start;
 }
 .ws-dept-job__body { margin-top: 0.75rem; }
+
+.ws-photo-proof {
+  margin-top: 1rem;
+  padding: 0.85rem;
+  border: 1px solid rgba(21, 32, 25, 0.12);
+  border-radius: 0.55rem;
+  background: #f3f7f4;
+}
+.ws-photo-proof__head {
+  display: flex;
+  justify-content: space-between;
+  gap: 0.75rem;
+  flex-wrap: wrap;
+  align-items: flex-start;
+  margin-bottom: 0.65rem;
+}
+.ws-photo-proof__head h3 {
+  margin: 0 0 0.25rem;
+  font-size: 1rem;
+}
+.ws-photo-proof__empty {
+  margin: 0.35rem 0 0.75rem;
+}
+.ws-photo-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(9.5rem, 1fr));
+  gap: 0.65rem;
+  margin-bottom: 0.85rem;
+}
+.ws-photo-card {
+  margin: 0;
+  border: 1px solid rgba(21, 32, 25, 0.1);
+  border-radius: 0.45rem;
+  overflow: hidden;
+  background: #fff;
+}
+.ws-photo-card img {
+  display: block;
+  width: 100%;
+  aspect-ratio: 1;
+  object-fit: cover;
+}
+.ws-photo-card figcaption {
+  display: grid;
+  gap: 0.25rem;
+  padding: 0.45rem 0.5rem 0.55rem;
+  font-size: 0.78rem;
+}
+.ws-photo-card figcaption small {
+  color: #3a4a40;
+}
+.ws-photo-card .ws-btn {
+  justify-self: start;
+  padding: 0.2rem 0.45rem;
+  font-size: 0.72rem;
+}
+.ws-photo-proof__upload {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.65rem;
+  align-items: end;
+}
+.ws-photo-proof__upload .ws-field {
+  flex: 1 1 14rem;
+}
+.ws-photo-proof__pick {
+  position: relative;
+  overflow: hidden;
+  cursor: pointer;
+}
+.ws-photo-proof__pick input[type='file'] {
+  position: absolute;
+  inset: 0;
+  opacity: 0;
+  cursor: pointer;
+}
+
 @media (max-width: 900px) {
   .ws-form__row3, .ws-jobcard__grid { grid-template-columns: 1fr; }
 }

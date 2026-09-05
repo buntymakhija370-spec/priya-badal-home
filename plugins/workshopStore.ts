@@ -9,6 +9,15 @@ import fs from 'node:fs'
 import path from 'node:path'
 import { createHash, randomBytes, timingSafeEqual } from 'node:crypto'
 
+export type StagePhotoProof = {
+  id: string
+  dataUrl: string
+  caption?: string
+  uploadedBy?: string
+  uploadedAt: string
+  fileName?: string
+}
+
 export type JobStatus = 'queued' | 'assigned' | 'in_progress' | 'done' | 'blocked'
 export type DepartmentId =
   | 'review'
@@ -64,6 +73,7 @@ export type WorkshopOrder = {
   dispatchedAt?: string
   jobs: Record<string, JobStatus>
   checklists?: Partial<Record<DepartmentId, Record<string, boolean>>>
+  photos?: Partial<Record<DepartmentId, StagePhotoProof[]>>
   transport?: {
     vehicleNo?: string
     driverName?: string
@@ -242,7 +252,20 @@ export function emptyJobs(): Record<string, JobStatus> {
   }
 }
 
+export function emptyPhotos(): Record<string, StagePhotoProof[]> {
+  return {
+    review: [],
+    design: [],
+    cutting: [],
+    phase2_finishing: [],
+    qc: [],
+    dispatch: [],
+    transport: [],
+  }
+}
+
 export function emptyChecklists(): Record<string, Record<string, boolean>> {
+
   return {
     review: {},
     design: {},
@@ -502,6 +525,7 @@ function migrateDb(raw: Record<string, unknown>): WorkshopDb {
       ...o,
       jobs: normalizeOrderJobs(o.jobs),
       checklists: o.checklists || emptyChecklists(),
+      photos: o.photos || emptyPhotos(),
       transport: o.transport || {},
     })),
     reports: (raw.reports as DepartmentReport[]) || [],

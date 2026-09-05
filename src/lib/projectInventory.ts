@@ -48,6 +48,7 @@ export type WorkshopProject = {
   notes?: string
   inventory: ProjectInventory
   dailyUpdates: DailyCutUpdate[]
+  production?: Record<'cutting'|'cnc'|'paint'|'dispatch'|'accounts', 'pending'|'in_progress'|'done'>
 }
 
 export function emptyInventory(): ProjectInventory {

@@ -18,6 +18,9 @@ import {
   type Partner,
   type WorkshopOrder,
   type WorkshopProject,
+  type ProductionStageId,
+  type ProductionStageStatus,
+  emptyProduction,
   verifyClientPin,
   verifyStaffPin,
   writeDb,
@@ -355,7 +358,11 @@ function workshopMiddleware(): Connect.NextHandleFunction {
           return send(res, 401, { error: 'Staff login required' })
         }
         if (!db.projects) db.projects = []
-        return send(res, 200, { projects: db.projects })
+        const projects = db.projects.map((p) => ({
+          ...p,
+          production: p.production || emptyProduction(),
+        }))
+        return send(res, 200, { projects })
       }
 
       if (req.method === 'POST' && url === '/api/workshop/projects') {
@@ -389,6 +396,7 @@ function workshopMiddleware(): Connect.NextHandleFunction {
             totalAreaSqft: 0,
           },
           dailyUpdates: [],
+          production: emptyProduction(),
         }
         if (!db.projects) db.projects = []
         db.projects.unshift(project)
@@ -428,6 +436,7 @@ function workshopMiddleware(): Connect.NextHandleFunction {
           updatedAt: new Date().toISOString(),
           inventory: prev.inventory,
           dailyUpdates: prev.dailyUpdates,
+          production: prev.production || emptyProduction(),
         }
         writeDb(db)
         return send(res, 200, db.projects[idx])
@@ -492,6 +501,34 @@ function workshopMiddleware(): Connect.NextHandleFunction {
         project.updatedAt = now.toISOString()
         writeDb(db)
         return send(res, 201, { project, update })
+      }
+
+
+      const productionMatch = url.match(/^\/api\/workshop\/projects\/([^/?]+)\/production$/)
+      if (req.method === 'POST' && productionMatch) {
+        const db = readDb()
+        if (!requireStaff(db, authHeader(req))) {
+          return send(res, 401, { error: 'Staff login required' })
+        }
+        const id = decodeURIComponent(productionMatch[1])
+        const idx = (db.projects || []).findIndex((p) => p.id === id)
+        if (idx < 0) return send(res, 404, { error: 'Project not found' })
+        const body = (await readBody(req)) as {
+          stage?: ProductionStageId
+          status?: ProductionStageStatus
+        }
+        const stage = body.stage
+        const status = body.status
+        if (!stage || !status) {
+          return send(res, 400, { error: 'stage and status required' })
+        }
+        const project = db.projects[idx]
+        project.production = { ...(project.production || emptyProduction()), [stage]: status }
+        if (status === 'in_progress' && project.status === 'open') project.status = 'in_progress'
+        if (stage === 'accounts' && status === 'done') project.status = 'completed'
+        project.updatedAt = new Date().toISOString()
+        writeDb(db)
+        return send(res, 200, project)
       }
 
       return send(res, 404, { error: 'Not found' })

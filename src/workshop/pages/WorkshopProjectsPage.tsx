@@ -1,6 +1,10 @@
 import { useEffect, useMemo, useState } from 'react'
 import { WHATSAPP_CHAT_URL } from '../../lib/whatsapp'
-import { DEMO_MATERIAL_TEXT, parseMaterialRequisition } from '../../lib/cutRecordParser'
+import {
+  DEMO_MATERIAL_TEXT,
+  extractPasteMeta,
+  parseMaterialRequisition,
+} from '../../lib/cutRecordParser'
 import {
   inventoryWhatsAppText,
   makeDailyUpdate,
@@ -10,10 +14,17 @@ import {
   createProject,
   deleteProject,
   fetchProjects,
+  postProjectProduction,
   postProjectUpdate,
   updateProject,
 } from '../api'
-import type { WorkshopProject } from '../types'
+import {
+  PRODUCTION_STAGES,
+  emptyProduction,
+  type ProductionStageId,
+  type ProductionStageStatus,
+  type WorkshopProject,
+} from '../types'
 
 export function WorkshopProjectsPage() {
   const [projects, setProjects] = useState<WorkshopProject[]>([])
@@ -36,15 +47,43 @@ export function WorkshopProjectsPage() {
 
   const selected = projects.find((p) => p.id === selectedId) || null
   const previewBoards = useMemo(() => parseMaterialRequisition(materialText), [materialText])
+  const production = selected?.production || emptyProduction()
 
   async function reload() {
     const res = await fetchProjects()
-    setProjects(res.projects || [])
+    setProjects(
+      (res.projects || []).map((p) => ({
+        ...p,
+        production: p.production || emptyProduction(),
+      })),
+    )
   }
 
   useEffect(() => {
     void reload().catch((e: Error) => setError(e.message))
   }, [])
+
+  function onMaterialTextChange(text: string) {
+    setMaterialText(text)
+    const meta = extractPasteMeta(text)
+    if (meta.sawWidthMm != null) setSawWidthMm(meta.sawWidthMm)
+    if (meta.utilizationPercent != null) setUtilizationPercent(meta.utilizationPercent)
+  }
+
+  async function onSetProduction(stage: ProductionStageId, status: ProductionStageStatus) {
+    if (!selected) return
+    setBusy(true)
+    setError('')
+    try {
+      await postProjectProduction(selected.id, { stage, status })
+      setMessage(`Production updated · ${stage} → ${status.replace('_', ' ')}`)
+      await reload()
+    } catch (e) {
+      setError(e instanceof Error ? e.message : 'Could not update production')
+    } finally {
+      setBusy(false)
+    }
+  }
 
   async function onCreateProject() {
     setBusy(true)
@@ -98,7 +137,10 @@ export function WorkshopProjectsPage() {
       })
       setSelectedId(res.project.id)
       setUpdateNotes('')
-      setMessage(`Saved today’s update · ${draft.totals.totalSheets} sheets added to project inventory`)
+      await postProjectProduction(selected.id, { stage: 'cutting', status: 'in_progress' })
+      setMessage(
+        `Saved today’s cutting · ${draft.totals.totalSheets} sheets added. Inventory + cutting stage updated.`,
+      )
       await reload()
     } catch (e) {
       setError(e instanceof Error ? e.message : 'Could not save update')
@@ -111,10 +153,10 @@ export function WorkshopProjectsPage() {
     <div className="ws-projects">
       <div className="ws-page-head">
         <div>
-          <h1>Project inventory</h1>
+          <h1>Daily cutting & production</h1>
           <p>
-            Day-to-day cutting list paste. One person posts — software manages plywood, inner
-            laminate, outer laminate, and totals for that project.
+            Paste your cutting-software list every day. Software manages plywood + laminate inventory
+            for that project, and you mark Cutting → CNC → Paint → Dispatch → Accounts.
           </p>
         </div>
         {selected ? (
@@ -267,24 +309,61 @@ export function WorkshopProjectsPage() {
                     <em>updates</em>
                   </div>
                 </div>
+
+                <h3 className="ws-section-title">Production working</h3>
+                <div className="ws-prod-stages">
+                  {PRODUCTION_STAGES.map((stage) => {
+                    const status = production[stage.id] || 'pending'
+                    return (
+                      <div key={stage.id} className={`ws-prod-stage is-${status}`}>
+                        <strong>{stage.label}</strong>
+                        <span>{status.replace('_', ' ')}</span>
+                        <div className="ws-prod-stage__actions no-print">
+                          <button
+                            type="button"
+                            disabled={busy}
+                            onClick={() => void onSetProduction(stage.id, 'in_progress')}
+                          >
+                            Start
+                          </button>
+                          <button
+                            type="button"
+                            disabled={busy}
+                            onClick={() => void onSetProduction(stage.id, 'done')}
+                          >
+                            Done
+                          </button>
+                        </div>
+                      </div>
+                    )
+                  })}
+                </div>
               </div>
 
               <div className="ws-card no-print">
                 <h2>Today — paste cutting list</h2>
+                <p className="ws-hint">
+                  Paste the same text from your cutting software (Size / Quantity / Inner-Outer-Both +
+                  code). If you also paste Saw width and Utilization, software fills those fields.
+                </p>
                 <label>
                   Material text from cutting software
                   <textarea
                     rows={6}
                     value={materialText}
-                    onChange={(e) => setMaterialText(e.target.value)}
+                    onChange={(e) => onMaterialTextChange(e.target.value)}
                     placeholder="Size:2440×1220×8,Quantity:32 Inner 809, ..."
                   />
                 </label>
                 <p className="ws-hint">
                   Parsed lines: <strong>{previewBoards.length}</strong>
                   {' · '}
-                  <button type="button" className="ws-linkish" onClick={() => setMaterialText(DEMO_MATERIAL_TEXT)}>
-                    Load sample
+                  <button
+                    type="button"
+                    className="ws-linkish"
+                    onClick={() => onMaterialTextChange(DEMO_MATERIAL_TEXT)}
+                  >
+                    Load your sample format
                   </button>
                 </p>
                 <div className="ws-modular__row3">

@@ -125,6 +125,20 @@ export type CutRecord = {
   }
 }
 
+
+export type ProductionStageId = 'cutting' | 'cnc' | 'paint' | 'dispatch' | 'accounts'
+export type ProductionStageStatus = 'pending' | 'in_progress' | 'done'
+
+export function emptyProduction(): Record<ProductionStageId, ProductionStageStatus> {
+  return {
+    cutting: 'pending',
+    cnc: 'pending',
+    paint: 'pending',
+    dispatch: 'pending',
+    accounts: 'pending',
+  }
+}
+
 export type ProjectInventory = {
   plywoodByThickness: Record<string, number>
   innerByCode: Record<string, number>
@@ -159,6 +173,7 @@ export type WorkshopProject = {
   notes?: string
   inventory: ProjectInventory
   dailyUpdates: DailyCutUpdate[]
+  production: Record<ProductionStageId, ProductionStageStatus>
 }
 
 export type WorkshopDb = {

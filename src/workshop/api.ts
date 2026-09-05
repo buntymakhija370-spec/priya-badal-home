@@ -211,3 +211,14 @@ export function seedJobsIfMissing(order: WorkshopOrder): WorkshopOrder {
   if (order.jobs && Object.keys(order.jobs).length) return order
   return { ...order, jobs: emptyJobs() }
 }
+
+
+export function postProjectProduction(
+  projectId: string,
+  input: { stage: import('./types').ProductionStageId; status: import('./types').ProductionStageStatus },
+) {
+  return api<import('./types').WorkshopProject>(
+    `/api/workshop/projects/${encodeURIComponent(projectId)}/production`,
+    { method: 'POST', body: JSON.stringify(input) },
+  )
+}

@@ -126,7 +126,7 @@ export function buildCutRecord(
 }
 
 export const DEMO_MATERIAL_TEXT =
-  'Size:2440×1220×8,Quantity:32 Inner 809, Size:2440×1220×17,Quantity:47 Inner 809, Size:2440×1220×17,Quantity:5 1514, Size:2440×1220×17,Quantity:31 Outer 8378, Size:2440×1220×17,Quantity:2 Both 8378'
+  'Size:2440×1220×8,Quantity:32 Inner 809, Size:2440×1220×17,Quantity:47 Inner 809, Size:2440×1220×17,Quantity:5 1514, Size:2440×1220×17,Quantity:31 Outer 8378, Size:2440×1220×17,Quantity:2 Both 8378\nSaw width: 9 mm\nUtilization: 81.45%'
 
 export function cutRecordWhatsAppText(r: CutRecordParsed) {
   const lines = [
@@ -152,4 +152,21 @@ export function cutRecordWhatsAppText(r: CutRecordParsed) {
   ].filter(Boolean) as string[]
   if (r.notes?.trim()) lines.push('', `Notes: ${r.notes.trim()}`)
   return lines.join('\n')
+}
+
+/** Pull saw width / utilization if operator pastes full software row. */
+export function extractPasteMeta(text: string): {
+  sawWidthMm?: number
+  utilizationPercent?: number
+} {
+  const out: { sawWidthMm?: number; utilizationPercent?: number } = {}
+  const saw =
+    text.match(/saw\s*width\s*[:\s]*(\d+(?:\.\d+)?)\s*mm/i) ||
+    text.match(/\b(\d+(?:\.\d+)?)\s*mm\b/i)
+  if (saw) out.sawWidthMm = Number(saw[1])
+  const util =
+    text.match(/utili[sz]ation\s*[:\s]*(\d+(?:\.\d+)?)\s*%/i) ||
+    text.match(/(\d+(?:\.\d+)?)\s*%/)
+  if (util) out.utilizationPercent = Number(util[1])
+  return out
 }

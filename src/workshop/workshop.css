@@ -758,3 +758,43 @@
   .ws-projects__grid { grid-template-columns: 1fr; }
   .ws-inv-grid { grid-template-columns: 1fr; }
 }
+
+.ws-section-title {
+  margin: 1rem 0 0.55rem;
+  font-size: 0.95rem;
+  font-weight: 650;
+}
+.ws-prod-stages {
+  display: grid;
+  grid-template-columns: repeat(5, minmax(0, 1fr));
+  gap: 0.55rem;
+}
+.ws-prod-stage {
+  border: 1px solid rgba(21, 32, 25, 0.12);
+  border-radius: 0.5rem;
+  padding: 0.65rem 0.7rem;
+  background: #f4f7f5;
+  display: grid;
+  gap: 0.25rem;
+}
+.ws-prod-stage strong { font-size: 0.9rem; }
+.ws-prod-stage span { font-size: 0.78rem; color: #3a4a40; text-transform: capitalize; }
+.ws-prod-stage.is-in_progress { border-color: #6b7f4a; background: #eef3e4; }
+.ws-prod-stage.is-done { border-color: #4f6a58; background: #e4efe8; }
+.ws-prod-stage__actions {
+  display: flex;
+  gap: 0.35rem;
+  margin-top: 0.25rem;
+}
+.ws-prod-stage__actions button {
+  font: inherit;
+  font-size: 0.75rem;
+  border: 1px solid rgba(21, 32, 25, 0.16);
+  border-radius: 0.35rem;
+  background: #fff;
+  padding: 0.2rem 0.4rem;
+  cursor: pointer;
+}
+@media (max-width: 900px) {
+  .ws-prod-stages { grid-template-columns: 1fr 1fr; }
+}

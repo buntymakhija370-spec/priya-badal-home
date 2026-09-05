@@ -257,6 +257,26 @@ function workshopMiddleware(): Connect.NextHandleFunction {
         if (!order.photos) order.photos = emptyPhotos()
         if (!order.checklists) order.checklists = emptyChecklists()
 
+        // Sequential pipeline: previous department must be done (+ photo) first
+        const STAGE_ORDER: DepartmentId[] = [
+          'review',
+          'design',
+          'cutting',
+          'phase2_finishing',
+          'qc',
+          'dispatch',
+          'transport',
+        ]
+        const stageIdx = STAGE_ORDER.indexOf(body.departmentId)
+        if (stageIdx > 0 && (body.status === 'in_progress' || body.status === 'done' || body.status === 'assigned')) {
+          const prevId = STAGE_ORDER[stageIdx - 1]
+          if ((order.jobs[prevId] || 'queued') !== 'done') {
+            return send(res, 400, {
+              error: `Previous department must finish and post photo proof before ${body.departmentId} can ${body.status === 'done' ? 'be marked done' : 'start'}`,
+            })
+          }
+        }
+
         // Photo proof required before any department can mark done
         if (body.status === 'done') {
           const proofs = order.photos[body.departmentId] || []
@@ -320,10 +340,23 @@ function workshopMiddleware(): Connect.NextHandleFunction {
         if (!order.checklists[body.departmentId]) order.checklists[body.departmentId] = {}
         order.checklists[body.departmentId]![body.itemId] = Boolean(body.done)
         if (!order.jobs) order.jobs = emptyJobs()
-        // Auto-start stage when first tick happens
+        // Auto-start stage when first tick happens — only if previous department is done
         if (body.done && order.jobs[body.departmentId] === 'queued') {
-          order.jobs[body.departmentId] = 'in_progress'
-          if (order.status === 'confirmed' || order.status === 'enquiry') order.status = 'in_production'
+          const STAGE_ORDER: DepartmentId[] = [
+            'review',
+            'design',
+            'cutting',
+            'phase2_finishing',
+            'qc',
+            'dispatch',
+            'transport',
+          ]
+          const idx = STAGE_ORDER.indexOf(body.departmentId)
+          const prevId = idx > 0 ? STAGE_ORDER[idx - 1] : null
+          if (!prevId || (order.jobs[prevId] || 'queued') === 'done') {
+            order.jobs[body.departmentId] = 'in_progress'
+            if (order.status === 'confirmed' || order.status === 'enquiry') order.status = 'in_production'
+          }
         }
         order.updatedAt = new Date().toISOString()
         writeDb(db)
@@ -356,6 +389,28 @@ function workshopMiddleware(): Connect.NextHandleFunction {
         }
         const order = db.orders.find((o) => o.id === body.orderId)
         if (!order) return send(res, 404, { error: 'Order not found' })
+        if (!order.jobs) order.jobs = emptyJobs()
+        // Cannot post proof / work on a department until previous stage is done with photo
+        {
+          const STAGE_ORDER: DepartmentId[] = [
+            'review',
+            'design',
+            'cutting',
+            'phase2_finishing',
+            'qc',
+            'dispatch',
+            'transport',
+          ]
+          const idx = STAGE_ORDER.indexOf(body.departmentId)
+          if (idx > 0) {
+            const prevId = STAGE_ORDER[idx - 1]
+            if ((order.jobs[prevId] || 'queued') !== 'done') {
+              return send(res, 400, {
+                error: 'Previous department must finish with photo proof before this department can post photos',
+              })
+            }
+          }
+        }
         if (!order.photos) order.photos = emptyPhotos()
         if (!order.photos[body.departmentId]) order.photos[body.departmentId] = []
         const list = order.photos[body.departmentId]!
@@ -371,7 +426,6 @@ function workshopMiddleware(): Connect.NextHandleFunction {
           fileName: body.fileName,
         }
         list.push(photo)
-        if (!order.jobs) order.jobs = emptyJobs()
         if (!order.checklists) order.checklists = emptyChecklists()
         if (!order.checklists[body.departmentId]) order.checklists[body.departmentId] = {}
         order.checklists[body.departmentId]!.photo_proof = true

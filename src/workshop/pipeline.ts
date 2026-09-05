@@ -168,3 +168,51 @@ export function hasStagePhotoProof(
 ): boolean {
   return stagePhotoCount(photos, stageId) > 0
 }
+
+/** Pipeline order — next department unlocks only after previous is done (+ photo) */
+export const PIPELINE_ORDER: DepartmentId[] = PIPELINE_STAGES.map((s) => s.id)
+
+export function previousDepartment(stageId: DepartmentId): DepartmentId | null {
+  const idx = PIPELINE_ORDER.indexOf(stageId)
+  if (idx <= 0) return null
+  return PIPELINE_ORDER[idx - 1] || null
+}
+
+export function stageIndex(stageId: DepartmentId): number {
+  return PIPELINE_ORDER.indexOf(stageId)
+}
+
+/** Previous stage must be marked done (which itself requires photo proof). */
+export function isDepartmentUnlocked(
+  jobs: Partial<Record<DepartmentId, string>> | undefined,
+  stageId: DepartmentId,
+): boolean {
+  const prev = previousDepartment(stageId)
+  if (!prev) return true
+  return (jobs?.[prev] || 'queued') === 'done'
+}
+
+export function departmentGate(
+  order: {
+    jobs?: Partial<Record<DepartmentId, string>>
+    photos?: Partial<Record<DepartmentId, { id: string }[]>>
+  },
+  stageId: DepartmentId,
+  action: 'start' | 'done',
+): { ok: true } | { ok: false; reason: string } {
+  const prev = previousDepartment(stageId)
+  if (prev && (order.jobs?.[prev] || 'queued') !== 'done') {
+    const prevName = PIPELINE_STAGES.find((s) => s.id === prev)?.name || prev
+    return {
+      ok: false,
+      reason: `Wait for ${prevName} to finish and post photo proof before this department can ${action}`,
+    }
+  }
+  if (action === 'done' && !hasStagePhotoProof(order.photos, stageId)) {
+    return {
+      ok: false,
+      reason: 'Post at least one product photo proof before marking this department done',
+    }
+  }
+  return { ok: true }
+}

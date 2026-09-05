@@ -1,7 +1,7 @@
 import { useEffect, useMemo, useState } from 'react'
 import { Link, useParams } from 'react-router-dom'
 import { fetchWorkshopDb, setChecklistItem, setJobStatus, updateOrder } from '../api'
-import { PIPELINE_STAGES, checklistProgress, hasStagePhotoProof, stagePhotoCount } from '../pipeline'
+import { PIPELINE_STAGES, checklistProgress, departmentGate, hasStagePhotoProof, isDepartmentUnlocked, previousDepartment, stagePhotoCount } from '../pipeline'
 import type {
   DepartmentId,
   JobStatus,
@@ -52,6 +52,13 @@ export function WorkshopOrderDetailPage() {
   const progress = checklistProgress(activeStage, stageChecks)
   const photoCount = stagePhotoCount(order.photos, activeStage)
   const hasPhotos = hasStagePhotoProof(order.photos, activeStage)
+  const unlocked = isDepartmentUnlocked(order.jobs, activeStage)
+  const prevDept = previousDepartment(activeStage)
+  const prevName = prevDept
+    ? PIPELINE_STAGES.find((s) => s.id === prevDept)?.name || prevDept
+    : null
+  const startGate = departmentGate(order, activeStage, 'start')
+  const doneGate = departmentGate(order, activeStage, 'done')
 
   async function patchStatus(status: OrderStatus) {
     setBusy(true)
@@ -70,9 +77,9 @@ export function WorkshopOrderDetailPage() {
     setError('')
     setMessage('')
     try {
-      if (status === 'done' && !hasStagePhotoProof(order!.photos, departmentId)) {
-        throw new Error('Post at least one product photo proof before marking this department done')
-      }
+      const action = status === 'done' ? 'done' : 'start'
+      const gate = departmentGate(order!, departmentId, action)
+      if (!gate.ok) throw new Error(gate.reason)
       const res = await setJobStatus(order!.id, departmentId, status, note, assignee || undefined)
       setOrder(res.order)
       setNote('')
@@ -95,8 +102,9 @@ export function WorkshopOrderDetailPage() {
       setOrder(res.order)
       const prog = checklistProgress(departmentId, res.order.checklists?.[departmentId])
       if (prog.complete && res.order.jobs?.[departmentId] !== 'done') {
-        if (!hasStagePhotoProof(res.order.photos, departmentId)) {
-          setMessage('Checklist complete — still need product photo proof before confirming')
+        const gate = departmentGate(res.order, departmentId, 'done')
+        if (!gate.ok) {
+          setMessage(gate.reason)
         } else {
           await setJobStatus(
             order!.id,
@@ -105,7 +113,7 @@ export function WorkshopOrderDetailPage() {
             note || 'Checklist complete with photo proof',
             assignee || undefined,
           )
-          setMessage('All ticks + photo proof done — stage marked complete')
+          setMessage('All ticks + photo proof done — stage marked complete. Next department unlocked.')
           await reload()
         }
       }
@@ -237,8 +245,8 @@ export function WorkshopOrderDetailPage() {
             <h2>Workshop management pipeline</h2>
             <p className="ws-hint">
               After Review starts: Designing → Cutting → Paint Booth → QC → Dispatch → Transport.
-              Every department must post product photo proof before confirming and handing to the
-              next stage.
+              Each department must Start, post product photo proof, then Mark done — only then does
+              the next department unlock.
             </p>
             <div className="ws-pipeline">
               {PIPELINE_STAGES.map((s) => {
@@ -269,12 +277,25 @@ export function WorkshopOrderDetailPage() {
                 <p className="ws-eyebrow">{(jobs[activeStage] || 'queued').replace('_', ' ')}</p>
                 <h2>{stage.name}</h2>
                 <p className="ws-hint">{stage.description}</p>
+                {!unlocked && prevName ? (
+                  <p className="ws-error">
+                    Locked — {prevName} must Start → post photo proof → Mark done before this
+                    department can work.
+                  </p>
+                ) : null}
+                {unlocked && !hasPhotos ? (
+                  <p className="ws-hint">
+                    Post product photo proof, then use <strong>Mark stage done</strong>. Next
+                    department unlocks only after that.
+                  </p>
+                ) : null}
               </div>
               <div className="ws-actions no-print">
                 <button
                   type="button"
                   className="ws-btn ws-btn--ghost"
-                  disabled={busy}
+                  disabled={busy || !startGate.ok || jobs[activeStage] === 'done'}
+                  title={startGate.ok ? 'Start this department' : startGate.reason}
                   onClick={() => void updateJob(activeStage, 'in_progress')}
                 >
                   Start stage
@@ -282,8 +303,8 @@ export function WorkshopOrderDetailPage() {
                 <button
                   type="button"
                   className="ws-btn ws-btn--primary"
-                  disabled={busy || !hasPhotos}
-                  title={hasPhotos ? 'Confirm stage' : 'Upload photo proof first'}
+                  disabled={busy || !doneGate.ok || jobs[activeStage] === 'done'}
+                  title={doneGate.ok ? 'Confirm with photo proof' : doneGate.reason}
                   onClick={() => void updateJob(activeStage, 'done')}
                 >
                   Mark stage done
@@ -316,7 +337,7 @@ export function WorkshopOrderDetailPage() {
               departmentLabel={stage.name}
               photos={order.photos?.[activeStage] || []}
               uploadedBy={assignee}
-              disabled={busy}
+              disabled={busy || !unlocked || jobs[activeStage] === 'done'}
               onOrderChange={setOrder}
               onError={setError}
               onMessage={setMessage}

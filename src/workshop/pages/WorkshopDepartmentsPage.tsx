@@ -3,7 +3,14 @@ import { Link } from 'react-router-dom'
 import { fetchWorkshopDb, setJobStatus } from '../api'
 import { JobSheetList } from '../components/JobSheetList'
 import { StagePhotoProofPanel } from '../components/StagePhotoProofPanel'
-import { hasStagePhotoProof, stagePhotoCount } from '../pipeline'
+import {
+  departmentGate,
+  hasStagePhotoProof,
+  isDepartmentUnlocked,
+  previousDepartment,
+  PIPELINE_STAGES,
+  stagePhotoCount,
+} from '../pipeline'
 import type { DepartmentId, WorkshopDb, WorkshopOrder } from '../types'
 import { DEPARTMENTS } from '../types'
 
@@ -32,6 +39,8 @@ export function WorkshopDepartmentsPage() {
   }, [db, dept])
 
   const deptName = DEPARTMENTS.find((d) => d.id === dept)?.name || dept
+  const prevId = previousDepartment(dept)
+  const prevName = prevId ? PIPELINE_STAGES.find((s) => s.id === prevId)?.name || prevId : null
 
   function patchOrderInDb(next: WorkshopOrder) {
     setDb((prev) => {
@@ -49,9 +58,9 @@ export function WorkshopDepartmentsPage() {
         <div>
           <h1>Departments</h1>
           <p>
-            Open a department to see client orders waiting. Post product photo proof for each order,
-            then confirm — Designing, Cutting, Paint Booth, QC, Dispatch and Transport all require
-            photographs before the next stage.
+            Every department must <strong>Start</strong>, post product photo proof, then{' '}
+            <strong>Confirm with photo</strong>. The next department unlocks only after that — Review
+            → Design → Cutting → Paint Booth → QC → Dispatch → Transport.
           </p>
         </div>
       </div>
@@ -79,6 +88,12 @@ export function WorkshopDepartmentsPage() {
 
       <div className="ws-card">
         <h2>{deptName} queue</h2>
+        {prevName ? (
+          <p className="ws-hint">
+            Orders stay locked here until <strong>{prevName}</strong> is marked done with photo
+            proof.
+          </p>
+        ) : null}
         {!queue.length ? (
           <p className="ws-empty">No open jobs for this department.</p>
         ) : (
@@ -86,7 +101,10 @@ export function WorkshopDepartmentsPage() {
             {queue.map(({ order, status }) => {
               const expanded = openId === order.id
               const pics = stagePhotoCount(order.photos, dept)
-              const canDone = hasStagePhotoProof(order.photos, dept)
+              const unlocked = isDepartmentUnlocked(order.jobs, dept)
+              const startGate = departmentGate(order, dept, 'start')
+              const doneGate = departmentGate(order, dept, 'done')
+              const canDone = doneGate.ok
               return (
                 <article className="ws-dept-job" key={order.id}>
                   <header className="ws-dept-job__head">
@@ -104,9 +122,17 @@ export function WorkshopDepartmentsPage() {
                       </p>
                       <div className="ws-actions" style={{ marginTop: '0.35rem' }}>
                         <span className="ws-pill">{status.replace('_', ' ')}</span>
-                        <span className={`ws-pill ${canDone ? 'ws-pill--ok' : 'ws-pill--warn'}`}>
-                          {canDone ? `${pics} photo proof` : 'Photo proof needed'}
-                        </span>
+                        {!unlocked ? (
+                          <span className="ws-pill ws-pill--warn">Waiting previous department</span>
+                        ) : (
+                          <span
+                            className={`ws-pill ${hasStagePhotoProof(order.photos, dept) ? 'ws-pill--ok' : 'ws-pill--warn'}`}
+                          >
+                            {hasStagePhotoProof(order.photos, dept)
+                              ? `${pics} photo proof`
+                              : 'Photo proof needed'}
+                          </span>
+                        )}
                       </div>
                     </div>
                     <div className="ws-actions">
@@ -120,7 +146,8 @@ export function WorkshopDepartmentsPage() {
                       <button
                         type="button"
                         className="ws-btn ws-btn--ghost"
-                        disabled={busy}
+                        disabled={busy || !startGate.ok}
+                        title={startGate.ok ? 'Start this department' : startGate.reason}
                         onClick={async () => {
                           setBusy(true)
                           setError('')
@@ -129,6 +156,7 @@ export function WorkshopDepartmentsPage() {
                             await reload()
                           } catch (e) {
                             setError(e instanceof Error ? e.message : 'Could not start')
+                            setOpenId(order.id)
                           } finally {
                             setBusy(false)
                           }
@@ -140,7 +168,7 @@ export function WorkshopDepartmentsPage() {
                         type="button"
                         className="ws-btn ws-btn--primary"
                         disabled={busy || !canDone}
-                        title={canDone ? 'Confirm with photo proof' : 'Upload photo proof first'}
+                        title={canDone ? 'Confirm with photo proof' : doneGate.reason}
                         onClick={async () => {
                           setBusy(true)
                           setError('')
@@ -152,7 +180,9 @@ export function WorkshopDepartmentsPage() {
                               'done',
                               `${deptName} completed with photo proof`,
                             )
-                            setMessage(`${order.orderNo}: ${deptName} confirmed with photo proof`)
+                            setMessage(
+                              `${order.orderNo}: ${deptName} confirmed with photo — next department unlocked`,
+                            )
                             await reload()
                           } catch (e) {
                             setError(e instanceof Error ? e.message : 'Could not mark done')
@@ -169,6 +199,9 @@ export function WorkshopDepartmentsPage() {
 
                   {expanded ? (
                     <div className="ws-dept-job__body">
+                      {!unlocked ? (
+                        <p className="ws-error">{startGate.ok ? null : startGate.reason}</p>
+                      ) : null}
                       {order.productionNotes ? (
                         <p className="ws-hint">
                           <strong>Order notes:</strong> {order.productionNotes}
@@ -179,7 +212,7 @@ export function WorkshopDepartmentsPage() {
                         departmentId={dept}
                         departmentLabel={deptName}
                         photos={order.photos?.[dept] || []}
-                        disabled={busy}
+                        disabled={busy || !unlocked}
                         onOrderChange={patchOrderInDb}
                         onError={setError}
                         onMessage={setMessage}

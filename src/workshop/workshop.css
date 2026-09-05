@@ -857,3 +857,75 @@
   .ws-pipeline { grid-template-columns: repeat(2, minmax(0, 1fr)); }
   .ws-meta-grid, .ws-form__row { grid-template-columns: 1fr; }
 }
+
+
+.ws-section-title { margin: 1rem 0 0.5rem; font-size: 1.05rem; }
+.ws-product-list { display: grid; gap: 1rem; margin-top: 0.75rem; }
+.ws-product-card {
+  border: 1px solid rgba(21, 32, 25, 0.12);
+  border-radius: 0.65rem;
+  padding: 0.85rem 0.9rem;
+  background: #f7faf8;
+  display: grid;
+  gap: 0.55rem;
+}
+.ws-product-card__head {
+  display: flex;
+  justify-content: space-between;
+  gap: 0.75rem;
+  align-items: center;
+}
+.ws-product-card__head h3 { margin: 0; font-size: 1rem; }
+.ws-product-card__summary {
+  margin: 0;
+  font-size: 0.86rem;
+  color: #2f4a3a;
+  background: #e7efe9;
+  border-radius: 0.4rem;
+  padding: 0.45rem 0.6rem;
+}
+.ws-form__row3 {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 0.75rem;
+}
+.ws-jobsheet { display: grid; gap: 0.65rem; }
+.ws-jobsheet__list { display: grid; gap: 0.75rem; }
+.ws-jobcard {
+  border: 1px solid rgba(21, 32, 25, 0.12);
+  border-radius: 0.55rem;
+  padding: 0.75rem 0.85rem;
+  background: #fff;
+}
+.ws-jobcard h3 { margin: 0.1rem 0 0.25rem; font-size: 1rem; }
+.ws-jobcard__grid {
+  display: grid;
+  grid-template-columns: 9rem 1fr;
+  gap: 0.3rem 0.75rem;
+  margin: 0.55rem 0 0;
+}
+.ws-jobcard__grid dt { color: #3a4a40; font-size: 0.8rem; }
+.ws-jobcard__grid dd { margin: 0; font-size: 0.9rem; font-weight: 600; }
+.ws-jobcard__summary {
+  margin: 0.65rem 0 0;
+  font-size: 0.84rem;
+  color: #2f4a3a;
+}
+.ws-dept-queue { display: grid; gap: 0.85rem; }
+.ws-dept-job {
+  border: 1px solid rgba(21, 32, 25, 0.1);
+  border-radius: 0.55rem;
+  padding: 0.85rem;
+  background: #f7faf8;
+}
+.ws-dept-job__head {
+  display: flex;
+  justify-content: space-between;
+  gap: 0.75rem;
+  flex-wrap: wrap;
+  align-items: flex-start;
+}
+.ws-dept-job__body { margin-top: 0.75rem; }
+@media (max-width: 900px) {
+  .ws-form__row3, .ws-jobcard__grid { grid-template-columns: 1fr; }
+}

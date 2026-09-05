@@ -1,6 +1,7 @@
 import { type FormEvent, useEffect, useMemo, useState } from 'react'
 import { Link, useNavigate } from 'react-router-dom'
 import { createOrder, fetchWorkshopDb } from '../api'
+import { summarizeLineFinish } from '../jobSheet'
 import type { OrderLine, OrderSource, WorkshopDb } from '../types'
 import { ORDER_SOURCES, formatInr } from '../types'
 
@@ -16,8 +17,25 @@ const blankLine = (): DraftLine => ({
   widthFt: undefined,
   heightFt: undefined,
   depthFt: undefined,
+  thicknessMm: undefined,
+  finishType: 'laminate',
+  coatingColor: '',
+  coatingCode: '',
+  innerLaminate: '',
+  outerLaminate: '',
+  leatherCode: '',
+  leatherColor: '',
+  viewSide: 'both',
   finish: '',
 })
+
+function patchLine(lines: DraftLine[], idx: number, patch: Partial<DraftLine>): DraftLine[] {
+  const next = [...lines]
+  const merged = { ...next[idx], ...patch }
+  merged.finish = summarizeLineFinish(merged)
+  next[idx] = merged
+  return next
+}
 
 export function WorkshopNewOrderPage() {
   const navigate = useNavigate()
@@ -52,8 +70,9 @@ export function WorkshopNewOrderPage() {
       setError('Customer name and phone are required.')
       return
     }
-    if (!lines.some((l) => l.productName.trim())) {
-      setError('Add at least one product line.')
+    const validLines = lines.filter((l) => l.productName.trim())
+    if (!validLines.length) {
+      setError('Add at least one product in this order.')
       return
     }
     setSaving(true)
@@ -65,13 +84,23 @@ export function WorkshopNewOrderPage() {
         customerCity: customerCity.trim() || undefined,
         partnerId: source === 'channel_partner' ? partnerId || undefined : undefined,
         partnerName: source === 'channel_partner' ? partner?.name : undefined,
-        lines: lines
-          .filter((l) => l.productName.trim())
-          .map((l) => ({
-            ...l,
-            qty: Number(l.qty) || 1,
-            unitPrice: Number(l.unitPrice) || 0,
-          })),
+        lines: validLines.map((l) => ({
+          ...l,
+          qty: Number(l.qty) || 1,
+          unitPrice: Number(l.unitPrice) || 0,
+          thicknessMm: l.thicknessMm ? Number(l.thicknessMm) : undefined,
+          widthFt: l.widthFt ? Number(l.widthFt) : undefined,
+          heightFt: l.heightFt ? Number(l.heightFt) : undefined,
+          depthFt: l.depthFt ? Number(l.depthFt) : undefined,
+          finish: summarizeLineFinish(l) || l.finish || undefined,
+          coatingColor: l.coatingColor?.trim() || undefined,
+          coatingCode: l.coatingCode?.trim() || undefined,
+          innerLaminate: l.innerLaminate?.trim() || undefined,
+          outerLaminate: l.outerLaminate?.trim() || undefined,
+          leatherCode: l.leatherCode?.trim() || undefined,
+          leatherColor: l.leatherColor?.trim() || undefined,
+          notes: l.notes?.trim() || undefined,
+        })),
         advancePaid: Number(advancePaid) || 0,
         totalAmount: total,
         dueDate: dueDate || undefined,
@@ -90,15 +119,19 @@ export function WorkshopNewOrderPage() {
     <div>
       <div className="ws-page-head">
         <div>
-          <h1>New order</h1>
-          <p>Post each client order with product job-sheet details — then workshop pipeline starts with Priya & Badal review</p>
+          <h1>New client order</h1>
+          <p>
+            One order for one client. Add multiple products inside it — each product can have its
+            own coating colour/number, laminate, leather, thickness and view.
+          </p>
         </div>
         <Link className="ws-btn ws-btn--ghost" to="/workshop/orders">
           Back to orders
         </Link>
       </div>
 
-      <form className="ws-card ws-form" onSubmit={onSubmit}>
+      <form className="ws-card ws-form" onSubmit={(e) => void onSubmit(e)}>
+        <h2 className="ws-section-title">Client</h2>
         <div className="ws-form__row">
           <div className="ws-field">
             <label>Order source</label>
@@ -134,7 +167,7 @@ export function WorkshopNewOrderPage() {
 
         <div className="ws-form__row">
           <div className="ws-field">
-            <label>Customer name</label>
+            <label>Client name</label>
             <input value={customerName} onChange={(e) => setCustomerName(e.target.value)} required />
           </div>
           <div className="ws-field">
@@ -159,45 +192,72 @@ export function WorkshopNewOrderPage() {
           </div>
         </div>
 
-        <div>
-          <h2 style={{ margin: '0 0 0.55rem', fontSize: '1rem' }}>Job sheet — products</h2>
-          <div className="ws-lines">
-            {lines.map((line, idx) => (
-              <div className="ws-line" key={idx}>
+        <h2 className="ws-section-title">Products in this one order</h2>
+        <p className="ws-hint">
+          Same client order can hold many products. Example: shutter with laminate + wardrobe with
+          coating colour + panel with leather — all inside this single order.
+        </p>
+
+        <div className="ws-product-list">
+          {lines.map((line, idx) => (
+            <section className="ws-product-card" key={idx}>
+              <div className="ws-product-card__head">
+                <h3>Product {idx + 1}</h3>
+                <button
+                  type="button"
+                  className="ws-btn ws-btn--ghost"
+                  disabled={lines.length === 1}
+                  onClick={() => setLines(lines.filter((_, i) => i !== idx))}
+                >
+                  Remove product
+                </button>
+              </div>
+
+              <div className="ws-form__row">
                 <div className="ws-field">
-                  <label>Product</label>
+                  <label>Product name</label>
                   <input
                     value={line.productName}
-                    onChange={(e) => {
-                      const next = [...lines]
-                      next[idx] = { ...line, productName: e.target.value }
-                      setLines(next)
-                    }}
-                    placeholder="e.g. Taupe Reeded Kitchen"
+                    onChange={(e) => setLines(patchLine(lines, idx, { productName: e.target.value }))}
+                    placeholder="e.g. Kitchen shutter / Wardrobe door"
+                    required={idx === 0}
                   />
                 </div>
                 <div className="ws-field">
-                  <label>SKU</label>
+                  <label>Category</label>
                   <input
-                    value={line.sku || ''}
-                    onChange={(e) => {
-                      const next = [...lines]
-                      next[idx] = { ...line, sku: e.target.value }
-                      setLines(next)
-                    }}
+                    value={line.category || ''}
+                    onChange={(e) => setLines(patchLine(lines, idx, { category: e.target.value }))}
+                    placeholder="Kitchen / Wardrobe / TV unit"
                   />
                 </div>
+              </div>
+
+              <div className="ws-form__row3">
                 <div className="ws-field">
                   <label>Qty</label>
                   <input
                     type="number"
                     min={1}
                     value={line.qty}
-                    onChange={(e) => {
-                      const next = [...lines]
-                      next[idx] = { ...line, qty: Number(e.target.value) }
-                      setLines(next)
-                    }}
+                    onChange={(e) => setLines(patchLine(lines, idx, { qty: Number(e.target.value) }))}
+                  />
+                </div>
+                <div className="ws-field">
+                  <label>Thickness (mm)</label>
+                  <input
+                    type="number"
+                    min={0}
+                    step={1}
+                    value={line.thicknessMm ?? ''}
+                    onChange={(e) =>
+                      setLines(
+                        patchLine(lines, idx, {
+                          thicknessMm: e.target.value ? Number(e.target.value) : undefined,
+                        }),
+                      )
+                    }
+                    placeholder="8 / 12 / 17 / 18"
                   />
                 </div>
                 <div className="ws-field">
@@ -206,112 +266,223 @@ export function WorkshopNewOrderPage() {
                     type="number"
                     min={0}
                     value={line.unitPrice}
-                    onChange={(e) => {
-                      const next = [...lines]
-                      next[idx] = { ...line, unitPrice: Number(e.target.value) }
-                      setLines(next)
-                    }}
+                    onChange={(e) =>
+                      setLines(patchLine(lines, idx, { unitPrice: Number(e.target.value) }))
+                    }
                   />
                 </div>
-                <div className="ws-field">
-                  <label>Finish / laminate</label>
-                  <input
-                    value={line.finish || ''}
-                    onChange={(e) => {
-                      const next = [...lines]
-                      next[idx] = { ...line, finish: e.target.value }
-                      setLines(next)
-                    }}
-                    placeholder="e.g. Outer 8378"
-                  />
-                </div>
-                <div className="ws-field">
-                  <label>W × H × D (ft)</label>
-                  <div className="ws-form__row" style={{ gap: '0.35rem' }}>
-                    <input
-                      type="number"
-                      min={0}
-                      step={0.1}
-                      placeholder="W"
-                      value={line.widthFt ?? ''}
-                      onChange={(e) => {
-                        const next = [...lines]
-                        next[idx] = { ...line, widthFt: e.target.value ? Number(e.target.value) : undefined }
-                        setLines(next)
-                      }}
-                    />
-                    <input
-                      type="number"
-                      min={0}
-                      step={0.1}
-                      placeholder="H"
-                      value={line.heightFt ?? ''}
-                      onChange={(e) => {
-                        const next = [...lines]
-                        next[idx] = { ...line, heightFt: e.target.value ? Number(e.target.value) : undefined }
-                        setLines(next)
-                      }}
-                    />
-                    <input
-                      type="number"
-                      min={0}
-                      step={0.1}
-                      placeholder="D"
-                      value={line.depthFt ?? ''}
-                      onChange={(e) => {
-                        const next = [...lines]
-                        next[idx] = { ...line, depthFt: e.target.value ? Number(e.target.value) : undefined }
-                        setLines(next)
-                      }}
-                    />
-                  </div>
-                </div>
-                <button
-                  type="button"
-                  className="ws-btn ws-btn--ghost"
-                  onClick={() => setLines(lines.filter((_, i) => i !== idx))}
-                  disabled={lines.length === 1}
-                >
-                  Remove
-                </button>
               </div>
-            ))}
-          </div>
-          <button
-            type="button"
-            className="ws-btn ws-btn--ghost"
-            style={{ marginTop: '0.55rem' }}
-            onClick={() => setLines([...lines, blankLine()])}
-          >
-            + Add line
-          </button>
+
+              <div className="ws-form__row3">
+                <div className="ws-field">
+                  <label>Width (ft)</label>
+                  <input
+                    type="number"
+                    min={0}
+                    step={0.1}
+                    value={line.widthFt ?? ''}
+                    onChange={(e) =>
+                      setLines(
+                        patchLine(lines, idx, {
+                          widthFt: e.target.value ? Number(e.target.value) : undefined,
+                        }),
+                      )
+                    }
+                  />
+                </div>
+                <div className="ws-field">
+                  <label>Height (ft)</label>
+                  <input
+                    type="number"
+                    min={0}
+                    step={0.1}
+                    value={line.heightFt ?? ''}
+                    onChange={(e) =>
+                      setLines(
+                        patchLine(lines, idx, {
+                          heightFt: e.target.value ? Number(e.target.value) : undefined,
+                        }),
+                      )
+                    }
+                  />
+                </div>
+                <div className="ws-field">
+                  <label>Depth (ft)</label>
+                  <input
+                    type="number"
+                    min={0}
+                    step={0.1}
+                    value={line.depthFt ?? ''}
+                    onChange={(e) =>
+                      setLines(
+                        patchLine(lines, idx, {
+                          depthFt: e.target.value ? Number(e.target.value) : undefined,
+                        }),
+                      )
+                    }
+                  />
+                </div>
+              </div>
+
+              <div className="ws-form__row">
+                <div className="ws-field">
+                  <label>Finish type</label>
+                  <select
+                    value={line.finishType || 'laminate'}
+                    onChange={(e) =>
+                      setLines(
+                        patchLine(lines, idx, {
+                          finishType: e.target.value as DraftLine['finishType'],
+                        }),
+                      )
+                    }
+                  >
+                    <option value="laminate">Laminate pasting</option>
+                    <option value="coating">Colour coating</option>
+                    <option value="leather">Leather</option>
+                    <option value="mixed">Mixed (coat + laminate / leather)</option>
+                    <option value="other">Other</option>
+                  </select>
+                </div>
+                <div className="ws-field">
+                  <label>View / face</label>
+                  <select
+                    value={line.viewSide || 'both'}
+                    onChange={(e) =>
+                      setLines(
+                        patchLine(lines, idx, {
+                          viewSide: e.target.value as DraftLine['viewSide'],
+                        }),
+                      )
+                    }
+                  >
+                    <option value="both">Both sides</option>
+                    <option value="inner">Inner only</option>
+                    <option value="outer">Outer only</option>
+                    <option value="na">Not applicable</option>
+                  </select>
+                </div>
+              </div>
+
+              <div className="ws-form__row">
+                <div className="ws-field">
+                  <label>Coating number / code</label>
+                  <input
+                    value={line.coatingCode || ''}
+                    onChange={(e) => setLines(patchLine(lines, idx, { coatingCode: e.target.value }))}
+                    placeholder="e.g. C-12 / PU code"
+                  />
+                </div>
+                <div className="ws-field">
+                  <label>Coating colour</label>
+                  <input
+                    value={line.coatingColor || ''}
+                    onChange={(e) => setLines(patchLine(lines, idx, { coatingColor: e.target.value }))}
+                    placeholder="e.g. Matt grey / Soft white"
+                  />
+                </div>
+              </div>
+
+              <div className="ws-form__row">
+                <div className="ws-field">
+                  <label>Inner laminate (paste)</label>
+                  <input
+                    value={line.innerLaminate || ''}
+                    onChange={(e) =>
+                      setLines(patchLine(lines, idx, { innerLaminate: e.target.value }))
+                    }
+                    placeholder="e.g. 809"
+                  />
+                </div>
+                <div className="ws-field">
+                  <label>Outer laminate (paste)</label>
+                  <input
+                    value={line.outerLaminate || ''}
+                    onChange={(e) =>
+                      setLines(patchLine(lines, idx, { outerLaminate: e.target.value }))
+                    }
+                    placeholder="e.g. 8378"
+                  />
+                </div>
+              </div>
+
+              <div className="ws-form__row">
+                <div className="ws-field">
+                  <label>Leather code</label>
+                  <input
+                    value={line.leatherCode || ''}
+                    onChange={(e) => setLines(patchLine(lines, idx, { leatherCode: e.target.value }))}
+                    placeholder="If leather finish"
+                  />
+                </div>
+                <div className="ws-field">
+                  <label>Leather colour</label>
+                  <input
+                    value={line.leatherColor || ''}
+                    onChange={(e) =>
+                      setLines(patchLine(lines, idx, { leatherColor: e.target.value }))
+                    }
+                    placeholder="e.g. Brown tan"
+                  />
+                </div>
+              </div>
+
+              <div className="ws-field">
+                <label>Special instruction for this product</label>
+                <textarea
+                  rows={2}
+                  value={line.notes || ''}
+                  onChange={(e) => setLines(patchLine(lines, idx, { notes: e.target.value }))}
+                  placeholder="Anything finishing / cutting must follow for this product only"
+                />
+              </div>
+
+              {summarizeLineFinish(line) ? (
+                <p className="ws-product-card__summary">Summary: {summarizeLineFinish(line)}</p>
+              ) : null}
+            </section>
+          ))}
         </div>
 
-        <div className="ws-field">
-          <label>Production notes (for workshop)</label>
+        <button
+          type="button"
+          className="ws-btn ws-btn--primary"
+          style={{ marginTop: '0.75rem' }}
+          onClick={() => setLines([...lines, blankLine()])}
+        >
+          + Add another product in this same order
+        </button>
+
+        <div className="ws-field" style={{ marginTop: '1rem' }}>
+          <label>Order-level production notes</label>
           <textarea
             value={productionNotes}
             onChange={(e) => setProductionNotes(e.target.value)}
-            placeholder="Finish, size confirmation, special instructions…"
+            placeholder="Common notes for whole order (delivery, site, packing…)"
           />
         </div>
 
         <p>
-          <strong>Order total: {formatInr(total)}</strong>
+          <strong>
+            {lines.filter((l) => l.productName.trim()).length} product(s) · Order total:{' '}
+            {formatInr(total)}
+          </strong>
           {advancePaid > 0 ? (
-            <span style={{ color: '#3a4a40' }}> · Balance {formatInr(Math.max(0, total - advancePaid))}</span>
+            <span style={{ color: '#3a4a40' }}>
+              {' '}
+              · Balance {formatInr(Math.max(0, total - advancePaid))}
+            </span>
           ) : null}
         </p>
 
-        {error ? <p style={{ color: '#8a3b2b', margin: 0 }}>{error}</p> : null}
+        {error ? <p className="ws-error">{error}</p> : null}
 
         <div className="ws-actions">
           <button type="submit" className="ws-btn ws-btn--primary" disabled={saving}>
-            {saving ? 'Saving…' : 'Save & open production copy'}
+            {saving ? 'Saving…' : 'Save client order & open job sheet'}
           </button>
         </div>
       </form>
-      {/* keep helper referenced for tree-shaking clarity */}
     </div>
   )
 }

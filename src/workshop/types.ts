@@ -56,6 +56,24 @@ export type OrderLine = {
   widthFt?: number
   heightFt?: number
   depthFt?: number
+  /** Board / shutter thickness in mm */
+  thicknessMm?: number
+  /** coating | laminate | leather | mixed | other */
+  finishType?: 'coating' | 'laminate' | 'leather' | 'mixed' | 'other'
+  /** Colour coat name / shade */
+  coatingColor?: string
+  /** Coating code / system number */
+  coatingCode?: string
+  /** Inner laminate code */
+  innerLaminate?: string
+  /** Outer laminate code */
+  outerLaminate?: string
+  /** Leather code / type if leather finish */
+  leatherCode?: string
+  leatherColor?: string
+  /** Which face / view this finish applies to */
+  viewSide?: 'inner' | 'outer' | 'both' | 'na'
+  /** Free-text finish summary (legacy + display) */
   finish?: string
 }
 

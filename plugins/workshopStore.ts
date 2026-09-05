@@ -30,6 +30,15 @@ export type OrderLine = {
   widthFt?: number
   heightFt?: number
   depthFt?: number
+  thicknessMm?: number
+  finishType?: 'coating' | 'laminate' | 'leather' | 'mixed' | 'other'
+  coatingColor?: string
+  coatingCode?: string
+  innerLaminate?: string
+  outerLaminate?: string
+  leatherCode?: string
+  leatherColor?: string
+  viewSide?: 'inner' | 'outer' | 'both' | 'na'
   finish?: string
 }
 

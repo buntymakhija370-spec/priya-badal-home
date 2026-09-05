@@ -1,6 +1,7 @@
 import { useEffect, useMemo, useState } from 'react'
 import { Link } from 'react-router-dom'
 import { fetchWorkshopDb, setJobStatus } from '../api'
+import { JobSheetList } from '../components/JobSheetList'
 import type { DepartmentId, WorkshopDb } from '../types'
 import { DEPARTMENTS } from '../types'
 
@@ -8,6 +9,7 @@ export function WorkshopDepartmentsPage() {
   const [db, setDb] = useState<WorkshopDb | null>(null)
   const [dept, setDept] = useState<DepartmentId>('review')
   const [busy, setBusy] = useState(false)
+  const [openId, setOpenId] = useState<string | null>(null)
 
   const reload = () => fetchWorkshopDb().then(setDb)
 
@@ -16,9 +18,7 @@ export function WorkshopDepartmentsPage() {
   }, [])
 
   const queue = useMemo(() => {
-    const orders = (db?.orders || []).filter(
-      (o) => !['cancelled', 'delivered'].includes(o.status),
-    )
+    const orders = (db?.orders || []).filter((o) => !['cancelled', 'delivered'].includes(o.status))
     return orders
       .map((o) => ({
         order: o,
@@ -27,12 +27,18 @@ export function WorkshopDepartmentsPage() {
       .filter((row) => row.status !== 'done')
   }, [db, dept])
 
+  const deptName = DEPARTMENTS.find((d) => d.id === dept)?.name || dept
+
   return (
     <div>
       <div className="ws-page-head">
         <div>
           <h1>Departments</h1>
-          <p>Review → Design → Cutting → Phase 2 → QC → Dispatch → Transport. Open the order to tick checklist items.</p>
+          <p>
+            Open a department to see client orders waiting. Each order shows full product details —
+            coating number/colour, laminate paste codes, leather, thickness — so the team knows
+            exactly what to do.
+          </p>
         </div>
       </div>
 
@@ -42,41 +48,49 @@ export function WorkshopDepartmentsPage() {
             key={d.id}
             type="button"
             className={dept === d.id ? 'ws-btn ws-btn--primary' : 'ws-btn ws-btn--ghost'}
-            onClick={() => setDept(d.id)}
+            onClick={() => {
+              setDept(d.id)
+              setOpenId(null)
+            }}
           >
-            {d.name}
+            {d.short}
           </button>
         ))}
       </div>
 
       <div className="ws-card">
-        <h2>{DEPARTMENTS.find((d) => d.id === dept)?.name} queue</h2>
-        {queue.length === 0 ? (
+        <h2>{deptName} queue</h2>
+        {!queue.length ? (
           <p className="ws-empty">No open jobs for this department.</p>
         ) : (
-          <table className="ws-table">
-            <thead>
-              <tr>
-                <th>Order</th>
-                <th>Customer</th>
-                <th>Items</th>
-                <th>Job</th>
-                <th>Action</th>
-              </tr>
-            </thead>
-            <tbody>
-              {queue.map(({ order, status }) => (
-                <tr key={order.id}>
-                  <td>
-                    <Link to={`/workshop/orders/${order.id}`}>{order.orderNo}</Link>
-                  </td>
-                  <td>{order.customerName}</td>
-                  <td>{order.lines.map((l) => l.productName).join(', ')}</td>
-                  <td>
-                    <span className="ws-pill">{status.replace('_', ' ')}</span>
-                  </td>
-                  <td>
+          <div className="ws-dept-queue">
+            {queue.map(({ order, status }) => {
+              const expanded = openId === order.id
+              return (
+                <article className="ws-dept-job" key={order.id}>
+                  <header className="ws-dept-job__head">
+                    <div>
+                      <Link to={`/workshop/orders/${order.id}`}>
+                        <strong>{order.orderNo}</strong>
+                      </Link>
+                      <p className="ws-hint">
+                        Client: {order.customerName} · {order.customerPhone}
+                        {order.customerCity ? ` · ${order.customerCity}` : ''}
+                      </p>
+                      <p className="ws-hint">
+                        {order.lines.length} product(s):{' '}
+                        {order.lines.map((l) => l.productName).filter(Boolean).join(', ') || '—'}
+                      </p>
+                      <span className="ws-pill">{status.replace('_', ' ')}</span>
+                    </div>
                     <div className="ws-actions">
+                      <button
+                        type="button"
+                        className="ws-btn ws-btn--ghost"
+                        onClick={() => setOpenId(expanded ? null : order.id)}
+                      >
+                        {expanded ? 'Hide details' : 'Show full job sheet'}
+                      </button>
                       <button
                         type="button"
                         className="ws-btn ws-btn--ghost"
@@ -84,7 +98,7 @@ export function WorkshopDepartmentsPage() {
                         onClick={async () => {
                           setBusy(true)
                           try {
-                            await setJobStatus(order.id, dept, 'in_progress', `${dept} started`)
+                            await setJobStatus(order.id, dept, 'in_progress', `${deptName} started`)
                             await reload()
                           } finally {
                             setBusy(false)
@@ -100,7 +114,7 @@ export function WorkshopDepartmentsPage() {
                         onClick={async () => {
                           setBusy(true)
                           try {
-                            await setJobStatus(order.id, dept, 'done', `${dept} completed`)
+                            await setJobStatus(order.id, dept, 'done', `${deptName} completed`)
                             await reload()
                           } finally {
                             setBusy(false)
@@ -110,11 +124,25 @@ export function WorkshopDepartmentsPage() {
                         Report done
                       </button>
                     </div>
-                  </td>
-                </tr>
-              ))}
-            </tbody>
-          </table>
+                  </header>
+
+                  {expanded ? (
+                    <div className="ws-dept-job__body">
+                      {order.productionNotes ? (
+                        <p className="ws-hint">
+                          <strong>Order notes:</strong> {order.productionNotes}
+                        </p>
+                      ) : null}
+                      <JobSheetList
+                        lines={order.lines}
+                        title={`${deptName} must follow these product details`}
+                      />
+                    </div>
+                  ) : null}
+                </article>
+              )
+            })}
+          </div>
         )}
       </div>
     </div>

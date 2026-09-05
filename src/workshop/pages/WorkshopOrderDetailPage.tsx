@@ -11,6 +11,7 @@ import type {
   WorkshopOrder,
 } from '../types'
 import { DEPARTMENTS, ORDER_STATUSES, emptyJobs, formatInr } from '../types'
+import { JobSheetList } from '../components/JobSheetList'
 
 export function WorkshopOrderDetailPage() {
   const { orderId = '' } = useParams()
@@ -211,41 +212,7 @@ export function WorkshopOrderDetailPage() {
             </select>
           </label>
 
-          <h3>Products on this job</h3>
-          <div className="ws-table-wrap">
-            <table className="ws-table">
-              <thead>
-                <tr>
-                  <th>Product</th>
-                  <th>Size (ft)</th>
-                  <th>Finish</th>
-                  <th>Qty</th>
-                  <th>Rate</th>
-                  <th>Notes</th>
-                </tr>
-              </thead>
-              <tbody>
-                {order.lines.map((line) => (
-                  <tr key={line.id}>
-                    <td>
-                      <strong>{line.productName}</strong>
-                      {line.sku ? <div className="ws-hint">{line.sku}</div> : null}
-                      {line.category ? <div className="ws-hint">{line.category}</div> : null}
-                    </td>
-                    <td>
-                      {[line.widthFt, line.heightFt, line.depthFt].some((n) => n)
-                        ? `${line.widthFt || '—'} × ${line.heightFt || '—'} × ${line.depthFt || '—'}`
-                        : '—'}
-                    </td>
-                    <td>{line.finish || '—'}</td>
-                    <td>{line.qty}</td>
-                    <td>{formatInr(line.unitPrice)}</td>
-                    <td>{line.notes || '—'}</td>
-                  </tr>
-                ))}
-              </tbody>
-            </table>
-          </div>
+          <JobSheetList lines={order.lines} title="All products in this client order" />
           {order.productionNotes ? (
             <p className="ws-hint" style={{ marginTop: '0.75rem' }}>
               Production notes: {order.productionNotes}
@@ -356,21 +323,12 @@ export function WorkshopOrderDetailPage() {
               })}
             </ul>
 
-            {activeStage === 'design' ? (
-              <div className="ws-card" style={{ marginTop: '1rem', background: '#f4f7f5' }}>
-                <h3>Product details for designer</h3>
-                <ul className="ws-hint" style={{ margin: 0, paddingLeft: '1.1rem' }}>
-                  {order.lines.map((line) => (
-                    <li key={line.id}>
-                      <strong>{line.productName}</strong>
-                      {line.finish ? ` · Finish: ${line.finish}` : ''}
-                      {[line.widthFt, line.heightFt, line.depthFt].some((n) => n)
-                        ? ` · Size: ${line.widthFt || '—'}×${line.heightFt || '—'}×${line.depthFt || '—'} ft`
-                        : ''}
-                      {line.notes ? ` · ${line.notes}` : ''} · qty {line.qty}
-                    </li>
-                  ))}
-                </ul>
+            {['design', 'cutting', 'phase2_finishing', 'qc'].includes(activeStage) ? (
+              <div style={{ marginTop: '1rem' }}>
+                <JobSheetList
+                  lines={order.lines}
+                  title={`${stage.name} — follow each product detail below`}
+                />
               </div>
             ) : null}
           </div>

@@ -261,6 +261,21 @@ const FINISH_LOOKUP: Record<string, FinishOption> = {
     name: 'PU metallic · both sides',
     multiplier: 1,
   },
+  'ceramic-front-pu-back': {
+    id: 'ceramic-front-pu-back',
+    name: 'Front ceramic · back PU',
+    multiplier: 1,
+  },
+  'veneer-pu-half': {
+    id: 'veneer-pu-half',
+    name: 'Half veneer · half PU',
+    multiplier: 1,
+  },
+  'glossy-laminate-front-pu-back': {
+    id: 'glossy-laminate-front-pu-back',
+    name: 'Glossy lamination · back PU',
+    multiplier: 1,
+  },
 }
 
 const THICKNESS_LOOKUP: Record<string, ThicknessOption> = {

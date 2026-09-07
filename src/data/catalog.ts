@@ -246,13 +246,13 @@ export const baseProducts: Product[] = [
     name: 'Sand Arch Two-Tone Wardrobe',
     categoryId: 'wardrobe',
     subcategoryId: 'hinged',
-    price: 1150,
+    price: 2200,
     carcassPrice: 2000,
     currency: 'INR',
     pricingMode: 'per-sqft',
-    defaultFinishId: 'ceramic',
+    defaultFinishId: 'ceramic-front-laminate-back',
     defaultThicknessId: '25',
-    finishOptionIds: ['ceramic'],
+    finishOptionIds: ['ceramic-front-laminate-back'],
     thicknessOptionIds: ['25'],
     brand: 'Priyabadal Homes',
     collection: 'Wardrobe',
@@ -280,7 +280,7 @@ export const baseProducts: Product[] = [
       'Full wardrobe hero photo',
       '25 mm HDHMR + BWP plywood',
       'Ceramic coating finish',
-      'Shutter ₹1,150 / sq ft',
+      'Shutter ₹2,200 / sq ft',
       'Made to measure',
       'WhatsApp quote available',
     ],
@@ -296,11 +296,11 @@ export const baseProducts: Product[] = [
     specifications: [
       { label: 'Door Type', value: 'Hinged shutters' },
       { label: 'Shutter material', value: '25 mm HDHMR + BWP plywood' },
-      { label: 'Colour / Finish', value: 'Ceramic coating · sand arch two-tone' },
+      { label: 'Colour / Finish', value: 'Front ceramic · back laminated' },
       { label: 'Board Thickness', value: '25 mm' },
       {
         label: 'Pricing',
-        value: 'Shutter ₹1,150 / sq ft',
+        value: 'Shutter ₹2,200 / sq ft · carcass optional (confirm on WhatsApp)',
       },
       { label: 'Category', value: 'Wardrobe' },
       { label: 'Subcategory', value: 'Hinged' },
@@ -315,17 +315,18 @@ export const baseProducts: Product[] = [
       'Made-to-order for Indian bedrooms',
     ],
     orderNotes: [
-      'Shutter: 25 mm HDHMR + BWP plywood · ceramic coating · ₹1,150 / sq ft',
+      'Shutter: 25 mm HDHMR + BWP plywood · Front ceramic · back laminated · ₹2,200 / sq ft'
     ],
     disclaimer:
       'Accessories and room settings in images are for representation only. Final colour, finish, size, and carcass scope are confirmed on WhatsApp before production.',
   },
+
   {
     id: 'dusty-rose-art-deco-wardrobe',
     name: 'Dusty Rose Art Deco Wardrobe',
     categoryId: 'wardrobe',
     subcategoryId: 'hinged',
-    price: 950,
+    price: 1800,
     carcassPrice: 2000,
     currency: 'INR',
     pricingMode: 'per-sqft',
@@ -355,7 +356,7 @@ export const baseProducts: Product[] = [
       'Full wardrobe hero photo',
       '25 mm HDHMR + BWP plywood',
       'Front PU · back laminated',
-      'Shutter ₹950 / sq ft',
+      'Shutter ₹1,800 / sq ft',
       'Made to measure',
       'WhatsApp quote available',
     ],
@@ -373,7 +374,7 @@ export const baseProducts: Product[] = [
       { label: 'Shutter material', value: '25 mm HDHMR + BWP plywood' },
       { label: 'Colour / Finish', value: 'Front PU · back laminated · Dusty rose art-deco' },
       { label: 'Board Thickness', value: '25 mm' },
-      { label: 'Pricing', value: 'Shutter ₹950 / sq ft' },
+      { label: 'Pricing', value: 'Shutter ₹1,800 / sq ft · carcass optional (confirm on WhatsApp)' },
       { label: 'Category', value: 'Wardrobe' },
       { label: 'Subcategory', value: 'Hinged' },
       { label: 'Country of Origin', value: 'India' },
@@ -386,30 +387,32 @@ export const baseProducts: Product[] = [
       'Made-to-order for Indian bedrooms',
     ],
     orderNotes: [
-      'Shutter: 25 mm HDHMR + BWP plywood · front PU · back laminated · ₹950 / sq ft',
+      'Shutter: 25 mm HDHMR + BWP plywood · Front PU · back laminated · ₹1,800 / sq ft'
     ],
     disclaimer:
       'Accessories and room settings in images are for representation only. Final colour, finish, size, and carcass scope are confirmed on WhatsApp before production.',
   },
+
   {
     id: 'cream-gold-linear-wardrobe',
     name: 'Cream Gold Linear Wardrobe',
     categoryId: 'wardrobe',
     subcategoryId: 'hinged',
-    price: 1250,
+    price: 2300,
     carcassPrice: 2000,
     currency: 'INR',
     pricingMode: 'per-sqft',
-    defaultFinishId: 'ceramic-front-laminate-back',
+    defaultFinishId: 'pu-front-laminate-back',
     defaultThicknessId: '25',
-    finishOptionIds: ['ceramic-front-laminate-back'],
+    finishOptionIds: ['pu-front-laminate-back'],
     thicknessOptionIds: ['25'],
     brand: 'Priyabadal Homes',
     collection: 'Wardrobe',
     sku: 'PBH-WR-03',
+    tags: ['Stainless steel inlaid'],
     description:
-      'Full wardrobe shutter façade shown first — Cream shutters with gold linear accents — 25 mm, front ceramic coating / back laminated. Made to measure; confirm size on WhatsApp.',
-    style: ['modern', 'bedroom', 'custom'],
+      'Full wardrobe shutter façade shown first — Cream shutters with gold linear accents — 25 mm, front PU / back laminated · Stainless steel inlaid. Made to measure; confirm size on WhatsApp.',
+    style: ['modern', 'bedroom', 'custom', 'stainless-steel-inlaid'],
     rooms: ['bedroom'],
     image: '/products/wardrobe/wardrobe-3/01.jpg',
     images: [
@@ -429,9 +432,10 @@ export const baseProducts: Product[] = [
       'Shop drawing 2 — open carcass elevation.',
     ],
     highlights: [
+      'Stainless steel inlaid',
       'Full wardrobe hero photo',
-      '25 mm · front ceramic · back laminated',
-      'Shutter ₹1,250 / sq ft',
+      '25 mm · front PU · back laminated',
+      'Shutter ₹2,300 / sq ft',
       'Made to measure',
       'Customise size & finish',
       'WhatsApp quote available',
@@ -447,9 +451,9 @@ export const baseProducts: Product[] = [
     ],
     specifications: [
       { label: 'Door Type', value: 'Hinged shutters' },
-      { label: 'Colour / Finish', value: 'Front ceramic · back laminated · Cream gold linear' },
+      { label: 'Colour / Finish', value: 'Front PU · back laminated · Cream gold linear' },
       { label: 'Board Thickness', value: '25 mm' },
-      { label: 'Pricing', value: 'Shutter ₹1,250 / sq ft' },
+      { label: 'Pricing', value: 'Shutter ₹2,300 / sq ft · carcass optional (confirm on WhatsApp)' },
       { label: 'Category', value: 'Wardrobe' },
       { label: 'Subcategory', value: 'Hinged' },
       { label: 'Country of Origin', value: 'India' },
@@ -462,30 +466,32 @@ export const baseProducts: Product[] = [
       'Made-to-order for Indian bedrooms',
     ],
     orderNotes: [
-      'Shutter: 25 mm · front ceramic coating · back laminated · ₹1,250 / sq ft',
+      'Shutter: 25 mm HDHMR + BWP plywood · Front PU · back laminated · ₹2,300 / sq ft'
     ],
     disclaimer:
       'Accessories and room settings in images are for representation only. Final colour, finish, size, and carcass scope are confirmed on WhatsApp before production.',
   },
+
   {
     id: 'beige-spade-lattice-wardrobe',
     name: 'Beige Spade Lattice Wardrobe',
     categoryId: 'wardrobe',
     subcategoryId: 'hinged',
-    price: 1250,
+    price: 2200,
     carcassPrice: 2000,
     currency: 'INR',
     pricingMode: 'per-sqft',
-    defaultFinishId: 'ceramic-front-laminate-back',
+    defaultFinishId: 'pu-front-laminate-back',
     defaultThicknessId: '25',
-    finishOptionIds: ['ceramic-front-laminate-back'],
+    finishOptionIds: ['pu-front-laminate-back'],
     thicknessOptionIds: ['25'],
     brand: 'Priyabadal Homes',
     collection: 'Wardrobe',
     sku: 'PBH-WR-04',
+    tags: ['Stainless steel inlaid'],
     description:
-      'Full wardrobe shutter façade shown first — Beige shutters with spade lattice motif — 25 mm, front ceramic coating / back laminated. Made to measure; confirm size on WhatsApp.',
-    style: ['modern', 'bedroom', 'custom'],
+      'Full wardrobe shutter façade shown first — Beige shutters with spade lattice motif — 25 mm, front PU / back laminated · Stainless steel inlaid. Made to measure; confirm size on WhatsApp.',
+    style: ['modern', 'bedroom', 'custom', 'stainless-steel-inlaid'],
     rooms: ['bedroom'],
     image: '/products/wardrobe/wardrobe-4/01.jpg',
     images: [
@@ -501,9 +507,10 @@ export const baseProducts: Product[] = [
       'Shop drawing 2 — open carcass elevation.',
     ],
     highlights: [
+      'Stainless steel inlaid',
       'Full wardrobe hero photo',
-      '25 mm · front ceramic · back laminated',
-      'Shutter ₹1,250 / sq ft',
+      '25 mm · front PU · back laminated',
+      'Shutter ₹2,200 / sq ft',
       'Made to measure',
       'Customise size & finish',
       'WhatsApp quote available',
@@ -519,9 +526,9 @@ export const baseProducts: Product[] = [
     ],
     specifications: [
       { label: 'Door Type', value: 'Hinged shutters' },
-      { label: 'Colour / Finish', value: 'Front ceramic · back laminated · Beige spade lattice' },
+      { label: 'Colour / Finish', value: 'Front PU · back laminated · Beige spade lattice' },
       { label: 'Board Thickness', value: '25 mm' },
-      { label: 'Pricing', value: 'Shutter ₹1,250 / sq ft' },
+      { label: 'Pricing', value: 'Shutter ₹2,200 / sq ft · carcass optional (confirm on WhatsApp)' },
       { label: 'Category', value: 'Wardrobe' },
       { label: 'Subcategory', value: 'Hinged' },
       { label: 'Country of Origin', value: 'India' },
@@ -534,30 +541,32 @@ export const baseProducts: Product[] = [
       'Made-to-order for Indian bedrooms',
     ],
     orderNotes: [
-      'Shutter: 25 mm · front ceramic coating · back laminated · ₹1,250 / sq ft',
+      'Shutter: 25 mm HDHMR + BWP plywood · Front PU · back laminated · ₹2,200 / sq ft'
     ],
     disclaimer:
       'Accessories and room settings in images are for representation only. Final colour, finish, size, and carcass scope are confirmed on WhatsApp before production.',
   },
+
   {
     id: 'sage-leaf-botanical-wardrobe',
     name: 'Sage Leaf Botanical Wardrobe',
     categoryId: 'wardrobe',
     subcategoryId: 'hinged',
-    price: 1250,
+    price: 2200,
     carcassPrice: 2000,
     currency: 'INR',
     pricingMode: 'per-sqft',
-    defaultFinishId: 'ceramic-front-laminate-back',
+    defaultFinishId: 'pu-front-laminate-back',
     defaultThicknessId: '25',
-    finishOptionIds: ['ceramic-front-laminate-back'],
+    finishOptionIds: ['pu-front-laminate-back'],
     thicknessOptionIds: ['25'],
     brand: 'Priyabadal Homes',
     collection: 'Wardrobe',
     sku: 'PBH-WR-05',
+    tags: ['Stainless steel inlaid'],
     description:
-      'Full wardrobe shutter façade shown first — Sage botanical leaf relief shutters — 25 mm, front ceramic coating / back laminated. Made to measure; confirm size on WhatsApp.',
-    style: ['modern', 'bedroom', 'custom'],
+      'Full wardrobe shutter façade shown first — Sage botanical leaf relief shutters — 25 mm, front PU / back laminated · Stainless steel inlaid. Made to measure; confirm size on WhatsApp.',
+    style: ['modern', 'bedroom', 'custom', 'stainless-steel-inlaid'],
     rooms: ['bedroom'],
     image: '/products/wardrobe/wardrobe-5/01.jpg',
     images: [
@@ -573,9 +582,10 @@ export const baseProducts: Product[] = [
       'Shop drawing 2 — open carcass elevation.',
     ],
     highlights: [
+      'Stainless steel inlaid',
       'Full wardrobe hero photo',
-      '25 mm · front ceramic · back laminated',
-      'Shutter ₹1,250 / sq ft',
+      '25 mm · front PU · back laminated',
+      'Shutter ₹2,200 / sq ft',
       'Made to measure',
       'Customise size & finish',
       'WhatsApp quote available',
@@ -591,9 +601,9 @@ export const baseProducts: Product[] = [
     ],
     specifications: [
       { label: 'Door Type', value: 'Hinged shutters' },
-      { label: 'Colour / Finish', value: 'Front ceramic · back laminated · Sage leaf botanical' },
+      { label: 'Colour / Finish', value: 'Front PU · back laminated · Sage leaf botanical' },
       { label: 'Board Thickness', value: '25 mm' },
-      { label: 'Pricing', value: 'Shutter ₹1,250 / sq ft' },
+      { label: 'Pricing', value: 'Shutter ₹2,200 / sq ft · carcass optional (confirm on WhatsApp)' },
       { label: 'Category', value: 'Wardrobe' },
       { label: 'Subcategory', value: 'Hinged' },
       { label: 'Country of Origin', value: 'India' },
@@ -606,30 +616,32 @@ export const baseProducts: Product[] = [
       'Made-to-order for Indian bedrooms',
     ],
     orderNotes: [
-      'Shutter: 25 mm · front ceramic coating · back laminated · ₹1,250 / sq ft',
+      'Shutter: 25 mm HDHMR + BWP plywood · Front PU · back laminated · ₹2,200 / sq ft'
     ],
     disclaimer:
       'Accessories and room settings in images are for representation only. Final colour, finish, size, and carcass scope are confirmed on WhatsApp before production.',
   },
+
   {
     id: 'grey-fluted-gold-arch-wardrobe',
     name: 'Grey Fluted Gold-Arch Wardrobe',
     categoryId: 'wardrobe',
     subcategoryId: 'hinged',
-    price: 1250,
+    price: 2200,
     carcassPrice: 2000,
     currency: 'INR',
     pricingMode: 'per-sqft',
-    defaultFinishId: 'ceramic-front-laminate-back',
+    defaultFinishId: 'pu-front-laminate-back',
     defaultThicknessId: '25',
-    finishOptionIds: ['ceramic-front-laminate-back'],
+    finishOptionIds: ['pu-front-laminate-back'],
     thicknessOptionIds: ['25'],
     brand: 'Priyabadal Homes',
     collection: 'Wardrobe',
     sku: 'PBH-WR-06',
+    tags: ['Stainless steel inlaid'],
     description:
-      'Full wardrobe shutter façade shown first — Grey fluted shutters with gold arch accents — 25 mm, front ceramic coating / back laminated. Made to measure; confirm size on WhatsApp.',
-    style: ['modern', 'bedroom', 'custom'],
+      'Full wardrobe shutter façade shown first — Grey fluted shutters with gold arch accents — 25 mm, front PU / back laminated · Stainless steel inlaid. Made to measure; confirm size on WhatsApp.',
+    style: ['modern', 'bedroom', 'custom', 'stainless-steel-inlaid'],
     rooms: ['bedroom'],
     image: '/products/wardrobe/wardrobe-6/01.jpg',
     images: [
@@ -643,9 +655,10 @@ export const baseProducts: Product[] = [
       'Shop drawing 2 — open carcass elevation.',
     ],
     highlights: [
+      'Stainless steel inlaid',
       'Full wardrobe hero photo',
-      '25 mm · front ceramic · back laminated',
-      'Shutter ₹1,250 / sq ft',
+      '25 mm · front PU · back laminated',
+      'Shutter ₹2,200 / sq ft',
       'Made to measure',
       'Customise size & finish',
       'WhatsApp quote available',
@@ -661,9 +674,9 @@ export const baseProducts: Product[] = [
     ],
     specifications: [
       { label: 'Door Type', value: 'Hinged shutters' },
-      { label: 'Colour / Finish', value: 'Front ceramic · back laminated · Grey fluted · gold arch' },
+      { label: 'Colour / Finish', value: 'Front PU · back laminated · Grey fluted · gold arch' },
       { label: 'Board Thickness', value: '25 mm' },
-      { label: 'Pricing', value: 'Shutter ₹1,250 / sq ft' },
+      { label: 'Pricing', value: 'Shutter ₹2,200 / sq ft · carcass optional (confirm on WhatsApp)' },
       { label: 'Category', value: 'Wardrobe' },
       { label: 'Subcategory', value: 'Hinged' },
       { label: 'Country of Origin', value: 'India' },
@@ -676,23 +689,24 @@ export const baseProducts: Product[] = [
       'Made-to-order for Indian bedrooms',
     ],
     orderNotes: [
-      'Shutter: 25 mm · front ceramic coating · back laminated · ₹1,250 / sq ft',
+      'Shutter: 25 mm HDHMR + BWP plywood · Front PU · back laminated · ₹2,200 / sq ft'
     ],
     disclaimer:
       'Accessories and room settings in images are for representation only. Final colour, finish, size, and carcass scope are confirmed on WhatsApp before production.',
   },
+
   {
     id: 'sand-sunburst-brick-wardrobe',
     name: 'Sand Sunburst Brick Wardrobe',
     categoryId: 'wardrobe',
     subcategoryId: 'hinged',
-    price: 950,
+    price: 2500,
     carcassPrice: 2000,
     currency: 'INR',
     pricingMode: 'per-sqft',
-    defaultFinishId: 'pu-front-laminate-back',
+    defaultFinishId: 'pu',
     defaultThicknessId: '25',
-    finishOptionIds: ['pu-front-laminate-back'],
+    finishOptionIds: ['pu'],
     thicknessOptionIds: ['25'],
     brand: 'Priyabadal Homes',
     collection: 'Wardrobe',
@@ -713,10 +727,11 @@ export const baseProducts: Product[] = [
       'Shop drawing 2 — open carcass elevation.',
     ],
     highlights: [
+      'Handle-less',
       'Full wardrobe hero photo',
       '25 mm HDHMR + BWP plywood',
       'Front PU · back laminated',
-      'Shutter ₹950 / sq ft',
+      'Shutter ₹2,500 / sq ft',
       'Made to measure',
       'WhatsApp quote available',
     ],
@@ -732,9 +747,9 @@ export const baseProducts: Product[] = [
     specifications: [
       { label: 'Door Type', value: 'Hinged shutters' },
       { label: 'Shutter material', value: '25 mm HDHMR + BWP plywood' },
-      { label: 'Colour / Finish', value: 'Front PU · back laminated · Sand sunburst brick' },
+      { label: 'Colour / Finish', value: 'PU · both sides (handle-less) · Sand sunburst brick' },
       { label: 'Board Thickness', value: '25 mm' },
-      { label: 'Pricing', value: 'Shutter ₹950 / sq ft' },
+      { label: 'Pricing', value: 'Shutter ₹2,500 / sq ft · carcass optional (confirm on WhatsApp)' },
       { label: 'Category', value: 'Wardrobe' },
       { label: 'Subcategory', value: 'Hinged' },
       { label: 'Country of Origin', value: 'India' },
@@ -747,30 +762,33 @@ export const baseProducts: Product[] = [
       'Made-to-order for Indian bedrooms',
     ],
     orderNotes: [
-      'Shutter: 25 mm HDHMR + BWP plywood · front PU · back laminated · ₹950 / sq ft',
+      'Shutter: 25 mm HDHMR + BWP plywood · PU · both sides (handle-less) · ₹2,500 / sq ft',
+      'Handle-less'
     ],
     disclaimer:
       'Accessories and room settings in images are for representation only. Final colour, finish, size, and carcass scope are confirmed on WhatsApp before production.',
   },
+
   {
     id: 'taupe-reeded-led-wardrobe',
     name: 'Taupe Reeded LED Wardrobe',
     categoryId: 'wardrobe',
     subcategoryId: 'hinged',
-    price: 1250,
+    price: 2200,
     carcassPrice: 2000,
     currency: 'INR',
     pricingMode: 'per-sqft',
-    defaultFinishId: 'ceramic-front-laminate-back',
+    defaultFinishId: 'pu-front-laminate-back',
     defaultThicknessId: '25',
-    finishOptionIds: ['ceramic-front-laminate-back'],
+    finishOptionIds: ['pu-front-laminate-back'],
     thicknessOptionIds: ['25'],
     brand: 'Priyabadal Homes',
     collection: 'Wardrobe',
     sku: 'PBH-WR-08',
+    tags: ['Stainless steel inlaid'],
     description:
-      'Full wardrobe shutter façade shown first — Taupe reeded shutters with LED niche look — 25 mm, front ceramic coating / back laminated. Made to measure; confirm size on WhatsApp.',
-    style: ['modern', 'bedroom', 'custom'],
+      'Full wardrobe shutter façade shown first — Taupe reeded shutters with LED niche look — 25 mm, front PU / back laminated · Stainless steel inlaid. Made to measure; confirm size on WhatsApp.',
+    style: ['modern', 'bedroom', 'custom', 'stainless-steel-inlaid'],
     rooms: ['bedroom'],
     image: '/products/wardrobe/wardrobe-8/01.jpg',
     images: [
@@ -784,9 +802,10 @@ export const baseProducts: Product[] = [
       'Shop drawing 2 — open carcass elevation.',
     ],
     highlights: [
+      'Stainless steel inlaid',
       'Full wardrobe hero photo',
-      '25 mm · front ceramic · back laminated',
-      'Shutter ₹1,250 / sq ft',
+      '25 mm · front PU · back laminated',
+      'Shutter ₹2,200 / sq ft',
       'Made to measure',
       'Customise size & finish',
       'WhatsApp quote available',
@@ -802,9 +821,9 @@ export const baseProducts: Product[] = [
     ],
     specifications: [
       { label: 'Door Type', value: 'Hinged shutters' },
-      { label: 'Colour / Finish', value: 'Front ceramic · back laminated · Taupe reeded · LED niche' },
+      { label: 'Colour / Finish', value: 'Front PU · back laminated · Taupe reeded · LED niche' },
       { label: 'Board Thickness', value: '25 mm' },
-      { label: 'Pricing', value: 'Shutter ₹1,250 / sq ft' },
+      { label: 'Pricing', value: 'Shutter ₹2,200 / sq ft · carcass optional (confirm on WhatsApp)' },
       { label: 'Category', value: 'Wardrobe' },
       { label: 'Subcategory', value: 'Hinged' },
       { label: 'Country of Origin', value: 'India' },
@@ -817,23 +836,24 @@ export const baseProducts: Product[] = [
       'Made-to-order for Indian bedrooms',
     ],
     orderNotes: [
-      'Shutter: 25 mm · front ceramic coating · back laminated · ₹1,250 / sq ft',
+      'Shutter: 25 mm HDHMR + BWP plywood · Front PU · back laminated · ₹2,200 / sq ft'
     ],
     disclaimer:
       'Accessories and room settings in images are for representation only. Final colour, finish, size, and carcass scope are confirmed on WhatsApp before production.',
   },
+
   {
     id: 'lavender-arabesque-grid-wardrobe',
     name: 'Lavender Arabesque Grid Wardrobe',
     categoryId: 'wardrobe',
     subcategoryId: 'hinged',
-    price: 950,
+    price: 2300,
     carcassPrice: 2000,
     currency: 'INR',
     pricingMode: 'per-sqft',
-    defaultFinishId: 'pu-front-laminate-back',
+    defaultFinishId: 'pu',
     defaultThicknessId: '25',
-    finishOptionIds: ['pu-front-laminate-back'],
+    finishOptionIds: ['pu'],
     thicknessOptionIds: ['25'],
     brand: 'Priyabadal Homes',
     collection: 'Wardrobe',
@@ -859,7 +879,7 @@ export const baseProducts: Product[] = [
       'Full wardrobe hero photo',
       '25 mm HDHMR + BWP plywood',
       'Front PU · back laminated',
-      'Shutter ₹950 / sq ft',
+      'Shutter ₹2,300 / sq ft',
       'Made to measure',
       'WhatsApp quote available',
     ],
@@ -875,9 +895,9 @@ export const baseProducts: Product[] = [
     specifications: [
       { label: 'Door Type', value: 'Hinged shutters' },
       { label: 'Shutter material', value: '25 mm HDHMR + BWP plywood' },
-      { label: 'Colour / Finish', value: 'Front PU · back laminated · Lavender arabesque grid' },
+      { label: 'Colour / Finish', value: 'PU · both sides · Lavender arabesque grid' },
       { label: 'Board Thickness', value: '25 mm' },
-      { label: 'Pricing', value: 'Shutter ₹950 / sq ft' },
+      { label: 'Pricing', value: 'Shutter ₹2,300 / sq ft · carcass optional (confirm on WhatsApp)' },
       { label: 'Category', value: 'Wardrobe' },
       { label: 'Subcategory', value: 'Hinged' },
       { label: 'Country of Origin', value: 'India' },
@@ -890,30 +910,32 @@ export const baseProducts: Product[] = [
       'Made-to-order for Indian bedrooms',
     ],
     orderNotes: [
-      'Shutter: 25 mm HDHMR + BWP plywood · front PU · back laminated · ₹950 / sq ft',
+      'Shutter: 25 mm HDHMR + BWP plywood · PU · both sides · ₹2,300 / sq ft'
     ],
     disclaimer:
       'Accessories and room settings in images are for representation only. Final colour, finish, size, and carcass scope are confirmed on WhatsApp before production.',
   },
+
   {
     id: 'mint-radial-sunburst-wardrobe',
     name: 'Mint Radial Sunburst Wardrobe',
     categoryId: 'wardrobe',
     subcategoryId: 'hinged',
-    price: 1250,
+    price: 2200,
     carcassPrice: 2000,
     currency: 'INR',
     pricingMode: 'per-sqft',
-    defaultFinishId: 'ceramic-front-laminate-back',
+    defaultFinishId: 'pu-front-laminate-back',
     defaultThicknessId: '25',
-    finishOptionIds: ['ceramic-front-laminate-back'],
+    finishOptionIds: ['pu-front-laminate-back'],
     thicknessOptionIds: ['25'],
     brand: 'Priyabadal Homes',
     collection: 'Wardrobe',
     sku: 'PBH-WR-10',
+    tags: ['Stainless steel inlaid'],
     description:
-      'Full wardrobe shutter façade shown first — Mint shutters with radial sunburst motif — 25 mm, front ceramic coating / back laminated. Made to measure; confirm size on WhatsApp.',
-    style: ['modern', 'bedroom', 'custom'],
+      'Full wardrobe shutter façade shown first — Mint shutters with radial sunburst motif — 25 mm, front PU / back laminated · Stainless steel inlaid. Made to measure; confirm size on WhatsApp.',
+    style: ['modern', 'bedroom', 'custom', 'stainless-steel-inlaid'],
     rooms: ['bedroom'],
     image: '/products/wardrobe/wardrobe-10/01.jpg',
     images: [
@@ -927,9 +949,10 @@ export const baseProducts: Product[] = [
       'Shop drawing 2 — open carcass elevation.',
     ],
     highlights: [
+      'Stainless steel inlaid',
       'Full wardrobe hero photo',
-      '25 mm · front ceramic · back laminated',
-      'Shutter ₹1,250 / sq ft',
+      '25 mm · front PU · back laminated',
+      'Shutter ₹2,200 / sq ft',
       'Made to measure',
       'Customise size & finish',
       'WhatsApp quote available',
@@ -945,9 +968,9 @@ export const baseProducts: Product[] = [
     ],
     specifications: [
       { label: 'Door Type', value: 'Hinged shutters' },
-      { label: 'Colour / Finish', value: 'Front ceramic · back laminated · Mint radial sunburst' },
+      { label: 'Colour / Finish', value: 'Front PU · back laminated · Mint radial sunburst' },
       { label: 'Board Thickness', value: '25 mm' },
-      { label: 'Pricing', value: 'Shutter ₹1,250 / sq ft' },
+      { label: 'Pricing', value: 'Shutter ₹2,200 / sq ft · carcass optional (confirm on WhatsApp)' },
       { label: 'Category', value: 'Wardrobe' },
       { label: 'Subcategory', value: 'Hinged' },
       { label: 'Country of Origin', value: 'India' },
@@ -960,17 +983,18 @@ export const baseProducts: Product[] = [
       'Made-to-order for Indian bedrooms',
     ],
     orderNotes: [
-      'Shutter: 25 mm · front ceramic coating · back laminated · ₹1,250 / sq ft',
+      'Shutter: 25 mm HDHMR + BWP plywood · Front PU · back laminated · ₹2,200 / sq ft'
     ],
     disclaimer:
       'Accessories and room settings in images are for representation only. Final colour, finish, size, and carcass scope are confirmed on WhatsApp before production.',
   },
+
   {
     id: 'light-oak-linear-wardrobe',
     name: 'Light Oak Linear Wardrobe',
     categoryId: 'wardrobe',
     subcategoryId: 'hinged',
-    price: 850,
+    price: 1100,
     carcassPrice: 2000,
     currency: 'INR',
     pricingMode: 'per-sqft',
@@ -978,13 +1002,13 @@ export const baseProducts: Product[] = [
     defaultThicknessId: '22',
     finishOptionIds: ['laminated'],
     thicknessOptionIds: ['22'],
-    handlePairPrice: 8500,
+    handlePairPrice: 4500,
     handlePairDefault: true,
     brand: 'Priyabadal Homes',
     collection: 'Wardrobe',
     sku: 'PBH-WR-11',
     description:
-      'Full wardrobe shutter façade shown first — Light oak linear shutter wardrobe — 22 mm plywood, both-side laminated; handle pair ₹8,500. Made to measure; confirm size on WhatsApp.',
+      'Full wardrobe shutter façade shown first — Light oak linear shutter wardrobe — 22 mm plywood, both-side laminated; handle ₹4,500 (single piece). Made to measure; confirm size on WhatsApp.',
     style: ['modern', 'bedroom', 'custom'],
     rooms: ['bedroom'],
     image: '/products/wardrobe/wardrobe-11/01.jpg',
@@ -1003,8 +1027,8 @@ export const baseProducts: Product[] = [
     highlights: [
       'Full wardrobe hero photo',
       '22 mm plywood · both-side laminated',
-      'Shutter ₹850 / sq ft',
-      'Handle pair ₹8,500',
+      'Shutter ₹1,100 / sq ft',
+      'Handle ₹4,500 (single piece)',
       'Made to measure',
       'WhatsApp quote available',
     ],
@@ -1020,10 +1044,10 @@ export const baseProducts: Product[] = [
     specifications: [
       { label: 'Door Type', value: 'Hinged shutters' },
       { label: 'Shutter material', value: '22 mm plywood' },
-      { label: 'Colour / Finish', value: 'Both-side laminated · Light oak linear' },
-      { label: 'Handles', value: 'Pair ₹8,500 (optional add-on)' },
+      { label: 'Colour / Finish', value: 'Both-side laminated' },
+      { label: 'Handles', value: '₹4,500 (single piece)' },
       { label: 'Board Thickness', value: '22 mm' },
-      { label: 'Pricing', value: 'Shutter ₹850 / sq ft · handle pair ₹8,500' },
+      { label: 'Pricing', value: 'Shutter ₹1,100 / sq ft · handle ₹4,500 (single piece) · carcass optional (confirm on WhatsApp)' },
       { label: 'Category', value: 'Wardrobe' },
       { label: 'Subcategory', value: 'Hinged' },
       { label: 'Country of Origin', value: 'India' },
@@ -1031,17 +1055,18 @@ export const baseProducts: Product[] = [
     ],
     features: [
       'Full closed wardrobe shown first as the hero look',
-      '22 mm plywood shutters · both-side laminated · handle pair ₹8,500',
+      '22 mm plywood shutters · both-side laminated · handle ₹4,500 (single piece)',
       'Interior layout configurable on WhatsApp',
       'Made-to-order for Indian bedrooms',
     ],
     orderNotes: [
-      'Shutter: 22 mm plywood · both-side laminated · ₹850 / sq ft',
-      'Handle pair: ₹8,500',
+      'Shutter: 22 mm plywood · Both-side laminated · ₹1,100 / sq ft',
+      'Handle: ₹4,500 (single piece)'
     ],
     disclaimer:
       'Accessories and room settings in images are for representation only. Final colour, finish, size, and carcass scope are confirmed on WhatsApp before production.',
   },
+
   {
     id: 'bleached-oak-minimal-wardrobe',
     name: 'Bleached Oak Minimal Wardrobe',
@@ -1119,18 +1144,19 @@ export const baseProducts: Product[] = [
     disclaimer:
       'Accessories and room settings in images are for representation only. Final colour, finish, size, and carcass scope are confirmed on WhatsApp before production.',
   },
+
   {
     id: 'blush-tribal-motif-wardrobe',
     name: 'Blush Tribal Motif Wardrobe',
     categoryId: 'wardrobe',
     subcategoryId: 'hinged',
-    price: 950,
+    price: 2200,
     carcassPrice: 2000,
     currency: 'INR',
     pricingMode: 'per-sqft',
-    defaultFinishId: 'pu-front-laminate-back',
+    defaultFinishId: 'pu',
     defaultThicknessId: '25',
-    finishOptionIds: ['pu-front-laminate-back'],
+    finishOptionIds: ['pu'],
     thicknessOptionIds: ['25'],
     brand: 'Priyabadal Homes',
     collection: 'Wardrobe',
@@ -1156,7 +1182,7 @@ export const baseProducts: Product[] = [
       'Full wardrobe hero photo',
       '25 mm HDHMR + BWP plywood',
       'Front PU · back laminated',
-      'Shutter ₹950 / sq ft',
+      'Shutter ₹2,200 / sq ft',
       'Made to measure',
       'WhatsApp quote available',
     ],
@@ -1172,9 +1198,9 @@ export const baseProducts: Product[] = [
     specifications: [
       { label: 'Door Type', value: 'Hinged shutters' },
       { label: 'Shutter material', value: '25 mm HDHMR + BWP plywood' },
-      { label: 'Colour / Finish', value: 'Front PU · back laminated · Blush tribal motif' },
+      { label: 'Colour / Finish', value: 'PU · both sides · Blush tribal motif' },
       { label: 'Board Thickness', value: '25 mm' },
-      { label: 'Pricing', value: 'Shutter ₹950 / sq ft' },
+      { label: 'Pricing', value: 'Shutter ₹2,200 / sq ft · carcass optional (confirm on WhatsApp)' },
       { label: 'Category', value: 'Wardrobe' },
       { label: 'Subcategory', value: 'Hinged' },
       { label: 'Country of Origin', value: 'India' },
@@ -1187,17 +1213,18 @@ export const baseProducts: Product[] = [
       'Made-to-order for Indian bedrooms',
     ],
     orderNotes: [
-      'Shutter: 25 mm HDHMR + BWP plywood · front PU · back laminated · ₹950 / sq ft',
+      'Shutter: 25 mm HDHMR + BWP plywood · PU · both sides · ₹2,200 / sq ft'
     ],
     disclaimer:
       'Accessories and room settings in images are for representation only. Final colour, finish, size, and carcass scope are confirmed on WhatsApp before production.',
   },
+
   {
     id: 'white-marble-branch-wardrobe',
     name: 'White Marble Branch-Handle Wardrobe',
     categoryId: 'wardrobe',
     subcategoryId: 'hinged',
-    price: 850,
+    price: 1100,
     carcassPrice: 2000,
     currency: 'INR',
     pricingMode: 'per-sqft',
@@ -1205,13 +1232,13 @@ export const baseProducts: Product[] = [
     defaultThicknessId: '22',
     finishOptionIds: ['laminated'],
     thicknessOptionIds: ['22'],
-    handlePairPrice: 8500,
+    handlePairPrice: 4500,
     handlePairDefault: true,
     brand: 'Priyabadal Homes',
     collection: 'Wardrobe',
     sku: 'PBH-WR-14',
     description:
-      'Full wardrobe shutter façade shown first — White marble-look shutters with branch handles — 22 mm plywood, both-side laminated; handle pair ₹8,500. Made to measure; confirm size on WhatsApp.',
+      'Full wardrobe shutter façade shown first — White marble-look shutters with branch handles — 22 mm plywood, both-side laminated; handle ₹4,500 (single piece). Made to measure; confirm size on WhatsApp.',
     style: ['modern', 'bedroom', 'custom'],
     rooms: ['bedroom'],
     image: '/products/wardrobe/wardrobe-14/01.jpg',
@@ -1230,8 +1257,8 @@ export const baseProducts: Product[] = [
     highlights: [
       'Full wardrobe hero photo',
       '22 mm plywood · both-side laminated',
-      'Shutter ₹850 / sq ft',
-      'Handle pair ₹8,500',
+      'Shutter ₹1,100 / sq ft',
+      'Handle ₹4,500 (single piece)',
       'Made to measure',
       'WhatsApp quote available',
     ],
@@ -1247,10 +1274,10 @@ export const baseProducts: Product[] = [
     specifications: [
       { label: 'Door Type', value: 'Hinged shutters' },
       { label: 'Shutter material', value: '22 mm plywood' },
-      { label: 'Colour / Finish', value: 'Both-side laminated · White marble · branch handles' },
-      { label: 'Handles', value: 'Pair ₹8,500 (optional add-on)' },
+      { label: 'Colour / Finish', value: 'Both-side laminated · branch handles' },
+      { label: 'Handles', value: '₹4,500 (single piece)' },
       { label: 'Board Thickness', value: '22 mm' },
-      { label: 'Pricing', value: 'Shutter ₹850 / sq ft · handle pair ₹8,500' },
+      { label: 'Pricing', value: 'Shutter ₹1,100 / sq ft · handle ₹4,500 (single piece) · carcass optional (confirm on WhatsApp)' },
       { label: 'Category', value: 'Wardrobe' },
       { label: 'Subcategory', value: 'Hinged' },
       { label: 'Country of Origin', value: 'India' },
@@ -1258,23 +1285,24 @@ export const baseProducts: Product[] = [
     ],
     features: [
       'Full closed wardrobe shown first as the hero look',
-      '22 mm plywood shutters · both-side laminated · handle pair ₹8,500',
+      '22 mm plywood shutters · both-side laminated · handle ₹4,500 (single piece)',
       'Interior layout configurable on WhatsApp',
       'Made-to-order for Indian bedrooms',
     ],
     orderNotes: [
-      'Shutter: 22 mm plywood · both-side laminated · ₹850 / sq ft',
-      'Handle pair: ₹8,500',
+      'Shutter: 22 mm plywood · Both-side laminated · ₹1,100 / sq ft',
+      'Handle: ₹4,500 (single piece)'
     ],
     disclaimer:
       'Accessories and room settings in images are for representation only. Final colour, finish, size, and carcass scope are confirmed on WhatsApp before production.',
   },
+
   {
     id: 'oak-bronze-handle-wardrobe',
     name: 'Oak Bronze Handle Wardrobe',
     categoryId: 'wardrobe',
     subcategoryId: 'hinged',
-    price: 850,
+    price: 1100,
     carcassPrice: 2000,
     currency: 'INR',
     pricingMode: 'per-sqft',
@@ -1282,13 +1310,13 @@ export const baseProducts: Product[] = [
     defaultThicknessId: '22',
     finishOptionIds: ['laminated'],
     thicknessOptionIds: ['22'],
-    handlePairPrice: 8500,
+    handlePairPrice: 4500,
     handlePairDefault: true,
     brand: 'Priyabadal Homes',
     collection: 'Wardrobe',
     sku: 'PBH-WR-15',
     description:
-      'Full wardrobe shutter façade shown first — Oak shutters with bronze handles — 22 mm plywood, both-side laminated; handle pair ₹8,500. Made to measure; confirm size on WhatsApp.',
+      'Full wardrobe shutter façade shown first — Oak shutters with bronze handles — 22 mm plywood, both-side laminated; handle ₹4,500 (single piece). Made to measure; confirm size on WhatsApp.',
     style: ['modern', 'bedroom', 'custom'],
     rooms: ['bedroom'],
     image: '/products/wardrobe/wardrobe-15/01.jpg',
@@ -1307,8 +1335,8 @@ export const baseProducts: Product[] = [
     highlights: [
       'Full wardrobe hero photo',
       '22 mm plywood · both-side laminated',
-      'Shutter ₹850 / sq ft',
-      'Handle pair ₹8,500',
+      'Shutter ₹1,100 / sq ft',
+      'Handle ₹4,500 (single piece)',
       'Made to measure',
       'WhatsApp quote available',
     ],
@@ -1324,10 +1352,10 @@ export const baseProducts: Product[] = [
     specifications: [
       { label: 'Door Type', value: 'Hinged shutters' },
       { label: 'Shutter material', value: '22 mm plywood' },
-      { label: 'Colour / Finish', value: 'Both-side laminated · Oak · bronze handles' },
-      { label: 'Handles', value: 'Pair ₹8,500 (optional add-on)' },
+      { label: 'Colour / Finish', value: 'Both-side laminated · bronze handles' },
+      { label: 'Handles', value: '₹4,500 (single piece)' },
       { label: 'Board Thickness', value: '22 mm' },
-      { label: 'Pricing', value: 'Shutter ₹850 / sq ft · handle pair ₹8,500' },
+      { label: 'Pricing', value: 'Shutter ₹1,100 / sq ft · handle ₹4,500 (single piece) · carcass optional (confirm on WhatsApp)' },
       { label: 'Category', value: 'Wardrobe' },
       { label: 'Subcategory', value: 'Hinged' },
       { label: 'Country of Origin', value: 'India' },
@@ -1335,23 +1363,24 @@ export const baseProducts: Product[] = [
     ],
     features: [
       'Full closed wardrobe shown first as the hero look',
-      '22 mm plywood shutters · both-side laminated · handle pair ₹8,500',
+      '22 mm plywood shutters · both-side laminated · handle ₹4,500 (single piece)',
       'Interior layout configurable on WhatsApp',
       'Made-to-order for Indian bedrooms',
     ],
     orderNotes: [
-      'Shutter: 22 mm plywood · both-side laminated · ₹850 / sq ft',
-      'Handle pair: ₹8,500',
+      'Shutter: 22 mm plywood · Both-side laminated · ₹1,100 / sq ft',
+      'Handle: ₹4,500 (single piece)'
     ],
     disclaimer:
       'Accessories and room settings in images are for representation only. Final colour, finish, size, and carcass scope are confirmed on WhatsApp before production.',
   },
+
   {
     id: 'taupe-chevron-linen-wardrobe',
     name: 'Taupe Chevron Linen Wardrobe',
     categoryId: 'wardrobe',
     subcategoryId: 'hinged',
-    price: 850,
+    price: 1100,
     carcassPrice: 2000,
     currency: 'INR',
     pricingMode: 'per-sqft',
@@ -1359,13 +1388,13 @@ export const baseProducts: Product[] = [
     defaultThicknessId: '22',
     finishOptionIds: ['laminated'],
     thicknessOptionIds: ['22'],
-    handlePairPrice: 8500,
+    handlePairPrice: 4500,
     handlePairDefault: true,
     brand: 'Priyabadal Homes',
     collection: 'Wardrobe',
     sku: 'PBH-WR-16',
     description:
-      'Full wardrobe shutter façade shown first — Taupe chevron / linen texture shutters — 22 mm plywood, both-side laminated; handle pair ₹8,500. Made to measure; confirm size on WhatsApp.',
+      'Full wardrobe shutter façade shown first — Taupe chevron / linen texture shutters — 22 mm plywood, both-side laminated; handle ₹4,500 (single piece). Made to measure; confirm size on WhatsApp.',
     style: ['modern', 'bedroom', 'custom'],
     rooms: ['bedroom'],
     image: '/products/wardrobe/wardrobe-16/01.jpg',
@@ -1384,8 +1413,8 @@ export const baseProducts: Product[] = [
     highlights: [
       'Full wardrobe hero photo',
       '22 mm plywood · both-side laminated',
-      'Shutter ₹850 / sq ft',
-      'Handle pair ₹8,500',
+      'Shutter ₹1,100 / sq ft',
+      'Handle ₹4,500 (single piece)',
       'Made to measure',
       'WhatsApp quote available',
     ],
@@ -1401,10 +1430,10 @@ export const baseProducts: Product[] = [
     specifications: [
       { label: 'Door Type', value: 'Hinged shutters' },
       { label: 'Shutter material', value: '22 mm plywood' },
-      { label: 'Colour / Finish', value: 'Both-side laminated · Taupe chevron / linen' },
-      { label: 'Handles', value: 'Pair ₹8,500 (optional add-on)' },
+      { label: 'Colour / Finish', value: 'Both-side laminated' },
+      { label: 'Handles', value: '₹4,500 (single piece)' },
       { label: 'Board Thickness', value: '22 mm' },
-      { label: 'Pricing', value: 'Shutter ₹850 / sq ft · handle pair ₹8,500' },
+      { label: 'Pricing', value: 'Shutter ₹1,100 / sq ft · handle ₹4,500 (single piece) · carcass optional (confirm on WhatsApp)' },
       { label: 'Category', value: 'Wardrobe' },
       { label: 'Subcategory', value: 'Hinged' },
       { label: 'Country of Origin', value: 'India' },
@@ -1412,172 +1441,31 @@ export const baseProducts: Product[] = [
     ],
     features: [
       'Full closed wardrobe shown first as the hero look',
-      '22 mm plywood shutters · both-side laminated · handle pair ₹8,500',
+      '22 mm plywood shutters · both-side laminated · handle ₹4,500 (single piece)',
       'Interior layout configurable on WhatsApp',
       'Made-to-order for Indian bedrooms',
     ],
     orderNotes: [
-      'Shutter: 22 mm plywood · both-side laminated · ₹850 / sq ft',
-      'Handle pair: ₹8,500',
+      'Shutter: 22 mm plywood · Both-side laminated · ₹1,100 / sq ft',
+      'Handle: ₹4,500 (single piece)'
     ],
     disclaimer:
       'Accessories and room settings in images are for representation only. Final colour, finish, size, and carcass scope are confirmed on WhatsApp before production.',
   },
-  {
-    id: 'blonde-chevron-groove-wardrobe',
-    name: 'Blonde Chevron Groove Wardrobe',
-    categoryId: 'wardrobe',
-    subcategoryId: 'hinged',
-    price: 1200,
-    carcassPrice: 2000,
-    currency: 'INR',
-    pricingMode: 'per-sqft',
-    defaultFinishId: 'pu',
-    defaultThicknessId: '25',
-    finishOptionIds: ['pu', 'laminated'],
-    thicknessOptionIds: ['25', '18'],
-    brand: 'Priyabadal Homes',
-    collection: 'Wardrobe',
-    sku: 'PBH-WR-17',
-    description:
-      'Full wardrobe shutter façade shown first — Blonde chevron groove shutter wardrobe. Made to measure; confirm size and finish on WhatsApp.',
-    style: ['modern', 'bedroom', 'custom'],
-    rooms: ['bedroom'],
-    image: '/products/wardrobe/wardrobe-17/01.jpg',
-    images: [
-      '/products/wardrobe/wardrobe-17/01.jpg',
-      '/products/wardrobe/wardrobe-17/dim-elevation.svg',
-      '/products/wardrobe/wardrobe-17/dim-carcass.svg',
-    ],
-    imageCaptions: [
-      'Full wardrobe / closed shutter front — hero façade.',
-      'Shop drawing 1 — full wardrobe / shutter elevation.',
-      'Shop drawing 2 — open carcass elevation.',
-    ],
-    highlights: [
-      'Full wardrobe hero photo',
-      'Blonde chevron groove shutter wardrobe',
-      'Made to measure',
-      'BWP carcass option',
-      'Customise size & finish',
-      'WhatsApp quote available',
-    ],
-    details: [
-      { label: 'Brand', value: 'Priyabadal Homes' },
-      { label: 'Collection', value: 'Wardrobe' },
-      { label: 'Sku', value: 'PBH-WR-17' },
-      { label: 'Assembly', value: 'Carpenter Assembly (on-site)' },
-      { label: 'Dimensions', value: 'Made to measure (custom width × height)' },
-      { label: 'Room Type', value: 'Bedroom' },
-      { label: 'Warranty', value: "10 Years' warranty on manufacturing defects" },
-    ],
-    specifications: [
-      { label: 'Door Type', value: 'Hinged shutters' },
-      { label: 'Colour / Finish', value: 'Blonde chevron groove shutter wardrobe' },
-      { label: 'Board Thickness', value: '25 mm / 18 mm options' },
-      {
-        label: 'Pricing',
-        value: 'Per sq ft — shutter only or with carcass (confirm rates on WhatsApp)',
-      },
-      { label: 'Category', value: 'Wardrobe' },
-      { label: 'Subcategory', value: 'Hinged' },
-      { label: 'Country of Origin', value: 'India' },
-      { label: 'Care', value: 'Wipe with a soft dry cloth; avoid harsh cleaners' },
-    ],
-    features: [
-      'Full closed wardrobe shown first as the hero look',
-      'Floor-to-ceiling hinged shutters sized to your wall',
-      'Interior layout configurable on WhatsApp',
-      'Made-to-order for Indian bedrooms',
-    ],
-    disclaimer:
-      'Accessories and room settings in images are for representation only. Final colour, finish, size, and carcass scope are confirmed on WhatsApp before production.',
-  },
-  {
-    id: 'cream-blue-j-handle-wardrobe',
-    name: 'Cream Blue J-Handle Wardrobe',
-    categoryId: 'wardrobe',
-    subcategoryId: 'hinged',
-    price: 1200,
-    carcassPrice: 2000,
-    currency: 'INR',
-    pricingMode: 'per-sqft',
-    defaultFinishId: 'pu',
-    defaultThicknessId: '25',
-    finishOptionIds: ['pu', 'laminated'],
-    thicknessOptionIds: ['25', '18'],
-    brand: 'Priyabadal Homes',
-    collection: 'Wardrobe',
-    sku: 'PBH-WR-18',
-    description:
-      'Full wardrobe shutter façade shown first — Cream shutters with blue J-handles. Made to measure; confirm size and finish on WhatsApp.',
-    style: ['modern', 'bedroom', 'custom'],
-    rooms: ['bedroom'],
-    image: '/products/wardrobe/wardrobe-18/01.jpg',
-    images: [
-      '/products/wardrobe/wardrobe-18/01.jpg',
-      '/products/wardrobe/wardrobe-18/02.jpg',
-      '/products/wardrobe/wardrobe-18/dim-elevation.svg',
-      '/products/wardrobe/wardrobe-18/dim-carcass.svg',
-    ],
-    imageCaptions: [
-      'Full wardrobe / closed shutter front — hero façade.',
-      'Open carcass / interior or secondary view.',
-      'Shop drawing 1 — full wardrobe / shutter elevation.',
-      'Shop drawing 2 — open carcass elevation.',
-    ],
-    highlights: [
-      'Full wardrobe hero photo',
-      'Cream shutters with blue J-handles',
-      'Made to measure',
-      'BWP carcass option',
-      'Customise size & finish',
-      'WhatsApp quote available',
-    ],
-    details: [
-      { label: 'Brand', value: 'Priyabadal Homes' },
-      { label: 'Collection', value: 'Wardrobe' },
-      { label: 'Sku', value: 'PBH-WR-18' },
-      { label: 'Assembly', value: 'Carpenter Assembly (on-site)' },
-      { label: 'Dimensions', value: 'Made to measure (custom width × height)' },
-      { label: 'Room Type', value: 'Bedroom' },
-      { label: 'Warranty', value: "10 Years' warranty on manufacturing defects" },
-    ],
-    specifications: [
-      { label: 'Door Type', value: 'Hinged shutters' },
-      { label: 'Colour / Finish', value: 'Cream shutters with blue J-handles' },
-      { label: 'Board Thickness', value: '25 mm / 18 mm options' },
-      {
-        label: 'Pricing',
-        value: 'Per sq ft — shutter only or with carcass (confirm rates on WhatsApp)',
-      },
-      { label: 'Category', value: 'Wardrobe' },
-      { label: 'Subcategory', value: 'Hinged' },
-      { label: 'Country of Origin', value: 'India' },
-      { label: 'Care', value: 'Wipe with a soft dry cloth; avoid harsh cleaners' },
-    ],
-    features: [
-      'Full closed wardrobe shown first as the hero look',
-      'Floor-to-ceiling hinged shutters sized to your wall',
-      'Interior layout configurable on WhatsApp',
-      'Made-to-order for Indian bedrooms',
-    ],
-    disclaimer:
-      'Accessories and room settings in images are for representation only. Final colour, finish, size, and carcass scope are confirmed on WhatsApp before production.',
-  },
+
   {
     id: 'navy-diamond-lattice-wardrobe',
     name: 'Navy Diamond Lattice Wardrobe',
     categoryId: 'wardrobe',
     subcategoryId: 'hinged',
-    price: 1200,
+    price: 2200,
     carcassPrice: 2000,
     currency: 'INR',
     pricingMode: 'per-sqft',
-    defaultFinishId: 'pu',
+    defaultFinishId: 'ceramic-both',
     defaultThicknessId: '25',
-    finishOptionIds: ['pu', 'laminated'],
-    thicknessOptionIds: ['25', '18'],
+    finishOptionIds: ['ceramic-both'],
+    thicknessOptionIds: ['25'],
     brand: 'Priyabadal Homes',
     collection: 'Wardrobe',
     sku: 'PBH-WR-19',
@@ -1615,11 +1503,11 @@ export const baseProducts: Product[] = [
     ],
     specifications: [
       { label: 'Door Type', value: 'Hinged shutters' },
-      { label: 'Colour / Finish', value: 'Navy diamond lattice shutter façade' },
-      { label: 'Board Thickness', value: '25 mm / 18 mm options' },
+      { label: 'Colour / Finish', value: 'Both-side ceramic' },
+      { label: 'Board Thickness', value: '25 mm' },
       {
         label: 'Pricing',
-        value: 'Per sq ft — shutter only or with carcass (confirm rates on WhatsApp)',
+        value: 'Shutter ₹2,200 / sq ft · carcass optional (confirm on WhatsApp)',
       },
       { label: 'Category', value: 'Wardrobe' },
       { label: 'Subcategory', value: 'Hinged' },
@@ -1632,22 +1520,26 @@ export const baseProducts: Product[] = [
       'Interior layout configurable on WhatsApp',
       'Made-to-order for Indian bedrooms',
     ],
+    orderNotes: [
+      'Shutter: 25 mm HDHMR + BWP plywood · Both-side ceramic · ₹2,200 / sq ft'
+    ],
     disclaimer:
       'Accessories and room settings in images are for representation only. Final colour, finish, size, and carcass scope are confirmed on WhatsApp before production.',
   },
+
   {
     id: 'grey-stone-fluted-wardrobe',
     name: 'Grey Stone Fluted Wardrobe',
     categoryId: 'wardrobe',
     subcategoryId: 'hinged',
-    price: 1200,
+    price: 2000,
     carcassPrice: 2000,
     currency: 'INR',
     pricingMode: 'per-sqft',
-    defaultFinishId: 'pu',
+    defaultFinishId: 'ceramic-front-laminate-back',
     defaultThicknessId: '25',
-    finishOptionIds: ['pu', 'laminated'],
-    thicknessOptionIds: ['25', '18'],
+    finishOptionIds: ['ceramic-front-laminate-back'],
+    thicknessOptionIds: ['25'],
     brand: 'Priyabadal Homes',
     collection: 'Wardrobe',
     sku: 'PBH-WR-20',
@@ -1687,11 +1579,11 @@ export const baseProducts: Product[] = [
     ],
     specifications: [
       { label: 'Door Type', value: 'Hinged shutters' },
-      { label: 'Colour / Finish', value: 'Grey stone-look fluted shutters' },
-      { label: 'Board Thickness', value: '25 mm / 18 mm options' },
+      { label: 'Colour / Finish', value: 'Front ceramic · back laminated' },
+      { label: 'Board Thickness', value: '25 mm' },
       {
         label: 'Pricing',
-        value: 'Per sq ft — shutter only or with carcass (confirm rates on WhatsApp)',
+        value: 'Shutter ₹2,000 / sq ft · carcass optional (confirm on WhatsApp)',
       },
       { label: 'Category', value: 'Wardrobe' },
       { label: 'Subcategory', value: 'Hinged' },
@@ -1704,15 +1596,19 @@ export const baseProducts: Product[] = [
       'Interior layout configurable on WhatsApp',
       'Made-to-order for Indian bedrooms',
     ],
+    orderNotes: [
+      'Shutter: 25 mm HDHMR + BWP plywood · Front ceramic · back laminated · ₹2,000 / sq ft'
+    ],
     disclaimer:
       'Accessories and room settings in images are for representation only. Final colour, finish, size, and carcass scope are confirmed on WhatsApp before production.',
   },
+
   {
     id: 'taupe-geometric-diamond-wardrobe',
     name: 'Taupe Geometric Diamond Wardrobe',
     categoryId: 'wardrobe',
     subcategoryId: 'hinged',
-    price: 950,
+    price: 1800,
     carcassPrice: 2000,
     currency: 'INR',
     pricingMode: 'per-sqft',
@@ -1746,7 +1642,7 @@ export const baseProducts: Product[] = [
       'Full wardrobe hero photo',
       '25 mm HDHMR + BWP plywood',
       'Front PU · back laminated',
-      'Shutter ₹950 / sq ft',
+      'Shutter ₹1,800 / sq ft',
       'Made to measure',
       'WhatsApp quote available',
     ],
@@ -1764,7 +1660,7 @@ export const baseProducts: Product[] = [
       { label: 'Shutter material', value: '25 mm HDHMR + BWP plywood' },
       { label: 'Colour / Finish', value: 'Front PU · back laminated · Taupe geometric diamond' },
       { label: 'Board Thickness', value: '25 mm' },
-      { label: 'Pricing', value: 'Shutter ₹950 / sq ft' },
+      { label: 'Pricing', value: 'Shutter ₹1,800 / sq ft · carcass optional (confirm on WhatsApp)' },
       { label: 'Category', value: 'Wardrobe' },
       { label: 'Subcategory', value: 'Hinged' },
       { label: 'Country of Origin', value: 'India' },
@@ -1777,24 +1673,25 @@ export const baseProducts: Product[] = [
       'Made-to-order for Indian bedrooms',
     ],
     orderNotes: [
-      'Shutter: 25 mm HDHMR + BWP plywood · front PU · back laminated · ₹950 / sq ft',
+      'Shutter: 25 mm HDHMR + BWP plywood · Front PU · back laminated · ₹1,800 / sq ft'
     ],
     disclaimer:
       'Accessories and room settings in images are for representation only. Final colour, finish, size, and carcass scope are confirmed on WhatsApp before production.',
   },
+
   {
     id: 'cream-neoclassical-wardrobe',
     name: 'Cream Neoclassical Wardrobe',
     categoryId: 'wardrobe',
     subcategoryId: 'hinged',
-    price: 1200,
+    price: 2800,
     carcassPrice: 2000,
     currency: 'INR',
     pricingMode: 'per-sqft',
-    defaultFinishId: 'pu',
+    defaultFinishId: 'glossy-laminate-front-pu-back',
     defaultThicknessId: '25',
-    finishOptionIds: ['pu', 'laminated'],
-    thicknessOptionIds: ['25', '18'],
+    finishOptionIds: ['glossy-laminate-front-pu-back'],
+    thicknessOptionIds: ['25'],
     brand: 'Priyabadal Homes',
     collection: 'Wardrobe',
     sku: 'PBH-WR-22',
@@ -1836,11 +1733,11 @@ export const baseProducts: Product[] = [
     ],
     specifications: [
       { label: 'Door Type', value: 'Hinged shutters' },
-      { label: 'Colour / Finish', value: 'Cream neoclassical closed shutter façade' },
-      { label: 'Board Thickness', value: '25 mm / 18 mm options' },
+      { label: 'Colour / Finish', value: 'Glossy lamination · back PU' },
+      { label: 'Board Thickness', value: '25 mm' },
       {
         label: 'Pricing',
-        value: 'Per sq ft — shutter only or with carcass (confirm rates on WhatsApp)',
+        value: 'Shutter ₹2,800 / sq ft · carcass optional (confirm on WhatsApp)',
       },
       { label: 'Category', value: 'Wardrobe' },
       { label: 'Subcategory', value: 'Hinged' },
@@ -1850,174 +1747,29 @@ export const baseProducts: Product[] = [
     features: [
       'Full closed wardrobe shown first as the hero look',
       'Floor-to-ceiling hinged shutters sized to your wall',
-      'Interior layout configurable on WhatsApp',
-      'Made-to-order for Indian bedrooms',
-    ],
-    disclaimer:
-      'Accessories and room settings in images are for representation only. Final colour, finish, size, and carcass scope are confirmed on WhatsApp before production.',
-  },
-  {
-    id: 'walnut-sky-arch-wardrobe',
-    name: 'Walnut Sky-Arch Wardrobe',
-    categoryId: 'wardrobe',
-    subcategoryId: 'hinged',
-    price: 1200,
-    carcassPrice: 2000,
-    currency: 'INR',
-    pricingMode: 'per-sqft',
-    defaultFinishId: 'pu',
-    defaultThicknessId: '25',
-    finishOptionIds: ['pu', 'laminated'],
-    thicknessOptionIds: ['25', '18'],
-    brand: 'Priyabadal Homes',
-    collection: 'Wardrobe',
-    sku: 'PBH-WR-23',
-    description:
-      'Full wardrobe shutter façade shown first — Walnut frames with sky-arch shutter panels. Made to measure; confirm size and finish on WhatsApp.',
-    style: ['modern', 'bedroom', 'custom'],
-    rooms: ['bedroom'],
-    image: '/products/wardrobe/wardrobe-23/01.jpg',
-    images: [
-      '/products/wardrobe/wardrobe-23/01.jpg',
-      '/products/wardrobe/wardrobe-23/02.jpg',
-      '/products/wardrobe/wardrobe-23/03.jpg',
-      '/products/wardrobe/wardrobe-23/dim-elevation.svg',
-      '/products/wardrobe/wardrobe-23/dim-carcass.svg',
-    ],
-    imageCaptions: [
-      'Full wardrobe / closed shutter front — hero façade.',
-      'Detail view 1 — as shown.',
-      'Open carcass / interior or secondary view.',
-      'Shop drawing 1 — full wardrobe / shutter elevation.',
-      'Shop drawing 2 — open carcass elevation.',
-    ],
-    highlights: [
-      'Full wardrobe hero photo',
-      'Walnut frames with sky-arch shutter panels',
-      'Made to measure',
-      'BWP carcass option',
-      'Customise size & finish',
-      'WhatsApp quote available',
-    ],
-    details: [
-      { label: 'Brand', value: 'Priyabadal Homes' },
-      { label: 'Collection', value: 'Wardrobe' },
-      { label: 'Sku', value: 'PBH-WR-23' },
-      { label: 'Assembly', value: 'Carpenter Assembly (on-site)' },
-      { label: 'Dimensions', value: 'Made to measure (custom width × height)' },
-      { label: 'Room Type', value: 'Bedroom' },
-      { label: 'Warranty', value: "10 Years' warranty on manufacturing defects" },
-    ],
-    specifications: [
-      { label: 'Door Type', value: 'Hinged shutters' },
-      { label: 'Colour / Finish', value: 'Walnut frames with sky-arch shutter panels' },
-      { label: 'Board Thickness', value: '25 mm / 18 mm options' },
-      {
-        label: 'Pricing',
-        value: 'Per sq ft — shutter only or with carcass (confirm rates on WhatsApp)',
-      },
-      { label: 'Category', value: 'Wardrobe' },
-      { label: 'Subcategory', value: 'Hinged' },
-      { label: 'Country of Origin', value: 'India' },
-      { label: 'Care', value: 'Wipe with a soft dry cloth; avoid harsh cleaners' },
-    ],
-    features: [
-      'Full closed wardrobe shown first as the hero look',
-      'Floor-to-ceiling hinged shutters sized to your wall',
-      'Interior layout configurable on WhatsApp',
-      'Made-to-order for Indian bedrooms',
-    ],
-    disclaimer:
-      'Accessories and room settings in images are for representation only. Final colour, finish, size, and carcass scope are confirmed on WhatsApp before production.',
-  },
-  {
-    id: 'taupe-copper-cross-wardrobe',
-    name: 'Taupe Copper Cross Wardrobe',
-    categoryId: 'wardrobe',
-    subcategoryId: 'hinged',
-    price: 1800,
-    carcassPrice: 2000,
-    currency: 'INR',
-    pricingMode: 'per-sqft',
-    defaultFinishId: 'pu-metallic-both',
-    defaultThicknessId: '25',
-    finishOptionIds: ['pu-metallic-both'],
-    thicknessOptionIds: ['25'],
-    handlePairDefault: false,
-    brand: 'Priyabadal Homes',
-    collection: 'Wardrobe',
-    sku: 'PBH-WR-24',
-    description:
-      'Full wardrobe shutter façade shown first — Taupe shutters with copper cross accents — handle-less, 25 mm HDHMR, PU metallic both sides. Made to measure; confirm size on WhatsApp.',
-    style: ['modern', 'bedroom', 'custom'],
-    rooms: ['bedroom'],
-    image: '/products/wardrobe/wardrobe-24/01.jpg',
-    images: [
-      '/products/wardrobe/wardrobe-24/01.jpg',
-      '/products/wardrobe/wardrobe-24/02.jpg',
-      '/products/wardrobe/wardrobe-24/dim-elevation.svg',
-      '/products/wardrobe/wardrobe-24/dim-carcass.svg',
-    ],
-    imageCaptions: [
-      'Full wardrobe / closed shutter front — hero façade.',
-      'Open carcass / interior or secondary view.',
-      'Shop drawing 1 — full wardrobe / shutter elevation.',
-      'Shop drawing 2 — open carcass elevation.',
-    ],
-    highlights: [
-      'Closed shutter front first',
-      '25 mm HDHMR',
-      'PU metallic · both sides',
-      'Handle-less',
-      'Shutter ₹1,800 / sq ft',
-      'WhatsApp quote available',
-    ],
-    details: [
-      { label: 'Brand', value: 'Priyabadal Homes' },
-      { label: 'Collection', value: 'Wardrobe' },
-      { label: 'Sku', value: 'PBH-WR-24' },
-      { label: 'Assembly', value: 'Carpenter Assembly (on-site)' },
-      { label: 'Dimensions', value: 'Made to measure (custom width × height)' },
-      { label: 'Room Type', value: 'Bedroom' },
-      { label: 'Warranty', value: "10 Years' warranty on manufacturing defects" },
-    ],
-    specifications: [
-      { label: 'Door Type', value: 'Hinged shutters' },
-      { label: 'Shutter material', value: '25 mm HDHMR' },
-      { label: 'Colour / Finish', value: 'PU metallic · both sides · taupe · copper cross accents' },
-      { label: 'Handles', value: 'Handle-less' },
-      { label: 'Board Thickness', value: '25 mm HDHMR' },
-      { label: 'Pricing', value: 'Shutter ₹1,800 / sq ft' },
-      { label: 'Category', value: 'Wardrobe' },
-      { label: 'Subcategory', value: 'Hinged' },
-      { label: 'Country of Origin', value: 'India' },
-      { label: 'Care', value: 'Wipe with a soft dry cloth; avoid harsh cleaners' },
-    ],
-    features: [
-      'Shutter / closed façade shown first as the hero look',
-      '25 mm HDHMR · PU metallic both sides · handle-less',
       'Interior layout configurable on WhatsApp',
       'Made-to-order for Indian bedrooms',
     ],
     orderNotes: [
-      'Shutter: 25 mm HDHMR · PU metallic both sides · handle-less · ₹1,800 / sq ft',
+      'Shutter: 25 mm HDHMR + BWP plywood · Glossy lamination · back PU · ₹2,800 / sq ft'
     ],
     disclaimer:
       'Accessories and room settings in images are for representation only. Final colour, finish, size, and carcass scope are confirmed on WhatsApp before production.',
   },
+
   {
     id: 'teal-scalloped-oak-wardrobe',
     name: 'Teal Scalloped Oak Wardrobe',
     categoryId: 'wardrobe',
     subcategoryId: 'hinged',
-    price: 1200,
+    price: 1500,
     carcassPrice: 2000,
     currency: 'INR',
     pricingMode: 'per-sqft',
     defaultFinishId: 'pu',
-    defaultThicknessId: '25',
-    finishOptionIds: ['pu', 'laminated'],
-    thicknessOptionIds: ['25', '18'],
+    defaultThicknessId: '18',
+    finishOptionIds: ['pu'],
+    thicknessOptionIds: ['18'],
     brand: 'Priyabadal Homes',
     collection: 'Wardrobe',
     sku: 'PBH-WR-25',
@@ -2057,11 +1809,11 @@ export const baseProducts: Product[] = [
     ],
     specifications: [
       { label: 'Door Type', value: 'Hinged shutters' },
-      { label: 'Colour / Finish', value: 'Teal scalloped shutters with oak accents' },
-      { label: 'Board Thickness', value: '25 mm / 18 mm options' },
+      { label: 'Colour / Finish', value: 'Both-side PU' },
+      { label: 'Board Thickness', value: '18 mm' },
       {
         label: 'Pricing',
-        value: 'Per sq ft — shutter only or with carcass (confirm rates on WhatsApp)',
+        value: 'Shutter ₹1,500 / sq ft · carcass optional (confirm on WhatsApp)',
       },
       { label: 'Category', value: 'Wardrobe' },
       { label: 'Subcategory', value: 'Hinged' },
@@ -2074,85 +1826,19 @@ export const baseProducts: Product[] = [
       'Interior layout configurable on WhatsApp',
       'Made-to-order for Indian bedrooms',
     ],
-    disclaimer:
-      'Accessories and room settings in images are for representation only. Final colour, finish, size, and carcass scope are confirmed on WhatsApp before production.',
-  },
-  {
-    id: 'cream-mauve-arch-wardrobe',
-    name: 'Cream Mauve Arch Wardrobe',
-    categoryId: 'wardrobe',
-    subcategoryId: 'hinged',
-    price: 1200,
-    carcassPrice: 2000,
-    currency: 'INR',
-    pricingMode: 'per-sqft',
-    defaultFinishId: 'pu',
-    defaultThicknessId: '25',
-    finishOptionIds: ['pu', 'laminated'],
-    thicknessOptionIds: ['25', '18'],
-    brand: 'Priyabadal Homes',
-    collection: 'Wardrobe',
-    sku: 'PBH-WR-26',
-    description:
-      'Full wardrobe shutter façade shown first — Cream and mauve arched shutter wardrobe. Made to measure; confirm size and finish on WhatsApp.',
-    style: ['modern', 'bedroom', 'custom'],
-    rooms: ['bedroom'],
-    image: '/products/wardrobe/wardrobe-26/01.jpg',
-    images: [
-      '/products/wardrobe/wardrobe-26/01.jpg',
-      '/products/wardrobe/wardrobe-26/dim-elevation.svg',
-      '/products/wardrobe/wardrobe-26/dim-carcass.svg',
-    ],
-    imageCaptions: [
-      'Full wardrobe / closed shutter front — hero façade.',
-      'Shop drawing 1 — full wardrobe / shutter elevation.',
-      'Shop drawing 2 — open carcass elevation.',
-    ],
-    highlights: [
-      'Full wardrobe hero photo',
-      'Cream and mauve arched shutter wardrobe',
-      'Made to measure',
-      'BWP carcass option',
-      'Customise size & finish',
-      'WhatsApp quote available',
-    ],
-    details: [
-      { label: 'Brand', value: 'Priyabadal Homes' },
-      { label: 'Collection', value: 'Wardrobe' },
-      { label: 'Sku', value: 'PBH-WR-26' },
-      { label: 'Assembly', value: 'Carpenter Assembly (on-site)' },
-      { label: 'Dimensions', value: 'Made to measure (custom width × height)' },
-      { label: 'Room Type', value: 'Bedroom' },
-      { label: 'Warranty', value: "10 Years' warranty on manufacturing defects" },
-    ],
-    specifications: [
-      { label: 'Door Type', value: 'Hinged shutters' },
-      { label: 'Colour / Finish', value: 'Cream and mauve arched shutter wardrobe' },
-      { label: 'Board Thickness', value: '25 mm / 18 mm options' },
-      {
-        label: 'Pricing',
-        value: 'Per sq ft — shutter only or with carcass (confirm rates on WhatsApp)',
-      },
-      { label: 'Category', value: 'Wardrobe' },
-      { label: 'Subcategory', value: 'Hinged' },
-      { label: 'Country of Origin', value: 'India' },
-      { label: 'Care', value: 'Wipe with a soft dry cloth; avoid harsh cleaners' },
-    ],
-    features: [
-      'Full closed wardrobe shown first as the hero look',
-      'Floor-to-ceiling hinged shutters sized to your wall',
-      'Interior layout configurable on WhatsApp',
-      'Made-to-order for Indian bedrooms',
+    orderNotes: [
+      'Shutter: 18 mm HDHMR + BWP plywood · Both-side PU · ₹1,500 / sq ft'
     ],
     disclaimer:
       'Accessories and room settings in images are for representation only. Final colour, finish, size, and carcass scope are confirmed on WhatsApp before production.',
   },
+
   {
     id: 'terracotta-geometric-relief-wardrobe',
     name: 'Terracotta Geometric Relief Wardrobe',
     categoryId: 'wardrobe',
     subcategoryId: 'hinged',
-    price: 950,
+    price: 2000,
     carcassPrice: 2000,
     currency: 'INR',
     pricingMode: 'per-sqft',
@@ -2182,7 +1868,7 @@ export const baseProducts: Product[] = [
       'Full wardrobe hero photo',
       '25 mm HDHMR + BWP plywood',
       'Front PU · back laminated',
-      'Shutter ₹950 / sq ft',
+      'Shutter ₹2,000 / sq ft',
       'Made to measure',
       'WhatsApp quote available',
     ],
@@ -2200,7 +1886,7 @@ export const baseProducts: Product[] = [
       { label: 'Shutter material', value: '25 mm HDHMR + BWP plywood' },
       { label: 'Colour / Finish', value: 'Front PU · back laminated · Terracotta geometric relief' },
       { label: 'Board Thickness', value: '25 mm' },
-      { label: 'Pricing', value: 'Shutter ₹950 / sq ft' },
+      { label: 'Pricing', value: 'Shutter ₹2,000 / sq ft · carcass optional (confirm on WhatsApp)' },
       { label: 'Category', value: 'Wardrobe' },
       { label: 'Subcategory', value: 'Hinged' },
       { label: 'Country of Origin', value: 'India' },
@@ -2213,23 +1899,24 @@ export const baseProducts: Product[] = [
       'Made-to-order for Indian bedrooms',
     ],
     orderNotes: [
-      'Shutter: 25 mm HDHMR + BWP plywood · front PU · back laminated · ₹950 / sq ft',
+      'Shutter: 25 mm HDHMR + BWP plywood · Front PU · back laminated · ₹2,000 / sq ft'
     ],
     disclaimer:
       'Accessories and room settings in images are for representation only. Final colour, finish, size, and carcass scope are confirmed on WhatsApp before production.',
   },
+
   {
     id: 'classic-ivory-concentric-circle-wardrobe',
     name: 'Ivory Concentric Circle Wardrobe',
     categoryId: 'wardrobe',
     subcategoryId: 'hinged',
-    price: 1000,
+    price: 1800,
     carcassPrice: 2000,
     currency: 'INR',
     pricingMode: 'per-sqft',
-    defaultFinishId: 'ceramic-front-laminate-back',
+    defaultFinishId: 'pu-front-laminate-back',
     defaultThicknessId: '25',
-    finishOptionIds: ['ceramic-front-laminate-back'],
+    finishOptionIds: ['pu-front-laminate-back'],
     thicknessOptionIds: ['25'],
     brand: 'Priyabadal Homes',
     collection: 'Wardrobe Classic',
@@ -2257,7 +1944,7 @@ export const baseProducts: Product[] = [
       'Closed shutter front first',
       '25 mm HDHMR + BWP plywood',
       'Front ceramic · back laminated',
-      'Shutter ₹1,000 / sq ft',
+      'Shutter ₹1,800 / sq ft',
       'Concentric circle shutters · gold pulls',
       'WhatsApp quote available',
     ],
@@ -2275,12 +1962,12 @@ export const baseProducts: Product[] = [
       { label: 'Shutter material', value: '25 mm HDHMR + BWP plywood' },
       {
         label: 'Colour / Finish',
-        value: 'Front ceramic · back laminated · ivory concentric circles · gold pulls',
+        value: 'Front PU · back laminated · ivory concentric circles · gold pulls',
       },
       { label: 'Board Thickness', value: '25 mm' },
       {
         label: 'Pricing',
-        value: 'Shutter ₹1,000 / sq ft',
+        value: 'Shutter ₹1,800 / sq ft · carcass optional (confirm on WhatsApp)',
       },
       { label: 'Category', value: 'Wardrobe' },
       { label: 'Subcategory', value: 'Hinged' },
@@ -2295,29 +1982,32 @@ export const baseProducts: Product[] = [
       'Made-to-order for Indian bedrooms',
     ],
     orderNotes: [
-      'Shutter: 25 mm HDHMR + BWP plywood · front ceramic · back laminated · ₹1,000 / sq ft',
+      'Shutter: 25 mm HDHMR + BWP plywood · Front PU · back laminated · ₹1,800 / sq ft'
     ],
     disclaimer:
       'Accessories and room settings in images are for representation only. Final colour, finish, size, and carcass scope are confirmed on WhatsApp before production.',
   },
+
   {
     id: 'classic-oak-periwinkle-capsule-wardrobe',
     name: 'Oak & Periwinkle Capsule Wardrobe',
     categoryId: 'wardrobe',
     subcategoryId: 'hinged',
-    price: 1100,
+    price: 1600,
     carcassPrice: 2000,
     currency: 'INR',
     pricingMode: 'per-sqft',
     defaultFinishId: 'laminate-pu-border',
-    defaultThicknessId: '22',
+    defaultThicknessId: '25',
     finishOptionIds: ['laminate-pu-border'],
-    thicknessOptionIds: ['22'],
+    thicknessOptionIds: ['25'],
+    handlePairDefault: true,
+    handlePairPrice: 500,
     brand: 'Priyabadal Homes',
     collection: 'Wardrobe Classic',
     sku: 'PBH-WR-29',
     description:
-      'Closed façade wardrobe with wood capsule inlays in muted periwinkle frames, cream base drawers, and oversized disc knobs — 22 mm BWP plywood, laminated with PU border, back laminated. Made to measure; confirm size on WhatsApp.',
+      'Closed façade wardrobe with wood capsule inlays in muted periwinkle frames, cream base drawers, and oversized disc knobs — 25 mm BWP plywood, laminated with PU border, back laminated. Made to measure; confirm size on WhatsApp.',
     style: ['modern', 'warm', 'soft'],
     rooms: ['bedroom'],
     image: '/products/wardrobe/wardrobe-29/01.jpg',
@@ -2342,10 +2032,11 @@ export const baseProducts: Product[] = [
       'Shop drawing 2 — open carcass bay elevation.',
     ],
     highlights: [
+      'Handle ₹500 (single piece)',
       'Closed shutter front first',
-      '22 mm BWP plywood',
+      '25 mm BWP plywood',
       'Laminated · PU border · back laminated',
-      'Shutter ₹1,100 / sq ft',
+      'Shutter ₹1,600 / sq ft',
       'Oak capsule · periwinkle frames',
       'WhatsApp quote available',
     ],
@@ -2360,15 +2051,15 @@ export const baseProducts: Product[] = [
     ],
     specifications: [
       { label: 'Door Type', value: 'Hinged shutters' },
-      { label: 'Shutter material', value: '22 mm BWP plywood' },
+      { label: 'Shutter material', value: '25 mm HDHMR + BWP plywood' },
       {
         label: 'Colour / Finish',
-        value: 'Laminated with PU border · back laminated · oak capsule · periwinkle frames',
+        value: 'Laminated with PU · back laminated · oak capsule · periwinkle frames',
       },
-      { label: 'Board Thickness', value: '22 mm' },
+      { label: 'Board Thickness', value: '25 mm' },
       {
         label: 'Pricing',
-        value: 'Shutter ₹1,100 / sq ft',
+        value: 'Shutter ₹1,600 / sq ft · handle ₹500 (single piece) · carcass optional (confirm on WhatsApp)',
       },
       { label: 'Category', value: 'Wardrobe' },
       { label: 'Subcategory', value: 'Hinged' },
@@ -2383,107 +2074,26 @@ export const baseProducts: Product[] = [
       'Made-to-order for Indian bedrooms',
     ],
     orderNotes: [
-      'Shutter: 22 mm BWP plywood · laminated with PU border · back laminated · ₹1,100 / sq ft',
+      'Shutter: 25 mm HDHMR + BWP plywood · Laminated with PU · back laminated · ₹1,600 / sq ft',
+      'Handle: ₹500 (single piece)'
     ],
     disclaimer:
       'Accessories and room settings in images are for representation only. Final colour, finish, size, and carcass scope are confirmed on WhatsApp before production.',
   },
-  {
-    id: 'classic-taupe-copper-cross-wardrobe',
-    name: 'Taupe Copper Cross Wardrobe',
-    categoryId: 'wardrobe',
-    subcategoryId: 'hinged',
-    price: 1800,
-    carcassPrice: 2000,
-    currency: 'INR',
-    pricingMode: 'per-sqft',
-    defaultFinishId: 'pu-metallic-both',
-    defaultThicknessId: '25',
-    finishOptionIds: ['pu-metallic-both'],
-    thicknessOptionIds: ['25'],
-    handlePairDefault: false,
-    brand: 'Priyabadal Homes',
-    collection: 'Wardrobe Classic',
-    sku: 'PBH-WR-30',
-    description:
-      'Matte taupe shutter wardrobe with rose-gold cross accents across the closed front — calm, tailored bedroom look — handle-less, 25 mm HDHMR, PU metallic both sides. Made to measure; confirm size on WhatsApp.',
-    style: ['modern', 'minimal', 'luxe'],
-    rooms: ['bedroom'],
-    image: '/products/wardrobe/wardrobe-30/01.jpg',
-    images: [
-      '/products/wardrobe/wardrobe-30/01.jpg',
-      '/products/wardrobe/wardrobe-30/02.jpg',
-      '/products/wardrobe/wardrobe-30/03.jpg',
-      '/products/wardrobe/wardrobe-30/04.jpg',
-      '/products/wardrobe/wardrobe-30/05.jpg',
-      '/products/wardrobe/wardrobe-30/06.jpg',
-      '/products/wardrobe/wardrobe-30/dim-elevation.svg',
-      '/products/wardrobe/wardrobe-30/dim-carcass.svg',
-    ],
-    imageCaptions: [
-      'Closed shutter front — main façade hero.',
-      'Shutter / handle detail.',
-      'Detail view 2 — as shown.',
-      'Detail view 3 — as shown.',
-      'Detail view 4 — as shown.',
-      'Open carcass / interior — storage layout as shown.',
-      'Shop drawing 1 — shutter / exterior elevation (W × H × D reference).',
-      'Shop drawing 2 — open carcass bay elevation.',
-    ],
-    highlights: [
-      'Closed shutter front first',
-      '25 mm HDHMR',
-      'PU metallic · both sides',
-      'Handle-less',
-      'Shutter ₹1,800 / sq ft',
-      'WhatsApp quote available',
-    ],
-    details: [
-      { label: 'Brand', value: 'Priyabadal Homes' },
-      { label: 'Collection', value: 'Wardrobe' },
-      { label: 'Sku', value: 'PBH-WR-30' },
-      { label: 'Assembly', value: 'Carpenter Assembly (on-site)' },
-      { label: 'Dimensions', value: 'Made to measure (custom width × height)' },
-      { label: 'Room Type', value: 'Bedroom' },
-      { label: 'Warranty', value: "10 Years' warranty on manufacturing defects" },
-    ],
-    specifications: [
-      { label: 'Door Type', value: 'Hinged shutters' },
-      { label: 'Shutter material', value: '25 mm HDHMR' },
-      { label: 'Colour / Finish', value: 'PU metallic · both sides · taupe · copper cross accents' },
-      { label: 'Handles', value: 'Handle-less' },
-      { label: 'Board Thickness', value: '25 mm HDHMR' },
-      { label: 'Pricing', value: 'Shutter ₹1,800 / sq ft' },
-      { label: 'Category', value: 'Wardrobe' },
-      { label: 'Subcategory', value: 'Hinged' },
-      { label: 'Country of Origin', value: 'India' },
-      { label: 'Care', value: 'Wipe with a soft dry cloth; avoid harsh cleaners' },
-    ],
-    features: [
-      'Shutter / closed façade shown first as the hero look',
-      '25 mm HDHMR · PU metallic both sides · handle-less',
-      'Interior layout configurable on WhatsApp',
-      'Made-to-order for Indian bedrooms',
-    ],
-    orderNotes: [
-      'Shutter: 25 mm HDHMR · PU metallic both sides · handle-less · ₹1,800 / sq ft',
-    ],
-    disclaimer:
-      'Accessories and room settings in images are for representation only. Final colour, finish, size, and carcass scope are confirmed on WhatsApp before production.',
-  },
+
   {
     id: 'classic-ivory-dusty-rose-capsule-wardrobe',
     name: 'Ivory Dusty Rose Capsule Wardrobe',
     categoryId: 'wardrobe',
     subcategoryId: 'hinged',
-    price: 1200,
+    price: 2200,
     carcassPrice: 2000,
     currency: 'INR',
     pricingMode: 'per-sqft',
-    defaultFinishId: 'pu',
+    defaultFinishId: 'ceramic-both',
     defaultThicknessId: '25',
-    finishOptionIds: ['pu', 'laminated'],
-    thicknessOptionIds: ['25', '18'],
+    finishOptionIds: ['ceramic-both'],
+    thicknessOptionIds: ['25'],
     brand: 'Priyabadal Homes',
     collection: 'Wardrobe Classic',
     sku: 'PBH-WR-31',
@@ -2527,11 +2137,11 @@ export const baseProducts: Product[] = [
     ],
     specifications: [
       { label: 'Door Type', value: 'Hinged shutters' },
-      { label: 'Colour / Finish', value: 'Ivory · dusty rose capsules' },
-      { label: 'Board Thickness', value: '25 mm / 18 mm options' },
+      { label: 'Colour / Finish', value: 'Both-side ceramic' },
+      { label: 'Board Thickness', value: '25 mm' },
       {
         label: 'Pricing',
-        value: 'Per sq ft — shutter only or with carcass (confirm rates on WhatsApp)',
+        value: 'Shutter ₹2,200 / sq ft · carcass optional (confirm on WhatsApp)',
       },
       { label: 'Category', value: 'Wardrobe' },
       { label: 'Subcategory', value: 'Hinged' },
@@ -2544,22 +2154,28 @@ export const baseProducts: Product[] = [
       'Interior layout configurable on WhatsApp',
       'Made-to-order for Indian bedrooms',
     ],
+    orderNotes: [
+      'Shutter: 25 mm HDHMR + BWP plywood · Both-side ceramic · ₹2,200 / sq ft'
+    ],
     disclaimer:
       'Accessories and room settings in images are for representation only. Final colour, finish, size, and carcass scope are confirmed on WhatsApp before production.',
   },
+
   {
     id: 'classic-ivory-azure-arch-wardrobe',
     name: 'Ivory Azure Arch Wardrobe',
     categoryId: 'wardrobe',
     subcategoryId: 'hinged',
-    price: 1200,
+    price: 1800,
     carcassPrice: 2000,
     currency: 'INR',
     pricingMode: 'per-sqft',
-    defaultFinishId: 'pu',
+    defaultFinishId: 'ceramic-front-laminate-back',
     defaultThicknessId: '25',
-    finishOptionIds: ['pu', 'laminated'],
-    thicknessOptionIds: ['25', '18'],
+    finishOptionIds: ['ceramic-front-laminate-back'],
+    thicknessOptionIds: ['25'],
+    handlePairDefault: true,
+    handlePairPrice: 5500,
     brand: 'Priyabadal Homes',
     collection: 'Wardrobe Classic',
     sku: 'PBH-WR-32',
@@ -2587,6 +2203,7 @@ export const baseProducts: Product[] = [
       'Shop drawing 2 — open carcass bay elevation.',
     ],
     highlights: [
+      'Handle ₹5,500 (single piece)',
       'Closed shutter front first',
       'Ivory arch · azure J-handles',
       'Made to measure',
@@ -2605,11 +2222,11 @@ export const baseProducts: Product[] = [
     ],
     specifications: [
       { label: 'Door Type', value: 'Hinged shutters' },
-      { label: 'Colour / Finish', value: 'Ivory arch · azure J-handles' },
-      { label: 'Board Thickness', value: '25 mm / 18 mm options' },
+      { label: 'Colour / Finish', value: 'Front ceramic · back laminated' },
+      { label: 'Board Thickness', value: '25 mm' },
       {
         label: 'Pricing',
-        value: 'Per sq ft — shutter only or with carcass (confirm rates on WhatsApp)',
+        value: 'Shutter ₹1,800 / sq ft · handle ₹5,500 (single piece) · carcass optional (confirm on WhatsApp)',
       },
       { label: 'Category', value: 'Wardrobe' },
       { label: 'Subcategory', value: 'Hinged' },
@@ -2622,22 +2239,27 @@ export const baseProducts: Product[] = [
       'Interior layout configurable on WhatsApp',
       'Made-to-order for Indian bedrooms',
     ],
+    orderNotes: [
+      'Shutter: 25 mm HDHMR + BWP plywood · Front ceramic · back laminated · ₹1,800 / sq ft',
+      'Handle: ₹5,500 (single piece)'
+    ],
     disclaimer:
       'Accessories and room settings in images are for representation only. Final colour, finish, size, and carcass scope are confirmed on WhatsApp before production.',
   },
+
   {
     id: 'classic-walnut-cream-fluted-arch-wardrobe',
     name: 'Walnut Cream Fluted Arch Wardrobe',
     categoryId: 'wardrobe',
     subcategoryId: 'hinged',
-    price: 1200,
+    price: 2200,
     carcassPrice: 2000,
     currency: 'INR',
     pricingMode: 'per-sqft',
-    defaultFinishId: 'pu',
+    defaultFinishId: 'veneer-pu-half',
     defaultThicknessId: '25',
-    finishOptionIds: ['pu', 'laminated'],
-    thicknessOptionIds: ['25', '18'],
+    finishOptionIds: ['veneer-pu-half'],
+    thicknessOptionIds: ['25'],
     brand: 'Priyabadal Homes',
     collection: 'Wardrobe Classic',
     sku: 'PBH-WR-33',
@@ -2687,11 +2309,11 @@ export const baseProducts: Product[] = [
     ],
     specifications: [
       { label: 'Door Type', value: 'Hinged shutters' },
-      { label: 'Colour / Finish', value: 'Walnut · cream arches · fluted glass' },
-      { label: 'Board Thickness', value: '25 mm / 18 mm options' },
+      { label: 'Colour / Finish', value: 'Half veneer · half PU · fluted glass' },
+      { label: 'Board Thickness', value: '25 mm' },
       {
         label: 'Pricing',
-        value: 'Per sq ft — shutter only or with carcass (confirm rates on WhatsApp)',
+        value: 'Shutter ₹2,200 / sq ft · carcass optional (confirm on WhatsApp)',
       },
       { label: 'Category', value: 'Wardrobe' },
       { label: 'Subcategory', value: 'Hinged' },
@@ -2704,22 +2326,26 @@ export const baseProducts: Product[] = [
       'Interior layout configurable on WhatsApp',
       'Made-to-order for Indian bedrooms',
     ],
+    orderNotes: [
+      'Shutter: 25 mm HDHMR + BWP plywood · Half veneer · half PU · ₹2,200 / sq ft'
+    ],
     disclaimer:
       'Accessories and room settings in images are for representation only. Final colour, finish, size, and carcass scope are confirmed on WhatsApp before production.',
   },
+
   {
     id: 'classic-walnut-woven-chevron-wardrobe',
     name: 'Walnut Woven Chevron Wardrobe',
     categoryId: 'wardrobe',
     subcategoryId: 'hinged',
-    price: 1200,
+    price: 1500,
     carcassPrice: 2000,
     currency: 'INR',
     pricingMode: 'per-sqft',
-    defaultFinishId: 'pu',
+    defaultFinishId: 'laminated',
     defaultThicknessId: '25',
-    finishOptionIds: ['pu', 'laminated'],
-    thicknessOptionIds: ['25', '18'],
+    finishOptionIds: ['laminated'],
+    thicknessOptionIds: ['25'],
     brand: 'Priyabadal Homes',
     collection: 'Wardrobe Classic',
     sku: 'PBH-WR-34',
@@ -2763,11 +2389,11 @@ export const baseProducts: Product[] = [
     ],
     specifications: [
       { label: 'Door Type', value: 'Hinged shutters' },
-      { label: 'Colour / Finish', value: 'Walnut · woven chevron' },
-      { label: 'Board Thickness', value: '25 mm / 18 mm options' },
+      { label: 'Colour / Finish', value: 'Both-side laminated' },
+      { label: 'Board Thickness', value: '25 mm' },
       {
         label: 'Pricing',
-        value: 'Per sq ft — shutter only or with carcass (confirm rates on WhatsApp)',
+        value: 'Shutter ₹1,500 / sq ft · carcass optional (confirm on WhatsApp)',
       },
       { label: 'Category', value: 'Wardrobe' },
       { label: 'Subcategory', value: 'Hinged' },
@@ -2780,21 +2406,25 @@ export const baseProducts: Product[] = [
       'Interior layout configurable on WhatsApp',
       'Made-to-order for Indian bedrooms',
     ],
+    orderNotes: [
+      'Shutter: 25 mm HDHMR + BWP plywood · Both-side laminated · ₹1,500 / sq ft'
+    ],
     disclaimer:
       'Accessories and room settings in images are for representation only. Final colour, finish, size, and carcass scope are confirmed on WhatsApp before production.',
   },
+
   {
     id: 'classic-charcoal-brass-diamond-wardrobe',
     name: 'Charcoal Brass Diamond Wardrobe',
     categoryId: 'wardrobe',
     subcategoryId: 'hinged',
-    price: 2000,
+    price: 2500,
     carcassPrice: 2000,
     currency: 'INR',
     pricingMode: 'per-sqft',
-    defaultFinishId: 'ceramic',
+    defaultFinishId: 'ceramic-front-pu-back',
     defaultThicknessId: '25',
-    finishOptionIds: ['ceramic'],
+    finishOptionIds: ['ceramic-front-pu-back'],
     thicknessOptionIds: ['25'],
     brand: 'Priyabadal Homes',
     collection: 'Wardrobe Classic',
@@ -2822,7 +2452,7 @@ export const baseProducts: Product[] = [
       'Closed shutter front first',
       '25 mm HDHMR + BWP plywood',
       'Ceramic coating finish',
-      'Shutter ₹2,000 / sq ft',
+      'Shutter ₹2,500 / sq ft',
       'Brass diamond handles',
       'WhatsApp quote available',
     ],
@@ -2838,11 +2468,11 @@ export const baseProducts: Product[] = [
     specifications: [
       { label: 'Door Type', value: 'Hinged shutters' },
       { label: 'Shutter material', value: '25 mm HDHMR + BWP plywood' },
-      { label: 'Colour / Finish', value: 'Ceramic coating · charcoal · brass diamond handles' },
+      { label: 'Colour / Finish', value: 'Front ceramic · back PU · brass diamond handles' },
       { label: 'Board Thickness', value: '25 mm' },
       {
         label: 'Pricing',
-        value: 'Shutter ₹2,000 / sq ft',
+        value: 'Shutter ₹2,500 / sq ft · carcass optional (confirm on WhatsApp)',
       },
       { label: 'Category', value: 'Wardrobe' },
       { label: 'Subcategory', value: 'Hinged' },
@@ -2857,11 +2487,12 @@ export const baseProducts: Product[] = [
       'Made-to-order for Indian bedrooms',
     ],
     orderNotes: [
-      'Shutter: 25 mm HDHMR + BWP plywood · ceramic coating · ₹2,000 / sq ft',
+      'Shutter: 25 mm HDHMR + BWP plywood · Front ceramic · back PU · ₹2,500 / sq ft'
     ],
     disclaimer:
       'Accessories and room settings in images are for representation only. Final colour, finish, size, and carcass scope are confirmed on WhatsApp before production.',
   },
+
   {
     id: 'classic-ivory-sculpted-wave-wardrobe',
     name: 'Ivory Sculpted Wave Wardrobe',
@@ -2947,6 +2578,7 @@ export const baseProducts: Product[] = [
     disclaimer:
       'Accessories and room settings in images are for representation only. Final colour, finish, size, and carcass scope are confirmed on WhatsApp before production.',
   },
+
   {
     id: 'denim-geometric-stitch-wardrobe',
     name: 'Denim Geometric Stitch Wardrobe',
@@ -3020,6 +2652,7 @@ export const baseProducts: Product[] = [
     disclaimer:
       'Accessories and room settings in images are for representation only. Final fabric, stitch, size, and carcass scope are confirmed on WhatsApp before production.',
   },
+
   {
     id: 'olive-wave-embroidery-wardrobe',
     name: 'Olive Wave Embroidery Wardrobe',
@@ -3093,6 +2726,7 @@ export const baseProducts: Product[] = [
     disclaimer:
       'Accessories and room settings in images are for representation only. Final fabric, embroidery, size, and carcass scope are confirmed on WhatsApp before production.',
   },
+
   {
     id: 'taupe-gold-filigree-wardrobe',
     name: 'Taupe Gold Filigree Wardrobe',
@@ -3168,18 +2802,19 @@ export const baseProducts: Product[] = [
     disclaimer:
       'Accessories and room settings in images are for representation only. Final fabric, embroidery, size, and carcass scope are confirmed on WhatsApp before production.',
   },
+
   {
     id: 'greige-arch-capsule-wardrobe',
     name: 'Greige Arch Capsule Wardrobe',
     categoryId: 'wardrobe',
     subcategoryId: 'hinged',
-    price: 3500,
+    price: 1800,
     carcassPrice: 2000,
     currency: 'INR',
     pricingMode: 'per-sqft',
-    defaultFinishId: 'ceramic',
+    defaultFinishId: 'ceramic-front-laminate-back',
     defaultThicknessId: '25',
-    finishOptionIds: ['ceramic'],
+    finishOptionIds: ['ceramic-front-laminate-back'],
     thicknessOptionIds: ['25'],
     brand: 'Priyabadal Homes',
     collection: 'Wardrobe Shutters',
@@ -3209,7 +2844,7 @@ export const baseProducts: Product[] = [
       'Recessed arch + capsule grooves',
       'Greige matte ceramic finish',
       '25 mm HDHMR + BWP plywood',
-      'Shutter ₹3,500 / sq ft',
+      'Shutter ₹1,800 / sq ft',
       'Made to measure',
       'WhatsApp quote available',
     ],
@@ -3225,11 +2860,11 @@ export const baseProducts: Product[] = [
     specifications: [
       { label: 'Door Type', value: 'Hinged shutters' },
       { label: 'Shutter material', value: '25 mm HDHMR + BWP plywood' },
-      { label: 'Colour / Finish', value: 'Ceramic coating · greige matte · recessed arch & capsule grooves' },
+      { label: 'Colour / Finish', value: 'Front ceramic · back laminated · recessed arch & capsule grooves' },
       { label: 'Board Thickness', value: '25 mm' },
       {
         label: 'Pricing',
-        value: 'Shutter ₹3,500 / sq ft · carcass optional (confirm on WhatsApp)',
+        value: 'Shutter ₹1,800 / sq ft · carcass optional (confirm on WhatsApp)',
       },
       { label: 'Category', value: 'Wardrobe' },
       { label: 'Subcategory', value: 'Hinged' },
@@ -3242,10 +2877,13 @@ export const baseProducts: Product[] = [
       'Floor-to-ceiling hinged shutters sized to your wall',
       'Interior layout and LED options confirmed on WhatsApp',
     ],
-    orderNotes: ['Shutter: 25 mm HDHMR + BWP plywood · ceramic coating · ₹3,500 / sq ft'],
+    orderNotes: [
+      'Shutter: 25 mm HDHMR + BWP plywood · Front ceramic · back laminated · ₹1,800 / sq ft'
+    ],
     disclaimer:
       'Accessories and room settings in images are for representation only. Final colour, finish, size, and carcass scope are confirmed on WhatsApp before production.',
   },
+
   {
     id: 'powder-blue-geometric-cane-panel',
     name: 'Powder Blue Geometric Cane Panel',
@@ -3310,6 +2948,7 @@ export const baseProducts: Product[] = [
     disclaimer:
       'Furniture and room settings in images are for representation only. Final colour, cane tone, size, and finish are confirmed on WhatsApp before production.',
   },
+
   {
     id: 'arch-fluted-dual-tone-panel',
     name: 'Arch Fluted Dual-Tone Panel',
@@ -3373,6 +3012,7 @@ export const baseProducts: Product[] = [
     disclaimer:
       'Furniture and room settings in images are for representation only. Final wood tone, inset colour, size, and finish are confirmed on WhatsApp before production.',
   },
+
   {
     id: 'diamond-cane-stone-panel',
     name: 'Diamond Cane Stone Panel',
@@ -3438,6 +3078,7 @@ export const baseProducts: Product[] = [
     disclaimer:
       'Furniture, sconces, and room settings in images are for representation only. Final colour, cane tone, metal finish, and size are confirmed on WhatsApp before production.',
   },
+
   {
     id: 'g01-capsule-grid-panel',
     name: 'Capsule Grid Panel',
@@ -3509,6 +3150,7 @@ export const baseProducts: Product[] = [
     disclaimer:
       'Furniture and room settings in images are for representation only. Final colour, accents, and install layout are confirmed on WhatsApp before production.',
   },
+
   {
     id: 'g02-sage-arch-stack-panel',
     name: 'Sage Arch Stack Panel',
@@ -3580,6 +3222,7 @@ export const baseProducts: Product[] = [
     disclaimer:
       'Furniture and room settings in images are for representation only. Final colour, accents, and install layout are confirmed on WhatsApp before production.',
   },
+
   {
     id: 'g03-metallic-spade-lattice-panel',
     name: 'Metallic Spade Lattice Panel',
@@ -3655,6 +3298,7 @@ export const baseProducts: Product[] = [
     disclaimer:
       'Furniture and room settings in images are for representation only. Final colour, accents, and install layout are confirmed on WhatsApp before production.',
   },
+
   {
     id: 'g04-diamond-hex-relief-panel',
     name: 'Diamond Hex Relief Panel',
@@ -3726,6 +3370,7 @@ export const baseProducts: Product[] = [
     disclaimer:
       'Furniture and room settings in images are for representation only. Final colour, accents, and install layout are confirmed on WhatsApp before production.',
   },
+
   {
     id: 'g05-recessed-capsule-panel',
     name: 'Recessed Capsule Panel',
@@ -3797,6 +3442,7 @@ export const baseProducts: Product[] = [
     disclaimer:
       'Furniture and room settings in images are for representation only. Final colour, accents, and install layout are confirmed on WhatsApp before production.',
   },
+
   {
     id: 'g06-frame-grid-boutique-panel',
     name: 'Frame Grid Boutique Panel',
@@ -3868,6 +3514,7 @@ export const baseProducts: Product[] = [
     disclaimer:
       'Furniture and room settings in images are for representation only. Final colour, accents, and install layout are confirmed on WhatsApp before production.',
   },
+
   {
     id: 'g07-hex-house-frame-panel',
     name: 'Hex House-Frame Panel',
@@ -3939,6 +3586,7 @@ export const baseProducts: Product[] = [
     disclaimer:
       'Furniture and room settings in images are for representation only. Final colour, accents, and install layout are confirmed on WhatsApp before production.',
   },
+
   {
     id: 'g08-rosegold-rain-strip-panel',
     name: 'Rose-Gold Rain Strip Panel',
@@ -4014,6 +3662,7 @@ export const baseProducts: Product[] = [
     disclaimer:
       'Furniture and room settings in images are for representation only. Final colour, accents, and install layout are confirmed on WhatsApp before production.',
   },
+
   {
     id: 'g09-vertical-metal-channel-panel',
     name: 'Vertical Metal Channel Panel',
@@ -4089,6 +3738,7 @@ export const baseProducts: Product[] = [
     disclaimer:
       'Furniture and room settings in images are for representation only. Final colour, accents, and install layout are confirmed on WhatsApp before production.',
   },
+
   {
     id: 'g10-terracotta-wheat-lattice-panel',
     name: 'Terracotta Wheat Lattice Panel',
@@ -4160,6 +3810,7 @@ export const baseProducts: Product[] = [
     disclaimer:
       'Furniture and room settings in images are for representation only. Final colour, accents, and install layout are confirmed on WhatsApp before production.',
   },
+
   {
     id: 'g11-chevron-groove-panel',
     name: 'Chevron Groove Panel',
@@ -4231,6 +3882,7 @@ export const baseProducts: Product[] = [
     disclaimer:
       'Furniture and room settings in images are for representation only. Final colour, accents, and install layout are confirmed on WhatsApp before production.',
   },
+
   {
     id: 'g12-fluted-arch-dual-panel',
     name: 'Fluted Arch Dual Panel',
@@ -4302,6 +3954,7 @@ export const baseProducts: Product[] = [
     disclaimer:
       'Furniture and room settings in images are for representation only. Final colour, accents, and install layout are confirmed on WhatsApp before production.',
   },
+
   {
     id: 'g13-gold-facet-geometry-panel',
     name: 'Gold Facet Geometry Panel',
@@ -4377,6 +4030,7 @@ export const baseProducts: Product[] = [
     disclaimer:
       'Furniture and room settings in images are for representation only. Final colour, accents, and install layout are confirmed on WhatsApp before production.',
   },
+
   {
     id: 'g14-terracotta-arch-module-panel',
     name: 'Terracotta Arch Module Panel',
@@ -4448,6 +4102,7 @@ export const baseProducts: Product[] = [
     disclaimer:
       'Furniture and room settings in images are for representation only. Final colour, accents, and install layout are confirmed on WhatsApp before production.',
   },
+
   {
     id: 'g15-wheat-stalk-relief-panel',
     name: 'Wheat Stalk Relief Panel',
@@ -4519,6 +4174,7 @@ export const baseProducts: Product[] = [
     disclaimer:
       'Furniture and room settings in images are for representation only. Final colour, accents, and install layout are confirmed on WhatsApp before production.',
   },
+
   {
     id: 'g16-fluted-gold-insert-panel',
     name: 'Fluted Gold Insert Panel',
@@ -4594,6 +4250,7 @@ export const baseProducts: Product[] = [
     disclaimer:
       'Furniture and room settings in images are for representation only. Final colour, accents, and install layout are confirmed on WhatsApp before production.',
   },
+
   {
     id: 'g17-metallic-trio-motif-panel',
     name: 'Metallic Trio Motif Panel',
@@ -4669,6 +4326,7 @@ export const baseProducts: Product[] = [
     disclaimer:
       'Furniture and room settings in images are for representation only. Final colour, accents, and install layout are confirmed on WhatsApp before production.',
   },
+
   {
     id: 'g18-terracotta-flute-panel',
     name: 'Terracotta Flute Panel',
@@ -4740,6 +4398,7 @@ export const baseProducts: Product[] = [
     disclaimer:
       'Furniture and room settings in images are for representation only. Final colour, accents, and install layout are confirmed on WhatsApp before production.',
   },
+
   {
     id: 'g19-star-groove-panel',
     name: 'Star Groove Panel',
@@ -4811,6 +4470,7 @@ export const baseProducts: Product[] = [
     disclaimer:
       'Furniture and room settings in images are for representation only. Final colour, accents, and install layout are confirmed on WhatsApp before production.',
   },
+
   {
     id: 'g20-faceted-triangle-grid-panel',
     name: 'Faceted Triangle Grid Panel',
@@ -4882,6 +4542,7 @@ export const baseProducts: Product[] = [
     disclaimer:
       'Furniture and room settings in images are for representation only. Final colour, accents, and install layout are confirmed on WhatsApp before production.',
   },
+
   {
     id: 'taupe-reeded-shaker-kitchen',
     name: 'Taupe Reeded Shaker Kitchen',
@@ -4963,6 +4624,7 @@ export const baseProducts: Product[] = [
     disclaimer:
       'Countertop, sink, faucet, appliances, and accessories in images are for representation only. Final colour, finish, size, and carcass scope are confirmed on WhatsApp before production.',
   },
+
   {
     id: 'mushroom-raised-panel-kitchen',
     name: 'Mushroom Raised Panel Kitchen',
@@ -5044,6 +4706,7 @@ export const baseProducts: Product[] = [
     disclaimer:
       'Countertop, sink, faucet, appliances, and accessories in images are for representation only. Final colour, finish, size, and carcass scope are confirmed on WhatsApp before production.',
   },
+
   {
     id: 'ivory-arch-panel-kitchen',
     name: 'Ivory Arch Panel Kitchen',
@@ -5122,6 +4785,7 @@ export const baseProducts: Product[] = [
     disclaimer:
       'Countertop, sink, faucet, appliances, and accessories in images are for representation only. Final colour, finish, size, and carcass scope are confirmed on WhatsApp before production.',
   },
+
   {
     id: 'taupe-capsule-panel-kitchen',
     name: 'Taupe Capsule Panel Kitchen',
@@ -5196,6 +4860,7 @@ export const baseProducts: Product[] = [
     disclaimer:
       'Countertop, sink, faucet, appliances, and accessories in images are for representation only. Final colour, finish, size, and carcass scope are confirmed on WhatsApp before production.',
   },
+
   {
     id: 'sand-shaker-island-kitchen',
     name: 'Sand Shaker Island Kitchen',
@@ -5270,6 +4935,7 @@ export const baseProducts: Product[] = [
     disclaimer:
       'Countertop, sink, faucet, appliances, and accessories in images are for representation only. Final colour, finish, size, and carcass scope are confirmed on WhatsApp before production.',
   },
+
   {
     id: 'light-grey-lattice-kitchen',
     name: 'Light Grey Lattice Kitchen',
@@ -5344,6 +5010,7 @@ export const baseProducts: Product[] = [
     disclaimer:
       'Countertop, sink, faucet, appliances, and accessories in images are for representation only. Final colour, finish, size, and carcass scope are confirmed on WhatsApp before production.',
   },
+
   {
     id: 'grey-lattice-island-kitchen',
     name: 'Grey Lattice Island Kitchen',
@@ -5418,6 +5085,7 @@ export const baseProducts: Product[] = [
     disclaimer:
       'Countertop, sink, faucet, appliances, and accessories in images are for representation only. Final colour, finish, size, and carcass scope are confirmed on WhatsApp before production.',
   },
+
   {
     id: 'taupe-notch-frame-kitchen',
     name: 'Taupe Notch Frame Kitchen',
@@ -5492,6 +5160,7 @@ export const baseProducts: Product[] = [
     disclaimer:
       'Countertop, sink, faucet, appliances, and accessories in images are for representation only. Final colour, finish, size, and carcass scope are confirmed on WhatsApp before production.',
   },
+
   {
     id: 'terracotta-flat-island-kitchen',
     name: 'Terracotta Flat Island Kitchen',
@@ -5568,6 +5237,7 @@ export const baseProducts: Product[] = [
     disclaimer:
       'Countertop, sink, faucet, appliances, and accessories in images are for representation only. Final colour, finish, size, and carcass scope are confirmed on WhatsApp before production.',
   },
+
   {
     id: 'arch-pull-taupe-kitchen',
     name: 'Arch-Pull Taupe Kitchen',
@@ -5644,6 +5314,7 @@ export const baseProducts: Product[] = [
     disclaimer:
       'Countertop, sink, faucet, appliances, and accessories in images are for representation only. Final colour, finish, size, and carcass scope are confirmed on WhatsApp before production.',
   },
+
   {
     id: 'oval-recess-taupe-kitchen',
     name: 'Oval-Recess Taupe Kitchen',
@@ -5720,6 +5391,7 @@ export const baseProducts: Product[] = [
     disclaimer:
       'Countertop, sink, faucet, appliances, and accessories in images are for representation only. Final colour, finish, size, and carcass scope are confirmed on WhatsApp before production.',
   },
+
   {
     id: 'pink-lotus-arched-mandir',
     name: 'Pink Lotus Arched Mandir',
@@ -5813,6 +5485,7 @@ export const baseProducts: Product[] = [
     disclaimer:
       'Accessories and room settings in images are for representation only. Final colour, finish, size, handle, and carcass scope are confirmed on WhatsApp before production.',
   },
+
   {
     id: 'lotus-branch-bifold-mandir',
     name: 'Lotus Branch Bifold Mandir',
@@ -5904,6 +5577,7 @@ export const baseProducts: Product[] = [
     disclaimer:
       'Accessories and room settings in images are for representation only. Final colour, finish, size, and carcass scope are confirmed on WhatsApp before production.',
   },
+
   {
     id: 'bird-vine-jali-temple-doors',
     name: 'Bird & Vine Jali Temple Doors',
@@ -5977,6 +5651,7 @@ export const baseProducts: Product[] = [
     disclaimer:
       'Accessories and room settings in images are for representation only. Final colour, finish, and size are confirmed on WhatsApp before production. This product is doors only — carcass is not included.',
   },
+
   {
     id: 'lotus-circle-wood-niche-mandir',
     name: 'Lotus Circle Wood Niche Mandir',
@@ -6046,6 +5721,7 @@ export const baseProducts: Product[] = [
     disclaimer:
       'Accessories and room settings in images are for representation only. Final colour, finish, and size are confirmed on WhatsApp before production. This product is doors only — carcass is not included.',
   },
+
   {
     id: 'brushed-metal-scallop-mandir',
     name: 'Brushed Metal Scallop Mandir',
@@ -6084,6 +5760,7 @@ export const baseProducts: Product[] = [
       'WhatsApp quote available',
     ],
   },
+
   {
     id: 'hex-jali-elephant-mandir',
     name: 'Hex Jali Elephant Mandir',
@@ -6176,6 +5853,7 @@ export const baseProducts: Product[] = [
     disclaimer:
       'Accessories and room settings in images are for representation only. Final colour, finish, size, and carcass scope are confirmed on WhatsApp before production.',
   },
+
   {
     id: 'arch-lattice-marble-mandir',
     name: 'Arch Lattice Marble Mandir',
@@ -6273,6 +5951,7 @@ export const baseProducts: Product[] = [
     disclaimer:
       'Accessories and room settings in images are for representation only. Final colour, finish, size, and carcass scope are confirmed on WhatsApp before production.',
   },
+
   {
     id: 'floral-bell-jali-mandir',
     name: 'Floral Bell Jali Mandir',
@@ -6348,6 +6027,7 @@ export const baseProducts: Product[] = [
     disclaimer:
       'Accessories and room settings in images are for representation only. Final colour, finish, and size are confirmed on WhatsApp before production. This product is doors only — carcass is not included.',
   },
+
   {
     id: 'ginkgo-grid-arched-mandir',
     name: 'Ginkgo Grid Arched Mandir',
@@ -6436,6 +6116,7 @@ export const baseProducts: Product[] = [
     disclaimer:
       'Accessories and room settings in images are for representation only. Final colour, finish, size, and carcass scope are confirmed on WhatsApp before production.',
   },
+
   {
     id: 'pixel-jali-bifold-mandir',
     name: 'Pixel Jali Bifold Mandir',
@@ -6528,6 +6209,7 @@ export const baseProducts: Product[] = [
     disclaimer:
       'Accessories and room settings in images are for representation only. Final colour, finish, size, and carcass scope are confirmed on WhatsApp before production.',
   },
+
   {
     id: 'gold-lotus-relief-mandir',
     name: 'Gold Lotus Relief Mandir',
@@ -6620,6 +6302,7 @@ export const baseProducts: Product[] = [
     disclaimer:
       'Accessories and room settings in images are for representation only. Final colour, finish, size, and carcass scope are confirmed on WhatsApp before production.',
   },
+
   {
     id: 'tree-relief-arch-jali-mandir',
     name: 'Tree Relief Arch Jali Mandir',
@@ -6712,6 +6395,7 @@ export const baseProducts: Product[] = [
     disclaimer:
       'Accessories and room settings in images are for representation only. Final colour, finish, size, and carcass scope are confirmed on WhatsApp before production.',
   },
+
   {
     id: 'sunburst-jali-temple-doors',
     name: 'Sunburst Jali Temple Doors',
@@ -6799,6 +6483,7 @@ export const baseProducts: Product[] = [
     disclaimer:
       'Accessories and room settings in images are for representation only. Final colour, finish, size, and carcass scope are confirmed on WhatsApp before production.',
   },
+
   {
     id: 'gold-lotus-arch-temple-wall',
     name: 'Gold Lotus Arch Temple Wall',
@@ -6886,6 +6571,7 @@ export const baseProducts: Product[] = [
     disclaimer:
       'Accessories, idols, and room settings in images are for representation only. Final colour, finish, size, lighting, and carcass scope are confirmed on WhatsApp before production.',
   },
+
   {
     id: 'bevel-panel-prayer-wall',
     name: 'Bevel Panel Prayer Wall',
@@ -6959,6 +6645,7 @@ export const baseProducts: Product[] = [
     disclaimer:
       'Accessories and room settings in images are for representation only. Final colour, finish, size, and carcass scope are confirmed on WhatsApp before production.',
   },
+
   {
     id: 'gold-leaf-motif-temple-wall',
     name: 'Gold Leaf Motif Temple Wall',
@@ -7032,6 +6719,7 @@ export const baseProducts: Product[] = [
     disclaimer:
       'Accessories, idols, and room settings in images are for representation only. Final colour, finish, lighting, size, and carcass scope are confirmed on WhatsApp before production.',
   },
+
   {
     id: 'fluted-flame-niche-mandir',
     name: 'Fluted Flame Niche Mandir',
@@ -7106,6 +6794,7 @@ export const baseProducts: Product[] = [
     disclaimer:
       'Accessories, idols, wallpaper, and room settings in images are for representation only. Final colour, finish, lighting, size, and carcass scope are confirmed on WhatsApp before production.',
   },
+
   {
     id: 'pink-lotus-handle-pair',
     name: 'Pink Lotus Handle Pair',
@@ -7166,6 +6855,378 @@ export const baseProducts: Product[] = [
     disclaimer:
       'Room settings in images are for representation only. Confirm finish and fitting on WhatsApp before order.',
   },
+
+  {
+    id: 'ivory-azure-arch-handle',
+    name: 'Ivory Azure Arch Handle',
+    categoryId: 'handles',
+    subcategoryId: 'sculpted',
+    price: 5500,
+    currency: 'INR',
+    pricingMode: 'unit',
+    brand: 'Priyabadal Homes',
+    collection: 'Handles',
+    sku: 'PBH-HDL-02',
+    description:
+      'Sculpted handle for Ivory Azure Arch Wardrobe shutters — sold as a single piece. Confirm finish and fitting on WhatsApp.',
+    style: ['sculpted', 'modern', 'wardrobe'],
+    rooms: ['bedroom', 'wardrobe'],
+    image: '/products/wardrobe/wardrobe-32/01.jpg',
+    images: [
+      '/products/wardrobe/wardrobe-32/01.jpg',
+    ],
+    highlights: [
+      'Single piece ₹5,500',
+      'Matches Ivory Azure Arch Wardrobe',
+      'WhatsApp to order',
+    ],
+    details: [
+      { label: 'Brand', value: 'Priyabadal Homes' },
+      { label: 'Collection', value: 'Handles' },
+      { label: 'Sku', value: 'PBH-HDL-02' },
+      { label: 'Pack', value: '1 piece' },
+      { label: 'Assembly', value: 'Fitted on-site with shutter / door' },
+      { label: 'Warranty', value: "10 Years' warranty on manufacturing defects" },
+    ],
+    specifications: [
+      { label: 'Price', value: '₹5,500 per piece' },
+      { label: 'Pack', value: 'Single piece' },
+      {
+        label: 'Pairs with',
+        value: 'Ivory Azure Arch Wardrobe — also sold on the wardrobe quote',
+      },
+      { label: 'Category', value: 'Handles' },
+      { label: 'Subcategory', value: 'Sculpted' },
+      { label: 'Country of Origin', value: 'India' },
+      { label: 'Care', value: 'Wipe with a soft dry cloth; avoid harsh cleaners' },
+    ],
+    features: [
+      'Sold as a single piece',
+      'Designed for matching wardrobe shutters',
+      'Confirm finish and fitting on WhatsApp',
+    ],
+    disclaimer:
+      'Room settings in images are for representation only. Confirm finish and fitting on WhatsApp before order.',
+  },
+
+  {
+    id: 'oak-periwinkle-capsule-handle',
+    name: 'Oak & Periwinkle Capsule Handle',
+    categoryId: 'handles',
+    subcategoryId: 'sculpted',
+    price: 500,
+    currency: 'INR',
+    pricingMode: 'unit',
+    brand: 'Priyabadal Homes',
+    collection: 'Handles',
+    sku: 'PBH-HDL-03',
+    description:
+      'Capsule handle for Oak & Periwinkle Capsule Wardrobe — sold as a single piece. Confirm finish and fitting on WhatsApp.',
+    style: ['sculpted', 'modern', 'wardrobe'],
+    rooms: ['bedroom', 'wardrobe'],
+    image: '/products/wardrobe/wardrobe-29/01.jpg',
+    images: [
+      '/products/wardrobe/wardrobe-29/01.jpg',
+    ],
+    highlights: [
+      'Single piece ₹500',
+      'Matches Oak & Periwinkle Capsule Wardrobe',
+      'WhatsApp to order',
+    ],
+    details: [
+      { label: 'Brand', value: 'Priyabadal Homes' },
+      { label: 'Collection', value: 'Handles' },
+      { label: 'Sku', value: 'PBH-HDL-03' },
+      { label: 'Pack', value: '1 piece' },
+      { label: 'Assembly', value: 'Fitted on-site with shutter / door' },
+      { label: 'Warranty', value: "10 Years' warranty on manufacturing defects" },
+    ],
+    specifications: [
+      { label: 'Price', value: '₹500 per piece' },
+      { label: 'Pack', value: 'Single piece' },
+      {
+        label: 'Pairs with',
+        value: 'Oak & Periwinkle Capsule Wardrobe — also sold on the wardrobe quote',
+      },
+      { label: 'Category', value: 'Handles' },
+      { label: 'Subcategory', value: 'Sculpted' },
+      { label: 'Country of Origin', value: 'India' },
+      { label: 'Care', value: 'Wipe with a soft dry cloth; avoid harsh cleaners' },
+    ],
+    features: [
+      'Sold as a single piece',
+      'Designed for matching wardrobe shutters',
+      'Confirm finish and fitting on WhatsApp',
+    ],
+    disclaimer:
+      'Room settings in images are for representation only. Confirm finish and fitting on WhatsApp before order.',
+  },
+
+  {
+    id: 'taupe-chevron-linen-handle',
+    name: 'Taupe Chevron Linen Handle',
+    categoryId: 'handles',
+    subcategoryId: 'sculpted',
+    price: 4500,
+    currency: 'INR',
+    pricingMode: 'unit',
+    brand: 'Priyabadal Homes',
+    collection: 'Handles',
+    sku: 'PBH-HDL-04',
+    description:
+      'Handle for Taupe Chevron Linen Wardrobe shutters — sold as a single piece. Confirm finish and fitting on WhatsApp.',
+    style: ['sculpted', 'modern', 'wardrobe'],
+    rooms: ['bedroom', 'wardrobe'],
+    image: '/products/wardrobe/wardrobe-16/01.jpg',
+    images: [
+      '/products/wardrobe/wardrobe-16/01.jpg',
+    ],
+    highlights: [
+      'Single piece ₹4,500',
+      'Matches Taupe Chevron Linen Wardrobe',
+      'WhatsApp to order',
+    ],
+    details: [
+      { label: 'Brand', value: 'Priyabadal Homes' },
+      { label: 'Collection', value: 'Handles' },
+      { label: 'Sku', value: 'PBH-HDL-04' },
+      { label: 'Pack', value: '1 piece' },
+      { label: 'Assembly', value: 'Fitted on-site with shutter / door' },
+      { label: 'Warranty', value: "10 Years' warranty on manufacturing defects" },
+    ],
+    specifications: [
+      { label: 'Price', value: '₹4,500 per piece' },
+      { label: 'Pack', value: 'Single piece' },
+      {
+        label: 'Pairs with',
+        value: 'Taupe Chevron Linen Wardrobe — also sold on the wardrobe quote',
+      },
+      { label: 'Category', value: 'Handles' },
+      { label: 'Subcategory', value: 'Sculpted' },
+      { label: 'Country of Origin', value: 'India' },
+      { label: 'Care', value: 'Wipe with a soft dry cloth; avoid harsh cleaners' },
+    ],
+    features: [
+      'Sold as a single piece',
+      'Designed for matching wardrobe shutters',
+      'Confirm finish and fitting on WhatsApp',
+    ],
+    disclaimer:
+      'Room settings in images are for representation only. Confirm finish and fitting on WhatsApp before order.',
+  },
+
+  {
+    id: 'oak-bronze-handle',
+    name: 'Oak Bronze Handle',
+    categoryId: 'handles',
+    subcategoryId: 'sculpted',
+    price: 4500,
+    currency: 'INR',
+    pricingMode: 'unit',
+    brand: 'Priyabadal Homes',
+    collection: 'Handles',
+    sku: 'PBH-HDL-05',
+    description:
+      'Bronze-look handle for Oak Bronze Handle Wardrobe — sold as a single piece. Confirm finish and fitting on WhatsApp.',
+    style: ['sculpted', 'modern', 'wardrobe'],
+    rooms: ['bedroom', 'wardrobe'],
+    image: '/products/wardrobe/wardrobe-15/01.jpg',
+    images: [
+      '/products/wardrobe/wardrobe-15/01.jpg',
+    ],
+    highlights: [
+      'Single piece ₹4,500',
+      'Matches Oak Bronze Wardrobe',
+      'WhatsApp to order',
+    ],
+    details: [
+      { label: 'Brand', value: 'Priyabadal Homes' },
+      { label: 'Collection', value: 'Handles' },
+      { label: 'Sku', value: 'PBH-HDL-05' },
+      { label: 'Pack', value: '1 piece' },
+      { label: 'Assembly', value: 'Fitted on-site with shutter / door' },
+      { label: 'Warranty', value: "10 Years' warranty on manufacturing defects" },
+    ],
+    specifications: [
+      { label: 'Price', value: '₹4,500 per piece' },
+      { label: 'Pack', value: 'Single piece' },
+      {
+        label: 'Pairs with',
+        value: 'Oak Bronze Wardrobe — also sold on the wardrobe quote',
+      },
+      { label: 'Category', value: 'Handles' },
+      { label: 'Subcategory', value: 'Sculpted' },
+      { label: 'Country of Origin', value: 'India' },
+      { label: 'Care', value: 'Wipe with a soft dry cloth; avoid harsh cleaners' },
+    ],
+    features: [
+      'Sold as a single piece',
+      'Designed for matching wardrobe shutters',
+      'Confirm finish and fitting on WhatsApp',
+    ],
+    disclaimer:
+      'Room settings in images are for representation only. Confirm finish and fitting on WhatsApp before order.',
+  },
+
+  {
+    id: 'white-marble-branch-handle',
+    name: 'White Marble Branch Handle',
+    categoryId: 'handles',
+    subcategoryId: 'sculpted',
+    price: 4500,
+    currency: 'INR',
+    pricingMode: 'unit',
+    brand: 'Priyabadal Homes',
+    collection: 'Handles',
+    sku: 'PBH-HDL-06',
+    description:
+      'Branch handle for White Marble Branch-Handle Wardrobe — sold as a single piece. Confirm finish and fitting on WhatsApp.',
+    style: ['sculpted', 'modern', 'wardrobe'],
+    rooms: ['bedroom', 'wardrobe'],
+    image: '/products/wardrobe/wardrobe-14/01.jpg',
+    images: [
+      '/products/wardrobe/wardrobe-14/01.jpg',
+    ],
+    highlights: [
+      'Single piece ₹4,500',
+      'Matches White Marble Branch Wardrobe',
+      'WhatsApp to order',
+    ],
+    details: [
+      { label: 'Brand', value: 'Priyabadal Homes' },
+      { label: 'Collection', value: 'Handles' },
+      { label: 'Sku', value: 'PBH-HDL-06' },
+      { label: 'Pack', value: '1 piece' },
+      { label: 'Assembly', value: 'Fitted on-site with shutter / door' },
+      { label: 'Warranty', value: "10 Years' warranty on manufacturing defects" },
+    ],
+    specifications: [
+      { label: 'Price', value: '₹4,500 per piece' },
+      { label: 'Pack', value: 'Single piece' },
+      {
+        label: 'Pairs with',
+        value: 'White Marble Branch Wardrobe — also sold on the wardrobe quote',
+      },
+      { label: 'Category', value: 'Handles' },
+      { label: 'Subcategory', value: 'Sculpted' },
+      { label: 'Country of Origin', value: 'India' },
+      { label: 'Care', value: 'Wipe with a soft dry cloth; avoid harsh cleaners' },
+    ],
+    features: [
+      'Sold as a single piece',
+      'Designed for matching wardrobe shutters',
+      'Confirm finish and fitting on WhatsApp',
+    ],
+    disclaimer:
+      'Room settings in images are for representation only. Confirm finish and fitting on WhatsApp before order.',
+  },
+
+  {
+    id: 'blush-tribal-motif-handle',
+    name: 'Blush Tribal Motif Handle',
+    categoryId: 'handles',
+    subcategoryId: 'sculpted',
+    price: 4500,
+    currency: 'INR',
+    pricingMode: 'unit',
+    brand: 'Priyabadal Homes',
+    collection: 'Handles',
+    sku: 'PBH-HDL-07',
+    description:
+      'Handle for Blush Tribal Motif Wardrobe shutters — sold as a single piece. Confirm finish and fitting on WhatsApp.',
+    style: ['sculpted', 'modern', 'wardrobe'],
+    rooms: ['bedroom', 'wardrobe'],
+    image: '/products/wardrobe/wardrobe-13/01.jpg',
+    images: [
+      '/products/wardrobe/wardrobe-13/01.jpg',
+    ],
+    highlights: [
+      'Single piece ₹4,500',
+      'Matches Blush Tribal Motif Wardrobe',
+      'WhatsApp to order',
+    ],
+    details: [
+      { label: 'Brand', value: 'Priyabadal Homes' },
+      { label: 'Collection', value: 'Handles' },
+      { label: 'Sku', value: 'PBH-HDL-07' },
+      { label: 'Pack', value: '1 piece' },
+      { label: 'Assembly', value: 'Fitted on-site with shutter / door' },
+      { label: 'Warranty', value: "10 Years' warranty on manufacturing defects" },
+    ],
+    specifications: [
+      { label: 'Price', value: '₹4,500 per piece' },
+      { label: 'Pack', value: 'Single piece' },
+      {
+        label: 'Pairs with',
+        value: 'Blush Tribal Motif Wardrobe — also sold on the wardrobe quote',
+      },
+      { label: 'Category', value: 'Handles' },
+      { label: 'Subcategory', value: 'Sculpted' },
+      { label: 'Country of Origin', value: 'India' },
+      { label: 'Care', value: 'Wipe with a soft dry cloth; avoid harsh cleaners' },
+    ],
+    features: [
+      'Sold as a single piece',
+      'Designed for matching wardrobe shutters',
+      'Confirm finish and fitting on WhatsApp',
+    ],
+    disclaimer:
+      'Room settings in images are for representation only. Confirm finish and fitting on WhatsApp before order.',
+  },
+
+  {
+    id: 'light-oak-linear-handle',
+    name: 'Light Oak Linear Handle',
+    categoryId: 'handles',
+    subcategoryId: 'sculpted',
+    price: 4500,
+    currency: 'INR',
+    pricingMode: 'unit',
+    brand: 'Priyabadal Homes',
+    collection: 'Handles',
+    sku: 'PBH-HDL-08',
+    description:
+      'Linear handle for Light Oak Linear Wardrobe — sold as a single piece. Confirm finish and fitting on WhatsApp.',
+    style: ['sculpted', 'modern', 'wardrobe'],
+    rooms: ['bedroom', 'wardrobe'],
+    image: '/products/wardrobe/wardrobe-11/01.jpg',
+    images: [
+      '/products/wardrobe/wardrobe-11/01.jpg',
+    ],
+    highlights: [
+      'Single piece ₹4,500',
+      'Matches Light Oak Linear Wardrobe',
+      'WhatsApp to order',
+    ],
+    details: [
+      { label: 'Brand', value: 'Priyabadal Homes' },
+      { label: 'Collection', value: 'Handles' },
+      { label: 'Sku', value: 'PBH-HDL-08' },
+      { label: 'Pack', value: '1 piece' },
+      { label: 'Assembly', value: 'Fitted on-site with shutter / door' },
+      { label: 'Warranty', value: "10 Years' warranty on manufacturing defects" },
+    ],
+    specifications: [
+      { label: 'Price', value: '₹4,500 per piece' },
+      { label: 'Pack', value: 'Single piece' },
+      {
+        label: 'Pairs with',
+        value: 'Light Oak Linear Wardrobe — also sold on the wardrobe quote',
+      },
+      { label: 'Category', value: 'Handles' },
+      { label: 'Subcategory', value: 'Sculpted' },
+      { label: 'Country of Origin', value: 'India' },
+      { label: 'Care', value: 'Wipe with a soft dry cloth; avoid harsh cleaners' },
+    ],
+    features: [
+      'Sold as a single piece',
+      'Designed for matching wardrobe shutters',
+      'Confirm finish and fitting on WhatsApp',
+    ],
+    disclaimer:
+      'Room settings in images are for representation only. Confirm finish and fitting on WhatsApp before order.',
+  },
+
   {
     id: 'door-01-flute-gold-step',
     name: 'Flute & Gold Step Door',
@@ -7196,6 +7257,7 @@ export const baseProducts: Product[] = [
       'Made to measure',
     ],
   },
+
   {
     id: 'door-02-walnut-circle-inlay',
     name: 'Walnut Circle Inlay Door',
@@ -7226,6 +7288,7 @@ export const baseProducts: Product[] = [
       'Made to measure',
     ],
   },
+
   {
     id: 'door-03-matte-black-ornate',
     name: 'Matte Black Ornate Panel Door',
@@ -7255,6 +7318,7 @@ export const baseProducts: Product[] = [
       'Made to measure',
     ],
   },
+
   {
     id: 'door-04-oak-flute-pull',
     name: 'Oak Flute Vertical Pull Door',
@@ -7285,6 +7349,7 @@ export const baseProducts: Product[] = [
       'Made to measure',
     ],
   },
+
   {
     id: 'door-05-lotus-mandala-metal',
     name: 'Lotus Mandala Metal Main Door',
@@ -7315,6 +7380,7 @@ export const baseProducts: Product[] = [
       'Made to measure',
     ],
   },
+
   {
     id: 'door-06-topo-relief-gray',
     name: 'Topo Relief Pale Gray Door',
@@ -7344,6 +7410,7 @@ export const baseProducts: Product[] = [
       'Made to measure',
     ],
   },
+
   {
     id: 'door-07-sunburst-double',
     name: 'Champagne Sunburst Double Door',
@@ -7374,6 +7441,7 @@ export const baseProducts: Product[] = [
       'Made to measure',
     ],
   },
+
   {
     id: 'door-08-sage-oval-sidelight',
     name: 'Sage Oval Sidelight Entrance',
@@ -7403,6 +7471,7 @@ export const baseProducts: Product[] = [
       'Made to measure',
     ],
   },
+
   {
     id: 'door-09-pill-grid-flush',
     name: 'Pill Grid Flush Panel Door',
@@ -7433,6 +7502,7 @@ export const baseProducts: Product[] = [
       'Made to measure',
     ],
   },
+
   {
     id: 'door-10-carved-topo-strip',
     name: 'Carved Topo Centre Strip Door',
@@ -7463,6 +7533,7 @@ export const baseProducts: Product[] = [
       'Made to measure',
     ],
   },
+
   {
     id: 'door-11-bronze-pyramid-pull',
     name: 'Bronze Pyramid Pull Door',
@@ -7493,6 +7564,7 @@ export const baseProducts: Product[] = [
       'Made to measure',
     ],
   },
+
   {
     id: 'door-12-brass-soft-panel',
     name: 'Brass Soft-Panel Pivot Door',
@@ -7523,6 +7595,7 @@ export const baseProducts: Product[] = [
       'Made to measure',
     ],
   },
+
   {
     id: 'door-13-champagne-radial-pull',
     name: 'Champagne Radial Oval Pull Door',
@@ -7552,6 +7625,7 @@ export const baseProducts: Product[] = [
       'Made to measure',
     ],
   },
+
   {
     id: 'door-14-walnut-led-smart',
     name: 'Walnut LED Smart Main Door',
@@ -7582,6 +7656,7 @@ export const baseProducts: Product[] = [
       'Made to measure',
     ],
   },
+
   {
     id: 'door-15-dark-wood-slat-pair',
     name: 'Dark Wood Slat Double Door',
@@ -7612,6 +7687,7 @@ export const baseProducts: Product[] = [
       'Made to measure',
     ],
   },
+
   {
     id: 'door-16-walnut-smart-suite',
     name: 'Walnut Smart Suite Door',
@@ -7642,6 +7718,7 @@ export const baseProducts: Product[] = [
       'Made to measure',
     ],
   },
+
   {
     id: 'sf-01-twin-floor-columns',
     name: 'Oxidised Twin Floor Columns',
@@ -7666,6 +7743,7 @@ export const baseProducts: Product[] = [
       'WhatsApp for size & finish',
     ],
   },
+
   {
     id: 'sf-02-driftwood-glass-dining',
     name: 'Driftwood Glass Dining Table',
@@ -7696,6 +7774,7 @@ export const baseProducts: Product[] = [
       'WhatsApp for exact size',
     ],
   },
+
   {
     id: 'sf-03-copper-charcoal-pedestal',
     name: 'Copper Charcoal Dual Pedestal',
@@ -7724,6 +7803,7 @@ export const baseProducts: Product[] = [
       'Indoor / patio statement',
     ],
   },
+
   {
     id: 'sf-04-twin-rock-glass-dining',
     name: 'Twin Rock Pedestal Dining Table',
@@ -7755,6 +7835,7 @@ export const baseProducts: Product[] = [
       'WhatsApp for size options',
     ],
   },
+
   {
     id: 'sf-05-gradient-bronze-horse',
     name: 'Gradient Bronze Horse Sculpture',
@@ -7783,6 +7864,7 @@ export const baseProducts: Product[] = [
       'Indoor lobby / outdoor courtyard',
     ],
   },
+
   {
     id: 'sf-06-liquid-chrome-console',
     name: 'Liquid Chrome Melt Console',
@@ -7810,6 +7892,7 @@ export const baseProducts: Product[] = [
       'WhatsApp for length',
     ],
   },
+
   {
     id: 'sf-07-perforated-glow-lamp',
     name: 'Perforated Stone Glow Floor Lamp',
@@ -7834,6 +7917,7 @@ export const baseProducts: Product[] = [
       'Ambient art light',
     ],
   },
+
   {
     id: 'sf-08-gold-drip-pedestal',
     name: 'Gold Drip Black Floor Pedestal',
@@ -7858,6 +7942,7 @@ export const baseProducts: Product[] = [
       'High-gloss finish',
     ],
   },
+
   {
     id: 'sf-09-silver-branch-tree',
     name: 'Silver Bulb Branch Tree Sculpture',
@@ -7882,6 +7967,7 @@ export const baseProducts: Product[] = [
       'Art sculpture piece',
     ],
   },
+
   {
     id: 'sf-10-garden-flute-sculpture',
     name: 'Garden Flute Seated Sculpture',
@@ -7906,6 +7992,7 @@ export const baseProducts: Product[] = [
       'Outdoor / courtyard ready',
     ],
   },
+
   {
     id: 'sf-11-boulder-console',
     name: 'Boulder Base Console',
@@ -7933,6 +8020,7 @@ export const baseProducts: Product[] = [
       'WhatsApp for finish & length',
     ],
   },
+
   {
     id: 'sf-12-face-glass-coffee-table',
     name: 'Face Sculpture Glass Coffee Table',
@@ -7960,6 +8048,7 @@ export const baseProducts: Product[] = [
       'WhatsApp for finish & size',
     ],
   },
+
   {
     id: 'live-edge-seater-01',
     name: 'Mountain Crest Live Edge Bench',
@@ -7983,6 +8072,7 @@ export const baseProducts: Product[] = [
       'One-of-a-kind slab',
     ],
   },
+
   {
     id: 'live-edge-seater-02',
     name: 'Slab Beam Live Edge Bench',
@@ -8006,6 +8096,7 @@ export const baseProducts: Product[] = [
       'Made to order finish',
     ],
   },
+
   {
     id: 'live-edge-seater-03',
     name: 'Bird Form Live Edge Seater',
@@ -8029,6 +8120,7 @@ export const baseProducts: Product[] = [
       'Statement seating',
     ],
   },
+
   {
     id: 'live-edge-seater-04',
     name: 'Root Lattice Live Edge Bench',
@@ -8052,6 +8144,7 @@ export const baseProducts: Product[] = [
       'Artisan one-off piece',
     ],
   },
+
   {
     id: 'live-edge-seater-05',
     name: 'Gnarled Hollow Live Edge Bench',
@@ -8075,6 +8168,7 @@ export const baseProducts: Product[] = [
       'Natural grain showcase',
     ],
   },
+
   {
     id: 'live-edge-seater-06',
     name: 'Branch Reach Live Edge Seater',
@@ -8098,6 +8192,7 @@ export const baseProducts: Product[] = [
       'Compact statement piece',
     ],
   },
+
   {
     id: 'live-edge-seater-07',
     name: 'Cave Hollow Live Edge Chair',
@@ -8121,6 +8216,7 @@ export const baseProducts: Product[] = [
       'Oil / wax finish look',
     ],
   },
+
   {
     id: 'live-edge-seater-08',
     name: 'Bowl Seat Live Edge Chair',
@@ -8144,6 +8240,7 @@ export const baseProducts: Product[] = [
       'Studio-finished piece',
     ],
   },
+
   {
     id: 'live-edge-seater-09',
     name: 'Portal Void Live Edge Seater',
@@ -8167,6 +8264,7 @@ export const baseProducts: Product[] = [
       'Heavy solid hardwood',
     ],
   },
+
   {
     id: 'live-edge-seater-10',
     name: 'Root Wrap Live Edge Chair',
@@ -8190,6 +8288,7 @@ export const baseProducts: Product[] = [
       'Polished honey finish',
     ],
   },
+
   {
     id: 'live-edge-seater-11',
     name: 'Ridge Peak Live Edge Bench',
@@ -8213,6 +8312,7 @@ export const baseProducts: Product[] = [
       'Branch-tapered legs',
     ],
   },
+
   {
     id: 'live-edge-seater-12',
     name: 'Armored Hollow Live Edge Seater',
@@ -8236,6 +8336,7 @@ export const baseProducts: Product[] = [
       'Trunk-leg support',
     ],
   },
+
   {
     id: 'live-edge-seater-13',
     name: 'Honey Grain Live Edge Seater',
@@ -8259,6 +8360,7 @@ export const baseProducts: Product[] = [
       'Stump-style legs',
     ],
   },
+
   {
     id: 'live-edge-console-01',
     name: 'Root Lattice Console',
@@ -8282,6 +8384,7 @@ export const baseProducts: Product[] = [
       'One-of-a-kind hardwood',
     ],
   },
+
   {
     id: 'live-edge-console-02',
     name: 'Wing Tip Root Console',
@@ -8305,6 +8408,7 @@ export const baseProducts: Product[] = [
       'Organic modern look',
     ],
   },
+
   {
     id: 'live-edge-console-03',
     name: 'Wall Flush Root Console',
@@ -8328,6 +8432,7 @@ export const baseProducts: Product[] = [
       'Natural teak-root character',
     ],
   },
+
   {
     id: 'live-edge-console-04',
     name: 'Fan Span Root Console',
@@ -8351,6 +8456,7 @@ export const baseProducts: Product[] = [
       'Statement entry piece',
     ],
   },
+
   {
     id: 'live-edge-centre-01',
     name: 'Root Void Centre Table',
@@ -8374,6 +8480,7 @@ export const baseProducts: Product[] = [
       'One-of-a-kind piece',
     ],
   },
+
   {
     id: 'live-edge-centre-02',
     name: 'Flared Bowl Centre Base',
@@ -8397,6 +8504,7 @@ export const baseProducts: Product[] = [
       'Solid hardwood',
     ],
   },
+
   {
     id: 'live-edge-centre-03',
     name: 'Interlace Root Centre Table',
@@ -8420,6 +8528,7 @@ export const baseProducts: Product[] = [
       'Artisan teak-root look',
     ],
   },
+
   {
     id: 'live-edge-centre-04',
     name: 'Porous Stump Centre Table',
@@ -8443,6 +8552,7 @@ export const baseProducts: Product[] = [
       'Stable wide base',
     ],
   },
+
   {
     id: 'live-edge-centre-05',
     name: 'Branch Peak Centre Base',
@@ -8466,6 +8576,7 @@ export const baseProducts: Product[] = [
       'Sculptural base',
     ],
   },
+
   {
     id: 'live-edge-centre-06',
     name: 'Starburst Root Centre Base',
@@ -8489,6 +8600,7 @@ export const baseProducts: Product[] = [
       'Low living-room profile',
     ],
   },
+
   {
     id: 'live-edge-centre-07',
     name: 'Block Root Centre Table',
@@ -8512,6 +8624,7 @@ export const baseProducts: Product[] = [
       'Multi-point base',
     ],
   },
+
   {
     id: 'live-edge-centre-08',
     name: 'Pale Root Pedestal Table',
@@ -8535,6 +8648,7 @@ export const baseProducts: Product[] = [
       'Pedestal / glass base',
     ],
   },
+
   {
     id: 'live-edge-centre-09',
     name: 'Level Top Root Centre Table',
@@ -8558,6 +8672,7 @@ export const baseProducts: Product[] = [
       'Warm matte finish',
     ],
   },
+
   {
     id: 'live-edge-centre-10',
     name: 'Wing Span Root Centre Base',
@@ -8581,6 +8696,7 @@ export const baseProducts: Product[] = [
       'Polished solid hardwood',
     ],
   },
+
   {
     id: 'live-edge-ball-01',
     name: 'Hex Bolt Ball Stool',
@@ -8604,6 +8720,7 @@ export const baseProducts: Product[] = [
       'Solid wood piece',
     ],
   },
+
   {
     id: 'live-edge-ball-02',
     name: 'Weathered Column Ball Stool',
@@ -8627,6 +8744,7 @@ export const baseProducts: Product[] = [
       'Solid hardwood',
     ],
   },
+
   {
     id: 'live-edge-ball-03',
     name: 'Cave Hollow Ball Stool',
@@ -8650,6 +8768,7 @@ export const baseProducts: Product[] = [
       'Organic modern accent',
     ],
   },
+
   {
     id: 'live-edge-ball-04',
     name: 'Terracotta Burl Ball Stool',
@@ -8673,6 +8792,7 @@ export const baseProducts: Product[] = [
       'Accent seating',
     ],
   },
+
   {
     id: 'live-edge-ball-05',
     name: 'Twin Hollow Ball Stools',
@@ -8696,6 +8816,7 @@ export const baseProducts: Product[] = [
       'Stackable / pair seating',
     ],
   },
+
   {
     id: 'live-edge-ball-06',
     name: 'Root Orb Ball Stool',
@@ -8719,6 +8840,7 @@ export const baseProducts: Product[] = [
       'Solid hardwood stool',
     ],
   },
+
   {
     id: 'live-edge-basin-01',
     name: 'Fissure Edge Wood Basin',
@@ -8742,6 +8864,7 @@ export const baseProducts: Product[] = [
       'Sealed hardwood finish',
     ],
   },
+
   {
     id: 'live-edge-basin-02',
     name: 'Burl Grain Wood Basin',
@@ -8765,6 +8888,7 @@ export const baseProducts: Product[] = [
       'Waterproof sealed finish',
     ],
   },
+
   {
     id: 'live-edge-basin-03',
     name: 'Gold River Resin Basin',
@@ -8788,6 +8912,7 @@ export const baseProducts: Product[] = [
       'Statement powder-room piece',
     ],
   },
+
   {
     id: 'live-edge-basin-04',
     name: 'Asymmetric Grain Wood Basin',
@@ -8811,6 +8936,7 @@ export const baseProducts: Product[] = [
       'Sealed for wet areas',
     ],
   },
+
   {
     id: 'forest-cell-bronze-wall-silai',
     name: 'Forest Cell Bronze Wall Silai',
@@ -8863,6 +8989,7 @@ export const baseProducts: Product[] = [
     disclaimer:
       'Photos show style and stitch character. Final fabric, foam, and size are confirmed on WhatsApp before production.',
   },
+
   {
     id: 'taupe-framed-feature-panel-silai',
     name: 'Taupe Framed Feature Panel Silai',
@@ -8915,6 +9042,7 @@ export const baseProducts: Product[] = [
     disclaimer:
       'Photos show style and stitch character. Final fabric, foam, and size are confirmed on WhatsApp before production.',
   },
+
   {
     id: 'cognac-grid-lounge-wall-silai',
     name: 'Cognac Grid Lounge Wall Silai',
@@ -8967,6 +9095,7 @@ export const baseProducts: Product[] = [
     disclaimer:
       'Photos show style and stitch character. Final fabric, foam, and size are confirmed on WhatsApp before production.',
   },
+
   {
     id: 'blush-beaded-panel-set-silai',
     name: 'Blush Beaded Panel Set Silai',
@@ -9019,6 +9148,7 @@ export const baseProducts: Product[] = [
     disclaimer:
       'Photos show style and stitch character. Final fabric, foam, and size are confirmed on WhatsApp before production.',
   },
+
   {
     id: 'denim-mosaic-acoustic-wall-silai',
     name: 'Denim Mosaic Acoustic Wall Silai',
@@ -9071,6 +9201,7 @@ export const baseProducts: Product[] = [
     disclaimer:
       'Photos show style and stitch character. Final fabric, foam, and size are confirmed on WhatsApp before production.',
   },
+
   {
     id: 'grey-stud-leather-panel-silai',
     name: 'Grey Stud Leather Panel Silai',
@@ -9123,6 +9254,7 @@ export const baseProducts: Product[] = [
     disclaimer:
       'Photos show style and stitch character. Final fabric, foam, and size are confirmed on WhatsApp before production.',
   },
+
   {
     id: 'slate-cloud-applique-wardrobe-silai',
     name: 'Slate Cloud Appliqué Wardrobe Silai',
@@ -9175,6 +9307,7 @@ export const baseProducts: Product[] = [
     disclaimer:
       'Photos show style and stitch character. Final fabric, foam, and size are confirmed on WhatsApp before production.',
   },
+
   {
     id: 'ivory-feather-bead-panel-silai',
     name: 'Ivory Feather Bead Panel Silai',
@@ -9229,6 +9362,7 @@ export const baseProducts: Product[] = [
     disclaimer:
       'Photos show style and stitch character. Final fabric, foam, and size are confirmed on WhatsApp before production.',
   },
+
   {
     id: 'tan-pearl-cascade-panel-silai',
     name: 'Tan Pearl Cascade Panel Silai',
@@ -9281,6 +9415,7 @@ export const baseProducts: Product[] = [
     disclaimer:
       'Photos show style and stitch character. Final fabric, foam, and size are confirmed on WhatsApp before production.',
   },
+
   {
     id: 'denim-quilt-topstitch-silai',
     name: 'Denim Quilt Topstitch Silai',
@@ -9333,6 +9468,7 @@ export const baseProducts: Product[] = [
     disclaimer:
       'Photos show style and stitch character. Final fabric, foam, and size are confirmed on WhatsApp before production.',
   },
+
   {
     id: 'taupe-circle-grid-wall-silai',
     name: 'Taupe Circle Grid Wall Silai',
@@ -9385,6 +9521,7 @@ export const baseProducts: Product[] = [
     disclaimer:
       'Photos show style and stitch character. Final fabric, foam, and size are confirmed on WhatsApp before production.',
   },
+
   {
     id: 'pearl-button-taupe-panel-silai',
     name: 'Pearl Button Taupe Panel Silai',
@@ -9437,6 +9574,7 @@ export const baseProducts: Product[] = [
     disclaimer:
       'Photos show style and stitch character. Final fabric, foam, and size are confirmed on WhatsApp before production.',
   },
+
   {
     id: 'greige-tailored-stitch-panel-silai',
     name: 'Greige Tailored Stitch Panel Silai',
@@ -9489,6 +9627,7 @@ export const baseProducts: Product[] = [
     disclaimer:
       'Photos show style and stitch character. Final fabric, foam, and size are confirmed on WhatsApp before production.',
   },
+
   {
     id: 'denim-wave-embroidery-wardrobe-silai',
     name: 'Denim Wave Embroidery Wardrobe Silai',
@@ -9543,6 +9682,7 @@ export const baseProducts: Product[] = [
     disclaimer:
       'Photos show style and stitch character. Final fabric, foam, and size are confirmed on WhatsApp before production.',
   },
+
   {
     id: 'tan-inset-stitch-grid-silai',
     name: 'Tan Inset Stitch Grid Silai',
@@ -9595,6 +9735,7 @@ export const baseProducts: Product[] = [
     disclaimer:
       'Photos show style and stitch character. Final fabric, foam, and size are confirmed on WhatsApp before production.',
   },
+
   {
     id: 'cream-stitch-panel-wardrobe-silai',
     name: 'Cream Stitch Panel Wardrobe Silai',
@@ -9653,6 +9794,7 @@ export const baseProducts: Product[] = [
     disclaimer:
       'Photos show style and stitch character. Final fabric, foam, and size are confirmed on WhatsApp before production.',
   },
+
   {
     id: 'graphite-mosaic-office-wall-silai',
     name: 'Graphite Mosaic Office Wall Silai',
@@ -9707,6 +9849,7 @@ export const baseProducts: Product[] = [
     disclaimer:
       'Photos show style and stitch character. Final fabric, foam, and size are confirmed on WhatsApp before production.',
   },
+
   {
     id: 'ivory-stitched-lounge-wall-silai',
     name: 'Ivory Stitched Lounge Wall Silai',
@@ -9763,6 +9906,7 @@ export const baseProducts: Product[] = [
     disclaimer:
       'Photos show style and stitch character. Final fabric, foam, and size are confirmed on WhatsApp before production.',
   },
+
   {
     id: 'camel-stitch-tallboy-silai',
     name: 'Camel Stitch Tallboy Silai',
@@ -9815,6 +9959,7 @@ export const baseProducts: Product[] = [
     disclaimer:
       'Photos show style and stitch character. Final fabric, foam, and size are confirmed on WhatsApp before production.',
   },
+
   {
     id: 'tan-quilt-grid-wardrobe-silai',
     name: 'Tan Quilt Grid Wardrobe Silai',
@@ -9867,6 +10012,7 @@ export const baseProducts: Product[] = [
     disclaimer:
       'Photos show style and stitch character. Final fabric, foam, and size are confirmed on WhatsApp before production.',
   },
+
   {
     id: 'sand-square-headboard-wall-silai',
     name: 'Sand Square Headboard Wall Silai',
@@ -9921,6 +10067,7 @@ export const baseProducts: Product[] = [
     disclaimer:
       'Photos show style and stitch character. Final fabric, foam, and size are confirmed on WhatsApp before production.',
   },
+
   {
     id: 'slate-quilt-panel-wall-silai',
     name: 'Slate Quilt Panel Wall Silai',
@@ -9975,6 +10122,7 @@ export const baseProducts: Product[] = [
     disclaimer:
       'Photos show style and stitch character. Final fabric, foam, and size are confirmed on WhatsApp before production.',
   },
+
   {
     id: 'cream-double-stitch-closet-silai',
     name: 'Cream Double-Stitch Closet Silai',
@@ -10035,6 +10183,7 @@ export const baseProducts: Product[] = [
     disclaimer:
       'Photos show style and stitch character. Final fabric, foam, and size are confirmed on WhatsApp before production.',
   },
+
   {
     id: 'taupe-quilt-feature-wall-silai',
     name: 'Taupe Quilt Feature Wall Silai',
@@ -10087,6 +10236,7 @@ export const baseProducts: Product[] = [
     disclaimer:
       'Photos show style and stitch character. Final fabric, foam, and size are confirmed on WhatsApp before production.',
   },
+
   {
     id: 'taupe-cushion-grid-panel-silai',
     name: 'Taupe Cushion Grid Panel Silai',
@@ -10141,6 +10291,7 @@ export const baseProducts: Product[] = [
     disclaimer:
       'Photos show style and stitch character. Final fabric, foam, and size are confirmed on WhatsApp before production.',
   },
+
   {
     id: 'denim-geometric-stitch-wardrobe-silai',
     name: 'Denim Geometric Stitch Wardrobe Silai',
@@ -10193,6 +10344,7 @@ export const baseProducts: Product[] = [
     disclaimer:
       'Photos show style and stitch character. Final fabric, foam, and size are confirmed on WhatsApp before production.',
   },
+
   {
     id: 'olive-wave-embroidery-wardrobe-silai',
     name: 'Olive Wave Embroidery Wardrobe Silai',
@@ -10245,6 +10397,7 @@ export const baseProducts: Product[] = [
     disclaimer:
       'Photos show style and stitch character. Final fabric, embroidery, and size are confirmed on WhatsApp before production.',
   },
+
   {
     id: 'taupe-gold-filigree-wardrobe-silai',
     name: 'Taupe Gold Filigree Wardrobe Silai',

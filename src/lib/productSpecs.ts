@@ -35,6 +35,9 @@ const FINISH_LABELS: Record<string, string> = {
   'iron-metallic': 'Iron metallic coating',
   metallic: 'Metallic finish',
   'pu-metallic-both': 'PU metallic · both sides',
+  'ceramic-front-pu-back': 'Front ceramic · back PU',
+  'veneer-pu-half': 'Half veneer · half PU',
+  'glossy-laminate-front-pu-back': 'Glossy lamination · back PU',
 }
 
 function finishLabel(product: Product) {

@@ -280,6 +280,7 @@ const FINISH_LOOKUP: Record<string, FinishOption> = {
 
 const THICKNESS_LOOKUP: Record<string, ThicknessOption> = {
   '6': { id: '6', label: '6 mm', mm: 6, multiplier: 1 },
+  '8': { id: '8', label: '8 mm', mm: 8, multiplier: 1 },
   '12': { id: '12', label: '12 mm', mm: 12, multiplier: 0.82 },
   '16': { id: '16', label: '16 mm', mm: 16, multiplier: 1 },
   '18': { id: '18', label: '18 mm', mm: 18, multiplier: 0.92 },

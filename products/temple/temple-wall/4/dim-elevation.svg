@@ -1,0 +1,43 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 980 1280" width="980" height="1280" preserveAspectRatio="xMidYMid meet" role="img">
+  <title>Fluted Flame Niche Mandir — exterior elevation shop drawing</title>
+  <rect width="980" height="1280" fill="#ffffff"/>
+  <rect x="20" y="20" width="940" height="1240" rx="8" fill="none" stroke="#c5d2cb" stroke-width="2"/>
+
+  <text x="44" y="54" font-family="Georgia, 'Times New Roman', serif" font-size="26" fill="#152019">Temple exterior elevation</text>
+  <text x="44" y="78" font-family="system-ui,sans-serif" font-size="15" fill="#5c6b62">Fluted Flame Niche Mandir</text>
+  <text x="44" y="98" font-family="system-ui,sans-serif" font-size="12" fill="#8a9690">SKU PBH-TMP-W04 · Front elevation · 2 arched glass shutter leafs</text>
+  <text x="44" y="116" font-family="system-ui,sans-serif" font-size="12" fill="#8a9690">Fluted flame backdrop · frosted glass doors · drawer base</text>
+
+  <rect x="730" y="36" width="206" height="90" rx="6" fill="#f7faf8" stroke="#c5d2cb"/>
+  <text x="742" y="58" font-size="11" font-weight="700" fill="#152019">OVERALL (reference)</text>
+  <text x="742" y="80" font-size="14" fill="#152019">W 4′ · H 8′ · D 1.75′</text>
+  <text x="742" y="100" font-size="11" fill="#5c6b62">1219 × 2438 mm</text>
+  <text x="742" y="116" font-size="11" fill="#5c6b62">Confirm on site measure</text>
+
+  <rect x="180" y="170" width="420" height="780" fill="#e8eeea" stroke="#3d5646" stroke-width="2.3"/>
+  <path d="M186 940 V240 Q285 178 384 240 V940 Z" fill="#f4f1ea" stroke="#3d5646" stroke-width="1.6"/><rect x="194" y="250" width="182" height="429.00000000000006" fill="#e8f0f4" stroke="#8aa0aa" stroke-width="1" opacity="0.85"/><circle cx="331.2" cy="544.4" r="3.5" fill="#152019"/><path d="M396 940 V240 Q495 178 594 240 V940 Z" fill="#f4f1ea" stroke="#3d5646" stroke-width="1.6"/><rect x="404" y="250" width="182" height="429.00000000000006" fill="#e8f0f4" stroke="#8aa0aa" stroke-width="1" opacity="0.85"/><circle cx="541.2" cy="544.4" r="3.5" fill="#152019"/>
+
+  
+  <line x1="180" y1="986" x2="600" y2="986" stroke="#9a7340" stroke-width="1.3"/>
+  <line x1="180" y1="981" x2="180" y2="991" stroke="#9a7340" stroke-width="1.3"/>
+  <line x1="600" y1="981" x2="600" y2="991" stroke="#9a7340" stroke-width="1.3"/>
+  <text x="390" y="978" text-anchor="middle" font-size="12" font-weight="700" fill="#152019">Overall width = 4 ft (1219 mm)</text>
+  
+  <line x1="626" y1="170" x2="626" y2="950" stroke="#9a7340" stroke-width="1.3"/>
+  <line x1="621" y1="170" x2="631" y2="170" stroke="#9a7340" stroke-width="1.3"/>
+  <line x1="621" y1="950" x2="631" y2="950" stroke="#9a7340" stroke-width="1.3"/>
+  <text x="640" y="560" font-size="12" font-weight="700" fill="#152019" transform="rotate(90 640 560)">Height = 8 ft (2438 mm)</text>
+
+  <g transform="translate(48, 230)">
+    <polygon points="0,40 40,18 40,170 0,192" fill="#f3f6f4" stroke="#3d5646" stroke-width="1.2"/>
+    <text x="48" y="100" font-size="12" fill="#5c6b62">Depth</text>
+    <text x="48" y="118" font-size="13" font-weight="700" fill="#152019">D = 1.75 ft</text>
+  </g>
+
+  <rect x="40" y="1160" width="900" height="80" rx="8" fill="#f7faf8" stroke="#c5d2cb"/>
+  <text x="56" y="1186" font-size="13" font-weight="700" fill="#152019">Notes</text>
+  <text x="56" y="1206" font-size="12" fill="#5c6b62">Drawing 1 — façade / shutters · Drawing 2 — full carcass (niche, altar, drawers, LED) from product photos</text>
+  <text x="56" y="1224" font-size="12" fill="#5c6b62">Carcass: BWP plywood · both-side 1 mm laminate · 2 mm edge banding · 18 mm panels</text>
+  <text x="56" y="1242" font-size="12" fill="#5c6b62">Sizes are reference — live niche size confirmed before production · 10-year manufacturing warranty</text>
+</svg>

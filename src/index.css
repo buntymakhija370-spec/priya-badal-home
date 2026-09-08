@@ -13,6 +13,7 @@
   --font-body: 'Outfit', system-ui, sans-serif;
 
   --ease-out: cubic-bezier(0.22, 1, 0.36, 1);
+  --price-notice-h: 4.1rem;
   --nav-h: 4.25rem;
   --tabbar-h: 4rem;
 
@@ -27,6 +28,7 @@
 
 @media (min-width: 960px) {
   :root {
+    --price-notice-h: 3.35rem;
     --nav-h: 4.75rem;
     --tabbar-h: 0rem;
   }
@@ -107,7 +109,7 @@ p {
 
 .page-pad {
   padding:
-    calc(var(--nav-h) + env(safe-area-inset-top, 0px) + 2rem)
+    calc(var(--price-notice-h) + var(--nav-h) + env(safe-area-inset-top, 0px) + 2rem)
     clamp(1.25rem, 4vw, 3rem)
     calc(4.5rem + var(--tabbar-h) + env(safe-area-inset-bottom, 0px));
 }

@@ -1,5 +1,5 @@
 .ai-sub.page-pad {
-  padding-top: calc(var(--nav-h) + env(safe-area-inset-top, 0px) + 0.75rem);
+  padding-top: calc(var(--price-notice-h) + var(--nav-h) + env(safe-area-inset-top, 0px) + 0.75rem);
   padding-bottom: 3rem;
   max-width: 52rem;
 }

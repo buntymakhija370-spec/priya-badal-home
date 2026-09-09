@@ -60,7 +60,7 @@ function friendlyChatError(
     )
   ) {
     return kind === 'visualise' || kind === 'carcass'
-      ? 'Visualise unavailable — AI is not connected on the server right now.\n\nOwner: open /ai-admin and paste the Gemini API key (it is saved so it survives restarts).\n\nThen unlock with your access code and tap Try again.'
+      ? 'Visualise unavailable — Gemini is not connected on the server right now.\n\nOwner: open /ai-admin and paste your Google Gemini API key (aistudio.google.com/apikey). On live Cloudflare Pages, also set GEMINI_API_KEY in project Environment variables.\n\nThen tap Try again.'
       : 'Live chat isn’t available right now. Catalog price answers still work — send again in a moment.'
   }
   if (t && t.length < 160 && !/[A-Z_]{3,}/.test(t) && !/[{}[\]|]/.test(t)) {
@@ -279,8 +279,8 @@ export function ChatPage() {
         push({
           id: crypto.randomUUID(),
           role: 'assistant',
-          text: 'Open carcass visualisation needs AI unlock first — enter your access code, or keep asking about price and materials anytime.',
-          suggestions: ['Price with carcass', 'What materials do you use?'],
+          text: 'Open carcass visualisation needs Google Gemini connected on the server first.\n\nOwner: open /ai-admin (PIN 2468) and paste your Gemini API key. On live Cloudflare Pages, set GEMINI_API_KEY in Environment variables.\n\nYou can still ask about price and materials anytime.',
+          suggestions: ['Price with carcass', 'What materials do you use?', 'Open AI admin'],
         })
       }
       return
@@ -409,8 +409,8 @@ export function ChatPage() {
         push({
           id: crypto.randomUUID(),
           role: 'assistant',
-          text: 'Room visualisation needs AI unlock first — enter your access code above, or ask me for price, carcass, and materials anytime (those stay free).',
-          suggestions: ['Price with carcass', 'What materials do you use?'],
+          text: 'Room visualisation needs Google Gemini connected on the server first.\n\nOwner: open /ai-admin (PIN 2468) and paste your Gemini API key from aistudio.google.com/apikey. On the live site, also add GEMINI_API_KEY in Cloudflare Pages → Environment variables.\n\nMeanwhile you can still ask price, carcass, and materials anytime.',
+          suggestions: ['Price with carcass', 'What materials do you use?', 'Open AI admin'],
         })
       }
       return

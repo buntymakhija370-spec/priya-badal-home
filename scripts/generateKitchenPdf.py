@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Generate Priyabadal Homes Silai Bunai photo catalogue PDF (website only, no phone)."""
+"""Generate Priyabadal Homes Kitchen photo catalogue PDF (website only, no phone)."""
 
 from __future__ import annotations
 
@@ -17,24 +17,23 @@ from reportlab.pdfbase.ttfonts import TTFont
 from reportlab.pdfgen import canvas
 
 ROOT = Path(__file__).resolve().parents[1]
-OUT = ROOT / "public" / "catalogs" / "priyabadal-silai-bunai.pdf"
-DATA = ROOT / "scripts" / "silaibunai-products.json"
+OUT = ROOT / "public" / "catalogs" / "priyabadal-kitchen.pdf"
+DATA = ROOT / "scripts" / "kitchen-products.json"
 PUBLIC = ROOT / "public"
 
-INK = HexColor("#171411")
-INK_SOFT = HexColor("#6a6158")
+INK = HexColor("#152019")
+INK_SOFT = HexColor("#3a4a40")
 HONEY = HexColor("#7d5c30")
 MOSS = HexColor("#4f6a58")
-LINE = HexColor("#ddd4c8")
-PAPER = HexColor("#faf7f2")
+LINE = HexColor("#c5d4cb")
+PAPER = HexColor("#f7faf8")
 BRAND = "Priyabadal Homes"
 WEBSITE = "www.priyabadalhomes.com"
 WEBSITE_URL = "https://www.priyabadalhomes.com"
+COLLECTION = "Kitchen"
 
 SECTION_LABELS = {
-    "sofa-upholstery": "Sofa Upholstery",
-    "cushions": "Cushions & Covers",
-    "custom-stitch": "Custom Stitch",
+    "modular": "Modular Kitchen",
 }
 
 
@@ -72,7 +71,7 @@ def register_fonts() -> tuple[str, str]:
 
 def load_image(rel: str, max_w: int = 1000, max_h: int = 1000) -> Image.Image | None:
     path = PUBLIC / rel.lstrip("/")
-    if not path.exists():
+    if not path.exists() or rel.lower().endswith(".svg"):
         return None
     img = Image.open(path).convert("RGB")
     img.thumbnail((max_w, max_h), Image.Resampling.LANCZOS)
@@ -154,7 +153,7 @@ def fit_draw(
     dw, dh = iw * scale, ih * scale
     dx = x + (box_w - dw) / 2
     dy = y + (box_h - dh) / 2
-    c.setFillColor(HexColor("#f0ebe3"))
+    c.setFillColor(HexColor("#eef2ef"))
     c.rect(x, y, box_w, box_h, fill=1, stroke=0)
     c.drawImage(image_reader(img, quality), dx, dy, width=dw, height=dh, mask="auto")
 
@@ -211,17 +210,21 @@ def photo_cells(count: int, left: float, bottom: float, width: float, height: fl
     return cells
 
 
-def price_line(product: dict) -> str:
-    price = format_inr(product["price"])
-    if product.get("pricingMode") == "per-sqft":
-        return f"{price} / sq ft"
-    return price
+def shutter_rate(product: dict) -> str:
+    return f"Shutter {format_inr(product['price'])} / sq ft"
+
+
+def carcass_rate(product: dict) -> str | None:
+    carcass = product.get("carcassPrice")
+    if carcass is None:
+        return None
+    return f"Carcass {format_inr(carcass)} / sq ft"
 
 
 def thickness_line(product: dict) -> str:
-    mm = product.get("thicknessMm")
-    if mm:
-        return f"{int(mm)} mm"
+    mm_val = product.get("thicknessMm")
+    if mm_val:
+        return f"{int(mm_val)} mm HDHMR"
     return ""
 
 
@@ -232,7 +235,7 @@ def footer(c: canvas.Canvas, page: int, total: int, body: str) -> None:
     c.line(14 * mm, 12 * mm, w - 14 * mm, 12 * mm)
     c.setFillColor(INK_SOFT)
     c.setFont(body, 8)
-    c.drawString(14 * mm, 7 * mm, f"{BRAND}  ·  Silai Bunai  ·  {WEBSITE}")
+    c.drawString(14 * mm, 7 * mm, f"{BRAND}  ·  {COLLECTION}  ·  {WEBSITE}")
     c.drawRightString(w - 14 * mm, 7 * mm, f"{page} / {total}")
 
 
@@ -250,7 +253,7 @@ def cover(c: canvas.Canvas, products: list[dict], body: str, bold: str, page: in
     c.drawString(14 * mm, h - 28 * mm, BRAND)
     c.setFont(bold, 16)
     c.setFillColor(INK_SOFT)
-    c.drawString(14 * mm, h - 36 * mm, "Silai Bunai")
+    c.drawString(14 * mm, h - 36 * mm, COLLECTION)
 
     mosaic_top = header_bottom - 4 * mm
     mosaic_bottom = 28 * mm
@@ -287,7 +290,7 @@ def cover(c: canvas.Canvas, products: list[dict], body: str, bold: str, page: in
     c.drawRightString(
         w - 14 * mm,
         20 * mm,
-        f"{len(products)} looks  ·  photos & names only  ·  prices on website",
+        f"{len(products)} kitchens  ·  photos & names only  ·  prices on website",
     )
     c.drawRightString(w - 14 * mm, 14 * mm, f"{page} / {total}")
 
@@ -303,20 +306,16 @@ def notes_page(c: canvas.Canvas, body: str, bold: str, page: int, total: int) ->
 
     notes = [
         (
-            "Custom silai bunai",
-            "Upholstery, cushion stitch, wardrobe shutters, and feature walls — made to your size and fabric choice.",
+            "Modular kitchens",
+            "Made-to-measure shutter and carcass units — loft, base, tall, and island runs as shown in each photograph.",
         ),
         (
             "Enquire on the website",
-            f"Visit {WEBSITE} — open Silai Bunai, choose the look name or SKU, and send your enquiry from the product page.",
+            f"Visit {WEBSITE} — open Kitchen, choose the design name or SKU, and send your enquiry from the product page.",
         ),
         (
-            "Made to measure",
-            "Final fabric, foam thickness, and size are confirmed after measure on the website.",
-        ),
-        (
-            "Thickness",
-            "Foam / padding thickness is listed per design (3 mm to 25 mm). Heavier leather shutters use 25 mm.",
+            "What's included",
+            "25 mm HDHMR shutters with catalogued finish. Carcass in BWP plywood · laminate both sides · 2 mm edge banding.",
         ),
     ]
 
@@ -357,7 +356,7 @@ def product_page(
 
     margin = 12 * mm
     header_top = h - 12 * mm
-    section = SECTION_LABELS.get(product.get("subcategoryId", ""), "Silai Bunai")
+    section = SECTION_LABELS.get(product.get("subcategoryId", ""), COLLECTION)
 
     c.setFillColor(INK_SOFT)
     c.setFont(body, 8)
@@ -387,6 +386,7 @@ def product_page(
         sku_y = meta_y - 5 * mm
     else:
         sku_y = meta_y
+
     c.setFillColor(INK_SOFT)
     c.setFont(body, 8.5)
     sku = product.get("sku") or ""
@@ -433,14 +433,14 @@ def closing(c: canvas.Canvas, body: str, bold: str, page: int, total: int, count
     c.drawCentredString(
         w / 2,
         h / 2 - 36,
-        "Browse Silai Bunai · Share look name or SKU · Enquire on the website",
+        "Browse Kitchen · Share design name or SKU · Enquire on the website",
     )
     c.setFont(bold, 12)
     c.setFillColor(HexColor("#e8f0ea"))
     c.drawCentredString(w / 2, 40 * mm, BRAND)
     c.setFont(body, 9)
     c.setFillColor(HexColor("#9db4b8"))
-    c.drawCentredString(w / 2, 32 * mm, f"Silai Bunai · {count} looks · Custom stitch & soft finishes")
+    c.drawCentredString(w / 2, 32 * mm, f"{COLLECTION} · {count} designs · Modular made to measure")
 
     footer(c, page, total, body)
 
@@ -449,7 +449,8 @@ def main() -> None:
     products = json.loads(DATA.read_text())
     for p in products:
         if not p.get("images"):
-            p["images"] = [p["image"]] if p.get("image") else []
+            img = p.get("image")
+            p["images"] = [img] if img and not str(img).lower().endswith(".svg") else []
 
     body, bold = register_fonts()
     OUT.parent.mkdir(parents=True, exist_ok=True)
@@ -457,9 +458,9 @@ def main() -> None:
     total = 2 + len(products) + 1
 
     c = canvas.Canvas(str(OUT), pagesize=A4)
-    c.setTitle("Priyabadal Homes — Silai Bunai")
-    c.setAuthor("Priyabadal Homes")
-    c.setSubject("Silai Bunai catalogue")
+    c.setTitle(f"{BRAND} — {COLLECTION}")
+    c.setAuthor(BRAND)
+    c.setSubject(f"{COLLECTION} catalogue")
 
     cover(c, products, body, bold, 1, total)
     c.showPage()

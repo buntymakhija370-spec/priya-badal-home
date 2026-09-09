@@ -104,8 +104,10 @@ export function getAdminPin() {
 
 /** When true (default), Fal endpoints require a subscriber token */
 export function requireSubscription() {
-  const v = (process.env.AI_REQUIRE_SUBSCRIPTION || 'true').toLowerCase()
-  return v !== 'false' && v !== '0' && v !== 'off'
+  // Default OFF — use Gemini freely once GEMINI_API_KEY is set.
+  // Set AI_REQUIRE_SUBSCRIPTION=true only if you want paid unlock codes.
+  const v = (process.env.AI_REQUIRE_SUBSCRIPTION || 'false').toLowerCase()
+  return v === 'true' || v === '1' || v === 'on'
 }
 
 export function getPlan(planId: string): AiPlan {

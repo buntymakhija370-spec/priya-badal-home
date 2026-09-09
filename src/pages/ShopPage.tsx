@@ -96,13 +96,36 @@ export function ShopPage() {
       <header className="shop__header">
         <p className="eyebrow">Shop</p>
         <h1>{category ? category.name : 'All products'}</h1>
-        {category?.caption && category.id === 'live-edge-furniture' ? (
+        {category?.caption &&
+        (category.id === 'live-edge-furniture' ||
+          category.id === 'leather-shutters') ? (
           <p className="shop__caption">{category.caption}</p>
+        ) : null}
+        {category?.id === 'leather-shutters' ? (
+          <p className="shop__lede">{category.description}</p>
         ) : null}
         <p className="shop__back">
           <Link to="/shop">← All collections</Link>
         </p>
       </header>
+
+      {category?.id === 'leather-shutters' && category.conceptNote ? (
+        <aside className="shop__concept shop__concept--leena" aria-label="Leena leather shutters">
+          <p className="shop__concept-kicker">About Leena leather shutters</p>
+          <p>{category.conceptNote}</p>
+          <ul>
+            <li>Leather-look padded shutters for wardrobes &amp; closets</li>
+            <li>Looks: Linear, Urban, Modu, Nawabee, Zardosi, Wave &amp; Aura</li>
+            <li>Priced per sq ft of shutter face · 25 mm calibrated plywood</li>
+            <li>
+              Wave &amp; Aura: add carcass at ₹1,800 / sq ft (special shutter-buyer
+              rate — not ₹2,500)
+            </li>
+            <li>Confirm leather tone, stitch, and handles on WhatsApp</li>
+            <li>Made to your opening after on-site measurement</li>
+          </ul>
+        </aside>
+      ) : null}
 
       {category?.id === 'live-edge-furniture' && category.conceptNote ? (
         <aside className="shop__concept" aria-label="Live Edge Furniture information">
@@ -114,6 +137,21 @@ export function ShopPage() {
             <li>Ask size and confirm the exact piece on WhatsApp</li>
             <li>Seaters, consoles, centre tables, ball stools &amp; basins</li>
           </ul>
+        </aside>
+      ) : null}
+
+      {category?.id === 'silaibunai' ? (
+        <aside className="shop__concept shop__concept--pdf" aria-label="Silai Bunai catalogue">
+          <p className="shop__concept-kicker">WhatsApp catalogue</p>
+          <p>
+            Download the full Silai Bunai lookbook — photos and names only
+            (no prices). Share on WhatsApp; enquire on the website.
+          </p>
+          <p className="shop__pdf-link">
+            <a href="/catalogs/priyabadal-silai-bunai.pdf?v=3" download>
+              Download Silai Bunai PDF
+            </a>
+          </p>
         </aside>
       ) : null}
 
@@ -133,7 +171,7 @@ export function ShopPage() {
             value={sort}
             onChange={(e) => setSort(e.target.value as SortId)}
           >
-            <option value="featured">Featured</option>
+            <option value="featured">Newest first</option>
             <option value="price-asc">Price: Low to High</option>
             <option value="price-desc">Price: High to Low</option>
             <option value="name">Name A–Z</option>

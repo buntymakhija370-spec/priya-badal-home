@@ -5718,48 +5718,6 @@ export const baseProducts: Product[] = [
   },
 
   {
-    id: 'brushed-metal-scallop-mandir',
-    name: 'Brushed Metal Scallop Mandir',
-    categoryId: 'temple',
-    subcategoryId: 'floor',
-    price: 82999,
-    currency: 'INR',
-    pricingMode: 'unit',
-    defaultFinishId: 'pu',
-    finishOptionIds: ['pu'],
-    thicknessOptionIds: ['25'],
-    defaultThicknessId: '25',
-    brand: 'Priyabadal Homes',
-    collection: 'Temple',
-    sku: 'PBH-TMP-05',
-    description:
-      'Contemporary brushed-metal mandir with scalloped arched jali doors, flame-leaf lattice, and flush drawer storage below.',
-    style: ['modern', 'minimal', 'luxe'],
-    rooms: ['puja', 'temple'],
-    image: '/products/temple/temple-05-01.jpg',
-    images: [
-      '/products/temple/temple-05-01.jpg',
-      '/products/temple/temple-05-02.jpg',
-      '/products/temple/temple-05-dim-elevation.svg',
-      '/products/temple/temple-05-dim-carcass.svg',
-    ],
-    imageCaptions: [
-      'Brushed metal scallop mandir façade.',
-      'Carcass zones — niche, tray, drawer base.',
-      'Shop drawing 1 — exterior elevation (W × H × D reference).',
-      'Shop drawing 2 — detailed carcass (niche, altar, drawers, LED).',
-    ],
-    highlights: [
-      'Brushed metal finish',
-      'Scalloped arched silhouette',
-      'Decorative jali lattice',
-      'Handle-less drawer base',
-      'Customise size & finish',
-      'WhatsApp quote available',
-    ],
-  },
-
-  {
     id: 'hex-jali-elephant-mandir',
     name: 'Hex Jali Elephant Mandir',
     categoryId: 'temple',

@@ -5722,7 +5722,7 @@ export const baseProducts: Product[] = [
     name: 'Hex Jali Elephant Mandir',
     categoryId: 'temple',
     subcategoryId: 'floor',
-    price: 3000,
+    price: 3500,
     carcassPrice: 2000,
     currency: 'INR',
     pricingMode: 'per-sqft',
@@ -5753,11 +5753,11 @@ export const baseProducts: Product[] = [
       'Shop drawing 2 — detailed carcass (niche, altar, drawers, LED).',
     ],
     highlights: [
-      'Shutter ₹3,000 / sq ft · HDHMR',
-      'Carcass ₹3,000 / sq ft — BWP plywood · precise fitting',
+      'Shutter ₹3,500 / sq ft · HDHMR',
+      'Carcass ₹3,500 / sq ft — BWP plywood · precise fitting',
       'Ceramic coating · both sides · 25 mm',
       'Handle-less shutters — no handles',
-      'CNC-Carve HD Board 25 mm · ₹500 / sq ft',
+      'CNC-Carve HD Board 25 mm · ₹3,500 / sq ft',
     ],
     details: [
       { label: 'Brand', value: 'Priyabadal Homes' },
@@ -5795,7 +5795,7 @@ export const baseProducts: Product[] = [
       { label: 'Care', value: 'Wipe with a soft dry cloth; avoid harsh cleaners' },
     ],
     orderNotes: [
-      '25 mm · Both-side ceramic coating · ₹3,000 / sq ft'
+      '25 mm · Both-side ceramic coating · ₹3,500 / sq ft'
     ],
     features: [
       'Handle-less shutters — no handles, no future handle maintenance',
@@ -5813,7 +5813,7 @@ export const baseProducts: Product[] = [
     name: 'Arch Lattice Marble Mandir',
     categoryId: 'temple',
     subcategoryId: 'floor',
-    price: 2500,
+    price: 3000,
     carcassPrice: 2000,
     currency: 'INR',
     pricingMode: 'per-sqft',
@@ -5846,11 +5846,11 @@ export const baseProducts: Product[] = [
       'Shop drawing 2 — detailed carcass (niche, altar, LED).',
     ],
     highlights: [
-      'Shutter ₹2,500 / sq ft · HDHMR',
-      'Carcass ₹2,000 / sq ft — BWP plywood · precise fitting',
+      'Shutter ₹3,000 / sq ft · HDHMR',
+      'Carcass ₹3,000 / sq ft — BWP plywood · precise fitting',
       'Ceramic coating · both sides · 25 mm',
       'Handle-less shutters — no handles',
-      'CNC-Carve HD Board 25 mm · ₹500 / sq ft',
+      'CNC-Carve HD Board 25 mm · ₹3,000 / sq ft',
     ],
     details: [
       { label: 'Brand', value: 'Priyabadal Homes' },
@@ -5891,7 +5891,7 @@ export const baseProducts: Product[] = [
       { label: 'Care', value: 'Wipe with a soft dry cloth; avoid harsh cleaners' },
     ],
     orderNotes: [
-      'Shutter: 25 mm HDHMR · ceramic coating both sides · handle-less · ₹2,500 / sq ft',
+      'Shutter: 25 mm HDHMR · ceramic coating both sides · handle-less · ₹3,000 / sq ft',
       'Carcass: fully BWP plywood with precise fitting technology · ₹2,000 / sq ft',
       'CNC-Carve HD Board: 25 mm · ₹500 / sq ft · no paint / no finishing',
     ],
@@ -5911,7 +5911,7 @@ export const baseProducts: Product[] = [
     name: 'Floral Bell Jali Mandir',
     categoryId: 'temple',
     subcategoryId: 'carved',
-    price: 4500,
+    price: 4000,
     currency: 'INR',
     pricingMode: 'per-sqft',
     defaultFinishId: 'metallic',
@@ -5933,11 +5933,11 @@ export const baseProducts: Product[] = [
       '/products/temple/temple-08-02.jpg',
     ],
     highlights: [
-      'Doors ₹4,500 / sq ft · HDHMR + plywood',
+      'Doors ₹4,000 / sq ft · HDHMR + plywood',
       'Metallic finish · 25 mm',
       'Doors only — no carcass',
       'Sculpted floral relief · hanging brass bells',
-      'CNC-Carve HD Board 25 mm · ₹1,600 / sq ft',
+      'CNC-Carve HD Board 25 mm · ₹4,000 / sq ft',
     ],
     details: [
       { label: 'Brand', value: 'Priyabadal Homes' },
@@ -5949,7 +5949,7 @@ export const baseProducts: Product[] = [
       { label: 'Warranty', value: "10 Years' warranty on manufacturing defects" },
     ],
     specifications: [
-      { label: 'Door / shutter rate', value: '₹4,500 / sq ft' },
+      { label: 'Door / shutter rate', value: '₹4,000 / sq ft' },
       {
         label: 'Shutter material',
         value: 'HDHMR + plywood',
@@ -5969,7 +5969,7 @@ export const baseProducts: Product[] = [
     ],
     orderNotes: [
       'Doors only — no carcass',
-      'Shutter: 25 mm HDHMR + plywood · metallic finish · ₹4,500 / sq ft',
+      'Shutter: 25 mm HDHMR + plywood · metallic finish · ₹4,000 / sq ft',
       'CNC-Carve HD Board: 25 mm · ₹1,600 / sq ft · no paint / no finishing',
     ],
     features: [
@@ -5987,7 +5987,7 @@ export const baseProducts: Product[] = [
     name: 'Ginkgo Grid Arched Mandir',
     categoryId: 'temple',
     subcategoryId: 'wall-mounted',
-    price: 1200,
+    price: 2000,
     carcassPrice: 2500,
     currency: 'INR',
     pricingMode: 'per-sqft',
@@ -6017,8 +6017,8 @@ export const baseProducts: Product[] = [
       'Shop drawing 2 — detailed carcass (niche, altar, storage, LED).',
     ],
     highlights: [
-      'Shutter ₹1,200 / sq ft · laminate + plywood',
-      'Carcass ₹2,500 / sq ft — BWP plywood · precise fitting',
+      'Shutter ₹2,000 / sq ft · laminate + plywood',
+      'Carcass ₹2,000 / sq ft — BWP plywood · precise fitting',
       'Laminate + solid wood · 25 mm',
       'Handle-less shutters — no handles',
       'Arched niche · gold ginkgo accents',
@@ -6033,7 +6033,7 @@ export const baseProducts: Product[] = [
       { label: 'Warranty', value: "10 Years' warranty on manufacturing defects" },
     ],
     specifications: [
-      { label: 'Shutter rate', value: '₹1,200 / sq ft' },
+      { label: 'Shutter rate', value: '₹2,000 / sq ft' },
       { label: 'Shutter material', value: 'Laminate and plywood' },
       {
         label: 'Carcass rate',
@@ -6057,7 +6057,7 @@ export const baseProducts: Product[] = [
     ],
     orderNotes: [
       'Shutter: laminate and plywood · laminate + solid wood finish · 25 mm · handle-less (no handles)',
-      'Carcass: fully BWP plywood with precise fitting technology · ₹2,500 / sq ft',
+      'Carcass: fully BWP plywood with precise fitting technology · ₹2,000 / sq ft',
       'CNC-Carve HD Board not available on this product',
     ],
     features: [
@@ -6076,7 +6076,7 @@ export const baseProducts: Product[] = [
     name: 'Pixel Jali Bifold Mandir',
     categoryId: 'temple',
     subcategoryId: 'floor',
-    price: 2600,
+    price: 1500,
     carcassPrice: 2000,
     currency: 'INR',
     pricingMode: 'per-sqft',
@@ -6107,11 +6107,11 @@ export const baseProducts: Product[] = [
       'Shop drawing 2 — detailed carcass (niche, altar, base, LED).',
     ],
     highlights: [
-      'Shutter ₹2,600 / sq ft · HDHMR',
-      'Carcass ₹2,600 / sq ft — BWP plywood · precise fitting',
+      'Shutter ₹1,500 / sq ft · HDHMR',
+      'Carcass ₹1,500 / sq ft — BWP plywood · precise fitting',
       'Ceramic finish · 25 mm',
       'Handle-less shutters — no handles',
-      'CNC-Carve HD Board 25 mm · ₹1,000 / sq ft',
+      'CNC-Carve HD Board 25 mm · ₹1,500 / sq ft',
     ],
     details: [
       { label: 'Brand', value: 'Priyabadal Homes' },
@@ -6149,7 +6149,7 @@ export const baseProducts: Product[] = [
       { label: 'Care', value: 'Wipe with a soft dry cloth; avoid harsh cleaners' },
     ],
     orderNotes: [
-      '25 mm · Both-side PU · ₹2,600 / sq ft',
+      '25 mm · Both-side PU · ₹1,500 / sq ft',
       'Handle-less'
     ],
     features: [
@@ -6354,7 +6354,7 @@ export const baseProducts: Product[] = [
     name: 'Sunburst Jali Temple Doors',
     categoryId: 'temple',
     subcategoryId: 'carved',
-    price: 2500,
+    price: 3000,
     carcassPrice: 2000,
     currency: 'INR',
     pricingMode: 'per-sqft',
@@ -6385,11 +6385,11 @@ export const baseProducts: Product[] = [
       'Shop drawing 2 — detailed carcass (niche, altar, LED).',
     ],
     highlights: [
-      'Shutter ₹2,500 / sq ft · HDHMR',
-      'Carcass ₹2,000 / sq ft — BWP plywood · precise fitting',
+      'Shutter ₹3,000 / sq ft · HDHMR',
+      'Carcass ₹3,000 / sq ft — BWP plywood · precise fitting',
       'Ceramic coating · both sides · 25 mm',
       'Sunburst jali door panels',
-      'CNC-Carve HD Board 25 mm · ₹1,000 / sq ft',
+      'CNC-Carve HD Board 25 mm · ₹3,000 / sq ft',
     ],
     details: [
       { label: 'Brand', value: 'Priyabadal Homes' },
@@ -6423,7 +6423,7 @@ export const baseProducts: Product[] = [
       { label: 'Care', value: 'Wipe with a soft dry cloth; avoid harsh cleaners' },
     ],
     orderNotes: [
-      'Shutter: 25 mm HDHMR · ceramic coating both sides · ₹2,500 / sq ft',
+      'Shutter: 25 mm HDHMR · ceramic coating both sides · ₹3,000 / sq ft',
       'Carcass: fully BWP plywood with precise fitting technology · ₹2,000 / sq ft',
       'CNC-Carve HD Board: 25 mm · ₹1,000 / sq ft · no paint / no finishing',
     ],
@@ -6442,7 +6442,7 @@ export const baseProducts: Product[] = [
     name: 'Gold Lotus Arch Temple Wall',
     categoryId: 'temple',
     subcategoryId: 'temple-wall',
-    price: 2500,
+    price: 3000,
     carcassPrice: 2200,
     currency: 'INR',
     pricingMode: 'per-sqft',
@@ -6474,8 +6474,8 @@ export const baseProducts: Product[] = [
       'Shop drawing 2 — detailed carcass (niche, altar, drawers, LED).',
     ],
     highlights: [
-      'Façade ₹2,500 / sq ft · HDHMR',
-      'Carcass ₹2,200 / sq ft — BWP plywood · precise fitting',
+      'Façade ₹3,000 / sq ft · HDHMR',
+      'Carcass ₹3,000 / sq ft — BWP plywood · precise fitting',
       'Ceramic coating · both sides · 25 mm',
       'Gold lotus wall relief',
       'Marble altar + drawer base',
@@ -6491,7 +6491,7 @@ export const baseProducts: Product[] = [
     ],
     specifications: [
       { label: 'Type', value: 'Temple wall / arched niche' },
-      { label: 'Façade rate', value: '₹2,500 / sq ft' },
+      { label: 'Façade rate', value: '₹3,000 / sq ft' },
       { label: 'Material', value: 'HDHMR' },
       {
         label: 'Carcass rate',
@@ -6511,7 +6511,7 @@ export const baseProducts: Product[] = [
       { label: 'Care', value: 'Wipe with a soft dry cloth; avoid harsh cleaners' },
     ],
     orderNotes: [
-      'Façade: 25 mm HDHMR · ceramic coating both sides · ₹2,500 / sq ft',
+      'Façade: 25 mm HDHMR · ceramic coating both sides · ₹3,000 / sq ft',
       'Carcass: fully BWP plywood with precise fitting technology · ₹2,200 / sq ft',
     ],
     features: [

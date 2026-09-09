@@ -14,6 +14,10 @@ type Props = {
   compact?: boolean
 }
 
+function isServerReady(status: AiAccessStatus) {
+  return Boolean(status.falConfigured || status.geminiConfigured || status.configured)
+}
+
 export function AiAccessBanner({ onStatus, compact }: Props) {
   const [status, setStatus] = useState<AiAccessStatus | null>(null)
   const [code, setCode] = useState('')
@@ -40,12 +44,12 @@ export function AiAccessBanner({ onStatus, compact }: Props) {
       setStatus(next)
       onStatus?.(next)
       setCode('')
-      if (next.falConfigured && next.subscribed) {
-        setMsg('AI unlocked on this device.')
-      } else if (next.subscribed && !next.falConfigured) {
-        setMsg('Code accepted. Visualisation will work once server AI is connected.')
+      if (isServerReady(next) && next.subscribed) {
+        setMsg('Unlocked on this device. Visualise uses Google Gemini.')
+      } else if (next.subscribed && !isServerReady(next)) {
+        setMsg('Code accepted. Visualisation works once Gemini is connected on the server.')
       } else {
-        setMsg('AI unlocked on this device.')
+        setMsg('Unlocked on this device.')
       }
     } catch (err) {
       setMsg(err instanceof Error ? err.message : 'Could not unlock')
@@ -56,31 +60,64 @@ export function AiAccessBanner({ onStatus, compact }: Props) {
 
   function onClear() {
     clearAiAccess()
-    setMsg('Signed out of AI on this device.')
+    setMsg('Signed out on this device.')
     void refresh()
   }
 
   if (!status) {
     return (
       <aside className={`ai-access ${compact ? 'ai-access--compact' : ''}`}>
-        <p className="ai-access__kicker">Checking AI…</p>
+        <p className="ai-access__kicker">Checking Gemini…</p>
       </aside>
     )
   }
 
-  const ready =
-    status.falConfigured &&
-    (!status.requireSubscription || status.subscribed)
+  const serverReady = isServerReady(status)
+  const ready = serverReady && (!status.requireSubscription || status.subscribed)
+
+  // Gemini open mode — no paid unlock codes
+  if (!status.requireSubscription) {
+    if (ready) {
+      return (
+        <aside className={`ai-access ${compact ? 'ai-access--compact' : ''}`}>
+          <p className="ai-access__kicker">Google Gemini · connected</p>
+          <p>Chat and Visualise use Gemini. No access code needed.</p>
+          {msg ? <p className="ai-access__msg ai-access__msg--ok">{msg}</p> : null}
+        </aside>
+      )
+    }
+    return (
+      <aside className={`ai-access ai-access--locked ${compact ? 'ai-access--compact' : ''}`}>
+        <p className="ai-access__kicker">Connect Google Gemini</p>
+        <p>
+          Visualise is not opening because the live site still needs a Gemini API key. We do not use
+          Fal / paid “AI unlock” for this — only Google Gemini.
+        </p>
+        <p>
+          Owner: get a key at{' '}
+          <a href="https://aistudio.google.com/apikey" target="_blank" rel="noreferrer">
+            aistudio.google.com/apikey
+          </a>
+          , then open Gemini admin (PIN <code>2468</code>) or set{' '}
+          <code>GEMINI_API_KEY</code> in Cloudflare Pages → Environment variables and redeploy.
+        </p>
+        <Link className="ai-access__owner-btn" to="/ai-admin">
+          Open Gemini admin
+        </Link>
+        {msg ? <p className="ai-access__msg">{msg}</p> : null}
+      </aside>
+    )
+  }
 
   if (ready && status.subscriber) {
     return (
       <aside className={`ai-access ${compact ? 'ai-access--compact' : ''}`}>
-        <p className="ai-access__kicker">Paid AI active · {status.subscriber.planName}</p>
+        <p className="ai-access__kicker">Gemini active · {status.subscriber.planName}</p>
         <p className="ai-access__quota">{formatAiQuota(status.subscriber)}</p>
         <div className="ai-access__row">
           <Link to="/ai">Manage subscription</Link>
           <button type="button" className="ai-access__linkbtn" onClick={onClear}>
-            Sign out AI
+            Sign out
           </button>
         </div>
         {msg ? <p className="ai-access__msg ai-access__msg--ok">{msg}</p> : null}
@@ -90,10 +127,10 @@ export function AiAccessBanner({ onStatus, compact }: Props) {
 
   return (
     <aside className={`ai-access ai-access--locked ${compact ? 'ai-access--compact' : ''}`}>
-      <p className="ai-access__kicker">AI unlock · subscribers only</p>
+      <p className="ai-access__kicker">Gemini unlock · subscribers only</p>
       <p>
-        Enter your access code for room visualisation and smarter chat. Price, carcass, and
-        material answers still work without unlock.
+        Enter your access code for room visualisation and smarter chat. Price, carcass, and material
+        answers still work without unlock.
       </p>
       <form className="ai-access__form" onSubmit={onUnlock}>
         <label>
@@ -107,29 +144,20 @@ export function AiAccessBanner({ onStatus, compact }: Props) {
           />
         </label>
         <button type="submit" className="btn btn--dark" disabled={busy}>
-          {busy ? 'Unlocking…' : 'Unlock AI'}
+          {busy ? 'Unlocking…' : 'Unlock'}
         </button>
       </form>
       <div className="ai-access__row">
         <Link to="/ai">See plans &amp; subscribe on WhatsApp</Link>
       </div>
       {msg ? <p className="ai-access__msg">{msg}</p> : null}
-      {!status.falConfigured ? (
+      {!serverReady ? (
         <div className="ai-access__owner">
           <p className="ai-access__msg">
-            Your access code is saved ✓ — but Server AI is offline until the owner
-            connects a Gemini key.
-          </p>
-          <p>
-            Owner: open AI admin → enter admin PIN → paste Gemini API key → Save.
-            Get a key at{' '}
-            <a href="https://aistudio.google.com/apikey" target="_blank" rel="noreferrer">
-              aistudio.google.com/apikey
-            </a>
-            . After save, close this panel and tap Visualise again.
+            Server Gemini is offline until the owner connects a Gemini key.
           </p>
           <Link className="ai-access__owner-btn" to="/ai-admin">
-            Open AI admin · connect Gemini
+            Open Gemini admin
           </Link>
         </div>
       ) : null}

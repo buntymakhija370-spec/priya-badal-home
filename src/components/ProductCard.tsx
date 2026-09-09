@@ -84,7 +84,9 @@ export function ProductCard({ product }: Props) {
           ) : null}{' '}
           {formatPrice(product.price)}
           {product.pricingMode === 'per-sqft' ? (
-            <span className="product-card__price-unit"> /sq ft shutter</span>
+            <span className="product-card__price-unit">
+              {product.categoryId === 'silaibunai' ? ' /sq ft' : ' /sq ft shutter'}
+            </span>
           ) : null}
           {minQty > 1 ? (
             <span className="product-card__price-unit"> /pack</span>

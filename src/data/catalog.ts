@@ -2002,7 +2002,7 @@ export const baseProducts: Product[] = [
     finishOptionIds: ['laminate-pu-border'],
     thicknessOptionIds: ['25'],
     handlePairDefault: true,
-    handlePairPrice: 500,
+    handlePairPrice: 3500,
     brand: 'Priyabadal Homes',
     collection: 'Wardrobe Classic',
     sku: 'PBH-WR-29',
@@ -2032,7 +2032,7 @@ export const baseProducts: Product[] = [
       'Shop drawing 2 — open carcass bay elevation.',
     ],
     highlights: [
-      'Handle ₹500 (single piece)',
+      'Handle ₹3,500 (single piece)',
       'Closed shutter front first',
       '25 mm BWP plywood',
       'Laminated · PU border · back laminated',
@@ -2059,7 +2059,7 @@ export const baseProducts: Product[] = [
       { label: 'Board Thickness', value: '25 mm' },
       {
         label: 'Pricing',
-        value: 'Shutter ₹1,600 / sq ft · handle ₹500 (single piece) · carcass optional (confirm on WhatsApp)',
+        value: 'Shutter ₹1,600 / sq ft · handle ₹3,500 (single piece) · carcass optional (confirm on WhatsApp)',
       },
       { label: 'Category', value: 'Wardrobe' },
       { label: 'Subcategory', value: 'Hinged' },
@@ -2075,7 +2075,7 @@ export const baseProducts: Product[] = [
     ],
     orderNotes: [
       'Shutter: 25 mm HDHMR + BWP plywood · Laminated with PU · back laminated · ₹1,600 / sq ft',
-      'Handle: ₹500 (single piece)'
+      'Handle: ₹3,500 (single piece)'
     ],
     disclaimer:
       'Accessories and room settings in images are for representation only. Final colour, finish, size, and carcass scope are confirmed on WhatsApp before production.',
@@ -6873,7 +6873,7 @@ export const baseProducts: Product[] = [
     name: 'Oak & Periwinkle Capsule Handle',
     categoryId: 'handles',
     subcategoryId: 'sculpted',
-    price: 500,
+    price: 3500,
     currency: 'INR',
     pricingMode: 'unit',
     brand: 'Priyabadal Homes',
@@ -6888,7 +6888,7 @@ export const baseProducts: Product[] = [
       '/products/wardrobe/wardrobe-29/01.jpg',
     ],
     highlights: [
-      'Single piece ₹500',
+      'Single piece ₹3,500',
       'Matches Oak & Periwinkle Capsule Wardrobe',
       'WhatsApp to order',
     ],
@@ -6901,7 +6901,7 @@ export const baseProducts: Product[] = [
       { label: 'Warranty', value: "10 Years' warranty on manufacturing defects" },
     ],
     specifications: [
-      { label: 'Price', value: '₹500 per piece' },
+      { label: 'Price', value: '₹3,500 per piece' },
       { label: 'Pack', value: 'Single piece' },
       {
         label: 'Pairs with',
@@ -7065,59 +7065,6 @@ export const baseProducts: Product[] = [
       {
         label: 'Pairs with',
         value: 'White Marble Branch Wardrobe — also sold on the wardrobe quote',
-      },
-      { label: 'Category', value: 'Handles' },
-      { label: 'Subcategory', value: 'Sculpted' },
-      { label: 'Country of Origin', value: 'India' },
-      { label: 'Care', value: 'Wipe with a soft dry cloth; avoid harsh cleaners' },
-    ],
-    features: [
-      'Sold as a single piece',
-      'Designed for matching wardrobe shutters',
-      'Confirm finish and fitting on WhatsApp',
-    ],
-    disclaimer:
-      'Room settings in images are for representation only. Confirm finish and fitting on WhatsApp before order.',
-  },
-
-  {
-    id: 'blush-tribal-motif-handle',
-    name: 'Blush Tribal Motif Handle',
-    categoryId: 'handles',
-    subcategoryId: 'sculpted',
-    price: 4500,
-    currency: 'INR',
-    pricingMode: 'unit',
-    brand: 'Priyabadal Homes',
-    collection: 'Handles',
-    sku: 'PBH-HDL-07',
-    description:
-      'Handle for Blush Tribal Motif Wardrobe shutters — sold as a single piece. Confirm finish and fitting on WhatsApp.',
-    style: ['sculpted', 'modern', 'wardrobe'],
-    rooms: ['bedroom', 'wardrobe'],
-    image: '/products/wardrobe/wardrobe-13/01.jpg',
-    images: [
-      '/products/wardrobe/wardrobe-13/01.jpg',
-    ],
-    highlights: [
-      'Single piece ₹4,500',
-      'Matches Blush Tribal Motif Wardrobe',
-      'WhatsApp to order',
-    ],
-    details: [
-      { label: 'Brand', value: 'Priyabadal Homes' },
-      { label: 'Collection', value: 'Handles' },
-      { label: 'Sku', value: 'PBH-HDL-07' },
-      { label: 'Pack', value: '1 piece' },
-      { label: 'Assembly', value: 'Fitted on-site with shutter / door' },
-      { label: 'Warranty', value: "10 Years' warranty on manufacturing defects" },
-    ],
-    specifications: [
-      { label: 'Price', value: '₹4,500 per piece' },
-      { label: 'Pack', value: 'Single piece' },
-      {
-        label: 'Pairs with',
-        value: 'Blush Tribal Motif Wardrobe — also sold on the wardrobe quote',
       },
       { label: 'Category', value: 'Handles' },
       { label: 'Subcategory', value: 'Sculpted' },

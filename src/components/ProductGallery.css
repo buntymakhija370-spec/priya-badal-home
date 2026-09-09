@@ -5,6 +5,11 @@
   align-items: start;
 }
 
+/* One photo — no thumb rail; main stage must span full width */
+.product-gallery--single {
+  grid-template-columns: 1fr;
+}
+
 .product-gallery__thumbs {
   display: flex;
   flex-direction: column;

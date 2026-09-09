@@ -23,13 +23,14 @@ export function AiAdminPage() {
   const [pin, setPin] = useState('')
   const [authedPin, setAuthedPin] = useState<string | null>(null)
   const [subscribers, setSubscribers] = useState<AdminSub[]>([])
-  const [falConfigured, setFalConfigured] = useState(false)
+  const [aiReady, setAiReady] = useState(false)
+  const [provider, setProvider] = useState<string>('none')
   const [planId, setPlanId] = useState('starter')
   const [name, setName] = useState('')
   const [phone, setPhone] = useState('')
   const [note, setNote] = useState('')
   const [createdCode, setCreatedCode] = useState<string | null>(null)
-  const [falKey, setFalKey] = useState('')
+  const [geminiKey, setGeminiKey] = useState('')
   const [msg, setMsg] = useState<string | null>(null)
   const [busy, setBusy] = useState(false)
 
@@ -49,11 +50,13 @@ export function AiAdminPage() {
     const data = (await res.json()) as {
       subscribers?: AdminSub[]
       falConfigured?: boolean
+      provider?: string
       error?: string
     }
     if (!res.ok) throw new Error(data.error || 'Admin login failed')
     setSubscribers(data.subscribers || [])
-    setFalConfigured(Boolean(data.falConfigured))
+    setAiReady(Boolean(data.falConfigured))
+    setProvider(data.provider || (data.falConfigured ? 'gemini' : 'none'))
     setAuthedPin(usePin)
   }
 
@@ -128,7 +131,7 @@ export function AiAdminPage() {
     setSubscribers(data.subscribers || [])
   }
 
-  async function onSetFal(e: FormEvent) {
+  async function onSetGemini(e: FormEvent) {
     e.preventDefault()
     if (!authedPin) return
     setBusy(true)
@@ -137,17 +140,22 @@ export function AiAdminPage() {
         method: 'POST',
         body: JSON.stringify({
           adminPin: authedPin,
-          action: 'set-fal-key',
-          falKey,
+          action: 'set-gemini-key',
+          geminiKey,
         }),
       })
-      const data = (await res.json()) as { error?: string; falConfigured?: boolean }
-      if (!res.ok) throw new Error(data.error || 'Could not set Fal key')
-      setFalConfigured(Boolean(data.falConfigured))
-      setFalKey('')
-      setMsg('Fal.ai key saved on server (not shown to customers).')
+      const data = (await res.json()) as {
+        error?: string
+        falConfigured?: boolean
+        provider?: string
+      }
+      if (!res.ok) throw new Error(data.error || 'Could not set Gemini key')
+      setAiReady(Boolean(data.falConfigured))
+      setProvider(data.provider || 'gemini')
+      setGeminiKey('')
+      setMsg('Gemini key saved. Chat + Visualise will use Google Gemini.')
     } catch (err) {
-      setMsg(err instanceof Error ? err.message : 'Fal key update failed')
+      setMsg(err instanceof Error ? err.message : 'Gemini key update failed')
     } finally {
       setBusy(false)
     }
@@ -157,10 +165,11 @@ export function AiAdminPage() {
     <main className="ai-admin page-pad">
       <header>
         <p className="eyebrow">Owner only</p>
-        <h1>AI subscriber admin</h1>
+        <h1>Gemini admin</h1>
         <p>
-          Issue monthly access codes after WhatsApp/UPI payment. Customers never see your Fal /
-          Gemini key. Default admin PIN is in server env <code>AI_ADMIN_PIN</code>.
+          Paste your <strong>Google Gemini</strong> API key here. Chat and Visualise use Gemini
+          (not Fal). Customers never see this key. Admin PIN default:{' '}
+          <code>AI_ADMIN_PIN</code> / <code>2468</code>.
         </p>
       </header>
 
@@ -182,40 +191,53 @@ export function AiAdminPage() {
       ) : (
         <>
           <section className="ai-admin__card">
-            <h2>Server Fal.ai key (recommended)</h2>
-            <p>Status: {falConfigured ? 'Connected' : 'Not connected'}</p>
-            <form onSubmit={onSetFal} className="ai-admin__form">
+            <h2>Google Gemini API key</h2>
+            <p>
+              Status:{' '}
+              {aiReady
+                ? `Connected · provider ${provider || 'gemini'}`
+                : 'Not connected — paste Gemini key below'}
+            </p>
+            <form onSubmit={onSetGemini} className="ai-admin__form">
               <label>
-                <span>Set / replace Fal API key</span>
+                <span>Set / replace Gemini API key</span>
                 <input
                   type="password"
-                  value={falKey}
-                  onChange={(e) => setFalKey(e.target.value)}
-                  placeholder="fal-…"
+                  value={geminiKey}
+                  onChange={(e) => setGeminiKey(e.target.value)}
+                  placeholder="AIza…"
                   autoComplete="off"
                 />
               </label>
-              <button className="btn btn--dark" type="submit" disabled={busy || !falKey}>
-                Save Fal key
+              <button className="btn btn--dark" type="submit" disabled={busy || !geminiKey}>
+                Save Gemini key
               </button>
             </form>
             <p className="ai-admin__hint">
-              Create a key + add credits at{' '}
-              <a href="https://fal.ai/dashboard/keys" target="_blank" rel="noreferrer">
-                fal.ai/dashboard/keys
+              Create a free key at{' '}
+              <a
+                href="https://aistudio.google.com/apikey"
+                target="_blank"
+                rel="noreferrer"
+              >
+                aistudio.google.com/apikey
               </a>
-              . Uses card billing (no Google AI Studio payment). Customers never see this key.
+              . Enable billing if image quota is empty. On Cloudflare Pages, also set the same key
+              as env <code>GEMINI_API_KEY</code> so production keeps it after redeploys.
             </p>
           </section>
 
           <section className="ai-admin__card">
-            <h2>Create access code</h2>
+            <h2>Optional — create unlock codes</h2>
+            <p className="ai-admin__hint">
+              Not required when subscription mode is off. Use only if you want paid client codes.
+            </p>
             <form onSubmit={onCreate} className="ai-admin__form">
               <label>
                 <span>Plan</span>
                 <select value={planId} onChange={(e) => setPlanId(e.target.value)}>
-                  <option value="starter">Starter · ₹375 · 15 images (₹25 each)</option>
-                  <option value="pro">Pro · ₹1,500 · 60 images (₹25 each)</option>
+                  <option value="starter">Starter · ₹375 · 15 images</option>
+                  <option value="pro">Pro · ₹1,500 · 60 images</option>
                 </select>
               </label>
               <label>
@@ -265,7 +287,7 @@ export function AiAdminPage() {
                   </button>
                 </article>
               ))}
-              {subscribers.length === 0 ? <p>No subscribers yet.</p> : null}
+              {subscribers.length === 0 ? <p>No unlock codes yet.</p> : null}
             </div>
           </section>
         </>
@@ -273,7 +295,7 @@ export function AiAdminPage() {
 
       {msg ? <p className="ai-admin__msg">{msg}</p> : null}
       <p className="ai-admin__back">
-        <Link to="/ai">← AI subscribe page</Link>
+        <Link to="/chat">← Open Chat / Visualise</Link>
       </p>
     </main>
   )

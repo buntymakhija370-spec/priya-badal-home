@@ -1,0 +1,193 @@
+[
+  {
+    "id": "taupe-reeded-shaker-kitchen",
+    "name": "Taupe Reeded Shaker Kitchen",
+    "subcategoryId": "modular",
+    "price": 2000,
+    "carcassPrice": 2000,
+    "pricingMode": "per-sqft",
+    "thicknessMm": 25,
+    "sku": "PBH-KIT-01",
+    "description": "Muted taupe cabinetry with vertical reeded panels, silver cup pulls, loft and base units — 25 mm HDHMR shutters with both-side PU. Open carcass shown in gallery.",
+    "collection": "Kitchen",
+    "image": "/products/kitchen/kitchen-1/03.png",
+    "images": [
+      "/products/kitchen/kitchen-1/03.png",
+      "/products/kitchen/kitchen-1/02.png",
+      "/products/kitchen/kitchen-1/01.png"
+    ]
+  },
+  {
+    "id": "mushroom-raised-panel-kitchen",
+    "name": "Mushroom Raised Panel Kitchen",
+    "subcategoryId": "island",
+    "price": 2000,
+    "carcassPrice": 2000,
+    "pricingMode": "per-sqft",
+    "thicknessMm": 25,
+    "sku": "PBH-KIT-02",
+    "description": "Warm mushroom-grey raised-panel cabinets with brass hardware and a white waterfall island option — 25 mm HDHMR shutters with both-side PU.",
+    "collection": "Kitchen",
+    "image": "/products/kitchen/kitchen-2/02.jpg",
+    "images": [
+      "/products/kitchen/kitchen-2/02.jpg",
+      "/products/kitchen/kitchen-2/01.jpg",
+      "/products/kitchen/kitchen-2/03.jpg"
+    ]
+  },
+  {
+    "id": "ivory-arch-panel-kitchen",
+    "name": "Ivory Arch Panel Kitchen",
+    "subcategoryId": "modular",
+    "price": 1400,
+    "carcassPrice": 2200,
+    "pricingMode": "per-sqft",
+    "thicknessMm": 25,
+    "sku": "PBH-KIT-03",
+    "description": "Cream arched-recess doors with brass knobs and marble-look surfaces — a soft luxury modular kitchen run — 25 mm HDHMR, front PU / back laminated.",
+    "collection": "Kitchen",
+    "image": "/products/kitchen/kitchen-3/02.png",
+    "images": [
+      "/products/kitchen/kitchen-3/02.png",
+      "/products/kitchen/kitchen-3/04.png",
+      "/products/kitchen/kitchen-3/01.jpg",
+      "/products/kitchen/kitchen-3/03.png"
+    ]
+  },
+  {
+    "id": "taupe-capsule-panel-kitchen",
+    "name": "Taupe Capsule Panel Kitchen",
+    "subcategoryId": "cabinets",
+    "price": 1200,
+    "carcassPrice": 2200,
+    "pricingMode": "per-sqft",
+    "thicknessMm": 18,
+    "sku": "PBH-KIT-04",
+    "description": "Soft taupe cabinets with pill-shaped recessed panels and a handle-free soft-minimal look — 18 mm HDHMR, front PU / back laminated.",
+    "collection": "Kitchen",
+    "image": "/products/kitchen/kitchen-4/02.png",
+    "images": [
+      "/products/kitchen/kitchen-4/02.png",
+      "/products/kitchen/kitchen-4/01.jpg"
+    ]
+  },
+  {
+    "id": "sand-shaker-island-kitchen",
+    "name": "Sand Shaker Island Kitchen",
+    "subcategoryId": "island",
+    "price": 2000,
+    "carcassPrice": 2200,
+    "pricingMode": "per-sqft",
+    "thicknessMm": 25,
+    "sku": "PBH-KIT-05",
+    "description": "Full sand-taupe shaker kitchen with finger-pulls, matching counters, and a central island — 25 mm HDHMR shutters with both-side PU.",
+    "collection": "Kitchen",
+    "image": "/products/kitchen/kitchen-5/01.jpg",
+    "images": [
+      "/products/kitchen/kitchen-5/01.jpg",
+      "/products/kitchen/kitchen-5/02.png"
+    ]
+  },
+  {
+    "id": "light-grey-lattice-kitchen",
+    "name": "Light Grey Lattice Kitchen",
+    "subcategoryId": "modular",
+    "price": 3000,
+    "carcassPrice": 2200,
+    "pricingMode": "per-sqft",
+    "thicknessMm": 25,
+    "sku": "PBH-KIT-06",
+    "description": "Light-grey modular kitchen with lattice-cut upper shutters, loft cabinets, tall flanks, shaker base units, under-cabinet LED, and a light-oak open carcass interior — 25 mm HDHMR shutters with both-side PU.",
+    "collection": "Kitchen",
+    "image": "/products/kitchen/kitchen-6/01.png",
+    "images": [
+      "/products/kitchen/kitchen-6/01.png",
+      "/products/kitchen/kitchen-6/02.png"
+    ]
+  },
+  {
+    "id": "grey-lattice-island-kitchen",
+    "name": "Grey Lattice Island Kitchen",
+    "subcategoryId": "island",
+    "price": 2000,
+    "carcassPrice": 2200,
+    "pricingMode": "per-sqft",
+    "thicknessMm": 25,
+    "sku": "PBH-KIT-07",
+    "description": "Light grey nested-lattice cabinets with glass display uppers and a marble waterfall island option — 25 mm HDHMR shutters with front, back and edges PU.",
+    "collection": "Kitchen",
+    "image": "/products/kitchen/kitchen-7/01.png",
+    "images": [
+      "/products/kitchen/kitchen-7/01.png",
+      "/products/kitchen/kitchen-7/02.png"
+    ]
+  },
+  {
+    "id": "taupe-notch-frame-kitchen",
+    "name": "Taupe Notch Frame Kitchen",
+    "subcategoryId": "modular",
+    "price": 1300,
+    "carcassPrice": 2200,
+    "pricingMode": "per-sqft",
+    "thicknessMm": 18,
+    "sku": "PBH-KIT-08",
+    "description": "Warm taupe doors with notched rectangular routing, dark cup pulls, and a dark stone counter look — 18 mm HDHMR shutters with both-side PU.",
+    "collection": "Kitchen",
+    "image": "/products/kitchen/kitchen-8/01.png",
+    "images": [
+      "/products/kitchen/kitchen-8/01.png",
+      "/products/kitchen/kitchen-8/02.png"
+    ]
+  },
+  {
+    "id": "terracotta-flat-island-kitchen",
+    "name": "Terracotta Flat Island Kitchen",
+    "subcategoryId": "island",
+    "price": 1500,
+    "carcassPrice": 2200,
+    "pricingMode": "per-sqft",
+    "thicknessMm": 25,
+    "sku": "PBH-KIT-09",
+    "description": "Matte terracotta flat-panel island kitchen — handle-less, 25 mm HDHMR shutters with both-side PU and a thick white marble-look worktop.",
+    "collection": "Kitchen",
+    "image": "/products/kitchen/kitchen-9/01.png",
+    "images": [
+      "/products/kitchen/kitchen-9/01.png",
+      "/products/kitchen/kitchen-9/02.png"
+    ]
+  },
+  {
+    "id": "arch-pull-taupe-kitchen",
+    "name": "Arch-Pull Taupe Kitchen",
+    "subcategoryId": "modular",
+    "price": 1500,
+    "carcassPrice": 2200,
+    "pricingMode": "per-sqft",
+    "thicknessMm": 25,
+    "sku": "PBH-KIT-10",
+    "description": "Handle-less taupe modular run with pill-arch recessed pulls and a light oak carcass interior — 25 mm HDHMR shutters with both-side PU.",
+    "collection": "Kitchen",
+    "image": "/products/kitchen/kitchen-10/01.png",
+    "images": [
+      "/products/kitchen/kitchen-10/01.png",
+      "/products/kitchen/kitchen-10/02.png"
+    ]
+  },
+  {
+    "id": "oval-recess-taupe-kitchen",
+    "name": "Oval-Recess Taupe Kitchen",
+    "subcategoryId": "cabinets",
+    "price": 1500,
+    "carcassPrice": 2200,
+    "pricingMode": "per-sqft",
+    "thicknessMm": 25,
+    "sku": "PBH-KIT-11",
+    "description": "Seamless taupe cabinetry with elongated oval recessed grips and a full marble-look backsplash — handle-less, 25 mm HDHMR shutters with both-side PU.",
+    "collection": "Kitchen",
+    "image": "/products/kitchen/kitchen-11/01.png",
+    "images": [
+      "/products/kitchen/kitchen-11/01.png",
+      "/products/kitchen/kitchen-11/02.png"
+    ]
+  }
+]

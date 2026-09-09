@@ -288,6 +288,11 @@ const FINISH_LOOKUP: Record<string, FinishOption> = {
     name: 'Bronze oxidisation',
     multiplier: 1,
   },
+  'brass-oxidised': {
+    id: 'brass-oxidised',
+    name: 'Brass oxidised',
+    multiplier: 1,
+  },
   'glossy-laminate-front-pu-back': {
     id: 'glossy-laminate-front-pu-back',
     name: 'Glossy lamination · back PU',

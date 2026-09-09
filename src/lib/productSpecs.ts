@@ -35,6 +35,7 @@ const FINISH_LABELS: Record<string, string> = {
   oxidised: 'Oxidised finish',
   'oxidised-base': 'Oxidised · both sides',
   'bronze-oxidised': 'Bronze oxidisation',
+  'brass-oxidised': 'Brass oxidised',
   'iron-metallic': 'Iron metallic coating',
   metallic: 'Metallic finish',
   'pu-metallic-both': 'PU metallic · both sides',

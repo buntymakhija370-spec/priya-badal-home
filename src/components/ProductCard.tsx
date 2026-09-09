@@ -67,6 +67,15 @@ export function ProductCard({ product }: Props) {
           productId={product.id}
           className="fav-btn--icon fav-btn--on-media product-card__fav"
         />
+        {product.tags && product.tags.length > 0 ? (
+          <div className="product-card__tags">
+            {product.tags.map((tag) => (
+              <span key={tag} className="product-card__tag">
+                {tag}
+              </span>
+            ))}
+          </div>
+        ) : null}
         {minQty > 1 ? (
           <span className="product-card__bulk">Min. {minQty} packs</span>
         ) : null}

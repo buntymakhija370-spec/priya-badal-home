@@ -144,6 +144,16 @@ export function ProductPage() {
             </p>
           ) : null}
 
+          {product.tags && product.tags.length > 0 ? (
+            <ul className="product-page__tags">
+              {product.tags.map((tag) => (
+                <li key={tag} className="product-page__tag">
+                  {tag}
+                </li>
+              ))}
+            </ul>
+          ) : null}
+
           <ul className="product-page__trust">
             {customizable ? (
               <>

@@ -271,6 +271,23 @@ const FINISH_LOOKUP: Record<string, FinishOption> = {
     name: 'Half veneer · half PU',
     multiplier: 1,
   },
+  veneer: { id: 'veneer', name: 'Veneer', multiplier: 1 },
+  'veneer-acrylic': {
+    id: 'veneer-acrylic',
+    name: 'Veneer · acrylic coating',
+    multiplier: 1,
+  },
+  acrylic: { id: 'acrylic', name: 'Acrylic coating', multiplier: 1 },
+  'oxidised-base': {
+    id: 'oxidised-base',
+    name: 'Oxidised · both sides',
+    multiplier: 1,
+  },
+  'bronze-oxidised': {
+    id: 'bronze-oxidised',
+    name: 'Bronze oxidisation',
+    multiplier: 1,
+  },
   'glossy-laminate-front-pu-back': {
     id: 'glossy-laminate-front-pu-back',
     name: 'Glossy lamination · back PU',
@@ -289,6 +306,18 @@ const THICKNESS_LOOKUP: Record<string, ThicknessOption> = {
   '28': { id: '28', label: '28 mm', mm: 28, multiplier: 1 },
   '30': { id: '30', label: '30 mm', mm: 30, multiplier: 1 },
   '32': { id: '32', label: '32 mm', mm: 32, multiplier: 1.18 },
+  /** Designer door thicknesses */
+  '40': { id: '40', label: '40 mm', mm: 40, multiplier: 1 },
+  '42': { id: '42', label: '42 mm', mm: 42, multiplier: 1 },
+  '43': { id: '43', label: '43 mm', mm: 43, multiplier: 1 },
+  '44': { id: '44', label: '44 mm', mm: 44, multiplier: 1 },
+  '45': { id: '45', label: '45 mm', mm: 45, multiplier: 1 },
+  '47': { id: '47', label: '47 mm', mm: 47, multiplier: 1 },
+  '48': { id: '48', label: '48 mm', mm: 48, multiplier: 1 },
+  '50': { id: '50', label: '50 mm', mm: 50, multiplier: 1 },
+  '51': { id: '51', label: '51 mm', mm: 51, multiplier: 1 },
+  '55': { id: '55', label: '55 mm', mm: 55, multiplier: 1 },
+  '60': { id: '60', label: '60 mm', mm: 60, multiplier: 1 },
 }
 
 /** @deprecated Prefer getFinishOptionsForProduct — kept for lookups only */

@@ -10,7 +10,6 @@ import {
 } from '../lib/whatsapp'
 import { CurrencySelect } from './CurrencySelect'
 import { BottomNav, leaveCheckPage } from './BottomNav'
-import { PricingNoticeBanner } from './PricingNoticeBanner'
 import './Layout.css'
 
 const utilityLinks = [
@@ -58,7 +57,6 @@ export function Layout() {
   return (
     <div className="site">
       <div className="grain" aria-hidden="true" />
-      <PricingNoticeBanner />
       <header className={`nav ${scrolled ? 'nav--scrolled' : ''} ${menuOpen ? 'nav--open' : ''}`}>
         <NavLink
           className="nav__brand"

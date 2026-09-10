@@ -111,9 +111,8 @@ export function getBuildScopeRate(
 }
 
 /**
- * Finished product (paint/laminate/PU as catalogued) vs unfinished CNC-Carve HD Board.
- * CNC board is a white-canvas carve — no paint, no finishing — clients finish it themselves.
- * Available on every customisable product (not Live Edge / non-customisable).
+ * Board supply mode for quotes.
+ * CNC-Carve HD Board was retired from the price calculator — only finished product remains.
  */
 export type BoardSupplyId = 'finished' | 'cnc-carve-hd'
 
@@ -124,7 +123,7 @@ export type BoardSupplyOption = {
   description: string
 }
 
-/** Unfinished CNC-Carve HD Board rate (₹ / sq ft) — no paint, no finishing */
+/** @deprecated CNC-Carve HD Board removed from price calculator */
 export const CNC_CARVE_HD_RATE_PER_SQFT = 400
 
 export const BOARD_SUPPLIES: BoardSupplyOption[] = [
@@ -134,46 +133,33 @@ export const BOARD_SUPPLIES: BoardSupplyOption[] = [
     shortName: 'Finished',
     description: 'Catalogued finish as shown — paint, laminate, PU, or coating included.',
   },
-  {
-    id: 'cnc-carve-hd',
-    name: 'CNC-Carve HD Board',
-    shortName: 'CNC HD',
-    description:
-      'Unfinished HD board carve only — no paint, no finishing. White canvas for you to finish as you like.',
-  },
 ]
 
 const BOARD_SUPPLY_LOOKUP: Record<BoardSupplyId, BoardSupplyOption> = {
   finished: BOARD_SUPPLIES[0]!,
-  'cnc-carve-hd': BOARD_SUPPLIES[1]!,
+  // Kept for type/compat only — calculator no longer offers CNC
+  'cnc-carve-hd': BOARD_SUPPLIES[0]!,
 }
 
-/** Categories that do not offer CNC-Carve HD Board (unique / bulk packs) */
-const CNC_BOARD_EXCLUDED = new Set([
-  'live-edge-furniture',
-  'silaibunai',
-  'handles',
-])
-
-export function supportsBoardSupply(categoryId: string): boolean {
-  return !CNC_BOARD_EXCLUDED.has(categoryId)
+/** CNC-Carve HD Board is retired — board-supply picker is hidden */
+export function supportsBoardSupply(_categoryId: string): boolean {
+  return false
 }
 
-/** Category allows CNC, unless the product sets cncAvailable: false */
+/** CNC-Carve HD Board removed from price calculator */
 export function productSupportsCnc(
-  categoryId: string,
-  product?: Pick<Product, 'cncAvailable'> | null,
+  _categoryId: string,
+  _product?: Pick<Product, 'cncAvailable'> | null,
 ): boolean {
-  if (product?.cncAvailable === false) return false
-  return supportsBoardSupply(categoryId)
+  return false
 }
 
 export function getBoardSupply(id: string): BoardSupplyOption {
-  return BOARD_SUPPLY_LOOKUP[id as BoardSupplyId] ?? BOARD_SUPPLY_LOOKUP.finished
+  return BOARD_SUPPLY_LOOKUP.finished
 }
 
-export function getBoardSupplyOptions(categoryId: string): BoardSupplyOption[] {
-  return supportsBoardSupply(categoryId) ? BOARD_SUPPLIES : []
+export function getBoardSupplyOptions(_categoryId: string): BoardSupplyOption[] {
+  return []
 }
 
 export type PriceConfig = {
@@ -193,8 +179,8 @@ export type PriceConfig = {
   includeHandlePair?: boolean
 }
 
-export function isCncCarveHd(config: Pick<PriceConfig, 'boardSupply'>): boolean {
-  return config.boardSupply === 'cnc-carve-hd'
+export function isCncCarveHd(_config: Pick<PriceConfig, 'boardSupply'>): boolean {
+  return false
 }
 
 export function getCncCarveHdRate(
@@ -535,9 +521,7 @@ export function normalizeConfig(
   >,
 ): PriceConfig {
   const size = getSizeLimits(categoryId)
-  const boardSupply = productSupportsCnc(categoryId, product)
-    ? getBoardSupply(config.boardSupply ?? 'finished').id
-    : 'finished'
+  const boardSupply = 'finished' as const
   const buildScope =
     supportsBuildScope(categoryId) && productHasCarcass(product)
       ? getBuildScope(config.buildScope ?? 'shutter').id
@@ -664,14 +648,6 @@ export function configKey(config: PriceConfig) {
 
 export function describeConfig(categoryId: string, config: PriceConfig) {
   const dims = `${config.width} × ${config.height} ft`
-  if (isCncCarveHd(config)) {
-    return [
-      'CNC-Carve HD Board',
-      'No paint · No finishing',
-      getThickness(config.thicknessId).label,
-      dims,
-    ].join(' · ')
-  }
   const finish = getFinish(config.finishId)
   const thickness = getThickness(config.thicknessId)
   const parts = [`${finish.name} · ${thickness.label} · ${dims}`]

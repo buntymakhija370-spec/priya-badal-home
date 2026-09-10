@@ -5,16 +5,11 @@ import {
   calculatePrice,
   defaultConfig,
   describeConfig,
-  getCncCarveHdRate,
   getFinishOptionsForProduct,
   getSizeLimits,
-  getThickness,
   getThicknessOptionsForProduct,
-  isCncCarveHd,
   productHasCarcass,
-  productSupportsCnc,
   supportsBuildScope,
-  type BoardSupplyId,
   type BuildScopeId,
   type PriceConfig,
 } from '../lib/pricing'
@@ -91,8 +86,6 @@ function CalculatorOverlay({ product, onClose }: OverlayProps) {
   const thicknessOptions = getThicknessOptionsForProduct(product)
   const hasBuildScope = supportsBuildScope(product.categoryId)
   const hasCarcass = productHasCarcass(product)
-  const hasCnc = productSupportsCnc(product.categoryId, product)
-  const cncMode = isCncCarveHd(config)
 
   const quote = useMemo(
     () => calculatePrice(product, config),
@@ -101,22 +94,9 @@ function CalculatorOverlay({ product, onClose }: OverlayProps) {
 
   const priceCategories = useMemo((): PriceCategoryOption[] => {
     const options: PriceCategoryOption[] = []
-    const leavingCnc = isCncCarveHd(config)
-    const finishedRestore: Partial<PriceConfig> = leavingCnc
-      ? {
-          ...(product.defaultThicknessId
-            ? { thicknessId: product.defaultThicknessId }
-            : {}),
-          ...(product.defaultFinishId
-            ? { finishId: product.defaultFinishId }
-            : {}),
-          includeHandlePair:
-            product.handlePairPrice != null &&
-            product.handlePairDefault !== false,
-        }
-      : {
-          includeHandlePair: Boolean(config.includeHandlePair),
-        }
+    const finishedRestore: Partial<PriceConfig> = {
+      includeHandlePair: Boolean(config.includeHandlePair),
+    }
 
     if (hasBuildScope) {
       const shutterPatch: Partial<PriceConfig> = {
@@ -152,49 +132,18 @@ function CalculatorOverlay({ product, onClose }: OverlayProps) {
           patch: carcassPatch,
         })
       }
-    } else if (hasCnc) {
-      const finishedPatch: Partial<PriceConfig> = {
-        boardSupply: 'finished',
-        ...finishedRestore,
-      }
-      options.push({
-        id: 'finished',
-        label: 'Finished',
-        unitPrice: calculatePrice(product, {
-          ...config,
-          ...finishedPatch,
-          includeHandlePair: false,
-        }).boardPrice,
-        patch: finishedPatch,
-      })
-    }
-
-    if (hasCnc) {
-      const cncPatch: Partial<PriceConfig> = {
-        boardSupply: 'cnc-carve-hd' as BoardSupplyId,
-        includeHandlePair: false,
-        ...(product.cncThicknessId
-          ? { thicknessId: product.cncThicknessId }
-          : {}),
-      }
-      options.push({
-        id: 'cnc-carve-hd',
-        label: 'CNC-Carve HD',
-        unitPrice: calculatePrice(product, { ...config, ...cncPatch }).boardPrice,
-        patch: cncPatch,
-      })
     }
 
     return options
-  }, [hasBuildScope, hasCarcass, hasCnc, product, config])
+  }, [hasBuildScope, hasCarcass, product, config])
+
 
   const selectedCategoryId = useMemo(() => {
-    if (cncMode) return 'cnc-carve-hd'
     if (hasBuildScope) {
       return (config.buildScope ?? 'shutter') as BuildScopeId
     }
     return 'finished'
-  }, [cncMode, hasBuildScope, config.buildScope])
+  }, [hasBuildScope, config.buildScope])
 
   const onCloseRef = useRef(onClose)
   onCloseRef.current = onClose
@@ -263,18 +212,13 @@ function CalculatorOverlay({ product, onClose }: OverlayProps) {
   )
 
   const sqft =
-    cncMode || product.pricingMode === 'per-sqft'
+    product.pricingMode === 'per-sqft'
       ? Math.round(quote.sqft * 10) / 10
       : null
-  const cncRate = getCncCarveHdRate(product)
-  const cncThickness = product.cncThicknessId
-    ? getThickness(product.cncThicknessId)
-    : null
   const orderNotes = product.orderNotes ?? []
   const showHandleToggle =
-    !cncMode && product.handlePairPrice != null && product.handlePairPrice > 0
+    product.handlePairPrice != null && product.handlePairPrice > 0
   const carcassBreakdown =
-    !cncMode &&
     config.buildScope === 'with-carcass' &&
     product.carcassPrice != null &&
     product.pricingMode === 'per-sqft'
@@ -350,22 +294,7 @@ function CalculatorOverlay({ product, onClose }: OverlayProps) {
           </fieldset>
         ) : null}
 
-        {cncMode ? (
-          <div className="calc-sheet__finish-row">
-            <div className="calc-sheet__field">
-              <span>Finish</span>
-              <p className="calc-sheet__locked calc-sheet__locked--strong">
-                No paint · No finishing
-              </p>
-            </div>
-            <div className="calc-sheet__field">
-              <span>Board</span>
-              <p className="calc-sheet__locked calc-sheet__locked--strong">
-                CNC HD{cncThickness ? ` · ${cncThickness.label}` : ''}
-              </p>
-            </div>
-          </div>
-        ) : finishOptions.length > 0 || thicknessOptions.length > 0 ? (
+        {finishOptions.length > 0 || thicknessOptions.length > 0 ? (
           <div className="calc-sheet__finish-row">
             {finishOptions.length > 0 ? (
               finishOptions.length === 1 ? (
@@ -486,7 +415,7 @@ function CalculatorOverlay({ product, onClose }: OverlayProps) {
             {quote.handleAddOn > 0 ? (
               <p className="calc-sheet__breakdown">
                 {formatPrice(quote.boardPrice)}
-                {cncMode ? ' board' : ' material'}
+                ' material'
                 {' + '}
                 {formatPrice(quote.handleAddOn)} handle pair
               </p>
@@ -494,11 +423,7 @@ function CalculatorOverlay({ product, onClose }: OverlayProps) {
             <p className="calc-sheet__meta">
               {describeConfig(product.categoryId, quote.config)}
               {sqft != null ? ` · ${sqft} sq ft` : ''}
-              {cncMode
-                ? ` · ${formatPrice(cncRate)}/sq ft`
-                : product.pricingMode === 'per-sqft'
-                  ? ` · ${formatPrice(quote.baseRate)}/sq ft`
-                  : ''}
+              {product.pricingMode === 'per-sqft' ? ` · ${formatPrice(quote.baseRate)}/sq ft` : ''}
               {carcassBreakdown ? ` · (${carcassBreakdown})` : ''}
               {minQty > 1 ? ` · min ${minQty} packs` : ''}
             </p>

@@ -2,9 +2,6 @@ import { getMinOrderQuantity, type Product } from '../data/catalog'
 import { formatPrice } from './currency'
 import {
   describeConfig,
-  getCncCarveHdRate,
-  getThickness,
-  isCncCarveHd,
   type PriceConfig,
 } from './pricing'
 import type { CartItem } from './cart'
@@ -21,7 +18,6 @@ export function buildWhatsAppQuoteUrl(
   changeNotes?: string,
 ) {
   const minQty = getMinOrderQuantity(product)
-  const cnc = isCncCarveHd(config)
   const lines = [
     'Hi Priyabadal Homes, I would like a custom quotation:',
     '',
@@ -30,15 +26,7 @@ export function buildWhatsAppQuoteUrl(
     `Configuration: ${describeConfig(product.categoryId, config)}`,
   ]
 
-  if (cnc) {
-    const cncRate = formatPrice(getCncCarveHdRate(product), 'INR')
-    const cncThick = product.cncThicknessId
-      ? getThickness(product.cncThicknessId).label
-      : 'HD board'
-    lines.push(
-      `CNC-Carve HD Board: ${cncRate}/sq ft · ${cncThick} · no paint / no finishing`,
-    )
-  } else if (product.pricingMode === 'per-sqft') {
+  if (product.pricingMode === 'per-sqft') {
     const shutter = formatPrice(product.price, 'INR')
     if (product.carcassPrice != null) {
       const combined = formatPrice(product.price + product.carcassPrice, 'INR')
@@ -50,7 +38,7 @@ export function buildWhatsAppQuoteUrl(
     }
   }
 
-  if (!cnc && config.includeHandlePair && product.handlePairPrice != null) {
+  if (config.includeHandlePair && product.handlePairPrice != null) {
     lines.push(
       `Handle pair: ${formatPrice(product.handlePairPrice, 'INR')} (back side laminated)`,
     )

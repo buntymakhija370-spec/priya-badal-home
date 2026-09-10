@@ -154,7 +154,7 @@ export function productSupportsCnc(
   return false
 }
 
-export function getBoardSupply(id: string): BoardSupplyOption {
+export function getBoardSupply(_id: string): BoardSupplyOption {
   return BOARD_SUPPLY_LOOKUP.finished
 }
 
@@ -527,10 +527,7 @@ export function normalizeConfig(
     supportsBuildScope(categoryId) && productHasCarcass(product)
       ? getBuildScope(config.buildScope ?? 'shutter').id
       : 'shutter'
-  const cnc = boardSupply === 'cnc-carve-hd'
-  const thicknessId = cnc && product?.cncThicknessId
-    ? getThickness(product.cncThicknessId).id
-    : getThickness(config.thicknessId).id
+  const thicknessId = getThickness(config.thicknessId).id
   return {
     finishId: getFinish(config.finishId).id,
     thicknessId,
@@ -540,7 +537,7 @@ export function normalizeConfig(
     buildScope,
     boardSupply,
     includeHandlePair:
-      !cnc && product?.handlePairPrice != null
+      product?.handlePairPrice != null
         ? Boolean(config.includeHandlePair)
         : false,
   }

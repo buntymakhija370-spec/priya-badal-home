@@ -293,6 +293,13 @@ const FINISH_LOOKUP: Record<string, FinishOption> = {
     name: 'Brass oxidised',
     multiplier: 1,
   },
+  leather: { id: 'leather', name: 'Leather finish', multiplier: 1 },
+  'leather-oxidised': {
+    id: 'leather-oxidised',
+    name: 'Leather & oxidisation',
+    multiplier: 1,
+  },
+  denim: { id: 'denim', name: 'Denim finish', multiplier: 1 },
   'glossy-laminate-front-pu-back': {
     id: 'glossy-laminate-front-pu-back',
     name: 'Glossy lamination · back PU',
@@ -301,6 +308,7 @@ const FINISH_LOOKUP: Record<string, FinishOption> = {
 }
 
 const THICKNESS_LOOKUP: Record<string, ThicknessOption> = {
+  '4': { id: '4', label: '4 mm', mm: 4, multiplier: 1 },
   '6': { id: '6', label: '6 mm', mm: 6, multiplier: 1 },
   '8': { id: '8', label: '8 mm', mm: 8, multiplier: 1 },
   '12': { id: '12', label: '12 mm', mm: 12, multiplier: 0.82 },

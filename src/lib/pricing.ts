@@ -71,6 +71,7 @@ const BUILD_SCOPE_CATEGORIES = new Set([
   'wardrobe',
   'temple',
   'sculpted-furniture',
+  'leather-shutters',
 ])
 
 export function supportsBuildScope(categoryId: string): boolean {
@@ -342,6 +343,19 @@ const DEFAULT_SIZE: SizeLimits = {
 }
 
 const SIZE_BY_CATEGORY: Record<string, Partial<SizeLimits>> = {
+  'leather-shutters': {
+    defaultWidth: 6,
+    defaultHeight: 7,
+    defaultDepth: 0.1,
+    baseWidth: 6,
+    baseHeight: 7,
+    baseDepth: 0.1,
+    usesDepth: false,
+    minWidth: 1,
+    maxWidth: 14,
+    minHeight: 1,
+    maxHeight: 10,
+  },
   'wall-panels': {
     defaultWidth: 8,
     defaultHeight: 8,

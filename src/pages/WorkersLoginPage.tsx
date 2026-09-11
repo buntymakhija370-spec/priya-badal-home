@@ -1,5 +1,5 @@
-import { useState, type FormEvent } from 'react'
-import { Navigate, useNavigate, useOutletContext } from 'react-router-dom'
+import { useEffect, useState, type FormEvent } from 'react'
+import { Navigate, useNavigate, useOutletContext, useSearchParams } from 'react-router-dom'
 import { workshopLogin, type WorkshopAuth } from '../lib/workshopClient'
 import './WorkersApp.css'
 
@@ -11,12 +11,21 @@ type Ctx = {
 export function WorkersLoginPage() {
   const { auth, setAuth } = useOutletContext<Ctx>()
   const navigate = useNavigate()
-  const [role, setRole] = useState<'worker' | 'manager'>('worker')
-  const [code, setCode] = useState('W01')
-  const [pin, setPin] = useState('')
+  const [params] = useSearchParams()
+  const [role, setRole] = useState<'worker' | 'manager'>(() =>
+    params.get('role') === 'manager' ? 'manager' : 'worker',
+  )
+  const [code, setCode] = useState(params.get('code') || 'W01')
+  const [pin, setPin] = useState(params.get('pin') || '')
   const [busy, setBusy] = useState(false)
   const [error, setError] = useState<string | null>(null)
   const [installHint, setInstallHint] = useState(false)
+
+  useEffect(() => {
+    if (params.get('role') === 'manager') setRole('manager')
+    if (params.get('code')) setCode(params.get('code')!.toUpperCase())
+    if (params.get('pin')) setPin(params.get('pin')!)
+  }, [params])
 
   if (auth?.role === 'worker') return <Navigate to="/workers/home" replace />
   if (auth?.role === 'manager') return <Navigate to="/workers/manage" replace />
@@ -62,22 +71,29 @@ export function WorkersLoginPage() {
       </section>
 
       <form className="ws-login__form" onSubmit={onSubmit}>
-        <div className="ws-seg" role="tablist" aria-label="Sign in as">
-          <button
-            type="button"
-            className={role === 'worker' ? 'is-on' : ''}
-            onClick={() => setRole('worker')}
-          >
+        <fieldset className="ws-seg">
+          <legend className="sr-only">Sign in as</legend>
+          <label className={role === 'worker' ? 'is-on' : ''}>
+            <input
+              type="radio"
+              name="ws-role"
+              value="worker"
+              checked={role === 'worker'}
+              onChange={() => setRole('worker')}
+            />
             Worker
-          </button>
-          <button
-            type="button"
-            className={role === 'manager' ? 'is-on' : ''}
-            onClick={() => setRole('manager')}
-          >
+          </label>
+          <label className={role === 'manager' ? 'is-on' : ''}>
+            <input
+              type="radio"
+              name="ws-role"
+              value="manager"
+              checked={role === 'manager'}
+              onChange={() => setRole('manager')}
+            />
             Manager
-          </button>
-        </div>
+          </label>
+        </fieldset>
 
         {role === 'worker' && (
           <label>

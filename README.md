@@ -9,6 +9,19 @@ Interior products website with categories, prices, photo uploads, and an AI room
 - **AI Interior Guide** — chat board that suggests products for a room/style/budget
 - **Visualise AI** — upload a room photo, pick a Priyabadal Homes product + colour, generate a product-referenced preview
 - **Add Product** — upload a photograph (or paste image URL), set category, subcategory, and price
+- **Workshop worker app** (`/workers`) — Android-installable PWA for floor staff: managers assign designing → cutting → pasting → colouring → finishing → QC → dispatch; workers post live status; full accountability trail when orders close
+
+## Workshop floor app (workers)
+
+Open **`/workers`** on phones (Chrome → Add to Home screen for an Android app icon).
+
+1. Run the site with the API (`npm run dev` or `npm run preview`) on a workshop PC so all phones share live state.
+2. **Manager** signs in with PIN `2468` (override with `WORKSHOP_MANAGER_PIN`).
+3. Post an order, assign each stage to a worker (roster W01–W60).
+4. **Workers** sign in with code + PIN (manager board → Show login PINs).
+5. Workers start work, post what they are doing, mark stage complete — manager live board updates every few seconds.
+
+Data is stored in `data/workshop.json` (gitignored).
 
 ## Develop
 

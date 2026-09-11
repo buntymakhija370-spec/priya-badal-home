@@ -12,6 +12,10 @@ import { HowItWorksPage } from './pages/HowItWorksPage'
 import { CarcassAssemblyPage } from './pages/CarcassAssemblyPage'
 import { AiSubscribePage } from './pages/AiSubscribePage'
 import { AiAdminPage } from './pages/AiAdminPage'
+import { RequireAuth, WorkersLayout } from './pages/WorkersLayout'
+import { WorkersLoginPage } from './pages/WorkersLoginPage'
+import { WorkerHomePage } from './pages/WorkerHomePage'
+import { ManagerDashboardPage } from './pages/ManagerDashboardPage'
 import './App.css'
 
 /** Old Design / Visualise / Carcass Planner URLs → unified Chat hub */
@@ -28,6 +32,15 @@ export default function App() {
     <BrowserRouter>
       <ScrollToTop />
       <Routes>
+        <Route path="workers" element={<WorkersLayout />}>
+          <Route index element={<WorkersLoginPage />} />
+          <Route element={<RequireAuth role="worker" />}>
+            <Route path="home" element={<WorkerHomePage />} />
+          </Route>
+          <Route element={<RequireAuth role="manager" />}>
+            <Route path="manage" element={<ManagerDashboardPage />} />
+          </Route>
+        </Route>
         <Route element={<Layout />}>
           <Route index element={<HomePage />} />
           <Route path="shop" element={<ShopPage />} />

@@ -1,0 +1,41 @@
+{
+  "id": "/workers",
+  "name": "Priyabadal Workshop",
+  "short_name": "Workshop",
+  "description": "Assign floor work and track cutting, pasting, colouring, finishing, QC, and dispatch in real time.",
+  "start_url": "/workers?source=pwa",
+  "scope": "/workers",
+  "display": "standalone",
+  "orientation": "portrait-primary",
+  "background_color": "#1a2420",
+  "theme_color": "#1a2420",
+  "lang": "en-IN",
+  "dir": "ltr",
+  "categories": ["business", "productivity"],
+  "icons": [
+    {
+      "src": "/icons/icon-96.png",
+      "sizes": "96x96",
+      "type": "image/png",
+      "purpose": "any"
+    },
+    {
+      "src": "/icons/icon-192.png",
+      "sizes": "192x192",
+      "type": "image/png",
+      "purpose": "any"
+    },
+    {
+      "src": "/icons/icon-512.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "any"
+    },
+    {
+      "src": "/icons/maskable-512.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "maskable"
+    }
+  ]
+}

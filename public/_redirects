@@ -1,2 +1,19 @@
-# Cloudflare Pages — SPA fallback for React Router
-/*    /index.html   200
+# Cloudflare Pages — SPA fallback for React Router paths only.
+# Do NOT use a catch-all /* rule: it can serve index.html for /assets/*.js
+# on custom domains (broken MIME type / blank site).
+/shop /index.html 200
+/shop/* /index.html 200
+/product /index.html 200
+/product/* /index.html 200
+/chat /index.html 200
+/chat/* /index.html 200
+/favorites /index.html 200
+/cart /index.html 200
+/ai /index.html 200
+/ai-admin /index.html 200
+/how-it-works /index.html 200
+/guides/carcass-assembly /index.html 200
+/design /index.html 200
+/visualise /index.html 200
+/carcass /index.html 200
+/add-product /index.html 200

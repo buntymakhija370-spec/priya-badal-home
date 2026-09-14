@@ -2,11 +2,13 @@ import { useEffect, useState } from 'react'
 import { Link } from 'react-router-dom'
 import {
   WORK_STAGES,
+  floorLabel,
   formatDuration,
   orderProgress,
   priorityLabel,
   stageHint,
   stageLabel,
+  type FloorType,
   type OrderPriority,
   type OrderStage,
   type StageStatus,
@@ -17,6 +19,12 @@ import {
 
 export function PriorityBadge({ priority }: { priority: OrderPriority }) {
   return <span className={`ws-priority ws-priority--${priority}`}>{priorityLabel(priority)}</span>
+}
+
+export function FloorBadge({ floorType }: { floorType: FloorType }) {
+  return (
+    <span className={`ws-floor-badge ws-floor-badge--${floorType}`}>{floorLabel(floorType)}</span>
+  )
 }
 
 export function StatusPill({ status }: { status: StageStatus | WorkshopOrder['status'] }) {
@@ -157,6 +165,12 @@ export function OrderMetaGrid({ order }: { order: WorkshopOrder }) {
   const { percent } = orderProgress(order)
   return (
     <dl className="ws-meta">
+      <div>
+        <dt>Work floor</dt>
+        <dd>
+          <FloorBadge floorType={order.floorType} />
+        </dd>
+      </div>
       <div>
         <dt>Customer</dt>
         <dd>{order.customerName}</dd>

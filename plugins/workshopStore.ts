@@ -6,6 +6,7 @@ import { existsSync, mkdirSync, readFileSync, writeFileSync, unlinkSync } from '
 import { resolve } from 'node:path'
 import { randomBytes } from 'node:crypto'
 import type {
+  FloorType,
   Machine,
   MachineStatus,
   OrderPriority,
@@ -17,7 +18,7 @@ import type {
   WorkshopOrder,
   WorkshopSnapshot,
 } from '../src/lib/workshopTypes.ts'
-import { WORK_STAGES, emptyStages, orderProgress, stageLabel } from '../src/lib/workshopTypes.ts'
+import { WORK_STAGES, emptyStages, orderProgress, stageLabel, stagesForFloor, floorLabel } from '../src/lib/workshopTypes.ts'
 
 type StoreFile = {
   workers: Worker[]
@@ -45,11 +46,12 @@ const BAYS = ['Bay A', 'Bay B', 'Bay C', 'Bay D', 'Polish room', 'Dispatch dock'
 const ROLE_CYCLE: Worker['role'][] = [
   'designing',
   'cutting',
-  'pasting',
-  'colouring',
-  'finishing',
+  'edge_bending',
+  'boring',
+  'paint_booth',
   'quality_check',
-  'dispatching',
+  'dispatch',
+  'billing',
   'multi',
 ]
 
@@ -99,21 +101,25 @@ function pushUpdate(
 function seedOrders(workers: Worker[]): { orders: WorkshopOrder[]; events: StatusEvent[] } {
   const designer = workers.find((w) => w.role === 'designing')!
   const cutter = workers.find((w) => w.role === 'cutting')!
-  const paster = workers.find((w) => w.role === 'pasting')!
-  const colour = workers.find((w) => w.role === 'colouring')!
-  const finisher = workers.find((w) => w.role === 'finishing')!
+  const edger = workers.find((w) => w.role === 'edge_bending')!
+  const borer = workers.find((w) => w.role === 'boring')!
+  const painter = workers.find((w) => w.role === 'paint_booth')!
+  void edger
+  void borer
   const qc = workers.find((w) => w.role === 'quality_check')!
-  const dispatcher = workers.find((w) => w.role === 'dispatching')!
+  const dispatcher = workers.find((w) => w.role === 'dispatch')!
+  const biller = workers.find((w) => w.role === 'billing')!
 
   const mk = (
     orderNo: string,
     customerName: string,
     productLabel: string,
     notes: string,
+    floorType: FloorType,
     extra: Partial<WorkshopOrder>,
     mutate: (stages: OrderStage[]) => void,
   ): WorkshopOrder => {
-    const stages = emptyStages()
+    const stages = emptyStages(floorType)
     mutate(stages)
     const anyProgress = stages.some((s) => s.status !== 'pending')
     const allDone = stages.every((s) => s.status === 'done')
@@ -132,15 +138,18 @@ function seedOrders(workers: Worker[]): { orders: WorkshopOrder[]; events: Statu
       finish: extra.finish || 'Matt laminate',
       bay: extra.bay || 'Bay A',
       dueDate: extra.dueDate ?? daysFromNow(5),
+      floorType,
       stages,
     }
   }
 
+  // Modular sample — designing done, cutting in progress
   const o1 = mk(
     'PBH-2401',
     'Sharma Residence',
-    'Kitchen shutter set — oak matt',
-    '8 shutters, soft-close hinges, soft-close drawers ×4',
+    'Modular kitchen carcass — oak matt',
+    '8 carcass units, soft-close',
+    'modular',
     {
       priority: 'urgent',
       quantity: 8,
@@ -158,70 +167,76 @@ function seedOrders(workers: Worker[]): { orders: WorkshopOrder[]; events: Statu
       d.completedAt = hoursAgo(26)
       d.statement = 'Layout locked, CNC file ready'
       d.updates = [
-        { id: uid('upd'), at: hoursAgo(28), workerId: designer.id, text: 'Started kitchen layout review', kind: 'started' },
+        { id: uid('upd'), at: hoursAgo(28), workerId: designer.id, text: 'Started modular layout', kind: 'started' },
         { id: uid('upd'), at: hoursAgo(26), workerId: designer.id, text: 'Layout locked, CNC file ready', kind: 'completed' },
       ]
       const c = stages.find((s) => s.stageId === 'cutting')!
       c.status = 'in_progress'
       c.workerId = cutter.id
       c.startedAt = hoursAgo(4)
-      c.statement = 'Cutting carcass panels — bay 2, 6/8 done'
+      c.statement = 'Cutting modular panels — bay 2, 6/8 done'
       c.managerNote = 'Priority for Tuesday install'
       c.updates = [
-        { id: uid('upd'), at: hoursAgo(4), workerId: cutter.id, text: 'Started cutting carcass panels — bay 2', kind: 'started' },
-        { id: uid('upd'), at: hoursAgo(1), workerId: cutter.id, text: 'Cutting carcass panels — bay 2, 6/8 done', kind: 'statement' },
+        { id: uid('upd'), at: hoursAgo(4), workerId: cutter.id, text: 'Started cutting modular panels', kind: 'started' },
+        { id: uid('upd'), at: hoursAgo(1), workerId: cutter.id, text: 'Cutting modular panels — 6/8 done', kind: 'statement' },
       ]
     },
   )
 
+  // Hand crafted sample — designing assigned
   const o2 = mk(
     'PBH-2402',
     'Mehta Villa',
-    'Wardrobe 8 ft — walnut',
-    'Sliding + openable mix, LED strip inside',
+    'Hand crafted fluted TV panel',
+    'White + brass accents, 10 ft',
+    'handcrafted',
     {
-      priority: 'normal',
+      priority: 'rush',
       quantity: 1,
-      material: 'BWP 18mm + walnut veneer',
-      finish: 'Walnut polish',
-      bay: 'Bay C',
-      dueDate: daysFromNow(7),
+      material: 'MDF fluted',
+      finish: 'White gloss + brass',
+      bay: 'Paint booth',
+      dueDate: daysFromNow(3),
       createdAt: hoursAgo(12),
     },
     (stages) => {
       const d = stages.find((s) => s.stageId === 'designing')!
       d.status = 'assigned'
       d.workerId = designer.id
-      d.managerNote = 'Confirm sliding track brand with client'
-      const p = stages.find((s) => s.stageId === 'pasting')!
-      p.status = 'assigned'
-      p.workerId = paster.id
-      p.managerNote = 'Start after cutting releases panels'
+      d.managerNote = 'Confirm fluted groove spacing with client'
+      const c = stages.find((s) => s.stageId === 'cutting')!
+      c.status = 'assigned'
+      c.workerId = cutter.id
+      c.managerNote = 'Cut after design approval'
     },
   )
 
+  // Modular open — not started
   const o3 = mk(
     'PBH-2403',
     'Kapoor Flat',
-    'TV wall panel — fluted',
-    'White + brass accents, 10 ft width',
+    'Modular wardrobe boxes — walnut',
+    'Sliding mix, LED strip',
+    'modular',
     {
-      priority: 'rush',
+      priority: 'normal',
       quantity: 1,
-      material: 'MDF fluted + laminate',
-      finish: 'White gloss + brass trim',
-      bay: 'Polish room',
-      dueDate: daysFromNow(1),
+      material: 'BWP 18mm',
+      finish: 'Walnut laminate',
+      bay: 'Bay C',
+      dueDate: daysFromNow(7),
       createdAt: hoursAgo(6),
     },
     () => {},
   )
 
+  // Closed handcrafted reference
   const o4 = mk(
     'PBH-2390',
     'Iyer Home',
-    'Temple unit — teak',
-    'Delivered last week — closed reference order',
+    'Hand crafted temple panel — teak',
+    'Delivered last week — closed reference',
+    'handcrafted',
     {
       priority: 'normal',
       quantity: 1,
@@ -232,17 +247,16 @@ function seedOrders(workers: Worker[]): { orders: WorkshopOrder[]; events: Statu
       createdAt: hoursAgo(120),
     },
     (stages) => {
-      const map: Record<string, Worker> = {
+      const map: Partial<Record<string, Worker>> = {
         designing: designer,
         cutting: cutter,
-        pasting: paster,
-        colouring: colour,
-        finishing: finisher,
+        paint_booth: painter,
         quality_check: qc,
-        dispatching: dispatcher,
+        dispatch: dispatcher,
+        billing: biller,
       }
       for (const s of stages) {
-        const w = map[s.stageId]
+        const w = map[s.stageId]!
         s.status = 'done'
         s.workerId = w.id
         s.startedAt = hoursAgo(100)
@@ -263,7 +277,7 @@ function seedOrders(workers: Worker[]): { orders: WorkshopOrder[]; events: Statu
       workerId: designer.id,
       stageId: 'designing',
       kind: 'completed',
-      message: `${designer.name} completed Designing on ${o1.orderNo}`,
+      message: `${designer.name} completed Designing on ${o1.orderNo} (Modular)`,
     },
     {
       id: uid('evt'),
@@ -272,16 +286,7 @@ function seedOrders(workers: Worker[]): { orders: WorkshopOrder[]; events: Statu
       workerId: cutter.id,
       stageId: 'cutting',
       kind: 'started',
-      message: `${cutter.name} started Cutting on ${o1.orderNo}: Cutting carcass panels — bay 2`,
-    },
-    {
-      id: uid('evt'),
-      at: hoursAgo(1),
-      orderId: o1.id,
-      workerId: cutter.id,
-      stageId: 'cutting',
-      kind: 'statement',
-      message: `${cutter.name} on ${o1.orderNo} (Cutting): Cutting carcass panels — bay 2, 6/8 done`,
+      message: `${cutter.name} started Cutting on ${o1.orderNo}: Cutting modular panels`,
     },
     {
       id: uid('evt'),
@@ -290,16 +295,16 @@ function seedOrders(workers: Worker[]): { orders: WorkshopOrder[]; events: Statu
       workerId: designer.id,
       stageId: 'designing',
       kind: 'assigned',
-      message: `${designer.name} assigned to Designing on ${o2.orderNo}`,
+      message: `${designer.name} assigned to Designing on ${o2.orderNo} (Hand Crafted)`,
     },
     {
       id: uid('evt'),
       at: hoursAgo(90),
       orderId: o4.id,
       workerId: 'manager',
-      stageId: 'dispatching',
+      stageId: 'billing',
       kind: 'closed',
-      message: `Order ${o4.orderNo} closed — all workmanship stages done`,
+      message: `Order ${o4.orderNo} closed — Hand Crafted floor complete`,
     },
   ]
 
@@ -308,15 +313,15 @@ function seedOrders(workers: Worker[]): { orders: WorkshopOrder[]; events: Statu
 
 function seedMachines(workers: Worker[], orders: WorkshopOrder[]): Machine[] {
   const cutter = workers.find((w) => w.role === 'cutting')
-  const paster = workers.find((w) => w.role === 'pasting')
+  const paster = workers.find((w) => w.role === 'edge_bending')
   const qc = workers.find((w) => w.role === 'quality_check')
-  const dispatcher = workers.find((w) => w.role === 'dispatching')
+  const dispatcher = workers.find((w) => w.role === 'dispatch')
 
   const o1 = orders.find((o) => o.orderNo === 'PBH-2401')
   const o2 = orders.find((o) => o.orderNo === 'PBH-2402')
 
   const o1Cutting = o1?.stages.find((s) => s.stageId === 'cutting')
-  const o2Pasting = o2?.stages.find((s) => s.stageId === 'pasting')
+  const o2Pasting = o2?.stages.find((s) => s.stageId === 'paint_booth')
 
   const mk = (
     code: string,
@@ -351,7 +356,7 @@ function seedMachines(workers: Worker[], orders: WorkshopOrder[]): Machine[] {
     mk('PRESS-01', 'Hot press', 'Pasting', 'Bay C', {
       status: 'running',
       orderId: o2?.id ?? null,
-      stageId: 'pasting',
+      stageId: 'paint_booth',
       operatorId: o2Pasting?.workerId ?? paster?.id ?? null,
       note: 'Queued for wardrobe panels',
     }),
@@ -388,9 +393,11 @@ function normalizeStage(raw: Partial<OrderStage> & { stageId: WorkStageId }): Or
   }
 }
 
-function normalizeOrder(raw: WorkshopOrder): WorkshopOrder {
-  const src = Array.isArray(raw.stages) ? raw.stages : emptyStages()
-  const stages = emptyStages().map((blank) => {
+function normalizeOrder(raw: WorkshopOrder & { floorType?: FloorType }): WorkshopOrder {
+  const floorType: FloorType =
+    raw.floorType === 'handcrafted' || raw.floorType === 'modular' ? raw.floorType : 'modular'
+  const src = Array.isArray(raw.stages) ? raw.stages : emptyStages(floorType)
+  const stages = emptyStages(floorType).map((blank) => {
     const found = src.find((s) => s.stageId === blank.stageId)
     return found ? normalizeStage(found) : blank
   })
@@ -409,6 +416,7 @@ function normalizeOrder(raw: WorkshopOrder): WorkshopOrder {
     finish: raw.finish || '',
     bay: raw.bay || '',
     dueDate: raw.dueDate ?? null,
+    floorType,
     stages,
   }
 }
@@ -544,12 +552,17 @@ export function createOrder(input: {
   finish?: string
   bay?: string
   dueDate?: string | null
+  floorType: FloorType
 }): WorkshopOrder {
   const store = ensureStore()
+  if (input.floorType !== 'modular' && input.floorType !== 'handcrafted') {
+    throw new Error('Select Modular or Hand Crafted Panels')
+  }
   const orderNo = input.orderNo.trim() || `PBH-${Date.now().toString().slice(-4)}`
   if (store.orders.some((o) => o.orderNo === orderNo && !o.closedAt)) {
     throw new Error(`Open order ${orderNo} already exists`)
   }
+  const floorType = input.floorType
   const order: WorkshopOrder = {
     id: uid('ord'),
     orderNo,
@@ -565,7 +578,8 @@ export function createOrder(input: {
     finish: (input.finish || '').trim(),
     bay: (input.bay || '').trim(),
     dueDate: input.dueDate || null,
-    stages: emptyStages(),
+    floorType,
+    stages: emptyStages(floorType),
   }
   store.orders.unshift(order)
   pushEvent(store, {
@@ -573,7 +587,7 @@ export function createOrder(input: {
     workerId: 'manager',
     stageId: 'designing',
     kind: 'assigned',
-    message: `Manager posted order ${order.orderNo} — ${order.productLabel}`,
+    message: `Manager posted ${floorLabel(order.floorType)} order ${order.orderNo} — ${order.productLabel}`,
   })
   saveStore(store)
   return order
@@ -591,6 +605,9 @@ export function assignStage(input: {
   if (order.status === 'closed') throw new Error('Order is closed')
   const worker = store.workers.find((w) => w.id === input.workerId && w.active)
   if (!worker) throw new Error('Worker not found')
+  if (!stagesForFloor(order.floorType).includes(input.stageId)) {
+    throw new Error(`${stageLabel(input.stageId)} is not on the ${floorLabel(order.floorType)} floor`)
+  }
   const stage = order.stages.find((s) => s.stageId === input.stageId)
   if (!stage) throw new Error('Stage not found')
   if (stage.status === 'done') throw new Error('Stage already completed')
@@ -733,7 +750,7 @@ export function closeOrder(orderId: string, managerName = 'Manager'): WorkshopOr
   pushEvent(store, {
     orderId: order.id,
     workerId: 'manager',
-    stageId: 'dispatching',
+    stageId: 'dispatch',
     kind: 'closed',
     message: `${managerName} closed order ${order.orderNo}`,
   })
@@ -777,12 +794,23 @@ export function updateMachine(input: {
   return machine
 }
 
-export function processBoard() {
+export function processBoard(floorType?: FloorType | 'all') {
   const store = ensureStore()
-  const open = store.orders.filter((o) => o.status !== 'closed')
+  const open = store.orders.filter((o) => {
+    if (o.status === 'closed') return false
+    if (!floorType || floorType === 'all') return true
+    return o.floorType === floorType
+  })
   const workerMap = new Map(store.workers.map((w) => [w.id, w]))
 
-  const columns = WORK_STAGES.map((stage) => {
+  const stageIds =
+    floorType && floorType !== 'all'
+      ? stagesForFloor(floorType)
+      : (WORK_STAGES.map((s) => s.id) as WorkStageId[])
+
+  const columns = stageIds.map((stageId) => {
+    const stage = WORK_STAGES.find((s) => s.id === stageId)!
+
     const active: {
       order: WorkshopOrder
       stage: OrderStage
@@ -800,10 +828,9 @@ export function processBoard() {
           worker: s.workerId ? workerMap.get(s.workerId) ?? null : null,
         })
       } else if (s.status === 'pending') {
-        const prevDone = order.stages
-          .slice(0, WORK_STAGES.findIndex((x) => x.id === stage.id))
-          .every((x) => x.status === 'done')
-        if (prevDone) pending.push({ order, stage: s })
+        const idx = order.stages.findIndex((x) => x.stageId === stage.id)
+        const prevDone = order.stages.slice(0, idx).every((x) => x.status === 'done')
+        if (prevDone || idx === 0) pending.push({ order, stage: s })
       }
     }
 

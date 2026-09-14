@@ -55,7 +55,7 @@ export function WorkersLoginPage() {
         <p className="ws-login__kicker">Priyabadal Homes</p>
         <h2>Floor orders on every phone</h2>
         <p>
-          Managers assign cutting, pasting, colouring, finishing, QC, and dispatch. Workers open
+          Managers post Modular or Hand Crafted orders and assign designing through billing. Workers open
           their job, post what they are doing, and close their stage with a clear trail.
         </p>
         <button type="button" className="ws__ghost" onClick={() => setInstallHint((v) => !v)}>

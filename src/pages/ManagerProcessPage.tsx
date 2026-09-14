@@ -1,22 +1,28 @@
 import { useCallback, useEffect, useState } from 'react'
 import { Link, useOutletContext } from 'react-router-dom'
-import { PriorityBadge } from '../components/workshop/WorkshopUi'
-import { fetchProcessBoard, type ProcessBoardResponse, type WorkshopAuth } from '../lib/workshopClient'
-import { stageLabel } from '../lib/workshopTypes'
+import { FloorBadge, PriorityBadge } from '../components/workshop/WorkshopUi'
+import {
+  fetchProcessBoard,
+  type ProcessBoardResponse,
+  type WorkshopAuth,
+} from '../lib/workshopClient'
+import { FLOOR_TYPES, stageLabel, type FloorType } from '../lib/workshopTypes'
 import './WorkersApp.css'
 
 type Ctx = { auth: WorkshopAuth | null }
+type FloorFilter = FloorType | 'all'
 
 export function ManagerProcessPage() {
   const { auth } = useOutletContext<Ctx>()
   const pin = auth?.role === 'manager' ? auth.pin : ''
+  const [floor, setFloor] = useState<FloorFilter>('all')
   const [board, setBoard] = useState<ProcessBoardResponse | null>(null)
   const [msg, setMsg] = useState<string | null>(null)
 
   const refresh = useCallback(async () => {
     if (!pin) return
-    setBoard(await fetchProcessBoard(pin))
-  }, [pin])
+    setBoard(await fetchProcessBoard(pin, floor))
+  }, [pin, floor])
 
   useEffect(() => {
     void refresh().catch((e) => setMsg(e instanceof Error ? e.message : 'Load failed'))
@@ -40,6 +46,30 @@ export function ManagerProcessPage() {
           </p>
         </div>
       </header>
+
+      <nav className="ws-seg" aria-label="Work floor filter">
+        <button
+          type="button"
+          className={floor === 'all' ? 'is-on' : ''}
+          onClick={() => setFloor('all')}
+        >
+          All floors
+        </button>
+        {FLOOR_TYPES.map((f) => (
+          <button
+            key={f.id}
+            type="button"
+            className={floor === f.id ? 'is-on' : ''}
+            onClick={() => setFloor(f.id)}
+          >
+            {f.label}
+          </button>
+        ))}
+      </nav>
+
+      {floor !== 'all' && (
+        <p className="ws-muted ws-floor-hint">{FLOOR_TYPES.find((f) => f.id === floor)?.summary}</p>
+      )}
 
       {msg && <p className="ws-banner">{msg}</p>}
 
@@ -65,6 +95,7 @@ export function ManagerProcessPage() {
                     <strong>{order.orderNo}</strong>
                     <PriorityBadge priority={order.priority} />
                   </div>
+                  <FloorBadge floorType={order.floorType} />
                   <p className="ws-muted">{order.customerName}</p>
                   <p>{order.productLabel}</p>
                   {worker && (
@@ -75,7 +106,9 @@ export function ManagerProcessPage() {
                   {stage.statement && (
                     <p className="ws-process-card__stmt">{stage.statement}</p>
                   )}
-                  <span className="ws-pill ws-pill--in_progress">{stage.status.replace(/_/g, ' ')}</span>
+                  <span className="ws-pill ws-pill--in_progress">
+                    {stage.status.replace(/_/g, ' ')}
+                  </span>
                 </Link>
               ))}
 
@@ -89,6 +122,7 @@ export function ManagerProcessPage() {
                     <strong>{order.orderNo}</strong>
                     <PriorityBadge priority={order.priority} />
                   </div>
+                  <FloorBadge floorType={order.floorType} />
                   <p className="ws-muted">{order.customerName}</p>
                   <p>{order.productLabel}</p>
                   <span className="ws-pill ws-pill--pending">Not started</span>

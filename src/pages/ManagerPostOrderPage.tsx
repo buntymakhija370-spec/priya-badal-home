@@ -1,18 +1,34 @@
-import { useState, type FormEvent } from 'react'
+import { useMemo, useState, type FormEvent } from 'react'
 import { useNavigate, useOutletContext } from 'react-router-dom'
 import { createWorkshopOrder, type WorkshopAuth } from '../lib/workshopClient'
-import type { OrderPriority } from '../lib/workshopTypes'
+import {
+  FLOOR_TYPES,
+  type FloorType,
+  type OrderPriority,
+  stagesForFloor,
+  stageLabel,
+} from '../lib/workshopTypes'
 import './WorkersApp.css'
 
 type Ctx = { auth: WorkshopAuth | null }
 
-const BAYS = ['Bay A', 'Bay B', 'Bay C', 'Bay D', 'Polish room', 'Dispatch dock', 'CNC cell', 'Assembly']
+const BAYS = [
+  'Bay A',
+  'Bay B',
+  'Bay C',
+  'Bay D',
+  'Paint booth',
+  'Dispatch dock',
+  'CNC cell',
+  'Assembly',
+]
 
 export function ManagerPostOrderPage() {
   const { auth } = useOutletContext<Ctx>()
   const pin = auth?.role === 'manager' ? auth.pin : ''
   const navigate = useNavigate()
 
+  const [floorType, setFloorType] = useState<FloorType>('modular')
   const [orderNo, setOrderNo] = useState('')
   const [customerName, setCustomerName] = useState('')
   const [productLabel, setProductLabel] = useState('')
@@ -25,6 +41,9 @@ export function ManagerPostOrderPage() {
   const [dueDate, setDueDate] = useState('')
   const [msg, setMsg] = useState<string | null>(null)
   const [busy, setBusy] = useState(false)
+
+  const pipeline = useMemo(() => stagesForFloor(floorType).map(stageLabel), [floorType])
+  const selectedFloor = FLOOR_TYPES.find((f) => f.id === floorType)!
 
   if (!auth || auth.role !== 'manager') return null
 
@@ -45,6 +64,7 @@ export function ManagerPostOrderPage() {
         finish: finish || undefined,
         bay: bay || undefined,
         dueDate: dueDate || null,
+        floorType,
       })
       navigate(`/workers/manage/orders/${order.id}`, { replace: true })
     } catch (err) {
@@ -59,13 +79,43 @@ export function ManagerPostOrderPage() {
         <div>
           <p className="ws-login__kicker">New work</p>
           <h2>Post order</h2>
-          <p className="ws-muted">Create a job on the floor — assign stages after posting.</p>
+          <p className="ws-muted">
+            Choose the work floor first — Modular and Hand Crafted Panels use different stage
+            pipelines.
+          </p>
         </div>
       </header>
 
       {msg && <p className="ws-banner ws-banner--error">{msg}</p>}
 
       <form className="ws-form ws-panel" onSubmit={onSubmit}>
+        <fieldset className="ws-floor-pick">
+          <legend>Work floor section</legend>
+          <div className="ws-floor-pick__grid">
+            {FLOOR_TYPES.map((floor) => (
+              <label
+                key={floor.id}
+                className={`ws-floor-card ${floorType === floor.id ? 'is-on' : ''}`}
+              >
+                <input
+                  type="radio"
+                  name="floorType"
+                  value={floor.id}
+                  checked={floorType === floor.id}
+                  onChange={() => setFloorType(floor.id)}
+                />
+                <strong>{floor.label}</strong>
+                <span>{floor.summary}</span>
+              </label>
+            ))}
+          </div>
+          <ol className="ws-floor-pick__pipe" aria-label={`${selectedFloor.label} stages`}>
+            {pipeline.map((name) => (
+              <li key={name}>{name}</li>
+            ))}
+          </ol>
+        </fieldset>
+
         <label>
           Order no.
           <input
@@ -89,7 +139,11 @@ export function ManagerPostOrderPage() {
           <input
             value={productLabel}
             onChange={(e) => setProductLabel(e.target.value)}
-            placeholder="Kitchen shutters — oak matt"
+            placeholder={
+              floorType === 'modular'
+                ? 'Modular kitchen carcass — oak matt'
+                : 'Hand crafted fluted TV panel'
+            }
             required
           />
         </label>
@@ -123,7 +177,11 @@ export function ManagerPostOrderPage() {
           </label>
           <label>
             Finish
-            <input value={finish} onChange={(e) => setFinish(e.target.value)} placeholder="Matt laminate" />
+            <input
+              value={finish}
+              onChange={(e) => setFinish(e.target.value)}
+              placeholder={floorType === 'modular' ? 'Matt laminate' : 'Paint / polish'}
+            />
           </label>
         </div>
         <div className="ws-form__row">
@@ -132,7 +190,9 @@ export function ManagerPostOrderPage() {
             <select value={bay} onChange={(e) => setBay(e.target.value)}>
               <option value="">— Select —</option>
               {BAYS.map((b) => (
-                <option key={b} value={b}>{b}</option>
+                <option key={b} value={b}>
+                  {b}
+                </option>
               ))}
             </select>
           </label>
@@ -142,7 +202,7 @@ export function ManagerPostOrderPage() {
           </label>
         </div>
         <button type="submit" className="ws__primary" disabled={busy}>
-          {busy ? 'Posting…' : 'Post order'}
+          {busy ? 'Posting…' : `Post ${selectedFloor.label} order`}
         </button>
       </form>
     </main>

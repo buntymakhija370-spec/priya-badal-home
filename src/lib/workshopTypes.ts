@@ -1,16 +1,49 @@
-/** Shared workshop floor types — workers, orders, stage accountability */
+/** Shared workshop floor types — two work floors with different stage pipelines */
 
+/** All stage ids used across floors */
 export const WORK_STAGES = [
-  { id: 'designing', label: 'Designing', short: 'Design', hint: 'Layout, drawings, CNC file' },
-  { id: 'cutting', label: 'Cutting', short: 'Cut', hint: 'Panels & shutters cut to size' },
-  { id: 'pasting', label: 'Pasting', short: 'Paste', hint: 'Laminate / veneer pasting' },
-  { id: 'colouring', label: 'Colouring', short: 'Colour', hint: 'Paint, polish, stain' },
-  { id: 'finishing', label: 'Finishing', short: 'Finish', hint: 'Edge, hardware, fit-up' },
+  { id: 'designing', label: 'Designing', short: 'Design', hint: 'Layout, drawings, CNC / cut list' },
+  { id: 'cutting', label: 'Cutting', short: 'Cut', hint: 'Panels cut to size' },
+  { id: 'edge_bending', label: 'Edge bending', short: 'Edge', hint: 'Edge banding on modular panels' },
+  { id: 'boring', label: 'Boring', short: 'Bore', hint: 'Hinge / shelf / connector holes' },
+  { id: 'paint_booth', label: 'Paint booth', short: 'Paint', hint: 'Hand-crafted colour & polish' },
   { id: 'quality_check', label: 'Quality check', short: 'QC', hint: 'Measure & approve' },
-  { id: 'dispatching', label: 'Dispatching', short: 'Dispatch', hint: 'Pack & send to site' },
+  { id: 'dispatch', label: 'Dispatch', short: 'Dispatch', hint: 'Pack & send to site' },
+  { id: 'billing', label: 'Billing', short: 'Bill', hint: 'Final billing & close' },
 ] as const
 
 export type WorkStageId = (typeof WORK_STAGES)[number]['id']
+
+export type FloorType = 'modular' | 'handcrafted'
+
+export const FLOOR_TYPES: {
+  id: FloorType
+  label: string
+  summary: string
+  stageIds: WorkStageId[]
+}[] = [
+  {
+    id: 'modular',
+    label: 'Modular',
+    summary: 'Designing → Cutting → Edge bending → Boring → Quality check → Dispatch → Billing',
+    stageIds: [
+      'designing',
+      'cutting',
+      'edge_bending',
+      'boring',
+      'quality_check',
+      'dispatch',
+      'billing',
+    ],
+  },
+  {
+    id: 'handcrafted',
+    label: 'Hand Crafted Panels',
+    summary: 'Designing → Cutting → Paint booth → Quality check → Dispatch → Billing',
+    stageIds: ['designing', 'cutting', 'paint_booth', 'quality_check', 'dispatch', 'billing'],
+  },
+]
+
 export type WorkerRole = WorkStageId | 'multi'
 export type OrderPriority = 'normal' | 'urgent' | 'rush'
 export type StageStatus = 'pending' | 'assigned' | 'in_progress' | 'done'
@@ -70,6 +103,8 @@ export type WorkshopOrder = {
   finish: string
   bay: string
   dueDate: string | null
+  /** Which work floor this order runs on */
+  floorType: FloorType
   stages: OrderStage[]
 }
 
@@ -82,12 +117,13 @@ export type Machine = {
   type: string
   bay: string
   status: MachineStatus
-  /** Current order using this machine, if any */
   orderId: string | null
   stageId: WorkStageId | null
   operatorId: string | null
   note: string
   updatedAt: string
+  /** Optional floor this machine mainly serves */
+  floorType?: FloorType | 'shared'
 }
 
 export type WorkshopSnapshot = {
@@ -98,6 +134,18 @@ export type WorkshopSnapshot = {
   updatedAt: string
 }
 
+export function floorLabel(id: FloorType): string {
+  return FLOOR_TYPES.find((f) => f.id === id)?.label ?? id
+}
+
+export function floorSummary(id: FloorType): string {
+  return FLOOR_TYPES.find((f) => f.id === id)?.summary ?? ''
+}
+
+export function stagesForFloor(floorType: FloorType): WorkStageId[] {
+  return FLOOR_TYPES.find((f) => f.id === floorType)?.stageIds ?? FLOOR_TYPES[0].stageIds
+}
+
 export function stageLabel(id: WorkStageId): string {
   return WORK_STAGES.find((s) => s.id === id)?.label ?? id
 }
@@ -106,9 +154,13 @@ export function stageHint(id: WorkStageId): string {
   return WORK_STAGES.find((s) => s.id === id)?.hint ?? ''
 }
 
-export function emptyStages(): OrderStage[] {
-  return WORK_STAGES.map((s) => ({
-    stageId: s.id,
+export function stageMeta(id: WorkStageId) {
+  return WORK_STAGES.find((s) => s.id === id)
+}
+
+export function emptyStages(floorType: FloorType = 'modular'): OrderStage[] {
+  return stagesForFloor(floorType).map((stageId) => ({
+    stageId,
     status: 'pending',
     workerId: null,
     startedAt: null,

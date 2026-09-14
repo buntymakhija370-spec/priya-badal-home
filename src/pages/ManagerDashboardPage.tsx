@@ -2,6 +2,7 @@ import { useCallback, useEffect, useMemo, useState, type FormEvent } from 'react
 import { Link, useOutletContext, useSearchParams } from 'react-router-dom'
 import {
   EventTimeline,
+  FloorBadge,
   KpiCard,
   PriorityBadge,
   ProgressBar,
@@ -10,9 +11,11 @@ import {
   StatusPill,
 } from '../components/workshop/WorkshopUi'
 import {
-  WORK_STAGES,
+  FLOOR_TYPES,
   orderProgress,
   stageLabel,
+  stagesForFloor,
+  type FloorType,
   type OrderPriority,
   type StatusEvent,
   type WorkStageId,
@@ -69,6 +72,7 @@ export function ManagerDashboardPage() {
   const [finish, setFinish] = useState('')
   const [bay, setBay] = useState('')
   const [dueDate, setDueDate] = useState('')
+  const [floorType, setFloorType] = useState<FloorType>('modular')
 
   const [assignOrderId, setAssignOrderId] = useState('')
   const [assignStageId, setAssignStageId] = useState<WorkStageId>('cutting')
@@ -123,6 +127,21 @@ export function ManagerDashboardPage() {
     )
   }, [workers, workerSearch])
 
+  const assignOrder = useMemo(
+    () => board?.orders.find((o) => o.id === assignOrderId) ?? null,
+    [board, assignOrderId],
+  )
+  const assignStages = useMemo(
+    () => (assignOrder ? stagesForFloor(assignOrder.floorType) : stagesForFloor('modular')),
+    [assignOrder],
+  )
+
+  useEffect(() => {
+    if (!assignStages.includes(assignStageId)) {
+      setAssignStageId(assignStages[0] ?? 'designing')
+    }
+  }, [assignStages, assignStageId])
+
   function setTab(next: Tab) {
     setParams({ tab: next })
   }
@@ -144,6 +163,7 @@ export function ManagerDashboardPage() {
         finish: finish || undefined,
         bay: bay || undefined,
         dueDate: dueDate || null,
+        floorType,
       })
       setOrderNo('')
       setCustomerName('')
@@ -153,6 +173,7 @@ export function ManagerDashboardPage() {
       setFinish('')
       setBay('')
       setDueDate('')
+      setFloorType('modular')
       setMsg('Order posted — assign stages to workers')
       await refresh()
     } catch (err) {
@@ -293,6 +314,26 @@ export function ManagerDashboardPage() {
             <div className="ws-quick-actions__grid">
               <form className="ws-form" onSubmit={onCreate}>
                 <h4>New order</h4>
+                <fieldset className="ws-floor-pick ws-floor-pick--compact">
+                  <legend>Work floor</legend>
+                  <div className="ws-floor-pick__grid">
+                    {FLOOR_TYPES.map((floor) => (
+                      <label
+                        key={floor.id}
+                        className={`ws-floor-card ${floorType === floor.id ? 'is-on' : ''}`}
+                      >
+                        <input
+                          type="radio"
+                          name="dashFloorType"
+                          value={floor.id}
+                          checked={floorType === floor.id}
+                          onChange={() => setFloorType(floor.id)}
+                        />
+                        <strong>{floor.label}</strong>
+                      </label>
+                    ))}
+                  </div>
+                </fieldset>
                 <label>
                   Order no.
                   <input
@@ -367,7 +408,7 @@ export function ManagerDashboardPage() {
                   <textarea value={notes} onChange={(e) => setNotes(e.target.value)} rows={2} />
                 </label>
                 <button type="submit" className="ws__primary" disabled={busy}>
-                  Post order
+                  Post {FLOOR_TYPES.find((f) => f.id === floorType)?.label} order
                 </button>
               </form>
 
@@ -382,20 +423,26 @@ export function ManagerDashboardPage() {
                   >
                     {board.orders.map((o) => (
                       <option key={o.id} value={o.id}>
-                        {o.orderNo} — {o.productLabel}
+                        {o.orderNo} — {o.floorType === 'modular' ? 'Modular' : 'Hand Crafted'} —{' '}
+                        {o.productLabel}
                       </option>
                     ))}
                   </select>
                 </label>
+                {assignOrder && (
+                  <p className="ws-muted">
+                    Pipeline: {assignStages.map(stageLabel).join(' → ')}
+                  </p>
+                )}
                 <label>
                   Stage
                   <select
                     value={assignStageId}
                     onChange={(e) => setAssignStageId(e.target.value as WorkStageId)}
                   >
-                    {WORK_STAGES.map((s) => (
-                      <option key={s.id} value={s.id}>
-                        {s.label}
+                    {assignStages.map((id) => (
+                      <option key={id} value={id}>
+                        {stageLabel(id)}
                       </option>
                     ))}
                   </select>
@@ -540,6 +587,7 @@ function OrderListCard({ order }: { order: WorkshopOrder }) {
           </p>
         </div>
         <div className="ws-order-card__badges">
+          <FloorBadge floorType={order.floorType} />
           <PriorityBadge priority={order.priority} />
           <StatusPill status={order.status} />
         </div>

@@ -6,16 +6,19 @@ import {
   closeOrder,
   createOrder,
   getManagerPin,
+  listMachines,
   liveBoard,
   loginWorker,
   orderDetail,
+  processBoard,
   resetDemoData,
   snapshot,
   unassignStage,
+  updateMachine,
   workerDetail,
   workerUpdate,
 } from './workshopStore.ts'
-import type { OrderPriority, WorkStageId } from '../src/lib/workshopTypes.ts'
+import type { MachineStatus, OrderPriority, WorkStageId } from '../src/lib/workshopTypes.ts'
 
 function readBody(req: IncomingMessage): Promise<string> {
   return new Promise((resolve, reject) => {
@@ -260,6 +263,49 @@ async function handleWorkerDetail(req: IncomingMessage, res: ServerResponse) {
   }
 }
 
+async function handleMachines(req: IncomingMessage, res: ServerResponse) {
+  try {
+    assertManager(managerPin(req))
+    const store = snapshot()
+    send(res, 200, {
+      machines: listMachines(),
+      orders: store.orders.filter((o) => o.status !== 'closed'),
+      workers: store.workers.map(({ pin: _p, ...rest }) => rest),
+      updatedAt: store.updatedAt,
+    })
+  } catch (err) {
+    send(res, 401, { error: err instanceof Error ? err.message : 'Unauthorized' })
+  }
+}
+
+async function handleMachineUpdate(req: IncomingMessage, res: ServerResponse) {
+  if (req.method !== 'POST') return send(res, 405, { error: 'POST only' })
+  try {
+    assertManager(managerPin(req))
+    const body = await readJson<{
+      machineId: string
+      status?: MachineStatus
+      orderId?: string | null
+      stageId?: WorkStageId | null
+      operatorId?: string | null
+      note?: string
+    }>(req)
+    const machine = updateMachine(body)
+    send(res, 200, { machine, snapshot: snapshot() })
+  } catch (err) {
+    send(res, 400, { error: err instanceof Error ? err.message : 'Update failed' })
+  }
+}
+
+async function handleProcess(req: IncomingMessage, res: ServerResponse) {
+  try {
+    assertManager(managerPin(req))
+    send(res, 200, processBoard())
+  } catch (err) {
+    send(res, 401, { error: err instanceof Error ? err.message : 'Unauthorized' })
+  }
+}
+
 async function handleJobDetail(req: IncomingMessage, res: ServerResponse) {
   const url = new URL(req.url || '/', 'http://local')
   const orderId = url.searchParams.get('orderId') || ''
@@ -301,6 +347,9 @@ function attach(middlewares: Connect.Server) {
   middlewares.use('/api/workshop/order-detail', (req, res) => void handleOrderDetail(req, res))
   middlewares.use('/api/workshop/worker-detail', (req, res) => void handleWorkerDetail(req, res))
   middlewares.use('/api/workshop/job-detail', (req, res) => void handleJobDetail(req, res))
+  middlewares.use('/api/workshop/machines', (req, res) => void handleMachines(req, res))
+  middlewares.use('/api/workshop/machines/update', (req, res) => void handleMachineUpdate(req, res))
+  middlewares.use('/api/workshop/process', (req, res) => void handleProcess(req, res))
 }
 
 export function workshopApiPlugin(): Plugin {

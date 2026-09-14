@@ -17,8 +17,14 @@ import { WorkersLoginPage } from './pages/WorkersLoginPage'
 import { WorkerHomePage } from './pages/WorkerHomePage'
 import { WorkerJobDetailPage } from './pages/WorkerJobDetailPage'
 import { ManagerDashboardPage } from './pages/ManagerDashboardPage'
+import { ManagerMachineryPage } from './pages/ManagerMachineryPage'
 import { ManagerOrderDetailPage } from './pages/ManagerOrderDetailPage'
+import { ManagerOverviewPage } from './pages/ManagerOverviewPage'
+import { ManagerPostOrderPage } from './pages/ManagerPostOrderPage'
+import { ManagerProcessPage } from './pages/ManagerProcessPage'
+import { ManagerSettingsPage } from './pages/ManagerSettingsPage'
 import { ManagerWorkerDetailPage } from './pages/ManagerWorkerDetailPage'
+import { WorkerSettingsPage } from './pages/WorkerSettingsPage'
 import './App.css'
 
 /** Old Design / Visualise / Carcass Planner URLs → unified Chat hub */
@@ -39,10 +45,16 @@ export default function App() {
           <Route index element={<WorkersLoginPage />} />
           <Route element={<RequireAuth role="worker" />}>
             <Route path="home" element={<WorkerHomePage />} />
+            <Route path="home/settings" element={<WorkerSettingsPage />} />
             <Route path="home/job/:orderId/:stageId" element={<WorkerJobDetailPage />} />
           </Route>
           <Route element={<RequireAuth role="manager" />}>
             <Route path="manage" element={<ManagerDashboardPage />} />
+            <Route path="manage/post-order" element={<ManagerPostOrderPage />} />
+            <Route path="manage/process" element={<ManagerProcessPage />} />
+            <Route path="manage/machinery" element={<ManagerMachineryPage />} />
+            <Route path="manage/overview" element={<ManagerOverviewPage />} />
+            <Route path="manage/settings" element={<ManagerSettingsPage />} />
             <Route path="manage/orders/:orderId" element={<ManagerOrderDetailPage />} />
             <Route path="manage/workers/:workerId" element={<ManagerWorkerDetailPage />} />
           </Route>

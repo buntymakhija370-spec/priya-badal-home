@@ -6,6 +6,8 @@ import { existsSync, mkdirSync, readFileSync, writeFileSync, unlinkSync } from '
 import { resolve } from 'node:path'
 import { randomBytes } from 'node:crypto'
 import type {
+  Machine,
+  MachineStatus,
   OrderPriority,
   OrderStage,
   StageUpdate,
@@ -21,6 +23,7 @@ type StoreFile = {
   workers: Worker[]
   orders: WorkshopOrder[]
   events: StatusEvent[]
+  machines: Machine[]
   updatedAt: string
 }
 
@@ -303,6 +306,75 @@ function seedOrders(workers: Worker[]): { orders: WorkshopOrder[]; events: Statu
   return { orders: [o1, o2, o3, o4], events }
 }
 
+function seedMachines(workers: Worker[], orders: WorkshopOrder[]): Machine[] {
+  const cutter = workers.find((w) => w.role === 'cutting')
+  const paster = workers.find((w) => w.role === 'pasting')
+  const qc = workers.find((w) => w.role === 'quality_check')
+  const dispatcher = workers.find((w) => w.role === 'dispatching')
+
+  const o1 = orders.find((o) => o.orderNo === 'PBH-2401')
+  const o2 = orders.find((o) => o.orderNo === 'PBH-2402')
+
+  const o1Cutting = o1?.stages.find((s) => s.stageId === 'cutting')
+  const o2Pasting = o2?.stages.find((s) => s.stageId === 'pasting')
+
+  const mk = (
+    code: string,
+    name: string,
+    type: string,
+    bay: string,
+    extra: Partial<Machine> = {},
+  ): Machine => ({
+    id: uid('mach'),
+    code,
+    name,
+    type,
+    bay,
+    status: 'idle',
+    orderId: null,
+    stageId: null,
+    operatorId: null,
+    note: '',
+    updatedAt: nowIso(),
+    ...extra,
+  })
+
+  return [
+    mk('CNC-01', 'Panel saw / CNC router', 'Cutting', 'CNC cell', {
+      status: 'running',
+      orderId: o1?.id ?? null,
+      stageId: 'cutting',
+      operatorId: o1Cutting?.workerId ?? cutter?.id ?? null,
+      note: 'Running carcass panels — 6/8 done',
+    }),
+    mk('EDGE-01', 'Edge banding', 'Finishing', 'Bay B', { status: 'idle' }),
+    mk('PRESS-01', 'Hot press', 'Pasting', 'Bay C', {
+      status: 'running',
+      orderId: o2?.id ?? null,
+      stageId: 'pasting',
+      operatorId: o2Pasting?.workerId ?? paster?.id ?? null,
+      note: 'Queued for wardrobe panels',
+    }),
+    mk('SPRAY-01', 'Spray booth', 'Colouring', 'Polish room', {
+      status: 'idle',
+      note: 'Booth cleared — ready for next job',
+    }),
+    mk('POLISH-01', 'Polish bench', 'Finishing', 'Polish room', { status: 'idle' }),
+    mk('QC-TABLE', 'Quality bench', 'Quality check', 'Bay A', {
+      status: 'idle',
+      operatorId: qc?.id ?? null,
+    }),
+    mk('PACK-01', 'Dispatch table', 'Dispatching', 'Dispatch dock', {
+      status: 'idle',
+      operatorId: dispatcher?.id ?? null,
+    }),
+    mk('COMP-01', 'Air compressor', 'Utility', 'Bay D', {
+      status: 'maintenance',
+      note: 'Filter change — back online tomorrow',
+    }),
+  ]
+}
+
 function normalizeStage(raw: Partial<OrderStage> & { stageId: WorkStageId }): OrderStage {
   return {
     stageId: raw.stageId,
@@ -341,31 +413,63 @@ function normalizeOrder(raw: WorkshopOrder): WorkshopOrder {
   }
 }
 
+function normalizeMachine(raw: Partial<Machine> & { code: string }): Machine {
+  return {
+    id: raw.id || uid('mach'),
+    code: raw.code,
+    name: raw.name || raw.code,
+    type: raw.type || '',
+    bay: raw.bay || '',
+    status: raw.status || 'idle',
+    orderId: raw.orderId ?? null,
+    stageId: raw.stageId ?? null,
+    operatorId: raw.operatorId ?? null,
+    note: raw.note || '',
+    updatedAt: raw.updatedAt || nowIso(),
+  }
+}
+
 function ensureStore(): StoreFile {
   if (!existsSync(DATA_DIR)) mkdirSync(DATA_DIR, { recursive: true })
   if (!existsSync(STORE_PATH)) {
     const workers = seedWorkers()
     const { orders, events } = seedOrders(workers)
-    const initial: StoreFile = { workers, orders, events, updatedAt: nowIso() }
+    const machines = seedMachines(workers, orders)
+    const initial: StoreFile = { workers, orders, events, machines, updatedAt: nowIso() }
     writeFileSync(STORE_PATH, JSON.stringify(initial, null, 2))
     return initial
   }
   try {
-    const parsed = JSON.parse(readFileSync(STORE_PATH, 'utf8')) as StoreFile
-    return {
-      workers: (parsed.workers || []).map((w) => ({
-        ...w,
-        bay: w.bay || BAYS[0],
-        active: w.active !== false,
-      })),
-      orders: (parsed.orders || []).map(normalizeOrder),
-      events: Array.isArray(parsed.events) ? parsed.events : [],
+    const parsed = JSON.parse(readFileSync(STORE_PATH, 'utf8')) as Partial<StoreFile>
+    const workers = (parsed.workers || []).map((w) => ({
+      ...w,
+      bay: w.bay || BAYS[0],
+      active: w.active !== false,
+    }))
+    const orders = (parsed.orders || []).map(normalizeOrder)
+    const events = Array.isArray(parsed.events) ? parsed.events : []
+    let machines = Array.isArray(parsed.machines)
+      ? parsed.machines.map((m) => normalizeMachine(m))
+      : []
+    if (!machines.length) {
+      machines = seedMachines(workers, orders)
+    }
+    const store: StoreFile = {
+      workers,
+      orders,
+      events,
+      machines,
       updatedAt: parsed.updatedAt || nowIso(),
     }
+    if (!Array.isArray(parsed.machines) || !parsed.machines.length) {
+      saveStore(store)
+    }
+    return store
   } catch {
     const workers = seedWorkers()
     const { orders, events } = seedOrders(workers)
-    return { workers, orders, events, updatedAt: nowIso() }
+    const machines = seedMachines(workers, orders)
+    return { workers, orders, events, machines, updatedAt: nowIso() }
   }
 }
 
@@ -415,6 +519,7 @@ export function snapshot(): WorkshopSnapshot {
     workers: store.workers,
     orders: store.orders,
     events: store.events.slice(0, 120),
+    machines: store.machines,
     updatedAt: store.updatedAt,
   }
 }
@@ -640,9 +745,83 @@ export function resetDemoData(): WorkshopSnapshot {
   if (existsSync(STORE_PATH)) unlinkSync(STORE_PATH)
   const workers = seedWorkers()
   const { orders, events } = seedOrders(workers)
-  const store: StoreFile = { workers, orders, events, updatedAt: nowIso() }
+  const machines = seedMachines(workers, orders)
+  const store: StoreFile = { workers, orders, events, machines, updatedAt: nowIso() }
   saveStore(store)
   return snapshot()
+}
+
+export function listMachines(): Machine[] {
+  const store = ensureStore()
+  return store.machines
+}
+
+export function updateMachine(input: {
+  machineId: string
+  status?: MachineStatus
+  orderId?: string | null
+  stageId?: WorkStageId | null
+  operatorId?: string | null
+  note?: string
+}): Machine {
+  const store = ensureStore()
+  const machine = store.machines.find((m) => m.id === input.machineId)
+  if (!machine) throw new Error('Machine not found')
+  if (input.status !== undefined) machine.status = input.status
+  if (input.orderId !== undefined) machine.orderId = input.orderId
+  if (input.stageId !== undefined) machine.stageId = input.stageId
+  if (input.operatorId !== undefined) machine.operatorId = input.operatorId
+  if (input.note !== undefined) machine.note = input.note
+  machine.updatedAt = nowIso()
+  saveStore(store)
+  return machine
+}
+
+export function processBoard() {
+  const store = ensureStore()
+  const open = store.orders.filter((o) => o.status !== 'closed')
+  const workerMap = new Map(store.workers.map((w) => [w.id, w]))
+
+  const columns = WORK_STAGES.map((stage) => {
+    const active: {
+      order: WorkshopOrder
+      stage: OrderStage
+      worker: Worker | null
+    }[] = []
+    const pending: { order: WorkshopOrder; stage: OrderStage }[] = []
+
+    for (const order of open) {
+      const s = order.stages.find((x) => x.stageId === stage.id)
+      if (!s) continue
+      if (s.status === 'assigned' || s.status === 'in_progress') {
+        active.push({
+          order,
+          stage: s,
+          worker: s.workerId ? workerMap.get(s.workerId) ?? null : null,
+        })
+      } else if (s.status === 'pending') {
+        const prevDone = order.stages
+          .slice(0, WORK_STAGES.findIndex((x) => x.id === stage.id))
+          .every((x) => x.status === 'done')
+        if (prevDone) pending.push({ order, stage: s })
+      }
+    }
+
+    return {
+      stageId: stage.id,
+      label: stage.label,
+      short: stage.short,
+      active,
+      pending,
+    }
+  })
+
+  return {
+    columns,
+    orders: open,
+    workers: store.workers.map(({ pin: _p, ...rest }) => rest),
+    updatedAt: store.updatedAt,
+  }
 }
 
 export function workerJobs(workerId: string) {

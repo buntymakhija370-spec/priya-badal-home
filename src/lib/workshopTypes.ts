@@ -73,10 +73,28 @@ export type WorkshopOrder = {
   stages: OrderStage[]
 }
 
+export type MachineStatus = 'idle' | 'running' | 'maintenance' | 'offline'
+
+export type Machine = {
+  id: string
+  code: string
+  name: string
+  type: string
+  bay: string
+  status: MachineStatus
+  /** Current order using this machine, if any */
+  orderId: string | null
+  stageId: WorkStageId | null
+  operatorId: string | null
+  note: string
+  updatedAt: string
+}
+
 export type WorkshopSnapshot = {
   workers: Worker[]
   orders: WorkshopOrder[]
   events: StatusEvent[]
+  machines: Machine[]
   updatedAt: string
 }
 

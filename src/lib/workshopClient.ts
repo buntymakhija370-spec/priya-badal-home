@@ -1,4 +1,6 @@
 import type {
+  Machine,
+  MachineStatus,
   OrderPriority,
   OrderStage,
   StatusEvent,
@@ -261,4 +263,73 @@ export async function resetWorkshop(pin: string) {
       headers: mgrHeaders(pin),
     }),
   )
+}
+
+export type MachinesResponse = {
+  machines: Machine[]
+  orders: WorkshopOrder[]
+  workers: Omit<Worker, 'pin'>[]
+  updatedAt: string
+}
+
+export type ProcessBoardResponse = {
+  columns: {
+    stageId: WorkStageId
+    label: string
+    short: string
+    active: { order: WorkshopOrder; stage: OrderStage; worker: Omit<Worker, 'pin'> | null }[]
+    pending: { order: WorkshopOrder; stage: OrderStage }[]
+  }[]
+  orders: WorkshopOrder[]
+  workers: Omit<Worker, 'pin'>[]
+  updatedAt: string
+}
+
+export async function fetchMachines(pin: string): Promise<MachinesResponse> {
+  return parse(await fetch('/api/workshop/machines', { headers: mgrHeaders(pin) }))
+}
+
+export async function updateMachine(
+  pin: string,
+  body: {
+    machineId: string
+    status?: MachineStatus
+    orderId?: string | null
+    stageId?: WorkStageId | null
+    operatorId?: string | null
+    note?: string
+  },
+) {
+  return parse<{ machine: Machine; snapshot: WorkshopSnapshot }>(
+    await fetch('/api/workshop/machines/update', {
+      method: 'POST',
+      headers: mgrHeaders(pin),
+      body: JSON.stringify(body),
+    }),
+  )
+}
+
+export async function fetchProcessBoard(pin: string): Promise<ProcessBoardResponse> {
+  return parse(await fetch('/api/workshop/process', { headers: mgrHeaders(pin) }))
+}
+
+export type WsLocalSettings = {
+  sound: boolean
+  vibration: boolean
+}
+
+const WS_SETTINGS_KEY = 'pbh-ws-settings'
+
+export function loadWsSettings(): WsLocalSettings {
+  try {
+    const raw = localStorage.getItem(WS_SETTINGS_KEY)
+    if (!raw) return { sound: true, vibration: true }
+    return { sound: true, vibration: true, ...JSON.parse(raw) }
+  } catch {
+    return { sound: true, vibration: true }
+  }
+}
+
+export function saveWsSettings(settings: WsLocalSettings) {
+  localStorage.setItem(WS_SETTINGS_KEY, JSON.stringify(settings))
 }

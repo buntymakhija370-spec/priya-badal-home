@@ -528,6 +528,10 @@ export function ManagerDashboardPage() {
               {showPins ? 'Hide PINs' : 'Show PINs'}
             </button>
           </div>
+          <p className="ws-muted ws-workers-hint">
+            Tap a worker to open their profile, then use <strong>Customise worker information</strong>{' '}
+            to edit name, role, bay, phone, or PIN.
+          </p>
 
           <div className="ws-worker-list">
             {filteredWorkers.map((w) => (
@@ -544,6 +548,7 @@ export function ManagerDashboardPage() {
                   </span>
                 </div>
                 {showPins && <code className="ws-worker-card__pin">{pins[w.id] || '…'}</code>}
+                <span className="ws-worker-card__edit">Customise →</span>
               </Link>
             ))}
           </div>

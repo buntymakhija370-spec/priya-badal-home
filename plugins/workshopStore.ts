@@ -942,3 +942,48 @@ export function workerDetail(workerId: string) {
     events: history.events,
   }
 }
+
+export function updateWorker(input: {
+  workerId: string
+  name?: string
+  code?: string
+  role?: Worker['role']
+  bay?: string
+  phone?: string
+  pin?: string
+  active?: boolean
+}): Worker {
+  const store = ensureStore()
+  const worker = store.workers.find((w) => w.id === input.workerId)
+  if (!worker) throw new Error('Worker not found')
+
+  if (input.name !== undefined) {
+    const name = input.name.trim()
+    if (!name) throw new Error('Name is required')
+    worker.name = name
+  }
+  if (input.code !== undefined) {
+    const code = input.code.trim().toUpperCase()
+    if (!code) throw new Error('Worker code is required')
+    if (store.workers.some((w) => w.id !== worker.id && w.code.toUpperCase() === code)) {
+      throw new Error(`Worker code ${code} is already in use`)
+    }
+    worker.code = code
+  }
+  if (input.role !== undefined) {
+    const allowed = new Set<Worker['role']>([...WORK_STAGES.map((s) => s.id), 'multi'])
+    if (!allowed.has(input.role)) throw new Error('Invalid worker role')
+    worker.role = input.role
+  }
+  if (input.bay !== undefined) worker.bay = input.bay.trim()
+  if (input.phone !== undefined) worker.phone = input.phone.trim()
+  if (input.pin !== undefined) {
+    const pin = input.pin.trim()
+    if (!/^\d{4}$/.test(pin)) throw new Error('PIN must be 4 digits')
+    worker.pin = pin
+  }
+  if (input.active !== undefined) worker.active = input.active
+
+  saveStore(store)
+  return worker
+}

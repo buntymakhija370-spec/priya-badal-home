@@ -15,10 +15,11 @@ import {
   snapshot,
   unassignStage,
   updateMachine,
+  updateWorker,
   workerDetail,
   workerUpdate,
 } from './workshopStore.ts'
-import type { MachineStatus, OrderPriority, WorkStageId } from '../src/lib/workshopTypes.ts'
+import type { MachineStatus, OrderPriority, WorkStageId, WorkerRole } from '../src/lib/workshopTypes.ts'
 
 function readBody(req: IncomingMessage): Promise<string> {
   return new Promise((resolve, reject) => {
@@ -268,6 +269,28 @@ async function handleWorkerDetail(req: IncomingMessage, res: ServerResponse) {
   }
 }
 
+async function handleWorkerUpdate(req: IncomingMessage, res: ServerResponse) {
+  if (req.method !== 'POST') return send(res, 405, { error: 'POST only' })
+  try {
+    assertManager(managerPin(req))
+    const body = await readJson<{
+      workerId: string
+      name?: string
+      code?: string
+      role?: WorkerRole
+      bay?: string
+      phone?: string
+      pin?: string
+      active?: boolean
+    }>(req)
+    if (!body.workerId) return send(res, 400, { error: 'workerId required' })
+    const worker = updateWorker(body)
+    send(res, 200, { worker, snapshot: snapshot() })
+  } catch (err) {
+    send(res, 400, { error: err instanceof Error ? err.message : 'Update failed' })
+  }
+}
+
 async function handleMachines(req: IncomingMessage, res: ServerResponse) {
   try {
     assertManager(managerPin(req))
@@ -350,6 +373,7 @@ function attach(middlewares: Connect.Server) {
   middlewares.use('/api/workshop/unassign', (req, res) => void handleUnassign(req, res))
   middlewares.use('/api/workshop/close', (req, res) => void handleClose(req, res))
   middlewares.use('/api/workshop/reset', (req, res) => void handleReset(req, res))
+  middlewares.use('/api/workshop/workers/update', (req, res) => void handleWorkerUpdate(req, res))
   middlewares.use('/api/workshop/workers', (req, res) => void handleWorkers(req, res))
   middlewares.use('/api/workshop/order-detail', (req, res) => void handleOrderDetail(req, res))
   middlewares.use('/api/workshop/worker-detail', (req, res) => void handleWorkerDetail(req, res))

@@ -2001,3 +2001,52 @@
   background: rgba(196, 165, 116, 0.22);
   color: #e6c89a;
 }
+
+
+.ws-panel__head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.75rem;
+  margin-bottom: 0.75rem;
+}
+.ws-panel__head h3 {
+  margin: 0;
+}
+.ws-form__actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.65rem;
+  margin-top: 0.75rem;
+}
+.ws-check {
+  display: flex !important;
+  flex-direction: row !important;
+  align-items: center;
+  gap: 0.55rem;
+  font-size: 0.9rem;
+}
+.ws-check input {
+  width: auto;
+  margin: 0;
+}
+.ws-worker-card__edit {
+  font-size: 0.78rem;
+  color: var(--ws-accent);
+  font-weight: 600;
+}
+.ws-workers-hint {
+  margin: 0.35rem 0 0.75rem;
+  font-size: 0.85rem;
+  line-height: 1.4;
+}
+.ws-detail-head--sticky {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: flex-start;
+  gap: 0.75rem;
+}
+.ws-detail-head__title {
+  flex: 1;
+  min-width: 12rem;
+}

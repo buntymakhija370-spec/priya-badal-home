@@ -196,6 +196,28 @@ export async function fetchWorkerDetail(
   )
 }
 
+export async function updateWorkshopWorker(
+  pin: string,
+  body: {
+    workerId: string
+    name?: string
+    code?: string
+    role?: Worker['role']
+    bay?: string
+    phone?: string
+    pin?: string
+    active?: boolean
+  },
+) {
+  return parse<{ worker: Worker; snapshot: WorkshopSnapshot }>(
+    await fetch('/api/workshop/workers/update', {
+      method: 'POST',
+      headers: mgrHeaders(pin),
+      body: JSON.stringify(body),
+    }),
+  )
+}
+
 export async function createWorkshopOrder(
   pin: string,
   body: {

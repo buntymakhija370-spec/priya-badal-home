@@ -15,7 +15,10 @@ import { AiAdminPage } from './pages/AiAdminPage'
 import { RequireAuth, WorkersLayout } from './pages/WorkersLayout'
 import { WorkersLoginPage } from './pages/WorkersLoginPage'
 import { WorkerHomePage } from './pages/WorkerHomePage'
+import { WorkerJobDetailPage } from './pages/WorkerJobDetailPage'
 import { ManagerDashboardPage } from './pages/ManagerDashboardPage'
+import { ManagerOrderDetailPage } from './pages/ManagerOrderDetailPage'
+import { ManagerWorkerDetailPage } from './pages/ManagerWorkerDetailPage'
 import './App.css'
 
 /** Old Design / Visualise / Carcass Planner URLs → unified Chat hub */
@@ -36,9 +39,12 @@ export default function App() {
           <Route index element={<WorkersLoginPage />} />
           <Route element={<RequireAuth role="worker" />}>
             <Route path="home" element={<WorkerHomePage />} />
+            <Route path="home/job/:orderId/:stageId" element={<WorkerJobDetailPage />} />
           </Route>
           <Route element={<RequireAuth role="manager" />}>
             <Route path="manage" element={<ManagerDashboardPage />} />
+            <Route path="manage/orders/:orderId" element={<ManagerOrderDetailPage />} />
+            <Route path="manage/workers/:workerId" element={<ManagerWorkerDetailPage />} />
           </Route>
         </Route>
         <Route element={<Layout />}>

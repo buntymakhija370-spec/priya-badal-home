@@ -1,4 +1,4 @@
-import { type Connect, type Plugin } from 'vite'
+import type { Connect, Plugin } from 'vite'
 import type { IncomingMessage, ServerResponse } from 'node:http'
 import {
   assertManager,
@@ -8,13 +8,14 @@ import {
   getManagerPin,
   liveBoard,
   loginWorker,
+  orderDetail,
   resetDemoData,
   snapshot,
   unassignStage,
-  workerJobs,
+  workerDetail,
   workerUpdate,
 } from './workshopStore.ts'
-import type { WorkStageId } from '../src/lib/workshopTypes.ts'
+import type { OrderPriority, WorkStageId } from '../src/lib/workshopTypes.ts'
 
 function readBody(req: IncomingMessage): Promise<string> {
   return new Promise((resolve, reject) => {
@@ -50,18 +51,17 @@ async function handleSnapshot(_req: IncomingMessage, res: ServerResponse) {
 async function handleLogin(req: IncomingMessage, res: ServerResponse) {
   if (req.method !== 'POST') return send(res, 405, { error: 'POST only' })
   try {
-    const body = await readJson<{
-      role?: 'worker' | 'manager'
-      code?: string
-      pin?: string
-    }>(req)
+    const body = await readJson<{ role?: 'worker' | 'manager'; code?: string; pin?: string }>(req)
     if (body.role === 'manager') {
       assertManager(body.pin)
       return send(res, 200, {
         role: 'manager',
         name: 'Floor manager',
         pinOk: true,
-        hint: getManagerPin() === '2468' ? 'Default PIN is 2468 (change with WORKSHOP_MANAGER_PIN)' : undefined,
+        hint:
+          getManagerPin() === '2468'
+            ? 'Default PIN is 2468 (change with WORKSHOP_MANAGER_PIN)'
+            : undefined,
       })
     }
     const worker = loginWorker(body.code || '', body.pin || '')
@@ -71,6 +71,8 @@ async function handleLogin(req: IncomingMessage, res: ServerResponse) {
       code: worker.code,
       name: worker.name,
       workerRole: worker.role,
+      bay: worker.bay,
+      phone: worker.phone,
     })
   } catch (err) {
     return send(res, 401, { error: err instanceof Error ? err.message : 'Login failed' })
@@ -81,8 +83,25 @@ async function handleWorkerJobs(req: IncomingMessage, res: ServerResponse) {
   const url = new URL(req.url || '/', 'http://local')
   const workerId = url.searchParams.get('workerId') || ''
   if (!workerId) return send(res, 400, { error: 'workerId required' })
-  const jobs = workerJobs(workerId)
-  send(res, 200, { jobs, updatedAt: snapshot().updatedAt })
+  try {
+    const detail = workerDetail(workerId)
+    send(res, 200, {
+      jobs: detail.activeJobs,
+      completedJobs: detail.completedJobs,
+      events: detail.events,
+      worker: {
+        id: detail.worker.id,
+        code: detail.worker.code,
+        name: detail.worker.name,
+        role: detail.worker.role,
+        bay: detail.worker.bay,
+        phone: detail.worker.phone,
+      },
+      updatedAt: snapshot().updatedAt,
+    })
+  } catch (err) {
+    send(res, 400, { error: err instanceof Error ? err.message : 'Load failed' })
+  }
 }
 
 async function handleWorkerAction(req: IncomingMessage, res: ServerResponse) {
@@ -120,12 +139,24 @@ async function handleCreateOrder(req: IncomingMessage, res: ServerResponse) {
       customerName?: string
       productLabel?: string
       notes?: string
+      priority?: OrderPriority
+      quantity?: number
+      material?: string
+      finish?: string
+      bay?: string
+      dueDate?: string | null
     }>(req)
     const order = createOrder({
       orderNo: body.orderNo || '',
       customerName: body.customerName || '',
       productLabel: body.productLabel || '',
       notes: body.notes,
+      priority: body.priority,
+      quantity: body.quantity,
+      material: body.material,
+      finish: body.finish,
+      bay: body.bay,
+      dueDate: body.dueDate,
     })
     send(res, 200, { order, snapshot: snapshot() })
   } catch (err) {
@@ -188,8 +219,15 @@ async function handleWorkers(req: IncomingMessage, res: ServerResponse) {
   try {
     assertManager(managerPin(req))
     const snap = snapshot()
+    const board = liveBoard()
+    const busyIds = new Set(board.workingNow.map((r) => r.worker.id))
     send(res, 200, {
-      workers: snap.workers.map(({ pin: _pin, ...rest }) => rest),
+      workers: snap.workers.map(({ pin: _p, ...rest }) => ({
+        ...rest,
+        busy: busyIds.has(rest.id),
+        activeJobCount: board.workingNow.find((r) => r.worker.id === rest.id)?.jobs.length || 0,
+      })),
+      pins: Object.fromEntries(snap.workers.map((w) => [w.id, w.pin])),
       updatedAt: snap.updatedAt,
     })
   } catch (err) {
@@ -197,41 +235,72 @@ async function handleWorkers(req: IncomingMessage, res: ServerResponse) {
   }
 }
 
+async function handleOrderDetail(req: IncomingMessage, res: ServerResponse) {
+  try {
+    assertManager(managerPin(req))
+    const url = new URL(req.url || '/', 'http://local')
+    const orderId = url.searchParams.get('orderId') || ''
+    if (!orderId) return send(res, 400, { error: 'orderId required' })
+    send(res, 200, orderDetail(orderId))
+  } catch (err) {
+    send(res, 400, { error: err instanceof Error ? err.message : 'Load failed' })
+  }
+}
+
+async function handleWorkerDetail(req: IncomingMessage, res: ServerResponse) {
+  try {
+    assertManager(managerPin(req))
+    const url = new URL(req.url || '/', 'http://local')
+    const workerId = url.searchParams.get('workerId') || ''
+    if (!workerId) return send(res, 400, { error: 'workerId required' })
+    const detail = workerDetail(workerId)
+    send(res, 200, detail)
+  } catch (err) {
+    send(res, 400, { error: err instanceof Error ? err.message : 'Load failed' })
+  }
+}
+
+async function handleJobDetail(req: IncomingMessage, res: ServerResponse) {
+  const url = new URL(req.url || '/', 'http://local')
+  const orderId = url.searchParams.get('orderId') || ''
+  const stageId = url.searchParams.get('stageId') as WorkStageId
+  const workerId = url.searchParams.get('workerId') || ''
+  if (!orderId || !stageId) return send(res, 400, { error: 'orderId and stageId required' })
+  try {
+    const snap = snapshot()
+    const order = snap.orders.find((o) => o.id === orderId)
+    if (!order) throw new Error('Order not found')
+    const stage = order.stages.find((s) => s.stageId === stageId)
+    if (!stage) throw new Error('Stage not found')
+    if (workerId && stage.workerId && stage.workerId !== workerId) {
+      throw new Error('This stage is not assigned to you')
+    }
+    const events = snap.events.filter((e) => e.orderId === orderId)
+    const workers = snap.workers.map(({ pin: _p, ...rest }) => rest)
+    send(res, 200, { order, stage, events, workers, updatedAt: snap.updatedAt })
+  } catch (err) {
+    send(res, 400, { error: err instanceof Error ? err.message : 'Load failed' })
+  }
+}
+
 function attach(middlewares: Connect.Server) {
-  middlewares.use('/api/workshop/snapshot', (req, res) => {
-    void handleSnapshot(req, res)
-  })
-  middlewares.use('/api/workshop/login', (req, res) => {
-    void handleLogin(req, res)
-  })
-  middlewares.use('/api/workshop/worker-jobs', (req, res) => {
-    void handleWorkerJobs(req, res)
-  })
-  middlewares.use('/api/workshop/worker-action', (req, res) => {
-    void handleWorkerAction(req, res)
-  })
-  middlewares.use('/api/workshop/board', (req, res) => {
-    void handleBoard(req, res)
-  })
+  middlewares.use('/api/workshop/snapshot', (req, res) => void handleSnapshot(req, res))
+  middlewares.use('/api/workshop/login', (req, res) => void handleLogin(req, res))
+  middlewares.use('/api/workshop/worker-jobs', (req, res) => void handleWorkerJobs(req, res))
+  middlewares.use('/api/workshop/worker-action', (req, res) => void handleWorkerAction(req, res))
+  middlewares.use('/api/workshop/board', (req, res) => void handleBoard(req, res))
   middlewares.use('/api/workshop/orders', (req, res, next) => {
     if (req.method === 'POST') void handleCreateOrder(req, res)
     else next()
   })
-  middlewares.use('/api/workshop/assign', (req, res) => {
-    void handleAssign(req, res)
-  })
-  middlewares.use('/api/workshop/unassign', (req, res) => {
-    void handleUnassign(req, res)
-  })
-  middlewares.use('/api/workshop/close', (req, res) => {
-    void handleClose(req, res)
-  })
-  middlewares.use('/api/workshop/reset', (req, res) => {
-    void handleReset(req, res)
-  })
-  middlewares.use('/api/workshop/workers', (req, res) => {
-    void handleWorkers(req, res)
-  })
+  middlewares.use('/api/workshop/assign', (req, res) => void handleAssign(req, res))
+  middlewares.use('/api/workshop/unassign', (req, res) => void handleUnassign(req, res))
+  middlewares.use('/api/workshop/close', (req, res) => void handleClose(req, res))
+  middlewares.use('/api/workshop/reset', (req, res) => void handleReset(req, res))
+  middlewares.use('/api/workshop/workers', (req, res) => void handleWorkers(req, res))
+  middlewares.use('/api/workshop/order-detail', (req, res) => void handleOrderDetail(req, res))
+  middlewares.use('/api/workshop/worker-detail', (req, res) => void handleWorkerDetail(req, res))
+  middlewares.use('/api/workshop/job-detail', (req, res) => void handleJobDetail(req, res))
 }
 
 export function workshopApiPlugin(): Plugin {

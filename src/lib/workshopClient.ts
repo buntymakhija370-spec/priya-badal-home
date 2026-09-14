@@ -1,10 +1,11 @@
 import type {
-  WorkStageId,
-  WorkshopOrder,
-  WorkshopSnapshot,
-  Worker,
+  OrderPriority,
   OrderStage,
   StatusEvent,
+  WorkStageId,
+  Worker,
+  WorkshopOrder,
+  WorkshopSnapshot,
 } from './workshopTypes'
 
 const SESSION_KEY = 'pbh-workshop-session'
@@ -12,6 +13,59 @@ const SESSION_KEY = 'pbh-workshop-session'
 export type WorkshopAuth =
   | { role: 'manager'; name: string; pin: string }
   | { role: 'worker'; workerId: string; code: string; name: string; workerRole: string }
+
+export type BoardResponse = {
+  orders: WorkshopOrder[]
+  closedOrders: WorkshopOrder[]
+  workingNow: { worker: Worker; jobs: { order: WorkshopOrder; stage: OrderStage }[] }[]
+  idleCount: number
+  events: StatusEvent[]
+  stageStats: {
+    stageId: WorkStageId
+    label: string
+    pending: number
+    assigned: number
+    inProgress: number
+    done: number
+  }[]
+  totals: { open: number; closed: number; urgent: number; avgProgress: number }
+  updatedAt: string
+}
+
+export type WorkerRosterEntry = Omit<Worker, 'pin'> & {
+  busy: boolean
+  activeJobCount: number
+}
+
+export type WorkerJobsResponse = {
+  jobs: { order: WorkshopOrder; stage: OrderStage }[]
+  completedJobs: { order: WorkshopOrder; stage: OrderStage; completedAt?: string }[]
+  events: StatusEvent[]
+  worker: Pick<Worker, 'id' | 'code' | 'name' | 'role' | 'bay' | 'phone'>
+  updatedAt: string
+}
+
+export type OrderDetailResponse = {
+  order: WorkshopOrder
+  events: StatusEvent[]
+  workers: Omit<Worker, 'pin'>[]
+  progress: { done: number; total: number; percent: number }
+}
+
+export type WorkerDetailResponse = {
+  worker: Worker
+  activeJobs: { order: WorkshopOrder; stage: OrderStage }[]
+  completedJobs: { order: WorkshopOrder; stage: OrderStage; completedAt?: string }[]
+  events: StatusEvent[]
+}
+
+export type JobDetailResponse = {
+  order: WorkshopOrder
+  stage: OrderStage
+  events: StatusEvent[]
+  workers: Omit<Worker, 'pin'>[]
+  updatedAt: string
+}
 
 export function loadSession(): WorkshopAuth | null {
   try {
@@ -32,6 +86,13 @@ async function parse<T>(res: Response): Promise<T> {
   const data = (await res.json()) as T & { error?: string }
   if (!res.ok) throw new Error(data.error || `Request failed (${res.status})`)
   return data
+}
+
+function mgrHeaders(pin: string): HeadersInit {
+  return {
+    'Content-Type': 'application/json',
+    'X-Workshop-Manager': pin,
+  }
 }
 
 export async function workshopLogin(input: {
@@ -72,11 +133,18 @@ export async function fetchSnapshot(): Promise<WorkshopSnapshot> {
   return parse(await fetch('/api/workshop/snapshot'))
 }
 
-export async function fetchWorkerJobs(workerId: string): Promise<{
-  jobs: { order: WorkshopOrder; stage: OrderStage }[]
-  updatedAt: string
-}> {
+export async function fetchWorkerJobs(workerId: string): Promise<WorkerJobsResponse> {
   return parse(await fetch(`/api/workshop/worker-jobs?workerId=${encodeURIComponent(workerId)}`))
+}
+
+export async function fetchJobDetail(
+  orderId: string,
+  stageId: WorkStageId,
+  workerId?: string,
+): Promise<JobDetailResponse> {
+  const q = new URLSearchParams({ orderId, stageId })
+  if (workerId) q.set('workerId', workerId)
+  return parse(await fetch(`/api/workshop/job-detail?${q}`))
 }
 
 export async function postWorkerAction(body: {
@@ -95,32 +163,53 @@ export async function postWorkerAction(body: {
   )
 }
 
-function mgrHeaders(pin: string): HeadersInit {
-  return {
-    'Content-Type': 'application/json',
-    'X-Workshop-Manager': pin,
-  }
-}
-
-export async function fetchBoard(pin: string): Promise<{
-  orders: WorkshopOrder[]
-  workingNow: { worker: Worker; jobs: { order: WorkshopOrder; stage: OrderStage }[] }[]
-  idleCount: number
-  events: StatusEvent[]
-  updatedAt: string
-}> {
+export async function fetchBoard(pin: string): Promise<BoardResponse> {
   return parse(await fetch('/api/workshop/board', { headers: mgrHeaders(pin) }))
 }
 
-export async function fetchWorkers(pin: string): Promise<{ workers: Omit<Worker, 'pin'>[] }> {
+export async function fetchWorkers(pin: string): Promise<{
+  workers: WorkerRosterEntry[]
+  pins: Record<string, string>
+  updatedAt: string
+}> {
   return parse(await fetch('/api/workshop/workers', { headers: mgrHeaders(pin) }))
+}
+
+export async function fetchOrderDetail(pin: string, orderId: string): Promise<OrderDetailResponse> {
+  return parse(
+    await fetch(`/api/workshop/order-detail?orderId=${encodeURIComponent(orderId)}`, {
+      headers: mgrHeaders(pin),
+    }),
+  )
+}
+
+export async function fetchWorkerDetail(
+  pin: string,
+  workerId: string,
+): Promise<WorkerDetailResponse> {
+  return parse(
+    await fetch(`/api/workshop/worker-detail?workerId=${encodeURIComponent(workerId)}`, {
+      headers: mgrHeaders(pin),
+    }),
+  )
 }
 
 export async function createWorkshopOrder(
   pin: string,
-  body: { orderNo: string; customerName: string; productLabel: string; notes?: string },
+  body: {
+    orderNo: string
+    customerName: string
+    productLabel: string
+    notes?: string
+    priority?: OrderPriority
+    quantity?: number
+    material?: string
+    finish?: string
+    bay?: string
+    dueDate?: string | null
+  },
 ) {
-  return parse<{ order: WorkshopOrder }>(
+  return parse<{ order: WorkshopOrder; snapshot: WorkshopSnapshot }>(
     await fetch('/api/workshop/orders', {
       method: 'POST',
       headers: mgrHeaders(pin),
@@ -133,7 +222,7 @@ export async function assignWorkshopStage(
   pin: string,
   body: { orderId: string; stageId: WorkStageId; workerId: string; managerNote?: string },
 ) {
-  return parse<{ order: WorkshopOrder }>(
+  return parse<{ order: WorkshopOrder; snapshot: WorkshopSnapshot }>(
     await fetch('/api/workshop/assign', {
       method: 'POST',
       headers: mgrHeaders(pin),
@@ -146,7 +235,7 @@ export async function unassignWorkshopStage(
   pin: string,
   body: { orderId: string; stageId: WorkStageId },
 ) {
-  return parse<{ order: WorkshopOrder }>(
+  return parse<{ order: WorkshopOrder; snapshot: WorkshopSnapshot }>(
     await fetch('/api/workshop/unassign', {
       method: 'POST',
       headers: mgrHeaders(pin),
@@ -156,7 +245,7 @@ export async function unassignWorkshopStage(
 }
 
 export async function closeWorkshopOrder(pin: string, orderId: string) {
-  return parse<{ order: WorkshopOrder }>(
+  return parse<{ order: WorkshopOrder; snapshot: WorkshopSnapshot }>(
     await fetch('/api/workshop/close', {
       method: 'POST',
       headers: mgrHeaders(pin),

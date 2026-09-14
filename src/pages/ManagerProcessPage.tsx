@@ -47,7 +47,7 @@ export function ManagerProcessPage() {
         </div>
       </header>
 
-      <nav className="ws-seg" aria-label="Work floor filter">
+      <nav className="ws-floor-tabs" aria-label="Work floor filter">
         <button
           type="button"
           className={floor === 'all' ? 'is-on' : ''}

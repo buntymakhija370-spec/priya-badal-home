@@ -1,10 +1,8 @@
-import { useCallback, useEffect, useMemo, useState } from 'react'
+import { useCallback, useEffect, useState } from 'react'
 import { useNavigate, useOutletContext, useParams } from 'react-router-dom'
 import {
   BackLink,
-  EventTimeline,
   OrderMetaGrid,
-  StagePipeline,
   StageUpdateHistory,
   StatusPill,
 } from '../components/workshop/WorkshopUi'
@@ -48,11 +46,6 @@ export function WorkerJobDetailPage() {
     }
   }, [detail?.stage.statement, statement])
 
-  const workerName = useMemo(() => {
-    const m = new Map((detail?.workers ?? []).map((w) => [w.id, w.name]))
-    return (id: string | null) => (id ? m.get(id) || id : '—')
-  }, [detail?.workers])
-
   async function act(action: 'start' | 'statement' | 'complete') {
     if (!workerId || !orderId || !stageId || !detail) return
     setBusy(true)
@@ -91,7 +84,7 @@ export function WorkerJobDetailPage() {
     )
   }
 
-  const { order, stage, events } = detail
+  const { order, stage } = detail
   const status = stage.status
   const canAct = stage.workerId === workerId || !stage.workerId
 
@@ -111,16 +104,6 @@ export function WorkerJobDetailPage() {
       <section className="ws-panel">
         <h3>Order details</h3>
         <OrderMetaGrid order={order} />
-      </section>
-
-      <section className="ws-panel">
-        <h3>Full pipeline</h3>
-        <StagePipeline
-          order={order}
-          highlightStageId={stage.stageId}
-          workerName={workerName}
-          compact
-        />
       </section>
 
       {stage.managerNote && (
@@ -178,13 +161,8 @@ export function WorkerJobDetailPage() {
       )}
 
       <section className="ws-panel">
-        <h3>Stage updates</h3>
+        <h3>Your updates</h3>
         <StageUpdateHistory stage={stage} />
-      </section>
-
-      <section className="ws-panel">
-        <h3>Order timeline</h3>
-        <EventTimeline events={events} />
       </section>
     </main>
   )

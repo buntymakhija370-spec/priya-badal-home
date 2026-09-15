@@ -2,7 +2,6 @@ import { useCallback, useEffect, useMemo, useState, type FormEvent } from 'react
 import { Link, useOutletContext, useSearchParams } from 'react-router-dom'
 import {
   EventTimeline,
-  FloorBadge,
   KpiCard,
   PriorityBadge,
   ProgressBar,
@@ -11,11 +10,9 @@ import {
   StatusPill,
 } from '../components/workshop/WorkshopUi'
 import {
-  FLOOR_TYPES,
+  WORK_STAGES,
   orderProgress,
   stageLabel,
-  stagesForFloor,
-  type FloorType,
   type OrderPriority,
   type StatusEvent,
   type WorkStageId,
@@ -72,7 +69,6 @@ export function ManagerDashboardPage() {
   const [finish, setFinish] = useState('')
   const [bay, setBay] = useState('')
   const [dueDate, setDueDate] = useState('')
-  const [floorType, setFloorType] = useState<FloorType>('modular')
 
   const [assignOrderId, setAssignOrderId] = useState('')
   const [assignStageId, setAssignStageId] = useState<WorkStageId>('cutting')
@@ -132,7 +128,10 @@ export function ManagerDashboardPage() {
     [board, assignOrderId],
   )
   const assignStages = useMemo(
-    () => (assignOrder ? stagesForFloor(assignOrder.floorType) : stagesForFloor('modular')),
+    () =>
+      assignOrder
+        ? assignOrder.stages.map((s) => s.stageId)
+        : WORK_STAGES.map((s) => s.id),
     [assignOrder],
   )
 
@@ -163,7 +162,6 @@ export function ManagerDashboardPage() {
         finish: finish || undefined,
         bay: bay || undefined,
         dueDate: dueDate || null,
-        floorType,
       })
       setOrderNo('')
       setCustomerName('')
@@ -173,7 +171,6 @@ export function ManagerDashboardPage() {
       setFinish('')
       setBay('')
       setDueDate('')
-      setFloorType('modular')
       setMsg('Order posted — assign stages to workers')
       await refresh()
     } catch (err) {
@@ -314,26 +311,6 @@ export function ManagerDashboardPage() {
             <div className="ws-quick-actions__grid">
               <form className="ws-form" onSubmit={onCreate}>
                 <h4>New order</h4>
-                <fieldset className="ws-floor-pick ws-floor-pick--compact">
-                  <legend>Work floor</legend>
-                  <div className="ws-floor-pick__grid">
-                    {FLOOR_TYPES.map((floor) => (
-                      <label
-                        key={floor.id}
-                        className={`ws-floor-card ${floorType === floor.id ? 'is-on' : ''}`}
-                      >
-                        <input
-                          type="radio"
-                          name="dashFloorType"
-                          value={floor.id}
-                          checked={floorType === floor.id}
-                          onChange={() => setFloorType(floor.id)}
-                        />
-                        <strong>{floor.label}</strong>
-                      </label>
-                    ))}
-                  </div>
-                </fieldset>
                 <label>
                   Order no.
                   <input
@@ -408,7 +385,7 @@ export function ManagerDashboardPage() {
                   <textarea value={notes} onChange={(e) => setNotes(e.target.value)} rows={2} />
                 </label>
                 <button type="submit" className="ws__primary" disabled={busy}>
-                  Post {FLOOR_TYPES.find((f) => f.id === floorType)?.label} order
+                  Post order
                 </button>
               </form>
 
@@ -423,8 +400,7 @@ export function ManagerDashboardPage() {
                   >
                     {board.orders.map((o) => (
                       <option key={o.id} value={o.id}>
-                        {o.orderNo} — {o.floorType === 'modular' ? 'Modular' : 'Hand Crafted'} —{' '}
-                        {o.productLabel}
+                        {o.orderNo} — {o.productLabel}
                       </option>
                     ))}
                   </select>
@@ -592,7 +568,6 @@ function OrderListCard({ order }: { order: WorkshopOrder }) {
           </p>
         </div>
         <div className="ws-order-card__badges">
-          <FloorBadge floorType={order.floorType} />
           <PriorityBadge priority={order.priority} />
           <StatusPill status={order.status} />
         </div>

@@ -149,12 +149,8 @@ async function handleCreateOrder(req: IncomingMessage, res: ServerResponse) {
       finish?: string
       bay?: string
       dueDate?: string | null
-      floorType?: 'modular' | 'handcrafted'
       assignments?: Array<{ stageId: WorkStageId; workerId: string; managerNote?: string }>
     }>(req)
-    if (body.floorType !== 'modular' && body.floorType !== 'handcrafted') {
-      return send(res, 400, { error: 'Select Modular or Hand Crafted Panels' })
-    }
     const order = createOrder({
       orderNo: body.orderNo || '',
       customerName: body.customerName || '',
@@ -166,7 +162,6 @@ async function handleCreateOrder(req: IncomingMessage, res: ServerResponse) {
       finish: body.finish,
       bay: body.bay,
       dueDate: body.dueDate,
-      floorType: body.floorType,
       assignments: body.assignments,
     })
     send(res, 200, { order, snapshot: snapshot() })
@@ -330,9 +325,8 @@ async function handleMachineUpdate(req: IncomingMessage, res: ServerResponse) {
 async function handleProcess(req: IncomingMessage, res: ServerResponse) {
   try {
     assertManager(managerPin(req))
-    const url = new URL(req.url || '/', 'http://local')
-    const floor = url.searchParams.get('floor') as 'modular' | 'handcrafted' | 'all' | null
-    send(res, 200, processBoard(floor || 'all'))
+    // Optional ?floor=… accepted for compatibility but ignored — single pipeline
+    send(res, 200, processBoard())
   } catch (err) {
     send(res, 401, { error: err instanceof Error ? err.message : 'Unauthorized' })
   }

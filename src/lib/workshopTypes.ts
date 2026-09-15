@@ -1,48 +1,16 @@
-/** Shared workshop floor types — two work floors with different stage pipelines */
+/** Shared workshop process + machinery types (single pipeline — no floor categories) */
 
-/** All stage ids used across floors */
 export const WORK_STAGES = [
   { id: 'designing', label: 'Designing', short: 'Design', hint: 'Layout, drawings, CNC / cut list' },
   { id: 'cutting', label: 'Cutting', short: 'Cut', hint: 'Panels cut to size' },
-  { id: 'edge_bending', label: 'Edge bending', short: 'Edge', hint: 'Edge banding on modular panels' },
+  { id: 'edge_bending', label: 'Edge bending', short: 'Edge', hint: 'Edge banding' },
   { id: 'boring', label: 'Boring', short: 'Bore', hint: 'Hinge / shelf / connector holes' },
-  { id: 'paint_booth', label: 'Paint booth', short: 'Paint', hint: 'Hand-crafted colour & polish' },
-  { id: 'quality_check', label: 'Quality check', short: 'QC', hint: 'Measure & approve' },
-  { id: 'dispatch', label: 'Dispatch', short: 'Dispatch', hint: 'Pack & send to site' },
-  { id: 'billing', label: 'Billing', short: 'Bill', hint: 'Final billing & close' },
+  { id: 'painting', label: 'Painting', short: 'Paint', hint: 'Colour, polish & paint booth' },
+  { id: 'leather_job', label: 'Leather job', short: 'Leather', hint: 'Leather wrap, stitch & finish' },
+  { id: 'oxidisation', label: 'Oxidisation', short: 'Oxide', hint: 'Metal oxide / antique treatment' },
 ] as const
 
 export type WorkStageId = (typeof WORK_STAGES)[number]['id']
-
-export type FloorType = 'modular' | 'handcrafted'
-
-export const FLOOR_TYPES: {
-  id: FloorType
-  label: string
-  summary: string
-  stageIds: WorkStageId[]
-}[] = [
-  {
-    id: 'modular',
-    label: 'Modular',
-    summary: 'Designing → Cutting → Edge bending → Boring → Quality check → Dispatch → Billing',
-    stageIds: [
-      'designing',
-      'cutting',
-      'edge_bending',
-      'boring',
-      'quality_check',
-      'dispatch',
-      'billing',
-    ],
-  },
-  {
-    id: 'handcrafted',
-    label: 'Hand Crafted Panels',
-    summary: 'Designing → Cutting → Paint booth → Quality check → Dispatch → Billing',
-    stageIds: ['designing', 'cutting', 'paint_booth', 'quality_check', 'dispatch', 'billing'],
-  },
-]
 
 export type WorkerRole = WorkStageId | 'multi'
 export type OrderPriority = 'normal' | 'urgent' | 'rush'
@@ -103,8 +71,6 @@ export type WorkshopOrder = {
   finish: string
   bay: string
   dueDate: string | null
-  /** Which work floor this order runs on */
-  floorType: FloorType
   stages: OrderStage[]
 }
 
@@ -122,8 +88,6 @@ export type Machine = {
   operatorId: string | null
   note: string
   updatedAt: string
-  /** Optional floor this machine mainly serves */
-  floorType?: FloorType | 'shared'
 }
 
 export type WorkshopSnapshot = {
@@ -134,34 +98,38 @@ export type WorkshopSnapshot = {
   updatedAt: string
 }
 
-export function floorLabel(id: FloorType): string {
-  return FLOOR_TYPES.find((f) => f.id === id)?.label ?? id
+/** Map older persisted stage ids onto the current pipeline */
+const STAGE_ID_ALIASES: Record<string, WorkStageId> = {
+  paint_booth: 'painting',
+  quality_check: 'oxidisation',
+  dispatch: 'leather_job',
+  billing: 'oxidisation',
 }
 
-export function floorSummary(id: FloorType): string {
-  return FLOOR_TYPES.find((f) => f.id === id)?.summary ?? ''
+export function normalizeStageId(id: string): WorkStageId | null {
+  if (WORK_STAGES.some((s) => s.id === id)) return id as WorkStageId
+  return STAGE_ID_ALIASES[id] ?? null
 }
 
-export function stagesForFloor(floorType: FloorType): WorkStageId[] {
-  return FLOOR_TYPES.find((f) => f.id === floorType)?.stageIds ?? FLOOR_TYPES[0].stageIds
+export function stageLabel(id: WorkStageId | string): string {
+  const normalized = normalizeStageId(id) ?? (id as WorkStageId)
+  return WORK_STAGES.find((s) => s.id === normalized)?.label ?? id
 }
 
-export function stageLabel(id: WorkStageId): string {
-  return WORK_STAGES.find((s) => s.id === id)?.label ?? id
+export function stageHint(id: WorkStageId | string): string {
+  const normalized = normalizeStageId(id) ?? (id as WorkStageId)
+  return WORK_STAGES.find((s) => s.id === normalized)?.hint ?? ''
 }
 
-export function stageHint(id: WorkStageId): string {
-  return WORK_STAGES.find((s) => s.id === id)?.hint ?? ''
+export function stageMeta(id: WorkStageId | string) {
+  const normalized = normalizeStageId(id)
+  return normalized ? WORK_STAGES.find((s) => s.id === normalized) : undefined
 }
 
-export function stageMeta(id: WorkStageId) {
-  return WORK_STAGES.find((s) => s.id === id)
-}
-
-export function emptyStages(floorType: FloorType = 'modular'): OrderStage[] {
-  return stagesForFloor(floorType).map((stageId) => ({
-    stageId,
-    status: 'pending',
+export function emptyStages(): OrderStage[] {
+  return WORK_STAGES.map((s) => ({
+    stageId: s.id,
+    status: 'pending' as const,
     workerId: null,
     startedAt: null,
     completedAt: null,

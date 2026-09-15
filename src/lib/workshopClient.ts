@@ -231,7 +231,6 @@ export async function createWorkshopOrder(
     finish?: string
     bay?: string
     dueDate?: string | null
-    floorType: 'modular' | 'handcrafted'
     assignments?: Array<{ stageId: WorkStageId; workerId: string; managerNote?: string }>
   },
 ) {
@@ -333,12 +332,8 @@ export async function updateMachine(
   )
 }
 
-export async function fetchProcessBoard(
-  pin: string,
-  floor: 'modular' | 'handcrafted' | 'all' = 'all',
-): Promise<ProcessBoardResponse> {
-  const q = floor === 'all' ? '' : `?floor=${floor}`
-  return parse(await fetch(`/api/workshop/process${q}`, { headers: mgrHeaders(pin) }))
+export async function fetchProcessBoard(pin: string): Promise<ProcessBoardResponse> {
+  return parse(await fetch('/api/workshop/process', { headers: mgrHeaders(pin) }))
 }
 
 export type WsLocalSettings = {

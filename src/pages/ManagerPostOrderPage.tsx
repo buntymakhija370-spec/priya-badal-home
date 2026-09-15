@@ -7,11 +7,9 @@ import {
   type WorkshopAuth,
 } from '../lib/workshopClient'
 import {
-  FLOOR_TYPES,
+  WORK_STAGES,
   stageHint,
   stageLabel,
-  stagesForFloor,
-  type FloorType,
   type OrderPriority,
   type WorkStageId,
 } from '../lib/workshopTypes'
@@ -25,9 +23,9 @@ const BAYS = [
   'Bay C',
   'Bay D',
   'Paint booth',
-  'Dispatch dock',
   'CNC cell',
   'Assembly',
+  'Polish room',
 ]
 
 type StagePick = {
@@ -36,10 +34,10 @@ type StagePick = {
   note: string
 }
 
-function emptyPicks(floorType: FloorType): Record<string, StagePick> {
+function emptyPicks(): Record<string, StagePick> {
   const picks: Record<string, StagePick> = {}
-  for (const stageId of stagesForFloor(floorType)) {
-    picks[stageId] = { enabled: false, workerId: '', note: '' }
+  for (const stage of WORK_STAGES) {
+    picks[stage.id] = { enabled: false, workerId: '', note: '' }
   }
   return picks
 }
@@ -49,7 +47,6 @@ export function ManagerPostOrderPage() {
   const pin = auth?.role === 'manager' ? auth.pin : ''
   const navigate = useNavigate()
 
-  const [floorType, setFloorType] = useState<FloorType>('modular')
   const [orderNo, setOrderNo] = useState('')
   const [customerName, setCustomerName] = useState('')
   const [productLabel, setProductLabel] = useState('')
@@ -60,13 +57,12 @@ export function ManagerPostOrderPage() {
   const [finish, setFinish] = useState('')
   const [bay, setBay] = useState('')
   const [dueDate, setDueDate] = useState('')
-  const [stagePicks, setStagePicks] = useState<Record<string, StagePick>>(() => emptyPicks('modular'))
+  const [stagePicks, setStagePicks] = useState<Record<string, StagePick>>(() => emptyPicks())
   const [workers, setWorkers] = useState<WorkerRosterEntry[]>([])
   const [msg, setMsg] = useState<string | null>(null)
   const [busy, setBusy] = useState(false)
 
-  const pipeline = useMemo(() => stagesForFloor(floorType), [floorType])
-  const selectedFloor = FLOOR_TYPES.find((f) => f.id === floorType)!
+  const pipeline = useMemo(() => WORK_STAGES.map((s) => s.id), [])
   const selectedCount = pipeline.filter((id) => stagePicks[id]?.enabled).length
 
   useEffect(() => {
@@ -75,11 +71,6 @@ export function ManagerPostOrderPage() {
       .then((roster) => setWorkers(roster.workers.filter((w) => w.active !== false)))
       .catch((e) => setMsg(e instanceof Error ? e.message : 'Could not load workers'))
   }, [pin])
-
-  function changeFloor(next: FloorType) {
-    setFloorType(next)
-    setStagePicks(emptyPicks(next))
-  }
 
   function toggleStage(stageId: WorkStageId, enabled: boolean) {
     setStagePicks((prev) => ({
@@ -146,7 +137,6 @@ export function ManagerPostOrderPage() {
         finish: finish || undefined,
         bay: bay || undefined,
         dueDate: dueDate || null,
-        floorType,
         assignments,
       })
       navigate(`/workers/manage/orders/${order.id}`, { replace: true })
@@ -163,8 +153,7 @@ export function ManagerPostOrderPage() {
           <p className="ws-login__kicker">New work</p>
           <h2>Post order</h2>
           <p className="ws-muted">
-            Choose the work floor, then tick which work joins this order and pick the worker for
-            each stage.
+            Tick which processes join this order and pick the worker for each stage.
           </p>
         </div>
       </header>
@@ -172,28 +161,6 @@ export function ManagerPostOrderPage() {
       {msg && <p className="ws-banner ws-banner--error">{msg}</p>}
 
       <form className="ws-form ws-panel" onSubmit={onSubmit}>
-        <fieldset className="ws-floor-pick">
-          <legend>Work floor section</legend>
-          <div className="ws-floor-pick__grid">
-            {FLOOR_TYPES.map((floor) => (
-              <label
-                key={floor.id}
-                className={`ws-floor-card ${floorType === floor.id ? 'is-on' : ''}`}
-              >
-                <input
-                  type="radio"
-                  name="floorType"
-                  value={floor.id}
-                  checked={floorType === floor.id}
-                  onChange={() => changeFloor(floor.id)}
-                />
-                <strong>{floor.label}</strong>
-                <span>{floor.summary}</span>
-              </label>
-            ))}
-          </div>
-        </fieldset>
-
         <label>
           Order no.
           <input
@@ -217,11 +184,7 @@ export function ManagerPostOrderPage() {
           <input
             value={productLabel}
             onChange={(e) => setProductLabel(e.target.value)}
-            placeholder={
-              floorType === 'modular'
-                ? 'Modular kitchen carcass — oak matt'
-                : 'Hand crafted fluted TV panel'
-            }
+            placeholder="Kitchen carcass — oak matt"
             required
           />
         </label>
@@ -262,7 +225,7 @@ export function ManagerPostOrderPage() {
             <input
               value={finish}
               onChange={(e) => setFinish(e.target.value)}
-              placeholder={floorType === 'modular' ? 'Matt laminate' : 'Paint / polish'}
+              placeholder="Matt laminate / paint / polish"
             />
           </label>
         </div>
@@ -289,7 +252,7 @@ export function ManagerPostOrderPage() {
             Join work to this order <span className="ws-muted">({selectedCount} selected)</span>
           </legend>
           <p className="ws-muted ws-stage-join__hint">
-            Tick the work stages that should start on this order, then select the worker for each
+            Tick the process stages that should start on this order, then select the worker for each
             ticked stage.
           </p>
           <div className="ws-stage-join__list">
@@ -348,8 +311,8 @@ export function ManagerPostOrderPage() {
           {busy
             ? 'Posting…'
             : selectedCount
-              ? `Post ${selectedFloor.label} order · ${selectedCount} work joined`
-              : `Post ${selectedFloor.label} order`}
+              ? `Post order · ${selectedCount} work joined`
+              : 'Post order'}
         </button>
       </form>
     </main>

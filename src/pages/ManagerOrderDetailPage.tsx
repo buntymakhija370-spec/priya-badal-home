@@ -4,7 +4,6 @@ import {
   BackLink,
   EventTimeline,
   OrderMetaGrid,
-  FloorBadge,
   PriorityBadge,
   ProgressBar,
   StagePipeline,
@@ -128,7 +127,6 @@ export function ManagerOrderDetailPage() {
         <div className="ws-detail-head__title">
           <h2>{order.orderNo}</h2>
           <div className="ws-detail-head__badges">
-            <FloorBadge floorType={order.floorType} />
             <PriorityBadge priority={order.priority} />
             <StatusPill status={order.status} />
           </div>

@@ -150,6 +150,7 @@ async function handleCreateOrder(req: IncomingMessage, res: ServerResponse) {
       bay?: string
       dueDate?: string | null
       floorType?: 'modular' | 'handcrafted'
+      assignments?: Array<{ stageId: WorkStageId; workerId: string; managerNote?: string }>
     }>(req)
     if (body.floorType !== 'modular' && body.floorType !== 'handcrafted') {
       return send(res, 400, { error: 'Select Modular or Hand Crafted Panels' })
@@ -166,6 +167,7 @@ async function handleCreateOrder(req: IncomingMessage, res: ServerResponse) {
       bay: body.bay,
       dueDate: body.dueDate,
       floorType: body.floorType,
+      assignments: body.assignments,
     })
     send(res, 200, { order, snapshot: snapshot() })
   } catch (err) {

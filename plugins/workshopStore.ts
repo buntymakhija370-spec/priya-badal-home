@@ -553,6 +553,7 @@ export function createOrder(input: {
   bay?: string
   dueDate?: string | null
   floorType: FloorType
+  assignments?: Array<{ stageId: WorkStageId; workerId: string; managerNote?: string }>
 }): WorkshopOrder {
   const store = ensureStore()
   if (input.floorType !== 'modular' && input.floorType !== 'handcrafted') {
@@ -589,6 +590,31 @@ export function createOrder(input: {
     kind: 'assigned',
     message: `Manager posted ${floorLabel(order.floorType)} order ${order.orderNo} — ${order.productLabel}`,
   })
+
+  const allowed = new Set(stagesForFloor(floorType))
+  for (const assignment of input.assignments || []) {
+    if (!allowed.has(assignment.stageId)) {
+      throw new Error(`${stageLabel(assignment.stageId)} is not on the ${floorLabel(floorType)} floor`)
+    }
+    const worker = store.workers.find((w) => w.id === assignment.workerId && w.active)
+    if (!worker) throw new Error('Worker not found for assignment')
+    const stage = order.stages.find((s) => s.stageId === assignment.stageId)
+    if (!stage) throw new Error('Stage not found')
+    stage.workerId = worker.id
+    stage.status = 'assigned'
+    stage.managerNote = (assignment.managerNote || '').trim()
+    pushEvent(store, {
+      orderId: order.id,
+      workerId: worker.id,
+      stageId: assignment.stageId,
+      kind: 'assigned',
+      message: `${worker.name} joined ${stageLabel(assignment.stageId)} on ${order.orderNo}${
+        stage.managerNote ? ` — ${stage.managerNote}` : ''
+      }`,
+    })
+  }
+
+  recomputeOrderStatus(order)
   saveStore(store)
   return order
 }

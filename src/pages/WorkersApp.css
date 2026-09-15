@@ -2050,3 +2050,70 @@
   flex: 1;
   min-width: 12rem;
 }
+
+
+.ws-stage-join {
+  border: 1px solid rgba(196, 165, 116, 0.28);
+  border-radius: 12px;
+  padding: 0.85rem 1rem 1rem;
+  margin: 0.5rem 0 1rem;
+  background: rgba(0, 0, 0, 0.18);
+}
+.ws-stage-join legend {
+  font-weight: 700;
+  padding: 0 0.35rem;
+}
+.ws-stage-join__hint {
+  margin: 0 0 0.75rem;
+  font-size: 0.85rem;
+}
+.ws-stage-join__list {
+  display: grid;
+  gap: 0.55rem;
+}
+.ws-stage-join__row {
+  border: 1px solid rgba(196, 165, 116, 0.22);
+  border-radius: 10px;
+  padding: 0.7rem 0.8rem;
+  background: rgba(255, 255, 255, 0.03);
+}
+.ws-stage-join__row.is-on {
+  border-color: rgba(196, 165, 116, 0.55);
+  background: rgba(196, 165, 116, 0.1);
+}
+.ws-stage-join__tick {
+  display: flex !important;
+  flex-direction: row !important;
+  align-items: flex-start;
+  gap: 0.65rem;
+  margin: 0;
+}
+.ws-stage-join__tick input {
+  width: auto;
+  margin-top: 0.2rem;
+  accent-color: #c4a574;
+}
+.ws-stage-join__tick span {
+  display: grid;
+  gap: 0.15rem;
+}
+.ws-stage-join__tick strong {
+  font-size: 0.95rem;
+}
+.ws-stage-join__tick em {
+  font-style: normal;
+  font-size: 0.78rem;
+  color: var(--ws-muted);
+}
+.ws-stage-join__assign {
+  display: grid;
+  gap: 0.55rem;
+  margin-top: 0.7rem;
+  padding-top: 0.65rem;
+  border-top: 1px solid rgba(196, 165, 116, 0.18);
+}
+@media (min-width: 720px) {
+  .ws-stage-join__assign {
+    grid-template-columns: 1.2fr 1fr;
+  }
+}

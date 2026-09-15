@@ -232,6 +232,7 @@ export async function createWorkshopOrder(
     bay?: string
     dueDate?: string | null
     floorType: 'modular' | 'handcrafted'
+    assignments?: Array<{ stageId: WorkStageId; workerId: string; managerNote?: string }>
   },
 ) {
   return parse<{ order: WorkshopOrder; snapshot: WorkshopSnapshot }>(

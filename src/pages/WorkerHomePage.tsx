@@ -3,11 +3,9 @@ import { Link, useOutletContext } from 'react-router-dom'
 import {
   LiveClock,
   PriorityBadge,
-  ProgressBar,
-  StageDots,
   StatusPill,
 } from '../components/workshop/WorkshopUi'
-import { orderProgress, stageLabel } from '../lib/workshopTypes'
+import { stageLabel } from '../lib/workshopTypes'
 import { fetchWorkerJobs, type WorkshopAuth } from '../lib/workshopClient'
 import './WorkersApp.css'
 
@@ -81,7 +79,6 @@ export function WorkerHomePage() {
       ) : (
         <ul className="ws-jobs">
           {activeJobs.map((job) => {
-            const { percent } = orderProgress(job.order)
             const draftKey = `${job.order.id}:${job.stage.stageId}`
             return (
               <li key={draftKey}>
@@ -97,13 +94,16 @@ export function WorkerHomePage() {
                   <h3>{job.order.orderNo}</h3>
                   <p className="ws-job__product">{job.order.productLabel}</p>
                   <p className="ws-muted">{job.order.customerName}</p>
+                  {job.stage.managerNote && (
+                    <p className="ws-job__note">
+                      Manager: <em>{job.stage.managerNote}</em>
+                    </p>
+                  )}
                   {job.stage.statement && (
                     <p className="ws-job__last">
                       Last: <em>{job.stage.statement}</em>
                     </p>
                   )}
-                  <ProgressBar percent={percent} size="sm" />
-                  <StageDots order={job.order} />
                   <span className="ws-job__tap-hint">Tap for details →</span>
                 </Link>
               </li>

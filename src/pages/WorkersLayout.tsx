@@ -10,10 +10,12 @@ function pageTitle(pathname: string, search: string, auth: WorkshopAuth | null):
   if (!auth) return 'Worker app'
   if (auth.role === 'worker') {
     if (pathname.includes('/settings')) return 'Settings'
+    if (pathname.includes('/scan')) return 'Scan barcode'
     if (pathname.includes('/job/')) return 'Job detail'
     return 'My jobs'
   }
   if (pathname.includes('/post-order')) return 'Post order'
+  if (pathname.includes('/labels')) return 'Print barcodes'
   if (pathname.includes('/process')) return 'Process tracking'
   if (pathname.includes('/machinery')) return 'Machinery'
   if (pathname.includes('/overview')) return 'Track everything'
@@ -70,7 +72,10 @@ function workerMenu(): MenuGroup[] {
   return [
     {
       title: 'Jobs',
-      items: [{ label: 'My jobs', to: '/workers/home' }],
+      items: [
+        { label: 'My jobs', to: '/workers/home' },
+        { label: 'Scan barcode', to: '/workers/home/scan', hint: 'Claim work from a label' },
+      ],
     },
     {
       title: 'Account',

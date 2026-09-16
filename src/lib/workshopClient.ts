@@ -165,6 +165,21 @@ export async function postWorkerAction(body: {
   )
 }
 
+export async function scanWorkshopBarcode(body: { barcode: string; workerId: string }): Promise<{
+  order: WorkshopOrder
+  stage: OrderStage
+  claimed: boolean
+  message: string
+}> {
+  return parse(
+    await fetch('/api/workshop/scan', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(body),
+    }),
+  )
+}
+
 export async function fetchBoard(pin: string): Promise<BoardResponse> {
   return parse(await fetch('/api/workshop/board', { headers: mgrHeaders(pin) }))
 }

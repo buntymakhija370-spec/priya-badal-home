@@ -139,7 +139,7 @@ export function ManagerPostOrderPage() {
         dueDate: dueDate || null,
         assignments,
       })
-      navigate(`/workers/manage/orders/${order.id}`, { replace: true })
+      navigate(`/workers/manage/orders/${order.id}/labels?print=1`, { replace: true })
     } catch (err) {
       setMsg(err instanceof Error ? err.message : 'Could not create order')
       setBusy(false)

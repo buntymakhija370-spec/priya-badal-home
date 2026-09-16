@@ -12,6 +12,7 @@ import {
   orderDetail,
   processBoard,
   resetDemoData,
+  scanBarcode,
   snapshot,
   unassignStage,
   updateMachine,
@@ -122,6 +123,20 @@ async function handleWorkerAction(req: IncomingMessage, res: ServerResponse) {
     send(res, 200, { order, snapshot: snapshot() })
   } catch (err) {
     send(res, 400, { error: err instanceof Error ? err.message : 'Update failed' })
+  }
+}
+
+async function handleScanBarcode(req: IncomingMessage, res: ServerResponse) {
+  if (req.method !== 'POST') return send(res, 405, { error: 'POST only' })
+  try {
+    const body = await readJson<{ barcode?: string; workerId?: string }>(req)
+    if (!body.barcode || !body.workerId) {
+      return send(res, 400, { error: 'barcode and workerId required' })
+    }
+    const result = scanBarcode({ barcode: body.barcode, workerId: body.workerId })
+    send(res, 200, result)
+  } catch (err) {
+    send(res, 400, { error: err instanceof Error ? err.message : 'Scan failed' })
   }
 }
 
@@ -360,6 +375,7 @@ function attach(middlewares: Connect.Server) {
   middlewares.use('/api/workshop/login', (req, res) => void handleLogin(req, res))
   middlewares.use('/api/workshop/worker-jobs', (req, res) => void handleWorkerJobs(req, res))
   middlewares.use('/api/workshop/worker-action', (req, res) => void handleWorkerAction(req, res))
+  middlewares.use('/api/workshop/scan', (req, res) => void handleScanBarcode(req, res))
   middlewares.use('/api/workshop/board', (req, res) => void handleBoard(req, res))
   middlewares.use('/api/workshop/orders', (req, res, next) => {
     if (req.method === 'POST') void handleCreateOrder(req, res)

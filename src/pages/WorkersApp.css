@@ -472,6 +472,13 @@
   background: rgba(126, 176, 196, 0.12);
 }
 
+.ws-chip--scan {
+  text-decoration: none;
+  color: var(--ws-ok, #c9a66b);
+  border-color: rgba(201, 166, 107, 0.4);
+  background: rgba(201, 166, 107, 0.12);
+}
+
 /* Tabs */
 .ws-tabs {
   display: grid;

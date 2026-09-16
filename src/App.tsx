@@ -25,6 +25,8 @@ import { ManagerProcessPage } from './pages/ManagerProcessPage'
 import { ManagerSettingsPage } from './pages/ManagerSettingsPage'
 import { ManagerWorkerDetailPage } from './pages/ManagerWorkerDetailPage'
 import { WorkerSettingsPage } from './pages/WorkerSettingsPage'
+import { WorkerScanPage } from './pages/WorkerScanPage'
+import { ManagerBarcodeLabelsPage } from './pages/ManagerBarcodeLabelsPage'
 import './App.css'
 
 /** Old Design / Visualise / Carcass Planner URLs → unified Chat hub */
@@ -45,6 +47,7 @@ export default function App() {
           <Route index element={<WorkersLoginPage />} />
           <Route element={<RequireAuth role="worker" />}>
             <Route path="home" element={<WorkerHomePage />} />
+            <Route path="home/scan" element={<WorkerScanPage />} />
             <Route path="home/settings" element={<WorkerSettingsPage />} />
             <Route path="home/job/:orderId/:stageId" element={<WorkerJobDetailPage />} />
           </Route>
@@ -56,6 +59,7 @@ export default function App() {
             <Route path="manage/overview" element={<ManagerOverviewPage />} />
             <Route path="manage/settings" element={<ManagerSettingsPage />} />
             <Route path="manage/orders/:orderId" element={<ManagerOrderDetailPage />} />
+            <Route path="manage/orders/:orderId/labels" element={<ManagerBarcodeLabelsPage />} />
             <Route path="manage/workers/:workerId" element={<ManagerWorkerDetailPage />} />
           </Route>
         </Route>

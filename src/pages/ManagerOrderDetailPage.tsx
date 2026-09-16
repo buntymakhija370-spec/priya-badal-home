@@ -1,5 +1,5 @@
 import { useCallback, useEffect, useMemo, useState } from 'react'
-import { useNavigate, useOutletContext, useParams } from 'react-router-dom'
+import { Link, useNavigate, useOutletContext, useParams } from 'react-router-dom'
 import {
   BackLink,
   EventTimeline,
@@ -136,6 +136,13 @@ export function ManagerOrderDetailPage() {
             Close order
           </button>
         )}
+        <Link
+          to={`/workers/manage/orders/${order.id}/labels`}
+          className="ws__primary"
+          style={{ textDecoration: 'none', display: 'inline-flex', alignItems: 'center' }}
+        >
+          Print barcodes
+        </Link>
       </header>
 
       {msg && <p className="ws-banner">{msg}</p>}

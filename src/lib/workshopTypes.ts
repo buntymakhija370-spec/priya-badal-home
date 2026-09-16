@@ -1,13 +1,13 @@
 /** Shared workshop process + machinery types (single pipeline — no floor categories) */
 
 export const WORK_STAGES = [
-  { id: 'designing', label: 'Designing', short: 'Design', hint: 'Layout, drawings, CNC / cut list' },
-  { id: 'cutting', label: 'Cutting', short: 'Cut', hint: 'Panels cut to size' },
-  { id: 'edge_bending', label: 'Edge bending', short: 'Edge', hint: 'Edge banding' },
-  { id: 'boring', label: 'Boring', short: 'Bore', hint: 'Hinge / shelf / connector holes' },
-  { id: 'painting', label: 'Painting', short: 'Paint', hint: 'Colour, polish & paint booth' },
-  { id: 'leather_job', label: 'Leather job', short: 'Leather', hint: 'Leather wrap, stitch & finish' },
-  { id: 'oxidisation', label: 'Oxidisation', short: 'Oxide', hint: 'Metal oxide / antique treatment' },
+  { id: 'designing', label: 'Designing', short: 'Design', code: 'DSN', hint: 'Layout, drawings, CNC / cut list' },
+  { id: 'cutting', label: 'Cutting', short: 'Cut', code: 'CUT', hint: 'Panels cut to size' },
+  { id: 'edge_bending', label: 'Edge bending', short: 'Edge', code: 'EDG', hint: 'Edge banding' },
+  { id: 'boring', label: 'Boring', short: 'Bore', code: 'BOR', hint: 'Hinge / shelf / connector holes' },
+  { id: 'painting', label: 'Painting', short: 'Paint', code: 'PNT', hint: 'Colour, polish & paint booth' },
+  { id: 'leather_job', label: 'Leather job', short: 'Leather', code: 'LTH', hint: 'Leather wrap, stitch & finish' },
+  { id: 'oxidisation', label: 'Oxidisation', short: 'Oxide', code: 'OXD', hint: 'Metal oxide / antique treatment' },
 ] as const
 
 export type WorkStageId = (typeof WORK_STAGES)[number]['id']
@@ -44,6 +44,8 @@ export type OrderStage = {
   statement: string
   updates: StageUpdate[]
   managerNote: string
+  /** Scannable Code128 payload for this department stage */
+  barcode: string
 }
 
 export type StatusEvent = {
@@ -126,7 +128,14 @@ export function stageMeta(id: WorkStageId | string) {
   return normalized ? WORK_STAGES.find((s) => s.id === normalized) : undefined
 }
 
-export function emptyStages(): OrderStage[] {
+/** Build a stable department barcode for an order stage (Code128-friendly). */
+export function makeStageBarcode(orderNo: string, stageId: WorkStageId): string {
+  const code = WORK_STAGES.find((s) => s.id === stageId)?.code ?? stageId.slice(0, 3).toUpperCase()
+  const cleanOrder = orderNo.trim().toUpperCase().replace(/\s+/g, '')
+  return `PB|${cleanOrder}|${code}`
+}
+
+export function emptyStages(orderNo = 'TEMP'): OrderStage[] {
   return WORK_STAGES.map((s) => ({
     stageId: s.id,
     status: 'pending' as const,
@@ -136,7 +145,12 @@ export function emptyStages(): OrderStage[] {
     statement: '',
     updates: [],
     managerNote: '',
+    barcode: makeStageBarcode(orderNo, s.id),
   }))
+}
+
+export function stageBarcodeCode(stageId: WorkStageId): string {
+  return WORK_STAGES.find((s) => s.id === stageId)?.code ?? stageId
 }
 
 export function orderProgress(order: WorkshopOrder): {

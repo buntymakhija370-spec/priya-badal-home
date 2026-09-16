@@ -67,6 +67,9 @@ export function WorkerHomePage() {
       <div className="ws-chips">
         <span className="ws-chip ws-chip--active">{activeJobs.length} active</span>
         <span className="ws-chip">{completedToday} done today</span>
+        <Link to="/workers/home/scan" className="ws-chip ws-chip--scan">
+          Scan barcode
+        </Link>
       </div>
 
       {msg && <p className="ws-banner">{msg}</p>}

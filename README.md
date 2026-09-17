@@ -21,24 +21,32 @@ Open **`/workers`** on phones (Chrome → Add to Home screen for an Android app 
 4. **Workers** sign in with code + PIN (manager board → Show login PINs).
 5. Workers start work, post what they are doing, mark stage complete — manager live board updates every few seconds.
 
-Data is stored in `data/workshop.json` (gitignored).
+Data is stored in `data/workshop.json` (gitignored) locally. On Cloudflare Pages it uses a **KV** namespace (`WORKSHOP_KV`).
 
-## Develop
+## Deploy (Cloudflare Pages)
+
+Site: **https://www.priyabadalhomes.com** (project `priya-badal-home`).
+
+### One-time setup
+
+1. Cloudflare dashboard → create API token with **Cloudflare Pages — Edit** + **Account — Workers KV Storage — Edit**.
+2. GitHub repo → **Settings → Secrets and variables → Actions**:
+   - `CLOUDFLARE_API_TOKEN`
+   - `CLOUDFLARE_ACCOUNT_ID`
+3. Create KV and bind it:
+   ```bash
+   npx wrangler kv namespace create WORKSHOP_KV
+   ```
+   Paste the id into `wrangler.toml` under `[[kv_namespaces]]`, **or** bind `WORKSHOP_KV` in Pages → Settings → Functions → KV namespace bindings.
+4. Push to `main` (or this workshop branch) / run **Deploy to Cloudflare Pages** workflow.
+
+### Manual deploy (if you have wrangler auth)
 
 ```bash
-npm install
-npm run dev
+npm run deploy
 ```
 
-### Professional Visualise AI (Google Gemini)
-
-1. Get a key at https://aistudio.google.com/apikey  
-2. Either:
-   - Paste it in **/ai-admin** (owner PIN), or
-   - Put `GEMINI_API_KEY=...` in `.env` and restart `npm run dev` / `npm run preview`
-3. Generate uses **your product photo + room photo** (Gemini 2.5 Flash Image — cheap Nano Banana)
-
-Customers unlock with a paid access code; they never see your Gemini key.
+Workshop API routes live under `/api/workshop/*` via Cloudflare Pages Functions (`functions/api/workshop/`).
 
 ## Build
 

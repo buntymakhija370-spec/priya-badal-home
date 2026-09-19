@@ -1,9 +1,9 @@
-# Cloudflare Pages — priyabadalhomes.com / priya-badal-home.pages.dev
-name = "priya-badal-home"
+# Ops / floor app — separate from the public website (priya-badal-home).
+# Public URL: https://kestrel-ops-desk.pages.dev/workers
+name = "kestrel-ops-desk"
 compatibility_date = "2026-08-01"
 pages_build_output_dir = "dist"
 
-# Workshop live state (orders, workers, barcodes, machines)
 [[kv_namespaces]]
 binding = "WORKSHOP_KV"
 id = "8c80a4c405e84910933f45f448384660"

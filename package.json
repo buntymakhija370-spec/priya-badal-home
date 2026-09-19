@@ -7,9 +7,14 @@
     "dev": "vite",
     "build": "tsc -b && vite build",
     "lint": "oxlint",
-    "preview": "vite preview"
+    "preview": "vite preview",
+    "deploy": "npm run build && wrangler pages deploy dist --project-name=priya-badal-home",
+    "deploy:site": "npm run build && cp deploy/public-site-_redirects dist/_redirects && wrangler pages deploy dist --project-name=priya-badal-home",
+    "deploy:ops": "npm run build && wrangler pages deploy dist --project-name=kestrel-ops-desk"
   },
   "dependencies": {
+    "@types/jsbarcode": "^3.11.4",
+    "jsbarcode": "^3.12.3",
     "react": "^19.2.7",
     "react-dom": "^19.2.7",
     "react-router-dom": "^7.18.1"
@@ -21,6 +26,7 @@
     "@vitejs/plugin-react": "^6.0.3",
     "oxlint": "^1.71.0",
     "typescript": "~6.0.2",
-    "vite": "^8.1.1"
+    "vite": "^8.1.1",
+    "wrangler": "^4.134.0"
   }
 }

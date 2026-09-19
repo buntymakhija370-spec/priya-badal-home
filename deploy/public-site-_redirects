@@ -1,11 +1,5 @@
-# Cloudflare Pages — SPA fallback for React Router paths only.
-# Do NOT use a catch-all /* rule: it can serve index.html for /assets/*.js
-# on custom domains (broken MIME type / blank site).
-# /api/* is handled by Pages Functions (functions/), not these redirects.
-#
-# Bare paths without a trailing slash must 302 → /path/ first. A direct
-# `/path /index.html 200` rewrite is ignored by Pages and falls through to a
-# 308 → / (breaks deep links). Trailing-slash + splat rewrites work.
+# Public website (priya-badal-home / www.priyabadalhomes.com) — no floor app.
+# Floor ops is deployed separately to kestrel-ops-desk.
 /shop /shop/ 302
 /shop/ /index.html 200
 /shop/* /index.html 200
@@ -35,6 +29,6 @@
 /carcass/ /index.html 200
 /add-product /add-product/ 302
 /add-product/ /index.html 200
-/workers /workers/ 302
-/workers/ /index.html 200
-/workers/* /index.html 200
+/workers / 302
+/workers/ / 302
+/workers/* / 302

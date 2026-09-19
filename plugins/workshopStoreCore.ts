@@ -545,7 +545,7 @@ export function getManagerPin(): string {
 }
 
 export function assertManager(pin: string | undefined | null) {
-  if (!pin || pin !== getManagerPin()) throw new Error('Manager PIN incorrect')
+  if (!pin || pin !== getManagerPin()) throw new Error('Manager password incorrect')
 }
 
 export function snapshot(): WorkshopSnapshot {
@@ -564,7 +564,7 @@ export function loginWorker(code: string, pin: string): Worker {
   const worker = store.workers.find(
     (w) => w.code.toUpperCase() === code.trim().toUpperCase() && w.active,
   )
-  if (!worker || worker.pin !== pin.trim()) throw new Error('Worker code or PIN incorrect')
+  if (!worker || worker.pin !== pin.trim()) throw new Error('Worker code or password incorrect')
   return worker
 }
 
@@ -1080,7 +1080,7 @@ export function updateWorker(input: {
   if (input.phone !== undefined) worker.phone = input.phone.trim()
   if (input.pin !== undefined) {
     const pin = input.pin.trim()
-    if (!/^\d{4}$/.test(pin)) throw new Error('PIN must be 4 digits')
+    if (!/^\d{4}$/.test(pin)) throw new Error('Password must be 4 digits')
     worker.pin = pin
   }
   if (input.active !== undefined) worker.active = input.active

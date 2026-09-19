@@ -5,7 +5,6 @@ import {
   assignStage,
   closeOrder,
   createOrder,
-  getManagerPin,
   listMachines,
   liveBoard,
   loginWorker,
@@ -63,10 +62,6 @@ async function handleLogin(req: IncomingMessage, res: ServerResponse) {
         role: 'manager',
         name: 'Floor manager',
         pinOk: true,
-        hint:
-          getManagerPin() === '2468'
-            ? 'Default PIN is 2468 (change with WORKSHOP_MANAGER_PIN)'
-            : undefined,
       })
     }
     const worker = loginWorker(body.code || '', body.pin || '')
@@ -248,7 +243,6 @@ async function handleWorkers(req: IncomingMessage, res: ServerResponse) {
         busy: busyIds.has(rest.id),
         activeJobCount: board.workingNow.find((r) => r.worker.id === rest.id)?.jobs.length || 0,
       })),
-      pins: Object.fromEntries(snap.workers.map((w) => [w.id, w.pin])),
       updatedAt: snap.updatedAt,
     })
   } catch (err) {
@@ -275,7 +269,8 @@ async function handleWorkerDetail(req: IncomingMessage, res: ServerResponse) {
     const workerId = url.searchParams.get('workerId') || ''
     if (!workerId) return send(res, 400, { error: 'workerId required' })
     const detail = workerDetail(workerId)
-    send(res, 200, detail)
+    const { pin: _p, ...workerSafe } = detail.worker
+    send(res, 200, { ...detail, worker: workerSafe })
   } catch (err) {
     send(res, 400, { error: err instanceof Error ? err.message : 'Load failed' })
   }

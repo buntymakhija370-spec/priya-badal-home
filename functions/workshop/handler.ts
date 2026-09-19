@@ -130,10 +130,6 @@ export async function handleWorkshopRequest(
             role: 'manager',
             name: 'Floor manager',
             pinOk: true,
-            hint:
-              getManagerPin() === '2468'
-                ? 'Default PIN is 2468 (change with WORKSHOP_MANAGER_PIN)'
-                : undefined,
           })
         }
         const worker = loginWorker(body.code || '', body.pin || '')
@@ -281,7 +277,6 @@ export async function handleWorkshopRequest(
             activeJobCount:
               board.workingNow.find((r) => r.worker.id === rest.id)?.jobs.length || 0,
           })),
-          pins: Object.fromEntries(snap.workers.map((w) => [w.id, w.pin])),
           updatedAt: snap.updatedAt,
         })
       }
@@ -295,7 +290,9 @@ export async function handleWorkshopRequest(
       if (head === 'worker-detail' && method === 'GET') {
         assertManager(managerPin(request))
         const workerId = url.searchParams.get('workerId') || ''
-        return json(200, workerDetail(workerId))
+        const detail = workerDetail(workerId)
+        const { pin: _p, ...workerSafe } = detail.worker
+        return json(200, { ...detail, worker: workerSafe })
       }
 
       if (head === 'job-detail' && method === 'GET') {

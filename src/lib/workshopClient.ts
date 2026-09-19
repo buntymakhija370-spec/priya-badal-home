@@ -55,7 +55,7 @@ export type OrderDetailResponse = {
 }
 
 export type WorkerDetailResponse = {
-  worker: Worker
+  worker: Omit<Worker, 'pin'>
   activeJobs: { order: WorkshopOrder; stage: OrderStage }[]
   completedJobs: { order: WorkshopOrder; stage: OrderStage; completedAt?: string }[]
   events: StatusEvent[]
@@ -186,7 +186,6 @@ export async function fetchBoard(pin: string): Promise<BoardResponse> {
 
 export async function fetchWorkers(pin: string): Promise<{
   workers: WorkerRosterEntry[]
-  pins: Record<string, string>
   updatedAt: string
 }> {
   return parse(await fetch('/api/workshop/workers', { headers: mgrHeaders(pin) }))

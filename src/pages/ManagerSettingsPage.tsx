@@ -54,16 +54,8 @@ export function ManagerSettingsPage() {
 
       <section className="ws-panel ws-settings-block">
         <h3>Shop</h3>
-        <p className="ws-settings-shop">Priyabadal Workshop</p>
-        <p className="ws-muted">Floor manager app for live orders, workers, and machinery.</p>
-      </section>
-
-      <section className="ws-panel ws-settings-block">
-        <h3>Manager PIN</h3>
-        <p className="ws-muted">
-          Default PIN is <strong>2468</strong> unless changed with the{' '}
-          <code>WORKSHOP_MANAGER_PIN</code> environment variable on the server.
-        </p>
+        <p className="ws-settings-shop">Floor ops</p>
+        <p className="ws-muted">Manager app for live orders, workers, and machinery.</p>
       </section>
 
       <section className="ws-panel ws-settings-block">

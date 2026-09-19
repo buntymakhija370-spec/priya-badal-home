@@ -8,7 +8,9 @@
     "build": "tsc -b && vite build",
     "lint": "oxlint",
     "preview": "vite preview",
-    "deploy": "npm run build && wrangler pages deploy dist --project-name=priya-badal-home"
+    "deploy": "npm run build && wrangler pages deploy dist --project-name=priya-badal-home",
+    "deploy:site": "npm run build && cp deploy/public-site-_redirects dist/_redirects && wrangler pages deploy dist --project-name=priya-badal-home",
+    "deploy:ops": "npm run build && wrangler pages deploy dist --project-name=kestrel-ops-desk"
   },
   "dependencies": {
     "@types/jsbarcode": "^3.11.4",

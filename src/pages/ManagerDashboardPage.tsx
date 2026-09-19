@@ -48,8 +48,6 @@ export function ManagerDashboardPage() {
 
   const [board, setBoard] = useState<BoardResponse | null>(null)
   const [workers, setWorkers] = useState<WorkerRosterEntry[]>([])
-  const [pins, setPins] = useState<Record<string, string>>({})
-  const [showPins, setShowPins] = useState(false)
   const [msg, setMsg] = useState<string | null>(null)
   const [busy, setBusy] = useState(false)
 
@@ -80,7 +78,6 @@ export function ManagerDashboardPage() {
     const [b, roster] = await Promise.all([fetchBoard(pin), fetchWorkers(pin)])
     setBoard(b)
     setWorkers(roster.workers)
-    setPins(roster.pins)
     setAssignOrderId((prev) => prev || b.orders[0]?.id || '')
     setAssignWorkerId((prev) => prev || roster.workers[0]?.id || '')
   }, [pin])
@@ -500,13 +497,10 @@ export function ManagerDashboardPage() {
               onChange={(e) => setWorkerSearch(e.target.value)}
               className="ws-search"
             />
-            <button type="button" className="ws__secondary" onClick={() => setShowPins((v) => !v)}>
-              {showPins ? 'Hide PINs' : 'Show PINs'}
-            </button>
           </div>
           <p className="ws-muted ws-workers-hint">
             Tap a worker to open their profile, then use <strong>Customise worker information</strong>{' '}
-            to edit name, role, bay, phone, or PIN.
+            to edit name, role, bay, or phone.
           </p>
 
           <div className="ws-worker-list">
@@ -523,7 +517,6 @@ export function ManagerDashboardPage() {
                     {w.busy ? `${w.activeJobCount} active` : 'Idle'}
                   </span>
                 </div>
-                {showPins && <code className="ws-worker-card__pin">{pins[w.id] || '…'}</code>}
                 <span className="ws-worker-card__edit">Customise →</span>
               </Link>
             ))}

@@ -91,7 +91,7 @@ export function WorkersLayout() {
   const location = useLocation()
 
   useEffect(() => {
-    document.title = 'Priyabadal Workshop'
+    document.title = 'Floor ops'
     const link = document.querySelector('link[rel="manifest"]') as HTMLLinkElement | null
     if (link) link.href = '/workers-manifest.webmanifest'
     const theme = document.querySelector('meta[name="theme-color"]') as HTMLMetaElement | null
@@ -148,7 +148,7 @@ export function WorkersLayout() {
         <div className="ws__brand">
           <img src="/brand/priyabadal-homes-logo.svg" alt="" className="ws__logo" />
           <div>
-            <p className="ws__eyebrow">Workshop floor</p>
+            <p className="ws__eyebrow">Floor ops</p>
             <h1 className="ws__title">{title}</h1>
           </div>
         </div>

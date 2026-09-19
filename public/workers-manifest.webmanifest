@@ -1,8 +1,8 @@
 {
   "id": "/workers",
-  "name": "Priyabadal Workshop",
-  "short_name": "Workshop",
-  "description": "Assign floor work and track cutting, pasting, colouring, finishing, QC, and dispatch in real time.",
+  "name": "Floor ops",
+  "short_name": "Floor ops",
+  "description": "Assign floor work and track stages in real time.",
   "start_url": "/workers?source=pwa",
   "scope": "/workers",
   "display": "standalone",

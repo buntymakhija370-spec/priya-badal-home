@@ -9,21 +9,25 @@ Interior products website with categories, prices, photo uploads, and an AI room
 - **AI Interior Guide** — chat board that suggests products for a room/style/budget
 - **Visualise AI** — upload a room photo, pick a Priyabadal Homes product + colour, generate a product-referenced preview
 - **Add Product** — upload a photograph (or paste image URL), set category, subcategory, and price
-- **Workshop worker app** (`/workers`) — Android-installable PWA for floor staff: managers assign designing → cutting → pasting → colouring → finishing → QC → dispatch; workers post live status; full accountability trail when orders close
 
-## Workshop floor app (workers)
+## Floor ops (separate host)
 
-Open **`/workers`** on phones (Chrome → Add to Home screen for an Android app icon).
+Floor staff app is **not** on the public website. It is deployed to its own Cloudflare Pages project:
 
-1. Run the site with the API (`npm run dev` or `npm run preview`) on a workshop PC so all phones share live state.
-2. **Manager** signs in with PIN `2468` (override with `WORKSHOP_MANAGER_PIN`).
-3. Post an order, assign each stage to a worker (roster W01–W60).
-4. **Workers** sign in with code + PIN (manager board → Show login PINs).
-5. Workers start work, post what they are doing, mark stage complete — manager live board updates every few seconds.
+**https://kestrel-ops-desk.pages.dev/workers**
 
-Data is stored in `data/workshop.json` (gitignored) locally. On Cloudflare Pages it uses a **KV** namespace (`WORKSHOP_KV`).
+1. Open that URL on phones (Chrome → Add to Home screen).
+2. Manager / worker sign in with their own passwords (never shown in the UI).
+3. Post orders, assign stages, scan barcodes, track machinery.
 
-## Deploy (Cloudflare Pages)
+Locally: `npm run dev` then open `/workers`. Data: `data/workshop.json` (gitignored). On Cloudflare: KV `WORKSHOP_KV`.
+
+```bash
+npm run deploy:ops    # floor app → kestrel-ops-desk
+npm run deploy:site   # public site → priya-badal-home (blocks /workers)
+```
+
+## Deploy (public website)
 
 Site: **https://www.priyabadalhomes.com** (project `priya-badal-home`).
 
@@ -33,20 +37,10 @@ Site: **https://www.priyabadalhomes.com** (project `priya-badal-home`).
 2. GitHub repo → **Settings → Secrets and variables → Actions**:
    - `CLOUDFLARE_API_TOKEN`
    - `CLOUDFLARE_ACCOUNT_ID`
-3. Create KV and bind it:
-   ```bash
-   npx wrangler kv namespace create WORKSHOP_KV
-   ```
-   Paste the id into `wrangler.toml` under `[[kv_namespaces]]`, **or** bind `WORKSHOP_KV` in Pages → Settings → Functions → KV namespace bindings.
-4. Push to `main` (or this workshop branch) / run **Deploy to Cloudflare Pages** workflow.
+3. Floor KV is bound on project `kestrel-ops-desk` (see `wrangler.ops.toml`).
+4. Push to `main` / run **Deploy to Cloudflare Pages** workflow, or `npm run deploy:site`.
 
-### Manual deploy (if you have wrangler auth)
-
-```bash
-npm run deploy
-```
-
-Workshop API routes live under `/api/workshop/*` via Cloudflare Pages Functions (`functions/api/workshop/`).
+Floor API routes: `/api/workshop/*` via Pages Functions (`functions/api/workshop/`).
 
 ## Build
 

@@ -15,16 +15,14 @@ export function WorkersLoginPage() {
   const [role, setRole] = useState<'worker' | 'manager'>(() =>
     params.get('role') === 'manager' ? 'manager' : 'worker',
   )
-  const [code, setCode] = useState(params.get('code') || 'W01')
-  const [pin, setPin] = useState(params.get('pin') || '')
+  const [code, setCode] = useState('')
+  const [pin, setPin] = useState('')
   const [busy, setBusy] = useState(false)
   const [error, setError] = useState<string | null>(null)
   const [installHint, setInstallHint] = useState(false)
 
   useEffect(() => {
     if (params.get('role') === 'manager') setRole('manager')
-    if (params.get('code')) setCode(params.get('code')!.toUpperCase())
-    if (params.get('pin')) setPin(params.get('pin')!)
   }, [params])
 
   if (auth?.role === 'worker') return <Navigate to="/workers/home" replace />
@@ -52,8 +50,8 @@ export function WorkersLoginPage() {
   return (
     <main className="ws-login">
       <section className="ws-login__hero">
-        <p className="ws-login__kicker">Priyabadal Homes</p>
-        <h2>Floor orders on every phone</h2>
+        <p className="ws-login__kicker">Floor ops</p>
+        <h2>Orders on every phone</h2>
         <p>
           Managers post orders and assign Designing through Oxidisation. Workers open their job, post
           what they are doing, and close their stage with a clear trail.
@@ -65,7 +63,7 @@ export function WorkersLoginPage() {
           <ol className="ws-login__install">
             <li>Open this page in Chrome on the worker phone.</li>
             <li>Tap the menu → <strong>Add to Home screen</strong> / Install app.</li>
-            <li>Sign in with worker code (W01–W60) and PIN.</li>
+            <li>Sign in with your worker code and password.</li>
           </ol>
         )}
       </section>
@@ -102,21 +100,20 @@ export function WorkersLoginPage() {
               value={code}
               onChange={(e) => setCode(e.target.value.toUpperCase())}
               autoComplete="username"
-              placeholder="W01"
+              placeholder="Your code"
               required
             />
           </label>
         )}
 
         <label>
-          {role === 'manager' ? 'Manager PIN' : 'PIN'}
+          Password
           <input
             type="password"
             inputMode="numeric"
             value={pin}
             onChange={(e) => setPin(e.target.value)}
             autoComplete="current-password"
-            placeholder={role === 'manager' ? '2468' : '••••'}
             required
           />
         </label>
@@ -126,11 +123,6 @@ export function WorkersLoginPage() {
         <button type="submit" className="ws__primary" disabled={busy}>
           {busy ? 'Signing in…' : 'Enter floor'}
         </button>
-
-        <p className="ws-login__hint">
-          Demo: worker <code>W01</code> PIN from roster on manager board · manager PIN{' '}
-          <code>2468</code>
-        </p>
       </form>
     </main>
   )

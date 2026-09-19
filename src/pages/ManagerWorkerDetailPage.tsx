@@ -41,7 +41,6 @@ export function ManagerWorkerDetailPage() {
 
   const [detail, setDetail] = useState<WorkerDetailResponse | null>(null)
   const [msg, setMsg] = useState<string | null>(null)
-  const [showPin, setShowPin] = useState(false)
   const [editing, setEditing] = useState(false)
   const [busy, setBusy] = useState(false)
 
@@ -50,7 +49,7 @@ export function ManagerWorkerDetailPage() {
   const [role, setRole] = useState<WorkerRole>('multi')
   const [bay, setBay] = useState('')
   const [phone, setPhone] = useState('')
-  const [workerPin, setWorkerPin] = useState('')
+  const [newPassword, setNewPassword] = useState('')
   const [active, setActive] = useState(true)
 
   const refresh = useCallback(async () => {
@@ -63,7 +62,6 @@ export function ManagerWorkerDetailPage() {
       setRole(data.worker.role)
       setBay(data.worker.bay || '')
       setPhone(data.worker.phone || '')
-      setWorkerPin(data.worker.pin)
       setActive(data.worker.active)
     }
   }, [pin, workerId, editing])
@@ -81,7 +79,7 @@ export function ManagerWorkerDetailPage() {
     setRole(detail.worker.role)
     setBay(detail.worker.bay || '')
     setPhone(detail.worker.phone || '')
-    setWorkerPin(detail.worker.pin)
+    setNewPassword('')
     setActive(detail.worker.active)
     setEditing(true)
     setMsg(null)
@@ -100,10 +98,11 @@ export function ManagerWorkerDetailPage() {
         role,
         bay,
         phone,
-        pin: workerPin,
+        ...(newPassword.trim() ? { pin: newPassword.trim() } : {}),
         active,
       })
       setEditing(false)
+      setNewPassword('')
       setMsg('Worker information updated')
       await refresh()
     } catch (err) {
@@ -194,14 +193,16 @@ export function ManagerWorkerDetailPage() {
                 />
               </label>
               <label>
-                Login PIN (4 digits)
+                New password (optional)
                 <input
-                  value={workerPin}
-                  onChange={(e) => setWorkerPin(e.target.value)}
+                  type="password"
+                  value={newPassword}
+                  onChange={(e) => setNewPassword(e.target.value)}
                   inputMode="numeric"
                   pattern="\d{4}"
                   maxLength={4}
-                  required
+                  autoComplete="new-password"
+                  placeholder="Leave blank to keep"
                 />
               </label>
             </div>
@@ -263,14 +264,6 @@ export function ManagerWorkerDetailPage() {
             <div>
               <dt>Status</dt>
               <dd>{worker.active ? 'Active' : 'Inactive'}</dd>
-            </div>
-            <div>
-              <dt>PIN</dt>
-              <dd>
-                <button type="button" className="ws__ghost" onClick={() => setShowPin((v) => !v)}>
-                  {showPin ? worker.pin : '••••'}
-                </button>
-              </dd>
             </div>
           </dl>
         </section>

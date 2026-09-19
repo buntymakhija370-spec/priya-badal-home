@@ -4,13 +4,7 @@ compatibility_date = "2026-08-01"
 pages_build_output_dir = "dist"
 
 # Workshop live state (orders, workers, barcodes, machines)
-# 1) npx wrangler login
-# 2) npx wrangler kv namespace create WORKSHOP_KV
-# 3) Uncomment and paste the id, OR bind in Cloudflare dashboard:
-#    Pages → priya-badal-home → Settings → Functions → KV namespace bindings
-#    Variable name: WORKSHOP_KV
-#
-# [[kv_namespaces]]
-# binding = "WORKSHOP_KV"
-# id = "REPLACE_WITH_KV_NAMESPACE_ID"
-# preview_id = "REPLACE_WITH_PREVIEW_KV_NAMESPACE_ID"
+[[kv_namespaces]]
+binding = "WORKSHOP_KV"
+id = "8c80a4c405e84910933f45f448384660"
+preview_id = "98e2ef61dfec47dfa7f9ebee51889efe"

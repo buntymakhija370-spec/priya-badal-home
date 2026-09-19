@@ -1,4 +1,4 @@
-import { handleWorkshopRequest, type WorkshopEnv } from '../workshop/handler'
+import { handleWorkshopRequest, type WorkshopEnv } from '../../workshop/handler'
 
 type PagesContext = {
   request: Request

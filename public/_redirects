@@ -2,21 +2,39 @@
 # Do NOT use a catch-all /* rule: it can serve index.html for /assets/*.js
 # on custom domains (broken MIME type / blank site).
 # /api/* is handled by Pages Functions (functions/), not these redirects.
-/shop /index.html 200
+#
+# Bare paths without a trailing slash must 302 → /path/ first. A direct
+# `/path /index.html 200` rewrite is ignored by Pages and falls through to a
+# 308 → / (breaks deep links). Trailing-slash + splat rewrites work.
+/shop /shop/ 302
+/shop/ /index.html 200
 /shop/* /index.html 200
-/product /index.html 200
+/product /product/ 302
+/product/ /index.html 200
 /product/* /index.html 200
-/chat /index.html 200
+/chat /chat/ 302
+/chat/ /index.html 200
 /chat/* /index.html 200
-/favorites /index.html 200
-/cart /index.html 200
-/ai /index.html 200
-/ai-admin /index.html 200
-/how-it-works /index.html 200
-/guides/carcass-assembly /index.html 200
-/design /index.html 200
-/visualise /index.html 200
-/carcass /index.html 200
-/add-product /index.html 200
-/workers /index.html 200
+/favorites /favorites/ 302
+/favorites/ /index.html 200
+/cart /cart/ 302
+/cart/ /index.html 200
+/ai /ai/ 302
+/ai/ /index.html 200
+/ai-admin /ai-admin/ 302
+/ai-admin/ /index.html 200
+/how-it-works /how-it-works/ 302
+/how-it-works/ /index.html 200
+/guides/carcass-assembly /guides/carcass-assembly/ 302
+/guides/carcass-assembly/ /index.html 200
+/design /design/ 302
+/design/ /index.html 200
+/visualise /visualise/ 302
+/visualise/ /index.html 200
+/carcass /carcass/ 302
+/carcass/ /index.html 200
+/add-product /add-product/ 302
+/add-product/ /index.html 200
+/workers /workers/ 302
+/workers/ /index.html 200
 /workers/* /index.html 200

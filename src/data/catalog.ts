@@ -7668,7 +7668,7 @@ export const baseProducts: Product[] = [
     name: 'Lotus Mandala Metal Main Door',
     categoryId: 'doors',
     subcategoryId: 'main-door',
-    price: 6000,
+    price: 5000,
     currency: 'INR',
     pricingMode: 'per-sqft',
     defaultFinishId: 'oxidised-base',
@@ -7687,7 +7687,7 @@ export const baseProducts: Product[] = [
     highlights: [
       'Lotus + mandala relief',
       'Aged gold metal face',
-      '₹6,000 / sq ft',
+      '₹5,000 / sq ft',
       'Oxidisation · back minimal same oxidisation · 50 mm',
       'Back side minimal design · same oxidisation',
       'Made to measure',

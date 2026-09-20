@@ -46,7 +46,7 @@ export function offlineTeamReply(opts: {
       '5) Suggested say-this line',
       '“I’ll start you on our catalog rate for this range, then we lock the final quote on WhatsApp after measure and finish.”',
       '',
-      '— Offline catalog draft. Connect Gemini/Fal in /ai-admin for full AI coaching.',
+      '— Offline catalog draft. Add Fal.ai (FAL_KEY) in /ai-admin for live AI — Gemini is not used.',
     ].join('\n')
   }
 
@@ -77,7 +77,7 @@ export function offlineTeamReply(opts: {
       'Catalog anchors:',
       catalogBlock,
       '',
-      '— Offline catalog draft. Connect Gemini/Fal in /ai-admin for full AI drafts.',
+      '— Offline catalog draft. Add Fal.ai (FAL_KEY) in /ai-admin for live AI — Gemini is not used.',
     ].join('\n')
   }
 
@@ -107,6 +107,6 @@ export function offlineTeamReply(opts: {
     '7) Product tie-in',
     catalogBlock,
     '',
-    '— Offline catalog draft. Connect Gemini/Fal in /ai-admin for full AI reel analysis.',
+    '— Offline catalog draft. Add Fal.ai (FAL_KEY) in /ai-admin for live AI — Gemini is not used.',
   ].join('\n')
 }

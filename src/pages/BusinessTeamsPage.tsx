@@ -44,8 +44,12 @@ export function BusinessTeamsPage() {
   async function refreshAiStatus() {
     try {
       const res = await fetch('/api/visualise-status')
-      const data = (await res.json()) as { falConfigured?: boolean; configured?: boolean }
-      setAiReady(Boolean(data.falConfigured || data.configured))
+      const data = (await res.json()) as {
+        provider?: string
+        falConfigured?: boolean
+      }
+      // Business Teams is Fal-only — ignore Gemini
+      setAiReady(data.provider === 'fal')
     } catch {
       setAiReady(false)
     }
@@ -216,11 +220,19 @@ export function BusinessTeamsPage() {
 
             {aiReady === false ? (
               <p className="biz-teams__warn">
-                No Gemini/Fal key yet — teams still reply with an{' '}
-                <strong>offline catalog draft</strong>. For full AI coaching,
-                save a key in <Link to="/ai-admin">AI admin</Link>.
+                No <strong>Fal.ai</strong> key yet — teams reply with an{' '}
+                <strong>offline catalog draft</strong> (no Gemini). For live AI,
+                save a Fal key in <Link to="/ai-admin">AI admin</Link> (
+                <a href="https://fal.ai/dashboard/keys" target="_blank" rel="noreferrer">
+                  fal.ai/dashboard/keys
+                </a>
+                ).
               </p>
-            ) : null}
+            ) : (
+              <p className="biz-teams__ok">
+                Live AI via <strong>Fal.ai</strong> — Gemini is not used on this desk.
+              </p>
+            )}
 
             <div className="biz-teams__examples" aria-label="Quick examples">
               {team.examples.map((ex) => (

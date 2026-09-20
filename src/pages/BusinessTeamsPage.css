@@ -293,6 +293,17 @@
   font-weight: 600;
 }
 
+.biz-teams__ok {
+  margin: 0 0 0.85rem;
+  padding: 0.7rem 0.8rem;
+  border-radius: 0.7rem;
+  background: rgba(79, 106, 88, 0.12);
+  border: 1px solid rgba(79, 106, 88, 0.28);
+  color: var(--ink);
+  font-size: 0.88rem;
+  line-height: 1.4;
+}
+
 .biz-teams__foot {
   margin: 1.25rem 0 0;
   font-size: 0.88rem;

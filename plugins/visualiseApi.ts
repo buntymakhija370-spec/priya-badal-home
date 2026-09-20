@@ -816,7 +816,7 @@ async function handleTeams(req: IncomingMessage, res: ServerResponse) {
       'Reply in the output format required by your system instructions. Use catalog rates exactly when quoting INR.',
     ].join('\n')
 
-    if (!aiConfigured()) {
+    if (!falConfigured()) {
       const reply = offlineTeamReply({
         teamId: teamId as 'sales' | 'whatsapp' | 'instagram',
         message,
@@ -827,39 +827,32 @@ async function handleTeams(req: IncomingMessage, res: ServerResponse) {
         teamId,
         provider: 'offline-catalog',
         model: 'catalog-draft',
+        note: 'Business Teams uses Fal.ai only (no Gemini). Add FAL_KEY in /ai-admin for live AI.',
       })
       return
     }
 
-    const { reply, model } =
-      activeProvider() === 'fal'
-        ? await falChat({
-            system: systemPrompt.slice(0, 120_000),
-            prompt: [
-              historyItems
-                .map(
-                  (h) =>
-                    `${h.role === 'assistant' ? 'Team' : 'Owner'}: ${h.text}`,
-                )
-                .join('\n'),
-              prompt,
-            ]
-              .filter(Boolean)
-              .join('\n')
-              .slice(0, 28_000),
-            model: getFalChatModel(),
-          })
-        : await geminiChat({
-            system: systemPrompt.slice(0, 120_000),
-            prompt: prompt.slice(0, 28_000),
-            model: getChatModel(),
-            history: historyItems,
-          })
+    const { reply, model } = await falChat({
+      system: systemPrompt.slice(0, 120_000),
+      prompt: [
+        historyItems
+          .map(
+            (h) =>
+              `${h.role === 'assistant' ? 'Team' : 'Owner'}: ${h.text}`,
+          )
+          .join('\n'),
+        prompt,
+      ]
+        .filter(Boolean)
+        .join('\n')
+        .slice(0, 28_000),
+      model: getFalChatModel(),
+    })
 
     sendJson(res, 200, {
       reply,
       teamId,
-      provider: activeProvider(),
+      provider: 'fal',
       model,
     })
   } catch (err) {

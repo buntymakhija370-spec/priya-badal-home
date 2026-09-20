@@ -43,6 +43,7 @@ import {
   resolveFalImageUrl,
   setFalKey,
 } from './falAi.ts'
+import { offlineTeamReply } from './teamsOffline.ts'
 
 type VisualiseMode = 'replace' | 'install' | 'redesign'
 
@@ -773,15 +774,6 @@ async function handleTeams(req: IncomingMessage, res: ServerResponse) {
       return
     }
 
-    if (!aiConfigured()) {
-      sendJson(res, 503, {
-        error:
-          'AI is not connected. Paste a Gemini or Fal key in /ai-admin first.',
-        code: 'MISSING_AI_KEY',
-      })
-      return
-    }
-
     const teamId = (body.teamId || '').trim()
     if (!TEAM_IDS.has(teamId)) {
       sendJson(res, 400, {
@@ -823,6 +815,21 @@ async function handleTeams(req: IncomingMessage, res: ServerResponse) {
       '',
       'Reply in the output format required by your system instructions. Use catalog rates exactly when quoting INR.',
     ].join('\n')
+
+    if (!aiConfigured()) {
+      const reply = offlineTeamReply({
+        teamId: teamId as 'sales' | 'whatsapp' | 'instagram',
+        message,
+        knowledge: body.knowledge,
+      })
+      sendJson(res, 200, {
+        reply,
+        teamId,
+        provider: 'offline-catalog',
+        model: 'catalog-draft',
+      })
+      return
+    }
 
     const { reply, model } =
       activeProvider() === 'fal'

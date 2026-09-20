@@ -1,4 +1,4 @@
-import { useMemo, useState, type FormEvent } from 'react'
+import { useEffect, useMemo, useState, type FormEvent } from 'react'
 import { Link } from 'react-router-dom'
 import {
   askBusinessTeam,
@@ -31,9 +31,25 @@ export function BusinessTeamsPage() {
   const [busy, setBusy] = useState(false)
   const [error, setError] = useState<string | null>(null)
   const [copied, setCopied] = useState(false)
+  const [aiReady, setAiReady] = useState<boolean | null>(null)
 
   const team = useMemo(() => getBusinessTeam(teamId), [teamId])
   const history = threads[teamId]
+
+  useEffect(() => {
+    if (authedPin) void refreshAiStatus()
+    // eslint-disable-next-line react-hooks/exhaustive-deps -- only on unlock session
+  }, [authedPin])
+
+  async function refreshAiStatus() {
+    try {
+      const res = await fetch('/api/visualise-status')
+      const data = (await res.json()) as { falConfigured?: boolean; configured?: boolean }
+      setAiReady(Boolean(data.falConfigured || data.configured))
+    } catch {
+      setAiReady(false)
+    }
+  }
 
   async function onUnlock(e: FormEvent) {
     e.preventDefault()
@@ -42,6 +58,7 @@ export function BusinessTeamsPage() {
     try {
       await unlockBusinessTeams(pin)
       setAuthedPin(pin.trim())
+      await refreshAiStatus()
     } catch (err) {
       setError(err instanceof Error ? err.message : 'Could not unlock')
       setAuthedPin(null)
@@ -196,6 +213,14 @@ export function BusinessTeamsPage() {
                 </button>
               </div>
             </div>
+
+            {aiReady === false ? (
+              <p className="biz-teams__warn">
+                No Gemini/Fal key yet — teams still reply with an{' '}
+                <strong>offline catalog draft</strong>. For full AI coaching,
+                save a key in <Link to="/ai-admin">AI admin</Link>.
+              </p>
+            ) : null}
 
             <div className="biz-teams__examples" aria-label="Quick examples">
               {team.examples.map((ex) => (

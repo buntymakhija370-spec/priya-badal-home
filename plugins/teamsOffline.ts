@@ -1,4 +1,4 @@
-/** Offline Business Teams drafts when Fal.ai is not connected (Gemini is never used). */
+/** Offline Business Teams drafts when Claude is not connected (Gemini is never used). */
 
 export type OfflineTeamId = 'sales' | 'whatsapp' | 'instagram'
 
@@ -46,7 +46,7 @@ export function offlineTeamReply(opts: {
       '5) Suggested say-this line',
       '“I’ll start you on our catalog rate for this range, then we lock the final quote on WhatsApp after measure and finish.”',
       '',
-      '— Offline catalog draft. Add Fal.ai (FAL_KEY) in /ai-admin for live AI — Gemini is not used.',
+      '— Offline catalog draft. Add Claude (ANTHROPIC_API_KEY) in /ai-admin for live AI — Gemini is not used.',
     ].join('\n')
   }
 
@@ -77,7 +77,7 @@ export function offlineTeamReply(opts: {
       'Catalog anchors:',
       catalogBlock,
       '',
-      '— Offline catalog draft. Add Fal.ai (FAL_KEY) in /ai-admin for live AI — Gemini is not used.',
+      '— Offline catalog draft. Add Claude (ANTHROPIC_API_KEY) in /ai-admin for live AI — Gemini is not used.',
     ].join('\n')
   }
 
@@ -107,6 +107,6 @@ export function offlineTeamReply(opts: {
     '7) Product tie-in',
     catalogBlock,
     '',
-    '— Offline catalog draft. Add Fal.ai (FAL_KEY) in /ai-admin for live AI — Gemini is not used.',
+    '— Offline catalog draft. Add Claude (ANTHROPIC_API_KEY) in /ai-admin for live AI — Gemini is not used.',
   ].join('\n')
 }

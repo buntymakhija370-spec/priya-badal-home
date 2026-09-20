@@ -45,11 +45,11 @@ export function BusinessTeamsPage() {
     try {
       const res = await fetch('/api/visualise-status')
       const data = (await res.json()) as {
-        provider?: string
-        falConfigured?: boolean
+        claudeConfigured?: boolean
+        teamsProvider?: string
       }
-      // Business Teams is Fal-only — ignore Gemini
-      setAiReady(data.provider === 'fal')
+      // Business Teams is Claude-only
+      setAiReady(Boolean(data.claudeConfigured) || data.teamsProvider === 'claude')
     } catch {
       setAiReady(false)
     }
@@ -220,17 +220,21 @@ export function BusinessTeamsPage() {
 
             {aiReady === false ? (
               <p className="biz-teams__warn">
-                No <strong>Fal.ai</strong> key yet — teams reply with an{' '}
+                No <strong>Claude</strong> key yet — teams reply with an{' '}
                 <strong>offline catalog draft</strong> (no Gemini). For live AI,
-                save a Fal key in <Link to="/ai-admin">AI admin</Link> (
-                <a href="https://fal.ai/dashboard/keys" target="_blank" rel="noreferrer">
-                  fal.ai/dashboard/keys
+                save an Anthropic key in <Link to="/ai-admin">AI admin</Link> (
+                <a
+                  href="https://console.anthropic.com/settings/keys"
+                  target="_blank"
+                  rel="noreferrer"
+                >
+                  console.anthropic.com
                 </a>
                 ).
               </p>
             ) : (
               <p className="biz-teams__ok">
-                Live AI via <strong>Fal.ai</strong> — Gemini is not used on this desk.
+                Live AI via <strong>Claude</strong> — Gemini is not used on this desk.
               </p>
             )}
 

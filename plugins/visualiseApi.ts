@@ -43,6 +43,13 @@ import {
   resolveFalImageUrl,
   setFalKey,
 } from './falAi.ts'
+import {
+  claudeChat,
+  claudeConfigured,
+  getClaudeModel,
+  hydrateAnthropicEnv,
+  setAnthropicKey,
+} from './claudeAi.ts'
 import { offlineTeamReply } from './teamsOffline.ts'
 
 type VisualiseMode = 'replace' | 'install' | 'redesign'
@@ -104,6 +111,7 @@ const INTERIOR_SYSTEM_PROMPT = [
 
 hydrateGeminiEnv(process.env.NODE_ENV === 'production' ? 'production' : 'development')
 hydrateFalEnv(process.env.NODE_ENV === 'production' ? 'production' : 'development')
+hydrateAnthropicEnv(process.env.NODE_ENV === 'production' ? 'production' : 'development')
 
 /** True when Fal and/or Gemini key is available. Prefer Fal for event demos. */
 function aiConfigured() {
@@ -816,7 +824,7 @@ async function handleTeams(req: IncomingMessage, res: ServerResponse) {
       'Reply in the output format required by your system instructions. Use catalog rates exactly when quoting INR.',
     ].join('\n')
 
-    if (!falConfigured()) {
+    if (!claudeConfigured()) {
       const reply = offlineTeamReply({
         teamId: teamId as 'sales' | 'whatsapp' | 'instagram',
         message,
@@ -827,32 +835,22 @@ async function handleTeams(req: IncomingMessage, res: ServerResponse) {
         teamId,
         provider: 'offline-catalog',
         model: 'catalog-draft',
-        note: 'Business Teams uses Fal.ai only (no Gemini). Add FAL_KEY in /ai-admin for live AI.',
+        note: 'Business Teams uses Claude only. Add ANTHROPIC_API_KEY in /ai-admin for live AI.',
       })
       return
     }
 
-    const { reply, model } = await falChat({
+    const { reply, model } = await claudeChat({
       system: systemPrompt.slice(0, 120_000),
-      prompt: [
-        historyItems
-          .map(
-            (h) =>
-              `${h.role === 'assistant' ? 'Team' : 'Owner'}: ${h.text}`,
-          )
-          .join('\n'),
-        prompt,
-      ]
-        .filter(Boolean)
-        .join('\n')
-        .slice(0, 28_000),
-      model: getFalChatModel(),
+      prompt: prompt.slice(0, 28_000),
+      model: getClaudeModel(),
+      history: historyItems,
     })
 
     sendJson(res, 200, {
       reply,
       teamId,
-      provider: 'fal',
+      provider: 'claude',
       model,
     })
   } catch (err) {
@@ -931,6 +929,8 @@ async function handleAiAdmin(req: IncomingMessage, res: ServerResponse) {
         subscribers: listSubscribers(),
         plans: listPlans(),
         falConfigured: aiConfigured(),
+        claudeConfigured: claudeConfigured(),
+        claudeModel: getClaudeModel(),
         requireSubscription: requireSubscription(),
       })
       return
@@ -954,6 +954,7 @@ async function handleAiAdmin(req: IncomingMessage, res: ServerResponse) {
       limits?: { visualise?: number; chat?: number; carcass?: number }
       falKey?: string
       geminiKey?: string
+      anthropicKey?: string
     }
 
     const admin = assertAdmin(readAdminPin(req, body.adminPin))
@@ -1009,11 +1010,29 @@ async function handleAiAdmin(req: IncomingMessage, res: ServerResponse) {
       return
     }
 
+    if (action === 'set-anthropic-key') {
+      const key = (body.anthropicKey || body.falKey || '').trim()
+      if (!key || key.length < 20) {
+        sendJson(res, 400, { error: 'Valid Anthropic API key required (sk-ant-…)' })
+        return
+      }
+      setAnthropicKey(key)
+      sendJson(res, 200, {
+        ok: true,
+        claudeConfigured: true,
+        provider: 'claude',
+        claudeModel: getClaudeModel(),
+      })
+      return
+    }
+
     if (action === 'list') {
       sendJson(res, 200, {
         subscribers: listSubscribers(),
         plans: listPlans(),
         falConfigured: aiConfigured(),
+        claudeConfigured: claudeConfigured(),
+        claudeModel: getClaudeModel(),
       })
       return
     }
@@ -1061,6 +1080,8 @@ function attach(middlewares: Connect.Server) {
       ...access,
       configured: ready && (!needsSub || access.subscribed),
       falConfigured: ready,
+      claudeConfigured: claudeConfigured(),
+      claudeModel: getClaudeModel(),
       mode: ready
         ? access.subscribed || !needsSub
           ? 'subscriber-ai'
@@ -1077,6 +1098,7 @@ function attach(middlewares: Connect.Server) {
             ? 'Priyabadal Interior AI · Google Gemini Flash Image'
             : 'Priyabadal Interior AI · not connected',
       provider,
+      teamsProvider: claudeConfigured() ? 'claude' : 'offline-catalog',
       requireSubscription: needsSub,
     })
   })
@@ -1089,15 +1111,18 @@ export function visualiseApiPlugin(): Plugin {
     configResolved(config) {
       hydrateGeminiEnv(config.mode)
       hydrateFalEnv(config.mode)
+      hydrateAnthropicEnv(config.mode)
     },
     configureServer(server) {
       hydrateGeminiEnv(server.config.mode)
       hydrateFalEnv(server.config.mode)
+      hydrateAnthropicEnv(server.config.mode)
       attach(server.middlewares)
     },
     configurePreviewServer(server) {
       hydrateGeminiEnv(server.config.mode)
       hydrateFalEnv(server.config.mode)
+      hydrateAnthropicEnv(server.config.mode)
       attach(server.middlewares)
     },
   }

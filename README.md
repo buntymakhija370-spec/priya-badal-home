@@ -9,7 +9,7 @@ Interior products website with categories, prices, photo uploads, and an AI room
 - **AI Interior Guide** — chat board that suggests products for a room/style/budget
 - **Visualise AI** — upload a room photo, pick a Priyabadal Homes product + colour, generate a product-referenced preview
 - **Add Product** — upload a photograph (or paste image URL), set category, subcategory, and price
-- **Business Teams** (`/teams`, owner PIN) — Sales coach, WhatsApp sales drafts, Instagram Reel marketing (catalog-grounded). Cursor Automation playbooks live in `teams/`.
+- **Business Teams** (`/teams`, owner PIN) — Sales coach, WhatsApp sales drafts, Instagram Reel marketing powered by **Claude** (catalog-grounded). Cursor Automation playbooks live in `teams/`.
 
 ## Develop
 

@@ -1,4 +1,4 @@
-/** Offline Business Teams drafts when Gemini/Fal is not connected. */
+/** Offline Business Teams drafts when Fal.ai is not connected (Gemini is never used). */
 
 export type OfflineTeamId = 'sales' | 'whatsapp' | 'instagram'
 

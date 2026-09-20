@@ -606,6 +606,17 @@ type ChatBody = {
   history?: Array<{ role?: string; text?: string }>
 }
 
+type TeamsBody = {
+  teamId?: string
+  message?: string
+  systemPrompt?: string
+  knowledge?: string
+  history?: Array<{ role?: string; text?: string }>
+  adminPin?: string
+}
+
+const TEAM_IDS = new Set(['sales', 'whatsapp', 'instagram'])
+
 async function handleChat(req: IncomingMessage, res: ServerResponse) {
   if (req.method === 'OPTIONS') {
     sendOptions(res)
@@ -736,6 +747,117 @@ async function handleChat(req: IncomingMessage, res: ServerResponse) {
   } catch (err) {
     sendJson(res, 500, {
       error: err instanceof Error ? err.message : 'Chat failed',
+      code: 'SERVER_ERROR',
+    })
+  }
+}
+
+/** Owner Business Teams — Sales / WhatsApp / Instagram (admin PIN gated) */
+async function handleTeams(req: IncomingMessage, res: ServerResponse) {
+  if (req.method === 'OPTIONS') {
+    sendOptions(res)
+    return
+  }
+
+  if (req.method !== 'POST') {
+    sendJson(res, 405, { error: 'Method not allowed' })
+    return
+  }
+
+  try {
+    const raw = await readBody(req)
+    const body = JSON.parse(raw) as TeamsBody
+    const admin = assertAdmin(readAdminPin(req, body.adminPin))
+    if (!admin.ok) {
+      sendJson(res, admin.status, { error: admin.error, code: admin.code })
+      return
+    }
+
+    if (!aiConfigured()) {
+      sendJson(res, 503, {
+        error:
+          'AI is not connected. Paste a Gemini or Fal key in /ai-admin first.',
+        code: 'MISSING_AI_KEY',
+      })
+      return
+    }
+
+    const teamId = (body.teamId || '').trim()
+    if (!TEAM_IDS.has(teamId)) {
+      sendJson(res, 400, {
+        error: 'teamId must be sales, whatsapp, or instagram',
+        code: 'BAD_TEAM',
+      })
+      return
+    }
+
+    const message = (body.message || '').trim()
+    if (!message) {
+      sendJson(res, 400, { error: 'Message is required' })
+      return
+    }
+
+    const historyItems = (body.history ?? [])
+      .filter(
+        (h): h is { role: 'user' | 'assistant'; text: string } =>
+          Boolean(h.text) && (h.role === 'user' || h.role === 'assistant'),
+      )
+      .slice(-12)
+      .map((h) => ({
+        role: h.role,
+        text: String(h.text).slice(0, 2000),
+      }))
+
+    const systemPrompt = [
+      body.systemPrompt?.trim() ||
+        'You are a Priyabadal Homes business team specialist.',
+      '',
+      body.knowledge?.trim() || '',
+    ]
+      .filter(Boolean)
+      .join('\n')
+
+    const prompt = [
+      `Team desk: ${teamId}`,
+      `Owner brief: ${message}`,
+      '',
+      'Reply in the output format required by your system instructions. Use catalog rates exactly when quoting INR.',
+    ].join('\n')
+
+    const { reply, model } =
+      activeProvider() === 'fal'
+        ? await falChat({
+            system: systemPrompt.slice(0, 120_000),
+            prompt: [
+              historyItems
+                .map(
+                  (h) =>
+                    `${h.role === 'assistant' ? 'Team' : 'Owner'}: ${h.text}`,
+                )
+                .join('\n'),
+              prompt,
+            ]
+              .filter(Boolean)
+              .join('\n')
+              .slice(0, 28_000),
+            model: getFalChatModel(),
+          })
+        : await geminiChat({
+            system: systemPrompt.slice(0, 120_000),
+            prompt: prompt.slice(0, 28_000),
+            model: getChatModel(),
+            history: historyItems,
+          })
+
+    sendJson(res, 200, {
+      reply,
+      teamId,
+      provider: activeProvider(),
+      model,
+    })
+  } catch (err) {
+    sendJson(res, 500, {
+      error: err instanceof Error ? err.message : 'Team request failed',
       code: 'SERVER_ERROR',
     })
   }
@@ -925,6 +1047,9 @@ function attach(middlewares: Connect.Server) {
   })
   middlewares.use('/api/chat', (req, res, next) => {
     void handleChat(req, res).catch(next)
+  })
+  middlewares.use('/api/teams', (req, res, next) => {
+    void handleTeams(req, res).catch(next)
   })
   middlewares.use('/api/visualise-status', (req, res) => {
     const token = readAccessToken(req)

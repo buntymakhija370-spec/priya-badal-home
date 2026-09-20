@@ -273,7 +273,9 @@ export function AiAdminPage() {
 
       {msg ? <p className="ai-admin__msg">{msg}</p> : null}
       <p className="ai-admin__back">
-        <Link to="/ai">← AI subscribe page</Link>
+        <Link to="/teams">Business Teams (Sales · WhatsApp · Reels)</Link>
+        {' · '}
+        <Link to="/ai">AI subscribe page</Link>
       </p>
     </main>
   )

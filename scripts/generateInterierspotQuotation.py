@@ -26,7 +26,7 @@ from reportlab.platypus import (
 
 ROOT = Path(__file__).resolve().parents[1]
 OUT_DIR = ROOT / "proposals" / "interierspot-chennai"
-OUT_PDF = OUT_DIR / "Interierspot_Chennai_Leatherite_Quotation_PBH-2026-QT-1051.pdf"
+OUT_PDF = OUT_DIR / "Interierspot_Chennai_Leatherite_Quotation_PBH-2026-QT-1051-R1.pdf"
 
 pdfmetrics.registerFont(TTFont("DejaVu", "/usr/share/fonts/truetype/dejavu/DejaVuSans.ttf"))
 pdfmetrics.registerFont(TTFont("DejaVu-Bold", "/usr/share/fonts/truetype/dejavu/DejaVuSans-Bold.ttf"))
@@ -47,17 +47,19 @@ MARGIN_X = 16 * mm
 MARGIN_TOP = 18 * mm
 MARGIN_BOTTOM = 16 * mm
 
-QUOTE_REF = "PBH/2026/QT-1051"
+QUOTE_REF = "PBH/2026/QT-1051-R1"
 QUOTE_DATE = "22 September 2026"
 VALIDITY_DAYS = 15
 CLIENT = "Interierspot Chennai"
 PROJECT = "Mall Leatherite Panels — Sri Nataraj Interiors"
 SOURCE_SHEET = "MALL LEATHERITE MEASUREMENT (dated 19-09-2026)"
 
+# Rates are per square foot (sizes on sheet are in mm; converted to sq ft for billing).
 RATE_6 = 425.0
 GST_6 = 0.05
 RATE_18 = 1000.0
 GST_18 = 0.18
+MM2_PER_SQFT = 92903.04  # 1 sq ft = 304.8 mm × 304.8 mm
 
 # sno, height_mm, width_mm, qty, code, colour, thickness_mm
 # Parsed from client measurement sheet (dimensions in mm).
@@ -262,7 +264,7 @@ def inr_dec(amount: float) -> str:
 
 
 def amount_in_words(amount: float) -> str:
-    n = int(round(amount))
+    n = int(amount)  # rupees only (no banker's round-up of paise)
     ones = [
         "", "One", "Two", "Three", "Four", "Five", "Six", "Seven", "Eight", "Nine",
         "Ten", "Eleven", "Twelve", "Thirteen", "Fourteen", "Fifteen", "Sixteen",
@@ -304,24 +306,25 @@ def amount_in_words(amount: float) -> str:
     return " ".join(parts)
 
 
-def area_sqm(h: int, w: int, qty: int) -> float:
-    return (h * w * qty) / 1_000_000.0
+def area_sqft(h: int, w: int, qty: int) -> float:
+    """Convert H×W mm × qty to square feet."""
+    return (h * w * qty) / MM2_PER_SQFT
 
 
 def summarize(panels: list[tuple[int, int, int, int, str, str]]):
-    total_sqm = 0.0
+    total_sqft = 0.0
     total_pcs = 0
     by_finish: dict[str, dict[str, float | int]] = {}
     for sno, h, w, qty, code, colour in panels:
-        a = area_sqm(h, w, qty)
-        total_sqm += a
+        a = area_sqft(h, w, qty)
+        total_sqft += a
         total_pcs += qty
         key = f"{code} {colour}"
-        bucket = by_finish.setdefault(key, {"sqm": 0.0, "pcs": 0, "lines": 0})
-        bucket["sqm"] = float(bucket["sqm"]) + a
+        bucket = by_finish.setdefault(key, {"sqft": 0.0, "pcs": 0, "lines": 0})
+        bucket["sqft"] = float(bucket["sqft"]) + a
         bucket["pcs"] = int(bucket["pcs"]) + qty
         bucket["lines"] = int(bucket["lines"]) + 1
-    return total_sqm, total_pcs, by_finish
+    return total_sqft, total_pcs, by_finish
 
 
 class SectionBanner(Flowable):
@@ -464,14 +467,14 @@ def build_pdf():
     S = styles()
     content_w = PAGE_W - 2 * MARGIN_X
 
-    sqm6, pcs6, finish6 = summarize(PANELS_6MM)
-    sqm18, pcs18, finish18 = summarize(PANELS_18MM)
+    sqft6, pcs6, finish6 = summarize(PANELS_6MM)
+    sqft18, pcs18, finish18 = summarize(PANELS_18MM)
 
-    taxable6 = sqm6 * RATE_6
+    taxable6 = sqft6 * RATE_6
     gst6_amt = taxable6 * GST_6
     total6 = taxable6 + gst6_amt
 
-    taxable18 = sqm18 * RATE_18
+    taxable18 = sqft18 * RATE_18
     gst18_amt = taxable18 * GST_18
     total18 = taxable18 + gst18_amt
 
@@ -617,12 +620,12 @@ def build_pdf():
         ],
         [
             Paragraph("6 mm Leatherite Panel (cut-to-size)", S["Cell"]),
-            Paragraph(f"{inr(RATE_6)} / sqm", S["CellCenter"]),
+            Paragraph(f"{inr(RATE_6)} / sq ft", S["CellCenter"]),
             Paragraph("5%", S["CellCenter"]),
         ],
         [
             Paragraph("18 mm Leatherite Door / Panel (cut-to-size)", S["Cell"]),
-            Paragraph(f"{inr(RATE_18)} / sqm", S["CellCenter"]),
+            Paragraph(f"{inr(RATE_18)} / sq ft", S["CellCenter"]),
             Paragraph("18%", S["CellCenter"]),
         ],
     ]
@@ -640,7 +643,7 @@ def build_pdf():
             Paragraph("Item", S["HeadWhite"]),
             Paragraph("Finish", S["HeadWhite"]),
             Paragraph("Pcs", S["HeadWhite"]),
-            Paragraph("Area (sqm)", S["HeadWhite"]),
+            Paragraph("Area (sq ft)", S["HeadWhite"]),
         ],
     ]
     for finish, data in sorted(finish6.items()):
@@ -649,7 +652,7 @@ def build_pdf():
                 Paragraph("6 mm Leatherite Panel", S["Cell"]),
                 Paragraph(finish, S["Cell"]),
                 Paragraph(str(int(data["pcs"])), S["CellCenter"]),
-                Paragraph(f"{float(data['sqm']):.4f}", S["CellRight"]),
+                Paragraph(f"{float(data['sqft']):.4f}", S["CellRight"]),
             ]
         )
     sum_rows.append(
@@ -657,7 +660,7 @@ def build_pdf():
             Paragraph("<b>6 mm Subtotal</b>", S["CellBold"]),
             Paragraph(f"<b>{len(PANELS_6MM)} line items</b>", S["CellBold"]),
             Paragraph(f"<b>{pcs6}</b>", S["CellCenter"]),
-            Paragraph(f"<b>{sqm6:.4f}</b>", S["CellRightBold"]),
+            Paragraph(f"<b>{sqft6:.4f}</b>", S["CellRightBold"]),
         ]
     )
     for finish, data in sorted(finish18.items()):
@@ -666,7 +669,7 @@ def build_pdf():
                 Paragraph("18 mm Leatherite Door", S["Cell"]),
                 Paragraph(finish, S["Cell"]),
                 Paragraph(str(int(data["pcs"])), S["CellCenter"]),
-                Paragraph(f"{float(data['sqm']):.4f}", S["CellRight"]),
+                Paragraph(f"{float(data['sqft']):.4f}", S["CellRight"]),
             ]
         )
     sum_rows.append(
@@ -674,7 +677,7 @@ def build_pdf():
             Paragraph("<b>18 mm Subtotal</b>", S["CellBold"]),
             Paragraph(f"<b>{len(PANELS_18MM)} line items</b>", S["CellBold"]),
             Paragraph(f"<b>{pcs18}</b>", S["CellCenter"]),
-            Paragraph(f"<b>{sqm18:.4f}</b>", S["CellRightBold"]),
+            Paragraph(f"<b>{sqft18:.4f}</b>", S["CellRightBold"]),
         ]
     )
     sum_t = Table(
@@ -685,8 +688,8 @@ def build_pdf():
     story.append(sum_t)
     story.append(
         Paragraph(
-            f"Areas calculated as Height (mm) × Width (mm) × Qty ÷ 1,000,000. "
-            f"Total cut area: <b>{sqm6 + sqm18:.4f} sqm</b> across <b>{pcs6 + pcs18} pcs</b>.",
+            f"Areas calculated as Height (mm) × Width (mm) × Qty ÷ 92,903.04 (sq ft). "
+            f"Total cut area: <b>{sqft6 + sqft18:.4f} sq ft</b> across <b>{pcs6 + pcs18} pcs</b>.",
             S["BodySmall"],
         )
     )
@@ -705,8 +708,8 @@ def build_pdf():
         ],
         [
             Paragraph("6 mm Leatherite Panels (taxable)", S["Cell"]),
-            Paragraph(f"{sqm6:.4f} sqm", S["CellCenter"]),
-            Paragraph(f"{inr(RATE_6)}/sqm", S["CellCenter"]),
+            Paragraph(f"{sqft6:.4f} sq ft", S["CellCenter"]),
+            Paragraph(f"{inr(RATE_6)}/sq ft", S["CellCenter"]),
             Paragraph(inr_dec(taxable6), S["CellRight"]),
         ],
         [
@@ -717,8 +720,8 @@ def build_pdf():
         ],
         [
             Paragraph("18 mm Leatherite Doors (taxable)", S["Cell"]),
-            Paragraph(f"{sqm18:.4f} sqm", S["CellCenter"]),
-            Paragraph(f"{inr(RATE_18)}/sqm", S["CellCenter"]),
+            Paragraph(f"{sqft18:.4f} sq ft", S["CellCenter"]),
+            Paragraph(f"{inr(RATE_18)}/sq ft", S["CellCenter"]),
             Paragraph(inr_dec(taxable18), S["CellRight"]),
         ],
         [
@@ -932,11 +935,11 @@ def build_pdf():
                 Paragraph("W (mm)", S["HeadWhite"]),
                 Paragraph("Qty", S["HeadWhite"]),
                 Paragraph("Code / Colour", S["HeadWhite"]),
-                Paragraph("Area (sqm)", S["HeadWhite"]),
+                Paragraph("Area (sq ft)", S["HeadWhite"]),
             ]
         ]
         for sno, h, w, qty, code, colour in panels:
-            a = area_sqm(h, w, qty)
+            a = area_sqft(h, w, qty)
             note = ""
             if thick_label.startswith("6") and sno == 122:
                 note = " *"
@@ -993,8 +996,8 @@ def build_pdf():
 
     doc.build(story, onFirstPage=PageChrome("Commercial Quotation"), onLaterPages=PageChrome("Commercial Quotation"))
     print(f"Wrote {OUT_PDF}")
-    print(f"6mm: {pcs6} pcs / {sqm6:.4f} sqm → taxable {taxable6:.2f} + GST {gst6_amt:.2f} = {total6:.2f}")
-    print(f"18mm: {pcs18} pcs / {sqm18:.4f} sqm → taxable {taxable18:.2f} + GST {gst18_amt:.2f} = {total18:.2f}")
+    print(f"6mm: {pcs6} pcs / {sqft6:.4f} sq ft → taxable {taxable6:.2f} + GST {gst6_amt:.2f} = {total6:.2f}")
+    print(f"18mm: {pcs18} pcs / {sqft18:.4f} sq ft → taxable {taxable18:.2f} + GST {gst18_amt:.2f} = {total18:.2f}")
     print(f"Grand Total: {grand:.2f} | Advance 75%: {advance:.2f} | Balance 25%: {balance:.2f}")
 
 

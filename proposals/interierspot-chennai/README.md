@@ -24,10 +24,15 @@ Item-wise commercial quotation for **Interierspot Chennai** — every unique siz
 | 75% advance | | ₹4,82,197.97 |
 | 25% on dispatch | | ₹1,60,732.65 |
 
-## Download PDF (private — not published on the website)
+## Open / download PDF (clickable)
 
-- [`Interierspot_Chennai_Quotation_WhatsApp_PBH-2026-QT-1051-R3.pdf`](./Interierspot_Chennai_Quotation_WhatsApp_PBH-2026-QT-1051-R3.pdf) — send this file on WhatsApp
-- [`Interierspot_Chennai_Leatherite_Quotation_PBH-2026-QT-1051-R3.pdf`](./Interierspot_Chennai_Leatherite_Quotation_PBH-2026-QT-1051-R3.pdf) — same content (archive copy)
+**Open in browser tab (GitHub):**  
+https://github.com/buntymakhija370-spec/priya-badal-home/blob/cursor/interierspot-leatherite-quotation-7c8c/proposals/interierspot-chennai/Interierspot_Chennai_Quotation_WhatsApp_PBH-2026-QT-1051-R3.pdf
+
+**Direct download (raw PDF):**  
+https://raw.githubusercontent.com/buntymakhija370-spec/priya-badal-home/cursor/interierspot-leatherite-quotation-7c8c/proposals/interierspot-chennai/Interierspot_Chennai_Quotation_WhatsApp_PBH-2026-QT-1051-R3.pdf
+
+Repo file: [`Interierspot_Chennai_Quotation_WhatsApp_PBH-2026-QT-1051-R3.pdf`](./Interierspot_Chennai_Quotation_WhatsApp_PBH-2026-QT-1051-R3.pdf)
 
 ## Regenerate
 

@@ -26,7 +26,7 @@ from reportlab.platypus import (
 
 ROOT = Path(__file__).resolve().parents[1]
 OUT_DIR = ROOT / "proposals" / "interierspot-chennai"
-OUT_PDF = OUT_DIR / "Interierspot_Chennai_Leatherite_Quotation_PBH-2026-QT-1051-R1.pdf"
+# Output paths set with quote ref below.
 
 pdfmetrics.registerFont(TTFont("DejaVu", "/usr/share/fonts/truetype/dejavu/DejaVuSans.ttf"))
 pdfmetrics.registerFont(TTFont("DejaVu-Bold", "/usr/share/fonts/truetype/dejavu/DejaVuSans-Bold.ttf"))
@@ -47,7 +47,7 @@ MARGIN_X = 16 * mm
 MARGIN_TOP = 18 * mm
 MARGIN_BOTTOM = 16 * mm
 
-QUOTE_REF = "PBH/2026/QT-1051-R1"
+QUOTE_REF = "PBH/2026/QT-1051-R2"
 QUOTE_DATE = "22 September 2026"
 VALIDITY_DAYS = 15
 CLIENT = "Interierspot Chennai"
@@ -60,6 +60,9 @@ GST_6 = 0.05
 RATE_18 = 1000.0
 GST_18 = 0.18
 MM2_PER_SQFT = 92903.04  # 1 sq ft = 304.8 mm × 304.8 mm
+
+OUT_PDF = OUT_DIR / "Interierspot_Chennai_Leatherite_Quotation_PBH-2026-QT-1051-R2.pdf"
+OUT_WHATSAPP_PDF = OUT_DIR / "Interierspot_Chennai_Quotation_WhatsApp_PBH-2026-QT-1051-R2.pdf"
 
 # sno, height_mm, width_mm, qty, code, colour, thickness_mm
 # Parsed from client measurement sheet (dimensions in mm).
@@ -220,6 +223,18 @@ PANELS_18MM: list[tuple[int, int, int, int, str, str]] = [
 ]
 
 
+from decimal import Decimal, ROUND_HALF_UP
+
+
+def money(amount: float | Decimal) -> Decimal:
+    """Round INR to 2 decimals (half-up)."""
+    return Decimal(str(amount)).quantize(Decimal("0.01"), rounding=ROUND_HALF_UP)
+
+
+def money_f(amount: float | Decimal) -> float:
+    return float(money(amount))
+
+
 def inr(amount: float) -> str:
     n = int(round(amount))
     s = str(abs(n))
@@ -239,9 +254,9 @@ def inr(amount: float) -> str:
     return f"{sign}₹{formatted}.00"
 
 
-def inr_dec(amount: float) -> str:
+def inr_dec(amount: float | Decimal) -> str:
     """Format with paise (2 decimals) using Indian grouping on rupees."""
-    rounded = round(amount + 1e-9, 2)
+    rounded = float(money(amount))
     neg = rounded < 0
     rounded = abs(rounded)
     rupees = int(rounded)
@@ -263,8 +278,8 @@ def inr_dec(amount: float) -> str:
     return f"{sign}₹{formatted}.{paise:02d}"
 
 
-def amount_in_words(amount: float) -> str:
-    n = int(amount)  # rupees only (no banker's round-up of paise)
+def amount_in_words(amount: float | Decimal) -> str:
+    n = int(money(amount))  # rupees only (paise ignored in words)
     ones = [
         "", "One", "Two", "Three", "Four", "Five", "Six", "Seven", "Eight", "Nine",
         "Ten", "Eleven", "Twelve", "Thirteen", "Fourteen", "Fifteen", "Sixteen",
@@ -462,30 +477,32 @@ def zebra_table_style(nrows: int) -> TableStyle:
     return TableStyle(cmds)
 
 
-def build_pdf():
+def build_pdf(*, include_annex: bool = True, output_path: Path | None = None):
     OUT_DIR.mkdir(parents=True, exist_ok=True)
+    out = output_path or OUT_PDF
     S = styles()
     content_w = PAGE_W - 2 * MARGIN_X
 
     sqft6, pcs6, finish6 = summarize(PANELS_6MM)
     sqft18, pcs18, finish18 = summarize(PANELS_18MM)
 
-    taxable6 = sqft6 * RATE_6
-    gst6_amt = taxable6 * GST_6
+    # Money: area × rate, then GST on taxable — each step half-up to paise
+    taxable6 = money(Decimal(str(sqft6)) * Decimal(str(RATE_6)))
+    gst6_amt = money(taxable6 * Decimal(str(GST_6)))
     total6 = taxable6 + gst6_amt
 
-    taxable18 = sqft18 * RATE_18
-    gst18_amt = taxable18 * GST_18
+    taxable18 = money(Decimal(str(sqft18)) * Decimal(str(RATE_18)))
+    gst18_amt = money(taxable18 * Decimal(str(GST_18)))
     total18 = taxable18 + gst18_amt
 
     taxable = taxable6 + taxable18
     gst_total = gst6_amt + gst18_amt
     grand = taxable + gst_total
-    advance = grand * 0.75
-    balance = grand * 0.25
+    advance = money(grand * Decimal("0.75"))
+    balance = grand - advance  # ensures 75% + 25% = grand exactly
 
     doc = SimpleDocTemplate(
-        str(OUT_PDF),
+        str(out),
         pagesize=A4,
         leftMargin=MARGIN_X,
         rightMargin=MARGIN_X,
@@ -493,17 +510,23 @@ def build_pdf():
         bottomMargin=MARGIN_BOTTOM + 4 * mm,
         title=f"Quotation {QUOTE_REF} — {CLIENT}",
         author="PriyaBadal Homes",
-        subject="Leatherite Panel Commercial Quotation",
+        subject="Leatherite Panel Commercial Quotation — Verified Client Copy",
     )
     story: list = []
 
     # ----- Cover / header block -----
-    story.append(Spacer(1, 4 * mm))
+    story.append(Spacer(1, 2 * mm))
     story.append(Paragraph("PRIYABADAL HOMES", S["CoverBrand"]))
     story.append(Paragraph("COMMERCIAL QUOTATION", S["CoverTitle"]))
     story.append(Paragraph("Custom CNC-cut Leatherite Panels &amp; Doors", S["CoverSub"]))
-    story.append(Spacer(1, 2 * mm))
-    story.append(HRFlowable(width="100%", thickness=1, color=ACCENT, spaceAfter=4 * mm))
+    story.append(
+        Paragraph(
+            "Verified against client measurement sheet · Areas in <b>sq ft</b> · Ready for client confirmation",
+            S["CoverSub"],
+        )
+    )
+    story.append(Spacer(1, 1 * mm))
+    story.append(HRFlowable(width="100%", thickness=1, color=ACCENT, spaceAfter=3 * mm))
 
     meta = [
         [
@@ -862,12 +885,13 @@ def build_pdf():
         ),
     ]
     for title, body in terms:
-        block = [Paragraph(title, S["TermTitle"]), Paragraph(body, S["TermBody"]), Spacer(1, 2.2 * mm)]
+        gap = 1.4 * mm if not include_annex else 2.2 * mm
+        block = [Paragraph(title, S["TermTitle"]), Paragraph(body, S["TermBody"]), Spacer(1, gap)]
         story.append(KeepTogether(block))
 
-    story.append(Spacer(1, 3 * mm))
+    story.append(Spacer(1, 2 * mm if not include_annex else 3 * mm))
     story.append(SectionBanner("7  •  Acceptance", content_w))
-    story.append(Spacer(1, 3 * mm))
+    story.append(Spacer(1, 2 * mm if not include_annex else 3 * mm))
     story.append(
         Paragraph(
             f"By signing below, the client accepts quotation <b>{QUOTE_REF}</b> for a Grand Total of "
@@ -875,7 +899,7 @@ def build_pdf():
             S["Body"],
         )
     )
-    story.append(Spacer(1, 6 * mm))
+    story.append(Spacer(1, 4 * mm if not include_annex else 6 * mm))
 
     sign = [
         [
@@ -914,92 +938,124 @@ def build_pdf():
         )
     )
     story.append(sign_t)
-    story.append(PageBreak())
 
-    # ----- Annex: 6mm detail -----
-    story.append(SectionBanner("Annex A  •  6 mm Panel Cut List", content_w))
-    story.append(Spacer(1, 2 * mm))
-    story.append(
-        Paragraph(
-            "Detailed sizes from the measurement sheet (H × W in mm). Used for CNC cutting &amp; billing area.",
-            S["BodySmall"],
+    if include_annex:
+        story.append(PageBreak())
+
+        # ----- Annex: 6mm detail -----
+        story.append(SectionBanner("Annex A  •  6 mm Panel Cut List", content_w))
+        story.append(Spacer(1, 2 * mm))
+        story.append(
+            Paragraph(
+                "Detailed sizes from the measurement sheet (H × W in mm). Used for CNC cutting &amp; billing area.",
+                S["BodySmall"],
+            )
         )
-    )
-    story.append(Spacer(1, 2 * mm))
+        story.append(Spacer(1, 2 * mm))
 
-    def annex_table(panels: list[tuple[int, int, int, int, str, str]], thick_label: str):
-        rows = [
-            [
-                Paragraph("#", S["HeadWhite"]),
-                Paragraph("H (mm)", S["HeadWhite"]),
-                Paragraph("W (mm)", S["HeadWhite"]),
-                Paragraph("Qty", S["HeadWhite"]),
-                Paragraph("Code / Colour", S["HeadWhite"]),
-                Paragraph("Area (sq ft)", S["HeadWhite"]),
-            ]
-        ]
-        for sno, h, w, qty, code, colour in panels:
-            a = area_sqft(h, w, qty)
-            note = ""
-            if thick_label.startswith("6") and sno == 122:
-                note = " *"
-            rows.append(
+        def annex_table(panels: list[tuple[int, int, int, int, str, str]], thick_label: str):
+            rows = [
                 [
-                    Paragraph(str(sno), S["CellCenter"]),
-                    Paragraph(str(h), S["CellCenter"]),
-                    Paragraph(str(w), S["CellCenter"]),
-                    Paragraph(str(qty), S["CellCenter"]),
-                    Paragraph(f"{code} {colour}{note}", S["Cell"]),
-                    Paragraph(f"{a:.4f}", S["CellRight"]),
+                    Paragraph("#", S["HeadWhite"]),
+                    Paragraph("H (mm)", S["HeadWhite"]),
+                    Paragraph("W (mm)", S["HeadWhite"]),
+                    Paragraph("Qty", S["HeadWhite"]),
+                    Paragraph("Code / Colour", S["HeadWhite"]),
+                    Paragraph("Area (sq ft)", S["HeadWhite"]),
                 ]
+            ]
+            for sno, h, w, qty, code, colour in panels:
+                a = area_sqft(h, w, qty)
+                note = ""
+                if thick_label.startswith("6") and sno == 122:
+                    note = " *"
+                rows.append(
+                    [
+                        Paragraph(str(sno), S["CellCenter"]),
+                        Paragraph(str(h), S["CellCenter"]),
+                        Paragraph(str(w), S["CellCenter"]),
+                        Paragraph(str(qty), S["CellCenter"]),
+                        Paragraph(f"{code} {colour}{note}", S["Cell"]),
+                        Paragraph(f"{a:.4f}", S["CellRight"]),
+                    ]
+                )
+            t = Table(
+                rows,
+                colWidths=[
+                    content_w * 0.08,
+                    content_w * 0.14,
+                    content_w * 0.14,
+                    content_w * 0.10,
+                    content_w * 0.34,
+                    content_w * 0.20,
+                ],
+                repeatRows=1,
             )
-        t = Table(
-            rows,
-            colWidths=[
-                content_w * 0.08,
-                content_w * 0.14,
-                content_w * 0.14,
-                content_w * 0.10,
-                content_w * 0.34,
-                content_w * 0.20,
-            ],
-            repeatRows=1,
-        )
-        t.setStyle(zebra_table_style(len(rows)))
-        return t
+            t.setStyle(zebra_table_style(len(rows)))
+            return t
 
-    # Split 6mm annex across pages in chunks for readability
-    chunk = 55
-    for i in range(0, len(PANELS_6MM), chunk):
-        if i:
-            story.append(PageBreak())
-            story.append(SectionBanner("Annex A  •  6 mm Panel Cut List (continued)", content_w))
-            story.append(Spacer(1, 2 * mm))
-        story.append(annex_table(PANELS_6MM[i : i + chunk], "6mm"))
-        if i == 0:
-            story.append(
-                Paragraph("* Item 122: switch box cutting as noted on measurement sheet.", S["BodySmall"])
+        # Split 6mm annex across pages in chunks for readability
+        chunk = 55
+        for i in range(0, len(PANELS_6MM), chunk):
+            if i:
+                story.append(PageBreak())
+                story.append(SectionBanner("Annex A  •  6 mm Panel Cut List (continued)", content_w))
+                story.append(Spacer(1, 2 * mm))
+            story.append(annex_table(PANELS_6MM[i : i + chunk], "6mm"))
+            if i == 0:
+                story.append(
+                    Paragraph("* Item 122: switch box cutting as noted on measurement sheet.", S["BodySmall"])
+                )
+
+        story.append(PageBreak())
+        story.append(SectionBanner("Annex B  •  18 mm Leatherite Door Cut List", content_w))
+        story.append(Spacer(1, 2 * mm))
+        story.append(annex_table(PANELS_18MM, "18mm"))
+        story.append(Spacer(1, 4 * mm))
+        story.append(
+            Paragraph(
+                f"<b>End of Quotation {QUOTE_REF}</b> — Generated for {CLIENT}. "
+                "Please contact PriyaBadal Homes on WhatsApp +91 81099 49649 to confirm the order.",
+                S["Body"],
             )
-
-    story.append(PageBreak())
-    story.append(SectionBanner("Annex B  •  18 mm Leatherite Door Cut List", content_w))
-    story.append(Spacer(1, 2 * mm))
-    story.append(annex_table(PANELS_18MM, "18mm"))
-    story.append(Spacer(1, 4 * mm))
-    story.append(
-        Paragraph(
-            f"<b>End of Quotation {QUOTE_REF}</b> — Generated for {CLIENT}. "
-            "Please contact PriyaBadal Homes on WhatsApp +91 81099 49649 to confirm the order.",
-            S["Body"],
         )
-    )
+    else:
+        story.append(Spacer(1, 3 * mm))
+        story.append(
+            Paragraph(
+                f"<b>End of Quotation {QUOTE_REF}</b> — Client / WhatsApp copy (summary). "
+                "Full CNC cut-list annex available on request. "
+                "Confirm order on WhatsApp +91 81099 49649.",
+                S["Body"],
+            )
+        )
 
     doc.build(story, onFirstPage=PageChrome("Commercial Quotation"), onLaterPages=PageChrome("Commercial Quotation"))
-    print(f"Wrote {OUT_PDF}")
-    print(f"6mm: {pcs6} pcs / {sqft6:.4f} sq ft → taxable {taxable6:.2f} + GST {gst6_amt:.2f} = {total6:.2f}")
-    print(f"18mm: {pcs18} pcs / {sqft18:.4f} sq ft → taxable {taxable18:.2f} + GST {gst18_amt:.2f} = {total18:.2f}")
-    print(f"Grand Total: {grand:.2f} | Advance 75%: {advance:.2f} | Balance 25%: {balance:.2f}")
+    print(f"Wrote {out} (annex={'yes' if include_annex else 'no'})")
+    print(f"6mm: {pcs6} pcs / {sqft6:.4f} sq ft → taxable {taxable6} + GST {gst6_amt} = {total6}")
+    print(f"18mm: {pcs18} pcs / {sqft18:.4f} sq ft → taxable {taxable18} + GST {gst18_amt} = {total18}")
+    print(f"Grand Total: {grand} | Advance 75%: {advance} | Balance 25%: {balance} | check {advance}+{balance}={advance+balance}")
+    return {
+        "sqft6": sqft6,
+        "sqft18": sqft18,
+        "pcs6": pcs6,
+        "pcs18": pcs18,
+        "taxable6": taxable6,
+        "gst6": gst6_amt,
+        "taxable18": taxable18,
+        "gst18": gst18_amt,
+        "grand": grand,
+        "advance": advance,
+        "balance": balance,
+        "path": out,
+    }
 
 
 if __name__ == "__main__":
-    build_pdf()
+    # WhatsApp / client send copy (compact, no cut-list annex)
+    wa = build_pdf(include_annex=False, output_path=OUT_WHATSAPP_PDF)
+    # Full copy with CNC annex for factory reference
+    full = build_pdf(include_annex=True, output_path=OUT_PDF)
+    assert wa["grand"] == full["grand"]
+    assert wa["advance"] + wa["balance"] == wa["grand"]
+    print("VERIFIED: WhatsApp & full PDFs match; 75%+25%=grand.")

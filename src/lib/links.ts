@@ -10,6 +10,16 @@ export function productShareUrl(productId: string, origin = SITE_ORIGIN) {
   return `${origin.replace(/\/$/, '')}${productPath(productId)}`
 }
 
+/** Public quotation page (static HTML in /public/quotations) */
+export function quotationShareUrl(slug: string, origin = SITE_ORIGIN) {
+  return `${origin.replace(/\/$/, '')}/quotations/${slug}.html`
+}
+
+/** Direct PDF URL for a quotation file under /public/quotations */
+export function quotationPdfUrl(fileName: string, origin = SITE_ORIGIN) {
+  return `${origin.replace(/\/$/, '')}/quotations/${fileName.replace(/^\//, '')}`
+}
+
 export function shopPath(categoryId?: string, subcategoryId?: string) {
   if (!categoryId) return '/shop'
   if (!subcategoryId) return `/shop/${categoryId}`

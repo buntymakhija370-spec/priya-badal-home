@@ -26,9 +26,17 @@ Item-wise commercial quotation for **Interierspot Chennai** — every unique siz
 
 ## Send on WhatsApp
 
-[`Interierspot_Chennai_Quotation_WhatsApp_PBH-2026-QT-1051-R3.pdf`](./Interierspot_Chennai_Quotation_WhatsApp_PBH-2026-QT-1051-R3.pdf)
+**Tab / share link (after deploy):**  
+https://www.priyabadalhomes.com/quotations/interierspot-chennai.html
 
-Same file also saved as [`Interierspot_Chennai_Leatherite_Quotation_PBH-2026-QT-1051-R3.pdf`](./Interierspot_Chennai_Leatherite_Quotation_PBH-2026-QT-1051-R3.pdf).
+**Direct PDF:**  
+https://www.priyabadalhomes.com/quotations/Interierspot_Chennai_Quotation_WhatsApp_PBH-2026-QT-1051-R3.pdf
+
+Local copies:
+- [`Interierspot_Chennai_Quotation_WhatsApp_PBH-2026-QT-1051-R3.pdf`](./Interierspot_Chennai_Quotation_WhatsApp_PBH-2026-QT-1051-R3.pdf)
+- Site files: `public/quotations/interierspot-chennai.html` + PDF
+
+Same archive copy: [`Interierspot_Chennai_Leatherite_Quotation_PBH-2026-QT-1051-R3.pdf`](./Interierspot_Chennai_Leatherite_Quotation_PBH-2026-QT-1051-R3.pdf).
 
 ## Regenerate
 

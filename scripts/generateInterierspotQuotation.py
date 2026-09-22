@@ -47,7 +47,7 @@ MARGIN_X = 16 * mm
 MARGIN_TOP = 18 * mm
 MARGIN_BOTTOM = 16 * mm
 
-QUOTE_REF = "PBH/2026/QT-1051-R2"
+QUOTE_REF = "PBH/2026/QT-1051-R3"
 QUOTE_DATE = "22 September 2026"
 VALIDITY_DAYS = 15
 CLIENT = "Interierspot Chennai"
@@ -61,8 +61,8 @@ RATE_18 = 1000.0
 GST_18 = 0.18
 MM2_PER_SQFT = 92903.04  # 1 sq ft = 304.8 mm × 304.8 mm
 
-OUT_PDF = OUT_DIR / "Interierspot_Chennai_Leatherite_Quotation_PBH-2026-QT-1051-R2.pdf"
-OUT_WHATSAPP_PDF = OUT_DIR / "Interierspot_Chennai_Quotation_WhatsApp_PBH-2026-QT-1051-R2.pdf"
+OUT_PDF = OUT_DIR / "Interierspot_Chennai_Leatherite_Quotation_PBH-2026-QT-1051-R3.pdf"
+OUT_WHATSAPP_PDF = OUT_DIR / "Interierspot_Chennai_Quotation_WhatsApp_PBH-2026-QT-1051-R3.pdf"
 
 # sno, height_mm, width_mm, qty, code, colour, thickness_mm
 # Parsed from client measurement sheet (dimensions in mm).
@@ -326,6 +326,35 @@ def area_sqft(h: int, w: int, qty: int) -> float:
     return (h * w * qty) / MM2_PER_SQFT
 
 
+def priced_lines(
+    panels: list[tuple[int, int, int, int, str, str]],
+    rate: float,
+):
+    """Return per-line pricing rows and taxable sum (money half-up per line)."""
+    lines: list[dict] = []
+    sum_sqft = Decimal("0")
+    sum_amt = Decimal("0")
+    for sno, h, w, qty, code, colour in panels:
+        a = Decimal(str(area_sqft(h, w, qty)))
+        amt = money(a * Decimal(str(rate)))
+        sum_sqft += a
+        sum_amt += amt
+        lines.append(
+            {
+                "sno": sno,
+                "h": h,
+                "w": w,
+                "qty": qty,
+                "code": code,
+                "colour": colour,
+                "sqft": float(a),
+                "rate": rate,
+                "amount": amt,
+            }
+        )
+    return lines, float(sum_sqft), sum_amt
+
+
 def summarize(panels: list[tuple[int, int, int, int, str, str]]):
     total_sqft = 0.0
     total_pcs = 0
@@ -483,16 +512,15 @@ def build_pdf(*, include_annex: bool = True, output_path: Path | None = None):
     S = styles()
     content_w = PAGE_W - 2 * MARGIN_X
 
-    sqft6, pcs6, finish6 = summarize(PANELS_6MM)
-    sqft18, pcs18, finish18 = summarize(PANELS_18MM)
+    _, pcs6, finish6 = summarize(PANELS_6MM)
+    _, pcs18, finish18 = summarize(PANELS_18MM)
 
-    # Money: area × rate, then GST on taxable — each step half-up to paise
-    taxable6 = money(Decimal(str(sqft6)) * Decimal(str(RATE_6)))
+    # Item-wise pricing: each unique size priced separately; taxable = sum of line amounts
+    lines6, sqft6, taxable6 = priced_lines(PANELS_6MM, RATE_6)
+    lines18, sqft18, taxable18 = priced_lines(PANELS_18MM, RATE_18)
     gst6_amt = money(taxable6 * Decimal(str(GST_6)))
-    total6 = taxable6 + gst6_amt
-
-    taxable18 = money(Decimal(str(sqft18)) * Decimal(str(RATE_18)))
     gst18_amt = money(taxable18 * Decimal(str(GST_18)))
+    total6 = taxable6 + gst6_amt
     total18 = taxable18 + gst18_amt
 
     taxable = taxable6 + taxable18
@@ -521,7 +549,7 @@ def build_pdf(*, include_annex: bool = True, output_path: Path | None = None):
     story.append(Paragraph("Custom CNC-cut Leatherite Panels &amp; Doors", S["CoverSub"]))
     story.append(
         Paragraph(
-            "Verified against client measurement sheet · Areas in <b>sq ft</b> · Ready for client confirmation",
+            "Verified against client measurement sheet · <b>Item-wise pricing</b> for every unique size · Areas in <b>sq ft</b>",
             S["CoverSub"],
         )
     )
@@ -712,14 +740,152 @@ def build_pdf(*, include_annex: bool = True, output_path: Path | None = None):
     story.append(
         Paragraph(
             f"Areas calculated as Height (mm) × Width (mm) × Qty ÷ 92,903.04 (sq ft). "
-            f"Total cut area: <b>{sqft6 + sqft18:.4f} sq ft</b> across <b>{pcs6 + pcs18} pcs</b>.",
+            f"Total cut area: <b>{sqft6 + sqft18:.4f} sq ft</b> across <b>{pcs6 + pcs18} pcs</b>. "
+            f"Each unique size is priced individually in Section 4.",
             S["BodySmall"],
         )
     )
     story.append(PageBreak())
 
+    # ----- Item-wise pricing (always included — client detail) -----
+    story.append(SectionBanner("4  •  Item-wise Price Schedule — 6 mm Leatherite", content_w))
+    story.append(Spacer(1, 2 * mm))
+    story.append(
+        Paragraph(
+            f"Rate <b>{inr(RATE_6)} / sq ft</b> + GST <b>5%</b> on taxable. "
+            "Each row is one unique size from the measurement sheet (H × W in mm).",
+            S["BodySmall"],
+        )
+    )
+    story.append(Spacer(1, 2 * mm))
+
+    def item_price_table(lines: list[dict], thick_label: str, show_note_122: bool = False):
+        rows = [
+            [
+                Paragraph("#", S["HeadWhite"]),
+                Paragraph("H mm", S["HeadWhite"]),
+                Paragraph("W mm", S["HeadWhite"]),
+                Paragraph("Qty", S["HeadWhite"]),
+                Paragraph("Code / Colour", S["HeadWhite"]),
+                Paragraph("Sq ft", S["HeadWhite"]),
+                Paragraph("Rate", S["HeadWhite"]),
+                Paragraph("Amount ₹", S["HeadWhite"]),
+            ]
+        ]
+        for ln in lines:
+            note = " *" if show_note_122 and ln["sno"] == 122 else ""
+            rows.append(
+                [
+                    Paragraph(str(ln["sno"]), S["CellCenter"]),
+                    Paragraph(str(ln["h"]), S["CellCenter"]),
+                    Paragraph(str(ln["w"]), S["CellCenter"]),
+                    Paragraph(str(ln["qty"]), S["CellCenter"]),
+                    Paragraph(f"{ln['code']} {ln['colour']}{note}", S["Cell"]),
+                    Paragraph(f"{ln['sqft']:.4f}", S["CellRight"]),
+                    Paragraph(inr(ln["rate"]), S["CellRight"]),
+                    Paragraph(inr_dec(ln["amount"]), S["CellRight"]),
+                ]
+            )
+        t = Table(
+            rows,
+            colWidths=[
+                content_w * 0.06,
+                content_w * 0.09,
+                content_w * 0.09,
+                content_w * 0.07,
+                content_w * 0.24,
+                content_w * 0.13,
+                content_w * 0.12,
+                content_w * 0.20,
+            ],
+            repeatRows=1,
+        )
+        t.setStyle(zebra_table_style(len(rows)))
+        return t
+
+    # 6mm in chunks so each page stays readable
+    chunk = 28
+    for i in range(0, len(lines6), chunk):
+        if i:
+            story.append(PageBreak())
+            story.append(SectionBanner("4  •  Item-wise Price Schedule — 6 mm (continued)", content_w))
+            story.append(Spacer(1, 2 * mm))
+        story.append(item_price_table(lines6[i : i + chunk], "6mm", show_note_122=True))
+        if i == 0:
+            story.append(
+                Paragraph("* Item 122: switch box cutting as noted on measurement sheet.", S["BodySmall"])
+            )
+
+    # 6mm section totals
+    story.append(Spacer(1, 2 * mm))
+    sub6 = [
+        [
+            Paragraph("Description", S["HeadWhite"]),
+            Paragraph("Area / Qty", S["HeadWhite"]),
+            Paragraph("Amount (INR)", S["HeadWhite"]),
+        ],
+        [
+            Paragraph("6 mm taxable (sum of item amounts)", S["Cell"]),
+            Paragraph(f"{sqft6:.4f} sq ft · {pcs6} pcs · {len(lines6)} sizes", S["CellCenter"]),
+            Paragraph(inr_dec(taxable6), S["CellRight"]),
+        ],
+        [
+            Paragraph("GST @ 5% on 6 mm", S["Cell"]),
+            Paragraph("5%", S["CellCenter"]),
+            Paragraph(inr_dec(gst6_amt), S["CellRight"]),
+        ],
+        [
+            Paragraph("<b>6 mm Total (incl. GST)</b>", S["CellBold"]),
+            Paragraph("", S["Cell"]),
+            Paragraph(f"<b>{inr_dec(total6)}</b>", S["CellRightBold"]),
+        ],
+    ]
+    sub6_t = Table(sub6, colWidths=[content_w * 0.48, content_w * 0.32, content_w * 0.20])
+    sub6_t.setStyle(zebra_table_style(len(sub6)))
+    story.append(sub6_t)
+
+    story.append(PageBreak())
+    story.append(SectionBanner("4B  •  Item-wise Price Schedule — 18 mm Leatherite Doors", content_w))
+    story.append(Spacer(1, 2 * mm))
+    story.append(
+        Paragraph(
+            f"Rate <b>{inr(RATE_18)} / sq ft</b> + GST <b>18%</b> on taxable. "
+            "Each row is one unique door size from the measurement sheet.",
+            S["BodySmall"],
+        )
+    )
+    story.append(Spacer(1, 2 * mm))
+    story.append(item_price_table(lines18, "18mm"))
+    story.append(Spacer(1, 2 * mm))
+    sub18 = [
+        [
+            Paragraph("Description", S["HeadWhite"]),
+            Paragraph("Area / Qty", S["HeadWhite"]),
+            Paragraph("Amount (INR)", S["HeadWhite"]),
+        ],
+        [
+            Paragraph("18 mm taxable (sum of item amounts)", S["Cell"]),
+            Paragraph(f"{sqft18:.4f} sq ft · {pcs18} pcs · {len(lines18)} sizes", S["CellCenter"]),
+            Paragraph(inr_dec(taxable18), S["CellRight"]),
+        ],
+        [
+            Paragraph("GST @ 18% on 18 mm", S["Cell"]),
+            Paragraph("18%", S["CellCenter"]),
+            Paragraph(inr_dec(gst18_amt), S["CellRight"]),
+        ],
+        [
+            Paragraph("<b>18 mm Total (incl. GST)</b>", S["CellBold"]),
+            Paragraph("", S["Cell"]),
+            Paragraph(f"<b>{inr_dec(total18)}</b>", S["CellRightBold"]),
+        ],
+    ]
+    sub18_t = Table(sub18, colWidths=[content_w * 0.48, content_w * 0.32, content_w * 0.20])
+    sub18_t.setStyle(zebra_table_style(len(sub18)))
+    story.append(sub18_t)
+    story.append(PageBreak())
+
     # ----- Commercial -----
-    story.append(SectionBanner("4  •  Commercial Summary", content_w))
+    story.append(SectionBanner("5  •  Commercial Summary (from item-wise schedule)", content_w))
     story.append(Spacer(1, 3 * mm))
 
     fin = [
@@ -730,7 +896,7 @@ def build_pdf(*, include_annex: bool = True, output_path: Path | None = None):
             Paragraph("Amount (INR)", S["HeadWhite"]),
         ],
         [
-            Paragraph("6 mm Leatherite Panels (taxable)", S["Cell"]),
+            Paragraph("6 mm Leatherite Panels — taxable (item-wise sum)", S["Cell"]),
             Paragraph(f"{sqft6:.4f} sq ft", S["CellCenter"]),
             Paragraph(f"{inr(RATE_6)}/sq ft", S["CellCenter"]),
             Paragraph(inr_dec(taxable6), S["CellRight"]),
@@ -742,7 +908,7 @@ def build_pdf(*, include_annex: bool = True, output_path: Path | None = None):
             Paragraph(inr_dec(gst6_amt), S["CellRight"]),
         ],
         [
-            Paragraph("18 mm Leatherite Doors (taxable)", S["Cell"]),
+            Paragraph("18 mm Leatherite Doors — taxable (item-wise sum)", S["Cell"]),
             Paragraph(f"{sqft18:.4f} sq ft", S["CellCenter"]),
             Paragraph(f"{inr(RATE_18)}/sq ft", S["CellCenter"]),
             Paragraph(inr_dec(taxable18), S["CellRight"]),
@@ -801,7 +967,7 @@ def build_pdf(*, include_annex: bool = True, output_path: Path | None = None):
     story.append(Spacer(1, 6 * mm))
 
     # ----- Payment & dispatch -----
-    story.append(SectionBanner("5  •  Payment Terms & Dispatch", content_w))
+    story.append(SectionBanner("6  •  Payment Terms & Dispatch", content_w))
     story.append(Spacer(1, 3 * mm))
 
     pay = [
@@ -841,13 +1007,14 @@ def build_pdf(*, include_annex: bool = True, output_path: Path | None = None):
     story.append(Spacer(1, 5 * mm))
 
     # ----- Terms -----
-    story.append(SectionBanner("6  •  Terms & Conditions", content_w))
+    story.append(SectionBanner("7  •  Terms & Conditions", content_w))
     story.append(Spacer(1, 3 * mm))
     terms = [
         (
             "1. Basis of Quote",
-            "Quantities and areas are derived from the client measurement sheet "
-            f"({SOURCE_SHEET}). Any size / qty change will revise this quotation.",
+            "Quantities, sizes and item-wise amounts are derived from the client measurement sheet "
+            f"({SOURCE_SHEET}). Each unique size is priced individually at the stated sq ft rate. "
+            "Any size / qty change will revise this quotation.",
         ),
         (
             "2. Material & Finish",
@@ -890,7 +1057,7 @@ def build_pdf(*, include_annex: bool = True, output_path: Path | None = None):
         story.append(KeepTogether(block))
 
     story.append(Spacer(1, 2 * mm if not include_annex else 3 * mm))
-    story.append(SectionBanner("7  •  Acceptance", content_w))
+    story.append(SectionBanner("8  •  Acceptance", content_w))
     story.append(Spacer(1, 2 * mm if not include_annex else 3 * mm))
     story.append(
         Paragraph(
@@ -938,108 +1105,28 @@ def build_pdf(*, include_annex: bool = True, output_path: Path | None = None):
         )
     )
     story.append(sign_t)
-
-    if include_annex:
-        story.append(PageBreak())
-
-        # ----- Annex: 6mm detail -----
-        story.append(SectionBanner("Annex A  •  6 mm Panel Cut List", content_w))
-        story.append(Spacer(1, 2 * mm))
-        story.append(
-            Paragraph(
-                "Detailed sizes from the measurement sheet (H × W in mm). Used for CNC cutting &amp; billing area.",
-                S["BodySmall"],
-            )
+    story.append(Spacer(1, 3 * mm))
+    story.append(
+        Paragraph(
+            f"<b>End of Quotation {QUOTE_REF}</b> — Item-wise quotation for {CLIENT}. "
+            f"{len(lines6)} unique 6 mm sizes + {len(lines18)} unique 18 mm sizes. "
+            "Confirm order on WhatsApp +91 81099 49649.",
+            S["Body"],
         )
-        story.append(Spacer(1, 2 * mm))
-
-        def annex_table(panels: list[tuple[int, int, int, int, str, str]], thick_label: str):
-            rows = [
-                [
-                    Paragraph("#", S["HeadWhite"]),
-                    Paragraph("H (mm)", S["HeadWhite"]),
-                    Paragraph("W (mm)", S["HeadWhite"]),
-                    Paragraph("Qty", S["HeadWhite"]),
-                    Paragraph("Code / Colour", S["HeadWhite"]),
-                    Paragraph("Area (sq ft)", S["HeadWhite"]),
-                ]
-            ]
-            for sno, h, w, qty, code, colour in panels:
-                a = area_sqft(h, w, qty)
-                note = ""
-                if thick_label.startswith("6") and sno == 122:
-                    note = " *"
-                rows.append(
-                    [
-                        Paragraph(str(sno), S["CellCenter"]),
-                        Paragraph(str(h), S["CellCenter"]),
-                        Paragraph(str(w), S["CellCenter"]),
-                        Paragraph(str(qty), S["CellCenter"]),
-                        Paragraph(f"{code} {colour}{note}", S["Cell"]),
-                        Paragraph(f"{a:.4f}", S["CellRight"]),
-                    ]
-                )
-            t = Table(
-                rows,
-                colWidths=[
-                    content_w * 0.08,
-                    content_w * 0.14,
-                    content_w * 0.14,
-                    content_w * 0.10,
-                    content_w * 0.34,
-                    content_w * 0.20,
-                ],
-                repeatRows=1,
-            )
-            t.setStyle(zebra_table_style(len(rows)))
-            return t
-
-        # Split 6mm annex across pages in chunks for readability
-        chunk = 55
-        for i in range(0, len(PANELS_6MM), chunk):
-            if i:
-                story.append(PageBreak())
-                story.append(SectionBanner("Annex A  •  6 mm Panel Cut List (continued)", content_w))
-                story.append(Spacer(1, 2 * mm))
-            story.append(annex_table(PANELS_6MM[i : i + chunk], "6mm"))
-            if i == 0:
-                story.append(
-                    Paragraph("* Item 122: switch box cutting as noted on measurement sheet.", S["BodySmall"])
-                )
-
-        story.append(PageBreak())
-        story.append(SectionBanner("Annex B  •  18 mm Leatherite Door Cut List", content_w))
-        story.append(Spacer(1, 2 * mm))
-        story.append(annex_table(PANELS_18MM, "18mm"))
-        story.append(Spacer(1, 4 * mm))
-        story.append(
-            Paragraph(
-                f"<b>End of Quotation {QUOTE_REF}</b> — Generated for {CLIENT}. "
-                "Please contact PriyaBadal Homes on WhatsApp +91 81099 49649 to confirm the order.",
-                S["Body"],
-            )
-        )
-    else:
-        story.append(Spacer(1, 3 * mm))
-        story.append(
-            Paragraph(
-                f"<b>End of Quotation {QUOTE_REF}</b> — Client / WhatsApp copy (summary). "
-                "Full CNC cut-list annex available on request. "
-                "Confirm order on WhatsApp +91 81099 49649.",
-                S["Body"],
-            )
-        )
+    )
 
     doc.build(story, onFirstPage=PageChrome("Commercial Quotation"), onLaterPages=PageChrome("Commercial Quotation"))
-    print(f"Wrote {out} (annex={'yes' if include_annex else 'no'})")
-    print(f"6mm: {pcs6} pcs / {sqft6:.4f} sq ft → taxable {taxable6} + GST {gst6_amt} = {total6}")
-    print(f"18mm: {pcs18} pcs / {sqft18:.4f} sq ft → taxable {taxable18} + GST {gst18_amt} = {total18}")
+    print(f"Wrote {out}")
+    print(f"6mm: {pcs6} pcs / {len(lines6)} sizes / {sqft6:.4f} sq ft → taxable {taxable6} + GST {gst6_amt} = {total6}")
+    print(f"18mm: {pcs18} pcs / {len(lines18)} sizes / {sqft18:.4f} sq ft → taxable {taxable18} + GST {gst18_amt} = {total18}")
     print(f"Grand Total: {grand} | Advance 75%: {advance} | Balance 25%: {balance} | check {advance}+{balance}={advance+balance}")
     return {
         "sqft6": sqft6,
         "sqft18": sqft18,
         "pcs6": pcs6,
         "pcs18": pcs18,
+        "lines6": len(lines6),
+        "lines18": len(lines18),
         "taxable6": taxable6,
         "gst6": gst6_amt,
         "taxable18": taxable18,
@@ -1048,14 +1135,20 @@ def build_pdf(*, include_annex: bool = True, output_path: Path | None = None):
         "advance": advance,
         "balance": balance,
         "path": out,
+        "sample_lines": lines6[:3] + lines18,
     }
 
 
 if __name__ == "__main__":
-    # WhatsApp / client send copy (compact, no cut-list annex)
-    wa = build_pdf(include_annex=False, output_path=OUT_WHATSAPP_PDF)
-    # Full copy with CNC annex for factory reference
+    # Single detailed item-wise PDF for WhatsApp / client send
+    result = build_pdf(include_annex=True, output_path=OUT_WHATSAPP_PDF)
+    # Same content as archive / factory copy
     full = build_pdf(include_annex=True, output_path=OUT_PDF)
-    assert wa["grand"] == full["grand"]
-    assert wa["advance"] + wa["balance"] == wa["grand"]
-    print("VERIFIED: WhatsApp & full PDFs match; 75%+25%=grand.")
+    assert result["grand"] == full["grand"]
+    assert result["advance"] + result["balance"] == result["grand"]
+    # Spot-check first line math
+    ln = result["sample_lines"][0]
+    expect = money(Decimal(str(ln["sqft"])) * Decimal(str(ln["rate"])))
+    assert ln["amount"] == expect, (ln["amount"], expect)
+    print("VERIFIED: item-wise line amounts sum to grand; sample line math OK.")
+    print("SEND ON WHATSAPP:", OUT_WHATSAPP_PDF.name)

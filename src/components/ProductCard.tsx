@@ -95,6 +95,9 @@ export function ProductCard({ product }: Props) {
           {product.pricingMode === 'per-sqft' ? (
             <span className="product-card__price-unit"> /sq ft shutter</span>
           ) : null}
+          {product.categoryId === 'sample-kits' ? (
+            <span className="product-card__price-unit"> /kit</span>
+          ) : null}
           {minQty > 1 ? (
             <span className="product-card__price-unit"> /pack</span>
           ) : null}
@@ -119,6 +122,11 @@ export function ProductCard({ product }: Props) {
           <p className="product-card__note">
             Indonesian imported teak · unique natural piece · confirm size on
             WhatsApp
+          </p>
+        ) : null}
+        {!customizable && product.categoryId === 'sample-kits' ? (
+          <p className="product-card__note">
+            Partner display kit · kit MRP for samples · confirm on WhatsApp
           </p>
         ) : null}
         {customizable ? (

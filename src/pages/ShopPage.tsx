@@ -98,10 +98,12 @@ export function ShopPage() {
         <h1>{category ? category.name : 'All products'}</h1>
         {category?.caption &&
         (category.id === 'live-edge-furniture' ||
-          category.id === 'leather-shutters') ? (
+          category.id === 'leather-shutters' ||
+          category.id === 'sample-kits') ? (
           <p className="shop__caption">{category.caption}</p>
         ) : null}
-        {category?.id === 'leather-shutters' ? (
+        {category?.id === 'leather-shutters' ||
+        category?.id === 'sample-kits' ? (
           <p className="shop__lede">{category.description}</p>
         ) : null}
         <p className="shop__back">
@@ -123,6 +125,20 @@ export function ShopPage() {
             </li>
             <li>Confirm leather tone, stitch, and handles on WhatsApp</li>
             <li>Made to your opening after on-site measurement</li>
+          </ul>
+        </aside>
+      ) : null}
+
+      {category?.id === 'sample-kits' && category.conceptNote ? (
+        <aside className="shop__concept" aria-label="Sample Kit partner information">
+          <p className="shop__concept-kicker">About Sample Kits</p>
+          <p>{category.conceptNote}</p>
+          <ul>
+            <li>Built for retailers, architects, OEMs, and turnkey partners</li>
+            <li>Physical sample boards / racks for showroom or site meetings</li>
+            <li>Kit MRP is for the display set — product starting rates are for live projects</li>
+            <li>Optional handle sets noted on individual kits where available</li>
+            <li>Confirm kit contents, rack, and dispatch on WhatsApp</li>
           </ul>
         </aside>
       ) : null}

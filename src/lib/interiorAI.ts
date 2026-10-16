@@ -114,6 +114,12 @@ const ROOM_MAP: { match: RegExp; label: string; categoryId?: string }[] = [
     categoryId: 'leather-shutters',
   },
   {
+    match:
+      /\b(sample kits?|display kits?|partner kits?|retailer kits?|oem kits?|turnkey kits?)\b/i,
+    label: 'Sample Kit',
+    categoryId: 'sample-kits',
+  },
+  {
     match: /\b(wardrobe|almirah|cupboard|walk[- ]?in|dressing)\b/i,
     label: 'wardrobe',
     categoryId: 'wardrobe',

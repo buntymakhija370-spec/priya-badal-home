@@ -19,6 +19,10 @@ dist-ssr
 data/ai-subscribers.json
 # Owner Gemini key pasted via /ai-admin (survives preview restarts)
 data/gemini-key.json
+# Owner Claude key for Business Teams
+data/anthropic-key.json
+data/fal-key.json
+data/cloudflare-api-token.txt
 
 # Editor directories and files
 .vscode/*
@@ -30,5 +34,3 @@ data/gemini-key.json
 *.njsproj
 *.sln
 *.sw?
-data/fal-key.json
-data/cloudflare-api-token.txt

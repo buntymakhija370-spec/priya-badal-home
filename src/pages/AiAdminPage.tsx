@@ -24,12 +24,14 @@ export function AiAdminPage() {
   const [authedPin, setAuthedPin] = useState<string | null>(null)
   const [subscribers, setSubscribers] = useState<AdminSub[]>([])
   const [falConfigured, setFalConfigured] = useState(false)
+  const [claudeConfigured, setClaudeConfigured] = useState(false)
   const [planId, setPlanId] = useState('starter')
   const [name, setName] = useState('')
   const [phone, setPhone] = useState('')
   const [note, setNote] = useState('')
   const [createdCode, setCreatedCode] = useState<string | null>(null)
   const [falKey, setFalKey] = useState('')
+  const [anthropicKey, setAnthropicKey] = useState('')
   const [msg, setMsg] = useState<string | null>(null)
   const [busy, setBusy] = useState(false)
 
@@ -49,11 +51,13 @@ export function AiAdminPage() {
     const data = (await res.json()) as {
       subscribers?: AdminSub[]
       falConfigured?: boolean
+      claudeConfigured?: boolean
       error?: string
     }
     if (!res.ok) throw new Error(data.error || 'Admin login failed')
     setSubscribers(data.subscribers || [])
     setFalConfigured(Boolean(data.falConfigured))
+    setClaudeConfigured(Boolean(data.claudeConfigured))
     setAuthedPin(usePin)
   }
 
@@ -153,14 +157,42 @@ export function AiAdminPage() {
     }
   }
 
+  async function onSetAnthropic(e: FormEvent) {
+    e.preventDefault()
+    if (!authedPin) return
+    setBusy(true)
+    try {
+      const res = await adminFetch('/api/ai-admin', {
+        method: 'POST',
+        body: JSON.stringify({
+          adminPin: authedPin,
+          action: 'set-anthropic-key',
+          anthropicKey,
+        }),
+      })
+      const data = (await res.json()) as {
+        error?: string
+        claudeConfigured?: boolean
+      }
+      if (!res.ok) throw new Error(data.error || 'Could not set Claude key')
+      setClaudeConfigured(Boolean(data.claudeConfigured))
+      setAnthropicKey('')
+      setMsg('Claude (Anthropic) key saved — Business Teams will use Claude.')
+    } catch (err) {
+      setMsg(err instanceof Error ? err.message : 'Claude key update failed')
+    } finally {
+      setBusy(false)
+    }
+  }
+
   return (
     <main className="ai-admin page-pad">
       <header>
         <p className="eyebrow">Owner only</p>
         <h1>AI subscriber admin</h1>
         <p>
-          Issue monthly access codes after WhatsApp/UPI payment. Customers never see your Fal /
-          Gemini key. Default admin PIN is in server env <code>AI_ADMIN_PIN</code>.
+          Issue monthly access codes after WhatsApp/UPI payment. Customers never see your API
+          keys. Default admin PIN is in server env <code>AI_ADMIN_PIN</code>.
         </p>
       </header>
 
@@ -182,7 +214,42 @@ export function AiAdminPage() {
       ) : (
         <>
           <section className="ai-admin__card">
-            <h2>Server Fal.ai key (recommended)</h2>
+            <h2>Claude key for Business Teams</h2>
+            <p>Status: {claudeConfigured ? 'Connected' : 'Not connected'}</p>
+            <form onSubmit={onSetAnthropic} className="ai-admin__form">
+              <label>
+                <span>Set / replace Anthropic API key</span>
+                <input
+                  type="password"
+                  value={anthropicKey}
+                  onChange={(e) => setAnthropicKey(e.target.value)}
+                  placeholder="sk-ant-…"
+                  autoComplete="off"
+                />
+              </label>
+              <button
+                className="btn btn--dark"
+                type="submit"
+                disabled={busy || !anthropicKey}
+              >
+                Save Claude key
+              </button>
+            </form>
+            <p className="ai-admin__hint">
+              Create a key at{' '}
+              <a
+                href="https://console.anthropic.com/settings/keys"
+                target="_blank"
+                rel="noreferrer"
+              >
+                console.anthropic.com/settings/keys
+              </a>
+              . Powers Sales / WhatsApp / Reels desks (no Gemini).
+            </p>
+          </section>
+
+          <section className="ai-admin__card">
+            <h2>Server Fal.ai key (Visualise / Chat images)</h2>
             <p>Status: {falConfigured ? 'Connected' : 'Not connected'}</p>
             <form onSubmit={onSetFal} className="ai-admin__form">
               <label>
@@ -273,7 +340,9 @@ export function AiAdminPage() {
 
       {msg ? <p className="ai-admin__msg">{msg}</p> : null}
       <p className="ai-admin__back">
-        <Link to="/ai">← AI subscribe page</Link>
+        <Link to="/teams">Business Teams (Sales · WhatsApp · Reels)</Link>
+        {' · '}
+        <Link to="/ai">AI subscribe page</Link>
       </p>
     </main>
   )

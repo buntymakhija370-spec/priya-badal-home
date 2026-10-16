@@ -95,6 +95,9 @@ export function ProductCard({ product }: Props) {
           {product.pricingMode === 'per-sqft' ? (
             <span className="product-card__price-unit"> /sq ft shutter</span>
           ) : null}
+          {product.categoryId === 'sample-kits' ? (
+            <span className="product-card__price-unit"> /kit</span>
+          ) : null}
           {minQty > 1 ? (
             <span className="product-card__price-unit"> /pack</span>
           ) : null}

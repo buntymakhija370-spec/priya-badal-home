@@ -179,10 +179,53 @@ function liveEdgePresentation(product: Product) {
   }
 }
 
+/** Partner sample kits — only kit fields, no furniture / carcass defaults. */
+function sampleKitPresentation(product: Product) {
+  const category = getCategory(product.categoryId)
+  const subcategory = getSubcategory(product.categoryId, product.subcategoryId)
+  const brand = product.brand ?? 'Priyabadal Homes'
+  const collection = product.collection ?? category?.name ?? 'Sample Kit'
+
+  return {
+    brand,
+    collection,
+    sku: skuFor(product),
+    highlights: product.highlights ?? [
+      'Partner display kit',
+      'Confirm contents on WhatsApp',
+    ],
+    details: product.details ?? [
+      { label: 'Brand', value: brand },
+      { label: 'Collection', value: collection },
+      { label: 'Sku', value: skuFor(product) },
+      { label: 'Audience', value: 'Retailers · Architects · OEMs · Turnkey' },
+      { label: 'Pack', value: '1 sample kit' },
+      { label: 'Category', value: category?.name ?? 'Sample Kit' },
+      { label: 'Subcategory', value: subcategory?.name ?? '—' },
+    ],
+    specifications: product.specifications ?? [
+      { label: 'Kit MRP', value: `₹${product.price.toLocaleString('en-IN')} per kit` },
+      { label: 'Category', value: category?.name ?? 'Sample Kit' },
+      { label: 'Subcategory', value: subcategory?.name ?? '—' },
+      { label: 'Country of Origin', value: 'India' },
+    ],
+    features: product.features ?? [
+      'Physical sample kit for partner showrooms and site meetings',
+      'Confirm kit contents and dispatch on WhatsApp',
+    ],
+    disclaimer:
+      product.disclaimer ??
+      'Kit photographs may be placeholders until final pack shots are uploaded. Confirm contents and add-ons on WhatsApp before dispatch.',
+  }
+}
+
 /** Merge product overrides with Pepperfry-style defaults so every PDP is complete. */
 export function resolveProductPresentation(product: Product) {
   if (product.categoryId === 'live-edge-furniture') {
     return liveEdgePresentation(product)
+  }
+  if (product.categoryId === 'sample-kits') {
+    return sampleKitPresentation(product)
   }
 
   const category = getCategory(product.categoryId)

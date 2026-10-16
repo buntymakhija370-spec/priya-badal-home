@@ -126,6 +126,9 @@ export function ProductPage() {
                 /sq ft{product.carcassPrice != null ? ' shutter' : ''}
               </span>
             )}
+            {product.categoryId === 'sample-kits' ? (
+              <span className="product-page__price-unit"> /kit</span>
+            ) : null}
           </div>
           {product.carcassPrice != null && product.pricingMode === 'per-sqft' ? (
             <p className="product-page__price-alt">
@@ -155,7 +158,13 @@ export function ProductPage() {
           ) : null}
 
           <ul className="product-page__trust">
-            {customizable ? (
+            {product.categoryId === 'sample-kits' ? (
+              <>
+                <li>Partner display kit</li>
+                <li>Retailers · Architects · OEMs</li>
+                <li>Confirm on WhatsApp</li>
+              </>
+            ) : customizable ? (
               <>
                 <li>10-year warranty</li>
                 <li>On-site assembly</li>
@@ -211,12 +220,21 @@ export function ProductPage() {
             )}
             <FavoriteButton productId={product.id} className="product-page__fav" />
           </div>
-          <Link
-            className="btn btn--outline product-page__visualise"
-            to={`/chat?product=${product.id}`}
-          >
-            Ask in Chat — price, carcass & visualise
-          </Link>
+          {product.categoryId === 'sample-kits' ? (
+            <Link
+              className="btn btn--outline product-page__visualise"
+              to={`/chat?product=${product.id}`}
+            >
+              Ask in Chat — kit contents & order
+            </Link>
+          ) : (
+            <Link
+              className="btn btn--outline product-page__visualise"
+              to={`/chat?product=${product.id}`}
+            >
+              Ask in Chat — price, carcass & visualise
+            </Link>
+          )}
           {customizable ? (
             <Link className="product-page__how" to="/how-it-works">
               How your custom order works

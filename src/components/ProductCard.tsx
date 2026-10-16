@@ -121,6 +121,11 @@ export function ProductCard({ product }: Props) {
             WhatsApp
           </p>
         ) : null}
+        {!customizable && product.categoryId === 'sample-kits' ? (
+          <p className="product-card__note">
+            Partner display kit · kit MRP for samples · confirm on WhatsApp
+          </p>
+        ) : null}
         {customizable ? (
           <CustomizeButton product={product} className="product-card__customise" />
         ) : (

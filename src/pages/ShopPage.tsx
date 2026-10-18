@@ -140,6 +140,26 @@ export function ShopPage() {
             <li>Optional handle sets noted on individual kits where available</li>
             <li>Confirm kit contents, rack, and dispatch on WhatsApp</li>
           </ul>
+          <div className="shop__pdf-actions">
+            <a
+              className="shop__pdf-btn"
+              href="/catalogs/priyabadal-sample-kits.pdf"
+              target="_blank"
+              rel="noopener noreferrer"
+            >
+              Download Sample Kit PDF
+            </a>
+            <a
+              className="shop__pdf-btn shop__pdf-btn--wa"
+              href={`https://wa.me/?text=${encodeURIComponent(
+                'Priyabadal Homes — Sample Kit catalogue for partners\nhttps://www.priyabadalhomes.com/catalogs/priyabadal-sample-kits.pdf',
+              )}`}
+              target="_blank"
+              rel="noopener noreferrer"
+            >
+              Share PDF on WhatsApp
+            </a>
+          </div>
         </aside>
       ) : null}
 

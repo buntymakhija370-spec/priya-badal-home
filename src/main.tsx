@@ -26,7 +26,7 @@ async function registerServiceWorker() {
 
 markStandalone()
 void registerServiceWorker()
-;(window as unknown as { __PBH_BUILD__?: string }).__PBH_BUILD__ = 'priyabadal-cache-bust-2026-10-18-kit-hero'
+;(window as unknown as { __PBH_BUILD__?: string }).__PBH_BUILD__ = 'priyabadal-cache-bust-2026-10-18-kit-pdf'
 
 createRoot(document.getElementById('root')!).render(
   <StrictMode>

@@ -215,7 +215,7 @@ function sampleKitPresentation(product: Product) {
     ],
     disclaimer:
       product.disclaimer ??
-      'Kit photographs may be placeholders until final pack shots are uploaded. Confirm contents and add-ons on WhatsApp before dispatch.',
+      'Confirm kit contents and add-ons on WhatsApp before dispatch. Accessories and room settings in photos are for representation only.',
   }
 }
 

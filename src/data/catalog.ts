@@ -11651,7 +11651,7 @@ export const baseProducts: Product[] = [
     rooms: ['showroom', 'studio'],
     image: '/products/sample-kits/silaibunai/01.jpg',
     images: ['/products/sample-kits/silaibunai/01.jpg'],
-    imageCaptions: ['Placeholder — final kit photograph coming soon.'],
+    imageCaptions: ['Sample kit display — as shipped for partner showrooms.'],
     tags: ['Partner kit', '12 boards'],
     highlights: [
       'Kit ₹55,000',
@@ -11687,7 +11687,7 @@ export const baseProducts: Product[] = [
       'Optional handle set of 8 designs: ₹16,000 — confirm if required on WhatsApp.',
     ],
     disclaimer:
-      'Kit photograph is a placeholder until final pack shots are uploaded. Confirm contents and add-ons on WhatsApp before dispatch.',
+      'Confirm kit contents and add-ons on WhatsApp before dispatch. Accessories and room settings in photos are for representation only.',
   },
 
   {
@@ -11707,7 +11707,7 @@ export const baseProducts: Product[] = [
     rooms: ['showroom', 'studio'],
     image: '/products/sample-kits/wall-panels/01.jpg',
     images: ['/products/sample-kits/wall-panels/01.jpg'],
-    imageCaptions: ['Placeholder — final kit photograph coming soon.'],
+    imageCaptions: ['Sample kit display — as shipped for partner showrooms.'],
     tags: ['Partner kit', '25 samples'],
     highlights: [
       'Kit ₹52,000',
@@ -11736,7 +11736,7 @@ export const baseProducts: Product[] = [
       'Catalogue wall panels start from ₹150 / sq ft',
     ],
     disclaimer:
-      'Kit photograph is a placeholder until final pack shots are uploaded. Confirm contents on WhatsApp before dispatch.',
+      'Confirm kit contents on WhatsApp before dispatch. Accessories and room settings in photos are for representation only.',
   },
 
   {
@@ -11756,7 +11756,7 @@ export const baseProducts: Product[] = [
     rooms: ['showroom', 'studio'],
     image: '/products/sample-kits/mouldings/01.jpg',
     images: ['/products/sample-kits/mouldings/01.jpg'],
-    imageCaptions: ['Placeholder — final kit photograph coming soon.'],
+    imageCaptions: ['Sample kit display — as shipped for partner showrooms.'],
     tags: ['Partner kit', '50 samples'],
     highlights: [
       'Kit ₹20,000',
@@ -11785,7 +11785,7 @@ export const baseProducts: Product[] = [
       'Catalogue mouldings start from ₹300 per piece (8 ft)',
     ],
     disclaimer:
-      'Kit photograph is a placeholder until final pack shots are uploaded. Confirm contents on WhatsApp before dispatch.',
+      'Confirm kit contents on WhatsApp before dispatch. Accessories and room settings in photos are for representation only.',
   },
 
   {
@@ -11805,7 +11805,7 @@ export const baseProducts: Product[] = [
     rooms: ['showroom', 'studio'],
     image: '/products/sample-kits/kitchen-luxury-pu/01.jpg',
     images: ['/products/sample-kits/kitchen-luxury-pu/01.jpg'],
-    imageCaptions: ['Placeholder — final kit photograph coming soon.'],
+    imageCaptions: ['Sample kit display — as shipped for partner showrooms.'],
     tags: ['Partner kit', '36 samples', 'With rack'],
     highlights: [
       'Kit ₹55,000',
@@ -11836,7 +11836,7 @@ export const baseProducts: Product[] = [
       'Catalogue luxury PU kitchens start from ₹650 / sq ft',
     ],
     disclaimer:
-      'Kit photograph is a placeholder until final pack shots are uploaded. Confirm contents on WhatsApp before dispatch.',
+      'Confirm kit contents on WhatsApp before dispatch. Accessories and room settings in photos are for representation only.',
   },
 
   {
@@ -11856,7 +11856,7 @@ export const baseProducts: Product[] = [
     rooms: ['showroom', 'studio'],
     image: '/products/sample-kits/kitchen-laminate-asa/01.jpg',
     images: ['/products/sample-kits/kitchen-laminate-asa/01.jpg'],
-    imageCaptions: ['Placeholder — final kit photograph coming soon.'],
+    imageCaptions: ['Sample kit display — as shipped for partner showrooms.'],
     tags: ['Partner kit', '36 samples', '20 mm'],
     highlights: [
       'Kit ₹44,000',
@@ -11888,7 +11888,7 @@ export const baseProducts: Product[] = [
       'Catalogue kitchens in this range start from ₹500 / sq ft',
     ],
     disclaimer:
-      'Kit photograph is a placeholder until final pack shots are uploaded. Confirm contents on WhatsApp before dispatch.',
+      'Confirm kit contents on WhatsApp before dispatch. Accessories and room settings in photos are for representation only.',
   },
 
   {
@@ -11908,7 +11908,7 @@ export const baseProducts: Product[] = [
     rooms: ['showroom', 'studio'],
     image: '/products/sample-kits/wardrobe-luxury/01.jpg',
     images: ['/products/sample-kits/wardrobe-luxury/01.jpg'],
-    imageCaptions: ['Placeholder — final kit photograph coming soon.'],
+    imageCaptions: ['Sample kit display — as shipped for partner showrooms.'],
     tags: ['Partner kit', '12+12 samples', '16×36″'],
     highlights: [
       'Kit ₹1,10,000',
@@ -11937,7 +11937,7 @@ export const baseProducts: Product[] = [
       'Catalogue wardrobe shutters in this range start from ₹900 / sq ft',
     ],
     disclaimer:
-      'Kit photograph is a placeholder until final pack shots are uploaded. Confirm contents on WhatsApp before dispatch.',
+      'Confirm kit contents on WhatsApp before dispatch. Accessories and room settings in photos are for representation only.',
   },
 
   {
@@ -11957,7 +11957,7 @@ export const baseProducts: Product[] = [
     rooms: ['showroom', 'studio'],
     image: '/products/sample-kits/wardrobe-leather/01.jpg',
     images: ['/products/sample-kits/wardrobe-leather/01.jpg'],
-    imageCaptions: ['Placeholder — final kit photograph coming soon.'],
+    imageCaptions: ['Sample kit display — as shipped for partner showrooms.'],
     tags: ['Partner kit', '12 samples', 'With rack'],
     highlights: [
       'Kit MRP confirm on WhatsApp',
@@ -11996,7 +11996,7 @@ export const baseProducts: Product[] = [
       'Optional handle set of 12: ₹32,000 extra.',
     ],
     disclaimer:
-      'Kit photograph is a placeholder until final pack shots are uploaded. Confirm kit MRP, contents, and handle add-on on WhatsApp before dispatch.',
+      'Confirm kit MRP, contents, and handle add-on on WhatsApp before dispatch. Accessories and room settings in photos are for representation only.',
   },
 
   {
@@ -12016,7 +12016,7 @@ export const baseProducts: Product[] = [
     rooms: ['showroom', 'studio'],
     image: '/products/sample-kits/temple/01.jpg',
     images: ['/products/sample-kits/temple/01.jpg'],
-    imageCaptions: ['Placeholder — final kit photograph coming soon.'],
+    imageCaptions: ['Sample kit display — as shipped for partner showrooms.'],
     tags: ['Partner kit', '14 samples', 'With rack'],
     highlights: [
       'Kit ₹48,000',
@@ -12045,7 +12045,7 @@ export const baseProducts: Product[] = [
       'Catalogue temple products start from ₹2,000 / sq ft',
     ],
     disclaimer:
-      'Kit photograph is a placeholder until final pack shots are uploaded. Confirm contents on WhatsApp before dispatch.',
+      'Confirm kit contents on WhatsApp before dispatch. Accessories and room settings in photos are for representation only.',
   },
 ]
 

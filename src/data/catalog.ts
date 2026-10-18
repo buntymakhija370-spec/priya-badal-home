@@ -267,7 +267,7 @@ export const categories: Category[] = [
     caption: 'For partners · Retailers · Architects · OEMs · Turnkey',
     conceptNote:
       'Sample Kit is our B2B display range for general partners — retailers, architects, OEMs, and teams running turnkey projects. Each kit ships with physical samples (and rack where noted) so you can show finishes in a showroom or site meeting. Kit MRP is for the sample set; product starting prices below are the catalogue rates for live project orders. Confirm kit contents, rack, and optional handle sets on WhatsApp.',
-    image: '/products/categories/sample-kits.jpg',
+    image: '/products/categories/sample-kits-hero.jpg',
     customizable: false,
     subcategories: [
       {
@@ -11649,8 +11649,8 @@ export const baseProducts: Product[] = [
       'Partner display kit — 12 hand-embroidery sample boards (12 pastel leather concept boards) with leather shade card. Optional handle design set of 8 available separately. For retailers, architects, OEMs, and turnkey partners.',
     style: ['partner', 'display', 'leather', 'embroidery'],
     rooms: ['showroom', 'studio'],
-    image: '/products/sample-kits/silaibunai/01.jpg',
-    images: ['/products/sample-kits/silaibunai/01.jpg'],
+    image: '/products/sample-kits/silaibunai/hero.jpg',
+    images: ['/products/sample-kits/silaibunai/hero.jpg'],
     imageCaptions: ['Sample kit display — as shipped for partner showrooms.'],
     tags: ['Partner kit', '12 boards'],
     highlights: [
@@ -11705,8 +11705,8 @@ export const baseProducts: Product[] = [
       'Partner wall-panel display kit — 25 concept samples in an 8×8 set format (20″ × 20″ wall set samples). For retailers, architects, OEMs, and turnkey partners.',
     style: ['partner', 'display', 'wall-panel'],
     rooms: ['showroom', 'studio'],
-    image: '/products/sample-kits/wall-panels/01.jpg',
-    images: ['/products/sample-kits/wall-panels/01.jpg'],
+    image: '/products/sample-kits/wall-panels/hero.jpg',
+    images: ['/products/sample-kits/wall-panels/hero.jpg'],
     imageCaptions: ['Sample kit display — as shipped for partner showrooms.'],
     tags: ['Partner kit', '25 samples'],
     highlights: [
@@ -11754,8 +11754,8 @@ export const baseProducts: Product[] = [
       'Partner moulding display kit — 50 moulding frame samples packed with box. For retailers, architects, OEMs, and turnkey partners.',
     style: ['partner', 'display', 'moulding'],
     rooms: ['showroom', 'studio'],
-    image: '/products/sample-kits/mouldings/01.jpg',
-    images: ['/products/sample-kits/mouldings/01.jpg'],
+    image: '/products/sample-kits/mouldings/hero.jpg',
+    images: ['/products/sample-kits/mouldings/hero.jpg'],
     imageCaptions: ['Sample kit display — as shipped for partner showrooms.'],
     tags: ['Partner kit', '50 samples'],
     highlights: [
@@ -11803,8 +11803,8 @@ export const baseProducts: Product[] = [
       'Partner luxury PU-coated kitchen kit — 36 samples with rack. Showcases unique handle-less options, 3D options, and moulding options. For retailers, architects, OEMs, and turnkey partners.',
     style: ['partner', 'display', 'kitchen', 'pu'],
     rooms: ['showroom', 'studio'],
-    image: '/products/sample-kits/kitchen-luxury-pu/01.jpg',
-    images: ['/products/sample-kits/kitchen-luxury-pu/01.jpg'],
+    image: '/products/sample-kits/kitchen-luxury-pu/hero.jpg',
+    images: ['/products/sample-kits/kitchen-luxury-pu/hero.jpg'],
     imageCaptions: ['Sample kit display — as shipped for partner showrooms.'],
     tags: ['Partner kit', '36 samples', 'With rack'],
     highlights: [
@@ -11854,8 +11854,8 @@ export const baseProducts: Product[] = [
       'Partner kitchen kit — 36 options with rack: 18 laminate + 18 ASA, all handle-less, 20 mm thickness. For retailers, architects, OEMs, and turnkey partners.',
     style: ['partner', 'display', 'kitchen', 'laminate'],
     rooms: ['showroom', 'studio'],
-    image: '/products/sample-kits/kitchen-laminate-asa/01.jpg',
-    images: ['/products/sample-kits/kitchen-laminate-asa/01.jpg'],
+    image: '/products/sample-kits/kitchen-laminate-asa/hero.jpg',
+    images: ['/products/sample-kits/kitchen-laminate-asa/hero.jpg'],
     imageCaptions: ['Sample kit display — as shipped for partner showrooms.'],
     tags: ['Partner kit', '36 samples', '20 mm'],
     highlights: [
@@ -11906,8 +11906,8 @@ export const baseProducts: Product[] = [
       'Partner wardrobe shutter sample kit — luxury PU-coated and laminated samples, 16″ × 36″ size, total 12 + 12 kits. For retailers, architects, OEMs, and turnkey partners.',
     style: ['partner', 'display', 'wardrobe', 'pu'],
     rooms: ['showroom', 'studio'],
-    image: '/products/sample-kits/wardrobe-luxury/01.jpg',
-    images: ['/products/sample-kits/wardrobe-luxury/01.jpg'],
+    image: '/products/sample-kits/wardrobe-luxury/hero.jpg',
+    images: ['/products/sample-kits/wardrobe-luxury/hero.jpg'],
     imageCaptions: ['Sample kit display — as shipped for partner showrooms.'],
     tags: ['Partner kit', '12+12 samples', '16×36″'],
     highlights: [
@@ -11955,8 +11955,8 @@ export const baseProducts: Product[] = [
       'Partner leather wardrobe shutter kit — 12 large samples (16″ × 36″) with rack. Optional handle set of 12 available at ₹32,000 extra. For retailers, architects, OEMs, and turnkey partners.',
     style: ['partner', 'display', 'wardrobe', 'leather'],
     rooms: ['showroom', 'studio'],
-    image: '/products/sample-kits/wardrobe-leather/01.jpg',
-    images: ['/products/sample-kits/wardrobe-leather/01.jpg'],
+    image: '/products/sample-kits/wardrobe-leather/hero.jpg',
+    images: ['/products/sample-kits/wardrobe-leather/hero.jpg'],
     imageCaptions: ['Sample kit display — as shipped for partner showrooms.'],
     tags: ['Partner kit', '12 samples', 'With rack'],
     highlights: [
@@ -12014,8 +12014,8 @@ export const baseProducts: Product[] = [
       'Partner temple / mandir sample kit — 14 options with rack. For retailers, architects, OEMs, and turnkey partners.',
     style: ['partner', 'display', 'temple'],
     rooms: ['showroom', 'studio'],
-    image: '/products/sample-kits/temple/01.jpg',
-    images: ['/products/sample-kits/temple/01.jpg'],
+    image: '/products/sample-kits/temple/hero.jpg',
+    images: ['/products/sample-kits/temple/hero.jpg'],
     imageCaptions: ['Sample kit display — as shipped for partner showrooms.'],
     tags: ['Partner kit', '14 samples', 'With rack'],
     highlights: [

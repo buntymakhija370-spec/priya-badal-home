@@ -2,7 +2,13 @@ name: Deploy to Cloudflare Pages
 
 on:
   push:
-    branches: [main, cursor/live-catalog-deploy-82c6, cursor/cloudflare-pages-deploy-82c6]
+    branches:
+      - main
+      - cursor/live-catalog-deploy-82c6
+      - cursor/cloudflare-pages-deploy-82c6
+      - cursor/business-teams-sales-whatsapp-reels-1447
+  pull_request:
+    branches: [main]
   workflow_dispatch:
 
 jobs:
@@ -11,6 +17,7 @@ jobs:
     permissions:
       contents: read
       deployments: write
+      pull-requests: write
     steps:
       - uses: actions/checkout@v4
       - uses: actions/setup-node@v4
@@ -20,8 +27,13 @@ jobs:
       - run: npm ci
       - run: npm run build
       - name: Publish to Cloudflare Pages
+        id: publish
         uses: cloudflare/wrangler-action@v3
         with:
           apiToken: ${{ secrets.CLOUDFLARE_API_TOKEN }}
           accountId: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
-          command: pages deploy dist --project-name=priya-badal-home
+          # Branch alias creates a stable preview URL on Cloudflare Pages
+          command: pages deploy dist --project-name=priya-badal-home --branch=${{ github.head_ref || github.ref_name }}
+        env:
+          CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
+          CLOUDFLARE_ACCOUNT_ID: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}

@@ -12,6 +12,7 @@ import { HowItWorksPage } from './pages/HowItWorksPage'
 import { CarcassAssemblyPage } from './pages/CarcassAssemblyPage'
 import { AiSubscribePage } from './pages/AiSubscribePage'
 import { AiAdminPage } from './pages/AiAdminPage'
+import { BusinessTeamsPage } from './pages/BusinessTeamsPage'
 import './App.css'
 
 /** Old Design / Visualise / Carcass Planner URLs → unified Chat hub */
@@ -42,6 +43,7 @@ export default function App() {
           <Route path="install" element={<Navigate to="/" replace />} />
           <Route path="ai" element={<AiSubscribePage />} />
           <Route path="ai-admin" element={<AiAdminPage />} />
+          <Route path="teams" element={<BusinessTeamsPage />} />
           <Route path="favorites" element={<FavoritesPage />} />
           <Route path="cart" element={<CartPage />} />
           <Route path="chat" element={<ChatPage />} />

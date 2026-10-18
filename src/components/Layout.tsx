@@ -16,6 +16,7 @@ const utilityLinks = [
   { to: '/shop', label: 'Collections' },
   { to: '/how-it-works', label: 'How it works' },
   { to: '/chat', label: 'Chat' },
+  { to: '/teams', label: 'Business Teams' },
   { to: '/guides/carcass-assembly', label: 'Carcass assembly guide' },
   { to: '/favorites', label: 'Favorites' },
   { to: '/add-product', label: 'Add Product' },

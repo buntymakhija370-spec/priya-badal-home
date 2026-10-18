@@ -19,6 +19,7 @@ from reportlab.pdfgen import canvas
 ROOT = Path(__file__).resolve().parents[1]
 OUT = ROOT / "public" / "catalogs" / "priyabadal-sample-kits.pdf"
 DATA = ROOT / "scripts" / "sample-kit-products.json"
+RANGE = ROOT / "scripts" / "sample-kit-range-showcase.json"
 PUBLIC = ROOT / "public"
 
 INK = HexColor("#152019")
@@ -29,11 +30,48 @@ PAPER = HexColor("#f7faf8")
 MIST = HexColor("#dce6df")
 CARD = HexColor("#ffffff")
 WARM = HexColor("#f8f1e8")
+CREAM = HexColor("#e4c9a8")
 
 WHATSAPP = "+91 81099 49649"
 WA_LINK = "https://wa.me/918109949649"
 SITE = "www.priyabadalhomes.com"
 BRAND = "Priyabadal Homes"
+
+# Partner captions per kit (growth-focused, short)
+KIT_CAPTIONS = {
+    "sample-kit-silaibunai": (
+        "Show Silai Bunai texture & stitch boards in your studio — clients choose "
+        "faster, you book more wall & shutter work at healthy partner margins."
+    ),
+    "sample-kit-wall-panels-8x8": (
+        "A compact wall-panel library for your showroom. Sell design confidence "
+        "without stocking full panels — convert site visits into project orders."
+    ),
+    "sample-kit-mouldings-50": (
+        "Fifty moulding looks in one box for architects and retailers. Clients "
+        "touch the profile, you close the frame & trim order with better margin."
+    ),
+    "sample-kit-kitchen-luxury-pu": (
+        "Luxury PU kitchen samples with rack — handle-less, 3D and moulding options "
+        "ready for turnkey pitches. Invest in the kit, not a full kitchen stock."
+    ),
+    "sample-kit-kitchen-laminate-asa": (
+        "Laminate & ASA kitchen kit for everyday luxury quotes. Ideal for OEM and "
+        "studio partners who want volume kitchen revenue without inventory risk."
+    ),
+    "sample-kit-wardrobe-luxury-pu": (
+        "Large wardrobe shutter samples that sell the façade look. Grow bedroom "
+        "project value from your showroom with kit-led presentations."
+    ),
+    "sample-kit-leather-wardrobe": (
+        "Leena leather shutter kit for premium wardrobe conversations. One kit "
+        "upgrade lets your studio quote high-margin leather façades with certainty."
+    ),
+    "sample-kit-temple": (
+        "Temple / Mandir sample kit for a high-emotion, high-value category. "
+        "Display the look once — turn devotion projects into steady studio revenue."
+    ),
+}
 
 
 def format_inr(n: int | float) -> str:
@@ -47,6 +85,16 @@ def format_inr(n: int | float) -> str:
         parts.append(rest[-2:])
         rest = rest[:-2]
     return "₹" + ",".join(reversed(parts)) + "," + last3
+
+
+def format_price(p: dict) -> str:
+    price = p.get("price")
+    if price is None:
+        return "Ask"
+    mode = p.get("pricingMode") or "fixed"
+    if mode == "per-sqft":
+        return f"from {format_inr(price)} / sq ft"
+    return format_inr(price)
 
 
 def register_fonts() -> tuple[str, str]:
@@ -77,7 +125,7 @@ def load_image(rel: str, max_w: int = 1100, max_h: int = 1400) -> Image.Image | 
     return img
 
 
-def image_reader(img: Image.Image, quality: int = 72) -> ImageReader:
+def image_reader(img: Image.Image, quality: int = 70) -> ImageReader:
     buf = BytesIO()
     img.save(buf, format="JPEG", quality=quality, optimize=True)
     buf.seek(0)
@@ -112,16 +160,42 @@ def draw_wrapped(
     if line:
         lines.append(line)
     if max_lines is not None:
+        truncated = len(lines) > max_lines
         lines = lines[:max_lines]
-        if len(text.split()) > 0 and max_lines and len(lines) == max_lines:
+        if truncated and lines:
             last = lines[-1]
             while c.stringWidth(last + "…", font, size) > width and len(last) > 4:
                 last = last[:-1]
-            if not last.endswith("…"):
-                lines[-1] = last.rstrip() + "…"
+            lines[-1] = last.rstrip() + "…"
     for i, ln in enumerate(lines):
         c.drawString(x, y - i * leading, ln)
     return y - max(len(lines) - 1, 0) * leading
+
+
+def fit_image(
+    c: canvas.Canvas,
+    img: Image.Image,
+    x: float,
+    y: float,
+    box_w: float,
+    box_h: float,
+    quality: int = 68,
+    fill: Color | None = None,
+) -> None:
+    if fill is not None:
+        c.setFillColor(fill)
+        c.rect(x, y, box_w, box_h, fill=1, stroke=0)
+    iw, ih = img.size
+    scale = min(box_w / iw, box_h / ih)
+    dw, dh = iw * scale, ih * scale
+    c.drawImage(
+        image_reader(img, quality),
+        x + (box_w - dw) / 2,
+        y + (box_h - dh) / 2,
+        width=dw,
+        height=dh,
+        mask="auto",
+    )
 
 
 def footer(c: canvas.Canvas, page: int, total: int, body: str) -> None:
@@ -130,8 +204,8 @@ def footer(c: canvas.Canvas, page: int, total: int, body: str) -> None:
     c.setLineWidth(0.5)
     c.line(16 * mm, 14 * mm, w - 16 * mm, 14 * mm)
     c.setFillColor(INK_SOFT)
-    c.setFont(body, 8)
-    c.drawString(16 * mm, 9 * mm, f"{BRAND} · Sample Kit · WhatsApp {WHATSAPP}")
+    c.setFont(body, 7.5)
+    c.drawString(16 * mm, 9 * mm, f"{BRAND} · Partner Sample Kit · WhatsApp {WHATSAPP}")
     c.drawRightString(w - 16 * mm, 9 * mm, f"{page} / {total}")
 
 
@@ -139,31 +213,28 @@ def cover(c: canvas.Canvas, products: list[dict], body: str, bold: str, page: in
     w, h = A4
     c.setFillColor(INK)
     c.rect(0, 0, w, h, fill=1, stroke=0)
-
-    # warm accent bar
     c.setFillColor(HexColor("#5c3a20"))
-    c.rect(0, h - 8 * mm, w, 8 * mm, fill=1, stroke=0)
+    c.rect(0, h - 7 * mm, w, 7 * mm, fill=1, stroke=0)
 
-    c.setFillColor(HexColor("#e4c9a8"))
+    c.setFillColor(CREAM)
     c.setFont(body, 9)
-    c.drawString(18 * mm, h - 22 * mm, "PARTNER CATALOGUE · WHATSAPP READY")
+    c.drawString(18 * mm, h - 22 * mm, "FOR RETAILERS · ARCHITECTS · OEMs · TURNKEY PARTNERS")
 
     c.setFillColor(white)
-    c.setFont(bold, 26)
+    c.setFont(bold, 24)
     c.drawString(18 * mm, h - 38 * mm, BRAND)
 
-    c.setFillColor(HexColor("#e4c9a8"))
-    c.setFont(bold, 18)
-    c.drawString(18 * mm, h - 50 * mm, "Sample Kit")
+    c.setFillColor(CREAM)
+    c.setFont(bold, 17)
+    c.drawString(18 * mm, h - 50 * mm, "Sample Kit Partner Book")
 
     blurb = (
-        "Display kits for retailers, architects, OEMs, and turnkey partners. "
-        "Kit MRP is for the physical sample set. Live product starting prices "
-        "are catalogue rates for project orders. Confirm on WhatsApp."
+        "Explore our product families without carrying full stock. "
+        "Invest in Sample Kits for your studio or showroom — present finishes "
+        "with confidence, book more projects, and grow with healthier profit margins."
     )
     draw_wrapped(c, blurb, 18 * mm, h - 64 * mm, w - 36 * mm, body, 10.5, 15, HexColor("#c9d6cd"), 4)
 
-    # collage of 4 kit photos
     thumbs = []
     for p in products[:4]:
         img = load_image(p["image"], 520, 700)
@@ -172,34 +243,90 @@ def cover(c: canvas.Canvas, products: list[dict], body: str, bold: str, page: in
     if thumbs:
         gap = 4 * mm
         tw = (w - 36 * mm - gap) / 2
-        th = 58 * mm
+        th = 52 * mm
         y0 = h - 88 * mm
         for i, img in enumerate(thumbs[:4]):
             col = i % 2
             row = i // 2
             x = 18 * mm + col * (tw + gap)
             y = y0 - row * (th + gap) - th
-            c.setFillColor(HexColor("#1c2a22"))
-            c.rect(x, y, tw, th, fill=1, stroke=0)
-            iw, ih = img.size
-            scale = min(tw / iw, th / ih)
-            dw, dh = iw * scale, ih * scale
-            c.drawImage(
-                image_reader(img, 70),
-                x + (tw - dw) / 2,
-                y + (th - dh) / 2,
-                width=dw,
-                height=dh,
-                mask="auto",
-            )
+            fit_image(c, img, x, y, tw, th, 68, HexColor("#1c2a22"))
 
-    c.setFillColor(white)
-    c.setFont(bold, 12)
-    c.drawString(18 * mm, 42 * mm, f"WhatsApp {WHATSAPP}")
-    c.setFont(body, 10)
+    # growth strip
+    c.setFillColor(HexColor("#1c2a22"))
+    c.roundRect(18 * mm, 28 * mm, w - 36 * mm, 22 * mm, 4, fill=1, stroke=0)
+    c.setFillColor(CREAM)
+    c.setFont(bold, 9)
+    c.drawString(24 * mm, 42 * mm, "Kit investment  →  Showroom sales  →  Project revenue")
     c.setFillColor(HexColor("#c9d6cd"))
-    c.drawString(18 * mm, 34 * mm, WA_LINK)
-    c.drawString(18 * mm, 26 * mm, f"{SITE}  ·  {len(products)} kits")
+    c.setFont(body, 8.5)
+    c.drawString(24 * mm, 33 * mm, f"WhatsApp {WHATSAPP}  ·  {WA_LINK}  ·  {len(products)} kits")
+    footer(c, page, total, body)
+
+
+def partner_pitch(c: canvas.Canvas, body: str, bold: str, page: int, total: int) -> None:
+    w, h = A4
+    c.setFillColor(PAPER)
+    c.rect(0, 0, w, h, fill=1, stroke=0)
+
+    c.setFillColor(INK)
+    c.setFont(bold, 16)
+    c.drawString(16 * mm, h - 24 * mm, "Grow with Sample Kits")
+    c.setFillColor(INK_SOFT)
+    c.setFont(body, 9.5)
+    draw_wrapped(
+        c,
+        "Built for general partners who want more project flow — without warehouse risk.",
+        16 * mm,
+        h - 32 * mm,
+        w - 32 * mm,
+        body,
+        9.5,
+        13,
+        INK_SOFT,
+        2,
+    )
+
+    cards = [
+        (
+            "No full stock needed",
+            "You do not need to carry finished products. One kit gives your studio "
+            "a real tactile library clients can see, touch, and choose from.",
+        ),
+        (
+            "Invest in kits, earn on projects",
+            "Your investment is the Sample Kit. Revenue comes when you convert "
+            "showroom conversations into live kitchen, wardrobe, panel, and temple orders.",
+        ),
+        (
+            "Stronger partner margins",
+            "Present premium looks early, quote with confidence, and protect your "
+            "margin — architects, retailers, OEMs, and turnkey teams all win.",
+        ),
+        (
+            "Studio & showroom ready",
+            "Use kits in client meetings, site visits, and display walls. Same "
+            "finishes power our live product range — showcase more, sell more.",
+        ),
+    ]
+
+    y = h - 48 * mm
+    for title, text in cards:
+        c.setFillColor(CARD)
+        c.setStrokeColor(MIST)
+        c.roundRect(16 * mm, y - 32 * mm, w - 32 * mm, 34 * mm, 5, fill=1, stroke=1)
+        c.setFillColor(HONEY)
+        c.setFont(bold, 11)
+        c.drawString(22 * mm, y - 10 * mm, title)
+        draw_wrapped(c, text, 22 * mm, y - 18 * mm, w - 44 * mm, body, 9, 12.5, INK_SOFT, 3)
+        y -= 38 * mm
+
+    c.setFillColor(INK)
+    c.setFont(bold, 10)
+    c.drawString(16 * mm, 28 * mm, "Next: pick the kits that match your studio focus.")
+    c.setFont(body, 9)
+    c.setFillColor(MOSS)
+    c.drawString(16 * mm, 20 * mm, f"Click WhatsApp {WHATSAPP} · we guide kit + live order mix")
     footer(c, page, total, body)
 
 
@@ -209,19 +336,22 @@ def overview(c: canvas.Canvas, products: list[dict], body: str, bold: str, page:
     c.rect(0, 0, w, h, fill=1, stroke=0)
 
     c.setFillColor(INK)
-    c.setFont(bold, 16)
-    c.drawString(16 * mm, h - 22 * mm, "All kits at a glance")
+    c.setFont(bold, 15)
+    c.drawString(16 * mm, h - 22 * mm, "Kit investment menu")
     c.setFillColor(INK_SOFT)
     c.setFont(body, 9)
-    c.drawString(16 * mm, h - 29 * mm, "Kit MRP for samples · Live starting price for project products")
+    c.drawString(
+        16 * mm,
+        h - 29 * mm,
+        "Kit MRP = display set for your showroom · Live price = catalogue start for project orders",
+    )
 
-    # table header
     y = h - 40 * mm
     c.setFillColor(INK)
     c.roundRect(14 * mm, y - 2 * mm, w - 28 * mm, 10 * mm, 2, fill=1, stroke=0)
     c.setFillColor(white)
     c.setFont(bold, 8)
-    c.drawString(17 * mm, y + 1.5 * mm, "KIT")
+    c.drawString(17 * mm, y + 1.5 * mm, "SAMPLE KIT")
     c.drawString(108 * mm, y + 1.5 * mm, "KIT MRP")
     c.drawRightString(w - 17 * mm, y + 1.5 * mm, "LIVE PRODUCT FROM")
 
@@ -243,30 +373,22 @@ def overview(c: canvas.Canvas, products: list[dict], body: str, bold: str, page:
         c.setFillColor(HONEY)
         c.drawString(108 * mm, y - 2 * mm, format_inr(p["price"]))
         c.setFillColor(MOSS)
-        live = p.get("liveFrom") or "—"
-        c.drawRightString(w - 17 * mm, y - 2 * mm, live)
+        c.drawRightString(w - 17 * mm, y - 2 * mm, p.get("liveFrom") or "—")
         y -= row_h
 
-    y -= 6 * mm
+    y -= 4 * mm
     c.setFillColor(CARD)
     c.setStrokeColor(MIST)
-    c.roundRect(14 * mm, 28 * mm, w - 28 * mm, y - 28 * mm - 4 * mm, 5, fill=1, stroke=1)
+    c.roundRect(14 * mm, 22 * mm, w - 28 * mm, y - 22 * mm - 2 * mm, 5, fill=1, stroke=1)
     c.setFillColor(MOSS)
     c.setFont(bold, 10)
-    c.drawString(20 * mm, y - 12 * mm, "How to order")
-    notes = [
-        f"WhatsApp {WHATSAPP} with kit name or SKU.",
-        "Confirm rack, optional handle sets, and dispatch city.",
-        "Kit MRP = sample set. Live rates apply to project orders.",
-        f"Full catalogue: {SITE}/shop/sample-kits",
-    ]
-    yy = y - 22 * mm
-    c.setFont(body, 9)
-    c.setFillColor(INK_SOFT)
-    for note in notes:
-        c.drawString(20 * mm, yy, f"•  {note}")
-        yy -= 6 * mm
-
+    c.drawString(20 * mm, y - 12 * mm, "Partner tip")
+    tip = (
+        "Start with 1–2 kits that match your studio traffic (kitchen / wardrobe / panels). "
+        "Use them to explore our full product range with clients — then place live project "
+        f"orders on WhatsApp {WHATSAPP}. No need to hold finished stock."
+    )
+    draw_wrapped(c, tip, 20 * mm, y - 22 * mm, w - 40 * mm, body, 9, 12.5, INK_SOFT, 5)
     footer(c, page, total, body)
 
 
@@ -284,40 +406,28 @@ def kit_page(
     c.setFillColor(PAPER)
     c.rect(0, 0, w, h, fill=1, stroke=0)
 
-    # header
     c.setFillColor(INK)
     c.setFont(bold, 11)
     c.drawString(16 * mm, h - 16 * mm, BRAND)
     c.setFillColor(HONEY)
     c.setFont(body, 8.5)
-    c.drawRightString(w - 16 * mm, h - 16 * mm, f"Sample Kit  {index}/{total_kits}")
+    c.drawRightString(w - 16 * mm, h - 16 * mm, f"Partner kit  {index}/{total_kits}")
     c.setStrokeColor(MIST)
     c.setLineWidth(0.6)
     c.line(16 * mm, h - 19 * mm, w - 16 * mm, h - 19 * mm)
 
-    # photo
     photo_top = h - 24 * mm
-    photo_h = 118 * mm
+    photo_h = 108 * mm
     photo_w = w - 32 * mm
-    c.setFillColor(HexColor("#ece7df"))
-    c.roundRect(16 * mm, photo_top - photo_h, photo_w, photo_h, 4, fill=1, stroke=0)
-    img = load_image(p["image"], 1000, 1300)
+    img = load_image(p["image"], 1000, 1200)
     if img:
-        iw, ih = img.size
-        scale = min(photo_w / iw, photo_h / ih)
-        dw, dh = iw * scale, ih * scale
-        c.drawImage(
-            image_reader(img, 74),
-            16 * mm + (photo_w - dw) / 2,
-            photo_top - photo_h + (photo_h - dh) / 2,
-            width=dw,
-            height=dh,
-            mask="auto",
-        )
+        fit_image(c, img, 16 * mm, photo_top - photo_h, photo_w, photo_h, 74, HexColor("#ece7df"))
+    else:
+        c.setFillColor(HexColor("#ece7df"))
+        c.roundRect(16 * mm, photo_top - photo_h, photo_w, photo_h, 4, fill=1, stroke=0)
 
-    # details card
-    card_top = photo_top - photo_h - 6 * mm
-    card_bottom = 20 * mm
+    card_top = photo_top - photo_h - 5 * mm
+    card_bottom = 18 * mm
     card_h = card_top - card_bottom
     c.setFillColor(CARD)
     c.setStrokeColor(MIST)
@@ -325,45 +435,43 @@ def kit_page(
 
     x = 22 * mm
     tw = w - 44 * mm
-    y = card_top - 10 * mm
+    y = card_top - 9 * mm
 
     c.setFillColor(MOSS)
     c.setFont(body, 8)
-    c.drawString(x, y, (p.get("sku") or "") + "  ·  Partner display kit")
+    c.drawString(x, y, (p.get("sku") or "") + "  ·  Showroom display kit")
 
-    y -= 12
+    y -= 11
     c.setFillColor(INK)
-    c.setFont(bold, 14)
-    y = draw_wrapped(c, p["name"], x, y, tw, bold, 13, 16, INK, max_lines=2)
+    y = draw_wrapped(c, p["name"], x, y, tw, bold, 12.5, 15, INK, max_lines=2)
 
-    y -= 12
+    y -= 11
     c.setFillColor(HONEY)
-    c.setFont(bold, 16)
+    c.setFont(bold, 15)
     c.drawString(x, y, format_inr(p["price"]))
     c.setFillColor(INK_SOFT)
-    c.setFont(body, 9)
-    c.drawString(x + c.stringWidth(format_inr(p["price"]), bold, 16) + 5, y + 1, "/ kit MRP")
+    c.setFont(body, 8.5)
+    c.drawString(x + c.stringWidth(format_inr(p["price"]), bold, 15) + 5, y + 1, "kit investment")
 
     if p.get("liveFrom"):
-        y -= 12
+        y -= 11
         c.setFillColor(MOSS)
-        c.setFont(bold, 10)
-        c.drawString(x, y, f"Live product from  {p['liveFrom']}")
+        c.setFont(bold, 9.5)
+        c.drawString(x, y, f"Live product from  {p['liveFrom']}  ·  partner project orders")
 
-    y -= 12
-    if p.get("description"):
-        y = draw_wrapped(c, p["description"], x, y, tw, body, 8.5, 12, INK_SOFT, max_lines=3)
+    caption = KIT_CAPTIONS.get(p["id"]) or (p.get("description") or "")
+    y -= 11
+    y = draw_wrapped(c, caption, x, y, tw, body, 8.5, 11.5, INK_SOFT, max_lines=3)
 
-    # key facts
     facts = []
     if p.get("samples"):
         facts.append(("Samples", p["samples"]))
     if p.get("includes"):
         facts.append(("Includes", p["includes"]))
     if p.get("sampleSize"):
-        facts.append(("Sample size", p["sampleSize"]))
+        facts.append(("Size", p["sampleSize"]))
     if p.get("packaging"):
-        facts.append(("Packaging", p["packaging"]))
+        facts.append(("Pack", p["packaging"]))
     if p.get("optionsShown"):
         facts.append(("Options", p["optionsShown"]))
     if p.get("hardware"):
@@ -373,24 +481,80 @@ def kit_page(
     if p.get("optional"):
         facts.append(("Optional", p["optional"]))
 
-    y -= 10
-    for label, value in facts[:6]:
-        if y < card_bottom + 18 * mm:
+    y -= 9
+    for label, value in facts[:5]:
+        if y < card_bottom + 16 * mm:
             break
         c.setFillColor(HONEY)
         c.setFont(bold, 8)
         c.drawString(x, y, label)
-        c.setFillColor(INK)
-        c.setFont(body, 8.5)
-        y = draw_wrapped(c, value, x + 28 * mm, y, tw - 28 * mm, body, 8.5, 11, INK, max_lines=2)
-        y -= 10
+        y = draw_wrapped(c, value, x + 26 * mm, y, tw - 26 * mm, body, 8.5, 11, INK, max_lines=2)
+        y -= 9
 
     c.setFillColor(INK)
-    c.setFont(bold, 9)
-    c.drawString(x, card_bottom + 7 * mm, f"WhatsApp {WHATSAPP}")
+    c.setFont(bold, 8.5)
+    c.drawString(x, card_bottom + 6 * mm, f"WhatsApp {WHATSAPP} to book this kit")
     c.setFont(body, 8)
     c.setFillColor(INK_SOFT)
-    c.drawRightString(w - 22 * mm, card_bottom + 7 * mm, SITE)
+    c.drawRightString(w - 22 * mm, card_bottom + 6 * mm, SITE)
+
+    footer(c, page, total, body)
+
+
+def range_page(
+    c: canvas.Canvas,
+    title: str,
+    subtitle: str,
+    products: list[dict],
+    body: str,
+    bold: str,
+    page: int,
+    total: int,
+) -> None:
+    w, h = A4
+    c.setFillColor(PAPER)
+    c.rect(0, 0, w, h, fill=1, stroke=0)
+
+    c.setFillColor(INK)
+    c.setFont(bold, 14)
+    c.drawString(16 * mm, h - 20 * mm, title)
+    c.setFillColor(INK_SOFT)
+    c.setFont(body, 9)
+    draw_wrapped(c, subtitle, 16 * mm, h - 27 * mm, w - 32 * mm, body, 9, 12, INK_SOFT, 2)
+
+    # 2x3 grid
+    gap = 4 * mm
+    cols, rows = 3, 2
+    grid_top = h - 36 * mm
+    grid_bottom = 20 * mm
+    grid_h = grid_top - grid_bottom
+    cell_w = (w - 32 * mm - gap * (cols - 1)) / cols
+    cell_h = (grid_h - gap * (rows - 1)) / rows
+    img_h = cell_h - 18 * mm
+
+    for i, p in enumerate(products[:6]):
+        col = i % cols
+        row = i // cols
+        x = 16 * mm + col * (cell_w + gap)
+        y = grid_top - (row + 1) * cell_h - row * gap
+        c.setFillColor(CARD)
+        c.setStrokeColor(MIST)
+        c.roundRect(x, y, cell_w, cell_h, 3, fill=1, stroke=1)
+        img = load_image(p["image"], 420, 420)
+        if img:
+            fit_image(c, img, x + 2 * mm, y + 16 * mm, cell_w - 4 * mm, img_h, 58, HexColor("#ece7df"))
+        c.setFillColor(INK)
+        c.setFont(bold, 7.5)
+        name = p["name"]
+        max_w = cell_w - 6 * mm
+        if c.stringWidth(name, bold, 7.5) > max_w:
+            while c.stringWidth(name + "…", bold, 7.5) > max_w and len(name) > 6:
+                name = name[:-1]
+            name = name.rstrip() + "…"
+        c.drawString(x + 3 * mm, y + 9 * mm, name)
+        c.setFillColor(HONEY)
+        c.setFont(body, 7)
+        c.drawString(x + 3 * mm, y + 3.5 * mm, format_price(p))
 
     footer(c, page, total, body)
 
@@ -399,60 +563,133 @@ def closing(c: canvas.Canvas, body: str, bold: str, page: int, total: int) -> No
     w, h = A4
     c.setFillColor(INK)
     c.rect(0, 0, w, h, fill=1, stroke=0)
+    c.setFillColor(HexColor("#5c3a20"))
+    c.rect(0, 0, w, 18 * mm, fill=1, stroke=0)
 
-    c.setFillColor(HexColor("#e4c9a8"))
-    c.setFont(body, 10)
-    c.drawCentredString(w / 2, h / 2 + 48 * mm, "READY FOR YOUR SHOWROOM")
+    c.setFillColor(CREAM)
+    c.setFont(body, 9)
+    c.drawCentredString(w / 2, h - 28 * mm, "PARTNER GROWTH PATH")
 
     c.setFillColor(white)
-    c.setFont(bold, 22)
-    c.drawCentredString(w / 2, h / 2 + 28 * mm, "Order Sample Kits")
+    c.setFont(bold, 20)
+    c.drawCentredString(w / 2, h - 44 * mm, "Start with kits.")
+    c.drawCentredString(w / 2, h - 56 * mm, "Scale with projects.")
+
+    pitch = (
+        "Explore Priyabadal Homes products through Sample Kits — then convert "
+        "studio and showroom interest into live orders. Better margins. "
+        "No need to hold full stock."
+    )
+    draw_wrapped(c, pitch, 24 * mm, h - 72 * mm, w - 48 * mm, body, 10.5, 15, HexColor("#c9d6cd"), 4)
+
+    steps = [
+        ("01", "Choose kits", "Match kitchen, wardrobe, panels, Silai, temple to your traffic."),
+        ("02", "Display & pitch", "Use boards in meetings — clients decide faster with real samples."),
+        ("03", "Book live work", "WhatsApp the kit SKU + project — we support production & dispatch."),
+    ]
+    y = h - 108 * mm
+    for num, title, text in steps:
+        c.setFillColor(HexColor("#1c2a22"))
+        c.roundRect(22 * mm, y - 22 * mm, w - 44 * mm, 26 * mm, 4, fill=1, stroke=0)
+        c.setFillColor(CREAM)
+        c.setFont(bold, 12)
+        c.drawString(28 * mm, y - 8 * mm, num)
+        c.setFillColor(white)
+        c.setFont(bold, 11)
+        c.drawString(42 * mm, y - 8 * mm, title)
+        c.setFillColor(HexColor("#c9d6cd"))
+        c.setFont(body, 8.5)
+        draw_wrapped(c, text, 42 * mm, y - 16 * mm, w - 72 * mm, body, 8.5, 11, HexColor("#c9d6cd"), 2)
+        y -= 32 * mm
+
+    # CTA panel
+    c.setFillColor(HexColor("#5c3a20"))
+    c.roundRect(22 * mm, 36 * mm, w - 44 * mm, 42 * mm, 5, fill=1, stroke=0)
+    c.setFillColor(white)
+    c.setFont(bold, 13)
+    c.drawCentredString(w / 2, 66 * mm, "WhatsApp to become a partner")
     c.setFont(bold, 16)
-    c.drawCentredString(w / 2, h / 2 + 8 * mm, f"WhatsApp {WHATSAPP}")
-
-    c.setFillColor(HexColor("#c9d6cd"))
-    c.setFont(body, 11)
-    c.drawCentredString(w / 2, h / 2 - 8 * mm, WA_LINK)
-    c.setFont(body, 10)
-    c.drawCentredString(w / 2, h / 2 - 24 * mm, "Send kit name or SKU · We confirm contents & dispatch")
-    c.drawCentredString(w / 2, h / 2 - 36 * mm, f"{SITE}/shop/sample-kits")
-
-    c.setFillColor(HexColor("#e4c9a8"))
-    c.setFont(bold, 12)
-    c.drawCentredString(w / 2, 40 * mm, BRAND)
+    c.setFillColor(CREAM)
+    c.drawCentredString(w / 2, 54 * mm, WHATSAPP)
+    c.setFillColor(HexColor("#f0dcc0"))
     c.setFont(body, 9)
-    c.setFillColor(HexColor("#9db4b8"))
-    c.drawCentredString(w / 2, 32 * mm, "For retailers · Architects · OEMs · Turnkey partners")
-    footer(c, page, total, body)
+    c.drawCentredString(w / 2, 44 * mm, f"{WA_LINK}  ·  {SITE}/shop/sample-kits")
+
+    c.setFillColor(HexColor("#f0dcc0"))
+    c.setFont(body, 8)
+    c.drawCentredString(w / 2, 7 * mm, f"{BRAND}  ·  Sample kits for studio growth")
+    # no standard footer on dark close — page number only
+    c.setFillColor(HexColor("#c9b59a"))
+    c.setFont(body, 8)
+    c.drawRightString(w - 16 * mm, 7 * mm, f"{page} / {total}")
+
+
+def unique_range_sections(showcase: dict) -> list[tuple[str, str, list[dict]]]:
+    """Deduplicate by categoryId; keep first title."""
+    seen: dict[str, tuple[str, list[dict]]] = {}
+    order: list[str] = []
+    for kit_id, block in showcase.items():
+        cat = block["categoryId"]
+        if cat in seen:
+            continue
+        seen[cat] = (block["title"], block["products"])
+        order.append(cat)
+    sections = []
+    subtitles = {
+        "silaibunai": "Same family your Silai Bunai kit sells — wall & shutter looks clients can order live.",
+        "wall-panels": "Live wall-panel looks your kit helps you present — grow panel & trim project revenue.",
+        "kitchen": "Kitchen looks powered by your PU / laminate kits — quote full kitchens from the showroom.",
+        "wardrobe": "Wardrobe shutter range your luxury kit opens — bedroom projects with stronger margins.",
+        "leather-shutters": "Leena leather shutter range — premium upgrades from the leather kit conversation.",
+        "temple": "Temple / Mandir live range — high-value projects started from your temple kit.",
+    }
+    for cat in order:
+        title, products = seen[cat]
+        sections.append((title, subtitles.get(cat, "Explore live looks from this family."), products))
+    return sections
 
 
 def main() -> None:
     products = json.loads(DATA.read_text())
+    showcase = json.loads(RANGE.read_text()) if RANGE.exists() else {}
+    sections = unique_range_sections(showcase)
     body, bold = register_fonts()
     OUT.parent.mkdir(parents=True, exist_ok=True)
 
-    # cover + overview + 1 page/kit + closing
-    total = 2 + len(products) + 1
+    # cover + pitch + overview + kits + range sections + closing
+    total = 3 + len(products) + len(sections) + 1
 
     c = canvas.Canvas(str(OUT), pagesize=A4)
-    c.setTitle("Priyabadal Homes — Sample Kit")
+    c.setTitle("Priyabadal Homes — Sample Kit Partner Book")
     c.setAuthor("Priyabadal Homes")
     c.setSubject("Sample Kit catalogue for WhatsApp partners")
 
-    cover(c, products, body, bold, 1, total)
+    page = 1
+    cover(c, products, body, bold, page, total)
     c.showPage()
-    overview(c, products, body, bold, 2, total)
+    page += 1
+    partner_pitch(c, body, bold, page, total)
+    c.showPage()
+    page += 1
+    overview(c, products, body, bold, page, total)
 
     for i, p in enumerate(products, start=1):
         c.showPage()
-        kit_page(c, p, i, len(products), body, bold, i + 2, total)
+        page += 1
+        kit_page(c, p, i, len(products), body, bold, page, total)
+
+    for title, subtitle, items in sections:
+        c.showPage()
+        page += 1
+        range_page(c, f"Explore · {title}", subtitle, items, body, bold, page, total)
 
     c.showPage()
-    closing(c, body, bold, total, total)
+    page += 1
+    closing(c, body, bold, page, total)
     c.save()
 
     size_mb = OUT.stat().st_size / (1024 * 1024)
-    print(f"Wrote {OUT} ({size_mb:.2f} MB, {total} pages, {len(products)} kits)")
+    print(f"Wrote {OUT} ({size_mb:.2f} MB, {page} pages, {len(products)} kits, {len(sections)} range pages)")
 
 
 if __name__ == "__main__":

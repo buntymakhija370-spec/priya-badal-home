@@ -1,0 +1,530 @@
+{
+  "sample-kit-silaibunai": {
+    "categoryId": "silaibunai",
+    "title": "Silai Bunai live looks",
+    "products": [
+      {
+        "id": "forest-cell-bronze-wall-silai",
+        "name": "Forest Cell Bronze Wall Silai",
+        "sku": "PBH-SILAI-01",
+        "categoryId": "silaibunai",
+        "collection": "Silai Bunai",
+        "price": 5000,
+        "pricingMode": "per-sqft",
+        "image": "/products/silaibunai/silai-1/01.jpg"
+      },
+      {
+        "id": "denim-mosaic-acoustic-wall-silai",
+        "name": "Denim Mosaic Acoustic Wall Silai",
+        "sku": "PBH-SILAI-05",
+        "categoryId": "silaibunai",
+        "collection": "Silai Bunai",
+        "price": 1700,
+        "pricingMode": "per-sqft",
+        "image": "/products/silaibunai/silai-5/01.jpg"
+      },
+      {
+        "id": "denim-quilt-topstitch-silai",
+        "name": "Denim Quilt Topstitch Silai",
+        "sku": "PBH-SILAI-10",
+        "categoryId": "silaibunai",
+        "collection": "Silai Bunai",
+        "price": 1700,
+        "pricingMode": "per-sqft",
+        "image": "/products/silaibunai/silai-10/01.jpg"
+      },
+      {
+        "id": "denim-wave-embroidery-wardrobe-silai",
+        "name": "Denim Wave Embroidery Wardrobe Silai",
+        "sku": "PBH-SILAI-14",
+        "categoryId": "silaibunai",
+        "collection": "Silai Bunai",
+        "price": 3500,
+        "pricingMode": "per-sqft",
+        "image": "/products/silaibunai/silai-14/01.jpg"
+      },
+      {
+        "id": "camel-stitch-tallboy-silai",
+        "name": "Camel Stitch Tallboy Silai",
+        "sku": "PBH-SILAI-19",
+        "categoryId": "silaibunai",
+        "collection": "Silai Bunai",
+        "price": 1300,
+        "pricingMode": "per-sqft",
+        "image": "/products/silaibunai/silai-19/01.jpg"
+      },
+      {
+        "id": "taupe-quilt-feature-wall-silai",
+        "name": "Taupe Quilt Feature Wall Silai",
+        "sku": "PBH-SILAI-24",
+        "categoryId": "silaibunai",
+        "collection": "Silai Bunai",
+        "price": 1700,
+        "pricingMode": "per-sqft",
+        "image": "/products/silaibunai/silai-24/01.jpg"
+      }
+    ]
+  },
+  "sample-kit-wall-panels-8x8": {
+    "categoryId": "wall-panels",
+    "title": "Wall panel live looks",
+    "products": [
+      {
+        "id": "powder-blue-geometric-cane-panel",
+        "name": "Powder Blue Geometric Cane Panel",
+        "sku": "PBH-WP-GEO-CANE-01",
+        "categoryId": "wall-panels",
+        "collection": "Wall Panels",
+        "price": 2200,
+        "pricingMode": "per-sqft",
+        "image": "/products/wall-panels/geometric-cane/01.png"
+      },
+      {
+        "id": "g01-capsule-grid-panel",
+        "name": "Capsule Grid Panel",
+        "sku": "PBH-WP-G01",
+        "categoryId": "wall-panels",
+        "collection": "G-Series Wall Panels",
+        "price": 600,
+        "pricingMode": "per-sqft",
+        "image": "/products/wall-panels/g-series/g01-01.jpg"
+      },
+      {
+        "id": "g05-recessed-capsule-panel",
+        "name": "Recessed Capsule Panel",
+        "sku": "PBH-WP-G05",
+        "categoryId": "wall-panels",
+        "collection": "G-Series Wall Panels",
+        "price": 600,
+        "pricingMode": "per-sqft",
+        "image": "/products/wall-panels/g-series/g05-01.jpg"
+      },
+      {
+        "id": "g09-vertical-metal-channel-panel",
+        "name": "Vertical Metal Channel Panel",
+        "sku": "PBH-WP-G09",
+        "categoryId": "wall-panels",
+        "collection": "G-Series Wall Panels",
+        "price": 800,
+        "pricingMode": "per-sqft",
+        "image": "/products/wall-panels/g-series/g09-01.jpg"
+      },
+      {
+        "id": "g13-gold-facet-geometry-panel",
+        "name": "Gold Facet Geometry Panel",
+        "sku": "PBH-WP-G13",
+        "categoryId": "wall-panels",
+        "collection": "G-Series Wall Panels",
+        "price": 700,
+        "pricingMode": "per-sqft",
+        "image": "/products/wall-panels/g-series/g13-01.jpg"
+      },
+      {
+        "id": "g17-metallic-trio-motif-panel",
+        "name": "Metallic Trio Motif Panel",
+        "sku": "PBH-WP-G17",
+        "categoryId": "wall-panels",
+        "collection": "G-Series Wall Panels",
+        "price": 800,
+        "pricingMode": "per-sqft",
+        "image": "/products/wall-panels/g-series/g17-01.jpg"
+      }
+    ]
+  },
+  "sample-kit-mouldings-50": {
+    "categoryId": "wall-panels",
+    "title": "Panel & moulding family looks",
+    "products": [
+      {
+        "id": "powder-blue-geometric-cane-panel",
+        "name": "Powder Blue Geometric Cane Panel",
+        "sku": "PBH-WP-GEO-CANE-01",
+        "categoryId": "wall-panels",
+        "collection": "Wall Panels",
+        "price": 2200,
+        "pricingMode": "per-sqft",
+        "image": "/products/wall-panels/geometric-cane/01.png"
+      },
+      {
+        "id": "g01-capsule-grid-panel",
+        "name": "Capsule Grid Panel",
+        "sku": "PBH-WP-G01",
+        "categoryId": "wall-panels",
+        "collection": "G-Series Wall Panels",
+        "price": 600,
+        "pricingMode": "per-sqft",
+        "image": "/products/wall-panels/g-series/g01-01.jpg"
+      },
+      {
+        "id": "g05-recessed-capsule-panel",
+        "name": "Recessed Capsule Panel",
+        "sku": "PBH-WP-G05",
+        "categoryId": "wall-panels",
+        "collection": "G-Series Wall Panels",
+        "price": 600,
+        "pricingMode": "per-sqft",
+        "image": "/products/wall-panels/g-series/g05-01.jpg"
+      },
+      {
+        "id": "g09-vertical-metal-channel-panel",
+        "name": "Vertical Metal Channel Panel",
+        "sku": "PBH-WP-G09",
+        "categoryId": "wall-panels",
+        "collection": "G-Series Wall Panels",
+        "price": 800,
+        "pricingMode": "per-sqft",
+        "image": "/products/wall-panels/g-series/g09-01.jpg"
+      },
+      {
+        "id": "g13-gold-facet-geometry-panel",
+        "name": "Gold Facet Geometry Panel",
+        "sku": "PBH-WP-G13",
+        "categoryId": "wall-panels",
+        "collection": "G-Series Wall Panels",
+        "price": 700,
+        "pricingMode": "per-sqft",
+        "image": "/products/wall-panels/g-series/g13-01.jpg"
+      },
+      {
+        "id": "g17-metallic-trio-motif-panel",
+        "name": "Metallic Trio Motif Panel",
+        "sku": "PBH-WP-G17",
+        "categoryId": "wall-panels",
+        "collection": "G-Series Wall Panels",
+        "price": 800,
+        "pricingMode": "per-sqft",
+        "image": "/products/wall-panels/g-series/g17-01.jpg"
+      }
+    ]
+  },
+  "sample-kit-kitchen-luxury-pu": {
+    "categoryId": "kitchen",
+    "title": "Kitchen live looks",
+    "products": [
+      {
+        "id": "taupe-reeded-shaker-kitchen",
+        "name": "Taupe Reeded Shaker Kitchen",
+        "sku": "PBH-KIT-01",
+        "categoryId": "kitchen",
+        "collection": "Kitchen",
+        "price": 1300,
+        "pricingMode": "per-sqft",
+        "image": "/products/kitchen/kitchen-1/03.png"
+      },
+      {
+        "id": "mushroom-raised-panel-kitchen",
+        "name": "Mushroom Raised Panel Kitchen",
+        "sku": "PBH-KIT-02",
+        "categoryId": "kitchen",
+        "collection": "Kitchen",
+        "price": 1300,
+        "pricingMode": "per-sqft",
+        "image": "/products/kitchen/kitchen-2/02.jpg"
+      },
+      {
+        "id": "taupe-capsule-panel-kitchen",
+        "name": "Taupe Capsule Panel Kitchen",
+        "sku": "PBH-KIT-04",
+        "categoryId": "kitchen",
+        "collection": "Kitchen",
+        "price": 1200,
+        "pricingMode": "per-sqft",
+        "image": "/products/kitchen/kitchen-4/02.png"
+      },
+      {
+        "id": "light-grey-lattice-kitchen",
+        "name": "Light Grey Lattice Kitchen",
+        "sku": "PBH-KIT-06",
+        "categoryId": "kitchen",
+        "collection": "Kitchen",
+        "price": 1200,
+        "pricingMode": "per-sqft",
+        "image": "/products/kitchen/kitchen-6/01.png"
+      },
+      {
+        "id": "taupe-notch-frame-kitchen",
+        "name": "Taupe Notch Frame Kitchen",
+        "sku": "PBH-KIT-08",
+        "categoryId": "kitchen",
+        "collection": "Kitchen",
+        "price": 1200,
+        "pricingMode": "per-sqft",
+        "image": "/products/kitchen/kitchen-8/01.png"
+      },
+      {
+        "id": "arch-pull-taupe-kitchen",
+        "name": "Arch-Pull Taupe Kitchen",
+        "sku": "PBH-KIT-10",
+        "categoryId": "kitchen",
+        "collection": "Kitchen",
+        "price": 1500,
+        "pricingMode": "per-sqft",
+        "image": "/products/kitchen/kitchen-10/01.png"
+      }
+    ]
+  },
+  "sample-kit-kitchen-laminate-asa": {
+    "categoryId": "kitchen",
+    "title": "Kitchen live looks",
+    "products": [
+      {
+        "id": "taupe-reeded-shaker-kitchen",
+        "name": "Taupe Reeded Shaker Kitchen",
+        "sku": "PBH-KIT-01",
+        "categoryId": "kitchen",
+        "collection": "Kitchen",
+        "price": 1300,
+        "pricingMode": "per-sqft",
+        "image": "/products/kitchen/kitchen-1/03.png"
+      },
+      {
+        "id": "mushroom-raised-panel-kitchen",
+        "name": "Mushroom Raised Panel Kitchen",
+        "sku": "PBH-KIT-02",
+        "categoryId": "kitchen",
+        "collection": "Kitchen",
+        "price": 1300,
+        "pricingMode": "per-sqft",
+        "image": "/products/kitchen/kitchen-2/02.jpg"
+      },
+      {
+        "id": "taupe-capsule-panel-kitchen",
+        "name": "Taupe Capsule Panel Kitchen",
+        "sku": "PBH-KIT-04",
+        "categoryId": "kitchen",
+        "collection": "Kitchen",
+        "price": 1200,
+        "pricingMode": "per-sqft",
+        "image": "/products/kitchen/kitchen-4/02.png"
+      },
+      {
+        "id": "light-grey-lattice-kitchen",
+        "name": "Light Grey Lattice Kitchen",
+        "sku": "PBH-KIT-06",
+        "categoryId": "kitchen",
+        "collection": "Kitchen",
+        "price": 1200,
+        "pricingMode": "per-sqft",
+        "image": "/products/kitchen/kitchen-6/01.png"
+      },
+      {
+        "id": "taupe-notch-frame-kitchen",
+        "name": "Taupe Notch Frame Kitchen",
+        "sku": "PBH-KIT-08",
+        "categoryId": "kitchen",
+        "collection": "Kitchen",
+        "price": 1200,
+        "pricingMode": "per-sqft",
+        "image": "/products/kitchen/kitchen-8/01.png"
+      },
+      {
+        "id": "arch-pull-taupe-kitchen",
+        "name": "Arch-Pull Taupe Kitchen",
+        "sku": "PBH-KIT-10",
+        "categoryId": "kitchen",
+        "collection": "Kitchen",
+        "price": 1500,
+        "pricingMode": "per-sqft",
+        "image": "/products/kitchen/kitchen-10/01.png"
+      }
+    ]
+  },
+  "sample-kit-wardrobe-luxury-pu": {
+    "categoryId": "wardrobe",
+    "title": "Wardrobe shutter live looks",
+    "products": [
+      {
+        "id": "sand-arch-two-tone-wardrobe",
+        "name": "Sand Arch Two-Tone Wardrobe",
+        "sku": "PBH-WR-01",
+        "categoryId": "wardrobe",
+        "collection": "Wardrobe",
+        "price": 2200,
+        "pricingMode": "per-sqft",
+        "image": "/products/wardrobe/wardrobe-1/01.jpg"
+      },
+      {
+        "id": "sand-sunburst-brick-wardrobe",
+        "name": "Sand Sunburst Brick Wardrobe",
+        "sku": "PBH-WR-07",
+        "categoryId": "wardrobe",
+        "collection": "Wardrobe",
+        "price": 2500,
+        "pricingMode": "per-sqft",
+        "image": "/products/wardrobe/wardrobe-7/01.jpg"
+      },
+      {
+        "id": "white-marble-branch-wardrobe",
+        "name": "White Marble Branch-Handle Wardrobe",
+        "sku": "PBH-WR-14",
+        "categoryId": "wardrobe",
+        "collection": "Wardrobe",
+        "price": 1100,
+        "pricingMode": "per-sqft",
+        "image": "/products/wardrobe/wardrobe-14/01.jpg"
+      },
+      {
+        "id": "cream-neoclassical-wardrobe",
+        "name": "Cream Neoclassical Wardrobe",
+        "sku": "PBH-WR-22",
+        "categoryId": "wardrobe",
+        "collection": "Wardrobe",
+        "price": 2800,
+        "pricingMode": "per-sqft",
+        "image": "/products/wardrobe/wardrobe-22/01.jpg"
+      },
+      {
+        "id": "classic-walnut-cream-fluted-arch-wardrobe",
+        "name": "Walnut Cream Fluted Arch Wardrobe",
+        "sku": "PBH-WR-33",
+        "categoryId": "wardrobe",
+        "collection": "Wardrobe Classic",
+        "price": 2200,
+        "pricingMode": "per-sqft",
+        "image": "/products/wardrobe/wardrobe-33/01.jpg"
+      },
+      {
+        "id": "greige-arch-capsule-wardrobe",
+        "name": "Greige Arch Capsule Wardrobe",
+        "sku": "PBH-WR-40",
+        "categoryId": "wardrobe",
+        "collection": "Wardrobe Shutters",
+        "price": 1800,
+        "pricingMode": "per-sqft",
+        "image": "/products/wardrobe/wardrobe-40/01.jpg"
+      }
+    ]
+  },
+  "sample-kit-leather-wardrobe": {
+    "categoryId": "leather-shutters",
+    "title": "Leena leather shutter live looks",
+    "products": [
+      {
+        "id": "leena-linear-leather-shutters",
+        "name": "Linear Leather Shutters",
+        "sku": "PBH-SILAI-16",
+        "categoryId": "leather-shutters",
+        "collection": "Leather Shutters",
+        "price": 3000,
+        "pricingMode": "per-sqft",
+        "image": "/products/silaibunai/silai-16/01.jpg"
+      },
+      {
+        "id": "leena-urban-leather-shutters",
+        "name": "Urban Leather Shutters",
+        "sku": "PBH-SILAI-20",
+        "categoryId": "leather-shutters",
+        "collection": "Leather Shutters",
+        "price": 3000,
+        "pricingMode": "per-sqft",
+        "image": "/products/silaibunai/silai-20/01.jpg"
+      },
+      {
+        "id": "leena-modu-leather-shutter",
+        "name": "Modu Leather Shutter",
+        "sku": "PBH-SILAI-23",
+        "categoryId": "leather-shutters",
+        "collection": "Leather Shutters",
+        "price": 3000,
+        "pricingMode": "per-sqft",
+        "image": "/products/silaibunai/silai-23/05.jpg"
+      },
+      {
+        "id": "leena-nawabee-leather-shutters",
+        "name": "Nawabee Leather Shutters",
+        "sku": "PBH-SILAI-27",
+        "categoryId": "leather-shutters",
+        "collection": "Leather Shutters",
+        "price": 8000,
+        "pricingMode": "per-sqft",
+        "image": "/products/silaibunai/silai-27/01.jpg"
+      },
+      {
+        "id": "leena-zardosi-leather-shutters",
+        "name": "Zardosi Leather Shutters",
+        "sku": "PBH-SILAI-28",
+        "categoryId": "leather-shutters",
+        "collection": "Leather Shutters",
+        "price": 7000,
+        "pricingMode": "per-sqft",
+        "image": "/products/silaibunai/silai-28/01.jpg"
+      },
+      {
+        "id": "wave-leather-shutters-leena",
+        "name": "Wave Leather Shutters",
+        "sku": "PBH-SILAI-29",
+        "categoryId": "leather-shutters",
+        "collection": "Leather Shutters",
+        "price": 3500,
+        "pricingMode": "per-sqft",
+        "image": "/products/silaibunai/silai-29/01.jpg"
+      }
+    ]
+  },
+  "sample-kit-temple": {
+    "categoryId": "temple",
+    "title": "Temple / Mandir live looks",
+    "products": [
+      {
+        "id": "pink-lotus-arched-mandir",
+        "name": "Pink Lotus Arched Mandir",
+        "sku": "PBH-TMP-01",
+        "categoryId": "temple",
+        "collection": "Temple",
+        "price": 2600,
+        "pricingMode": "per-sqft",
+        "image": "/products/temple/temple-01-02.jpg"
+      },
+      {
+        "id": "bird-vine-jali-temple-doors",
+        "name": "Bird & Vine Jali Temple Doors",
+        "sku": "PBH-TMP-03",
+        "categoryId": "temple",
+        "collection": "Temple",
+        "price": 5000,
+        "pricingMode": "per-sqft",
+        "image": "/products/temple/temple-03-01.jpg"
+      },
+      {
+        "id": "arch-lattice-marble-mandir",
+        "name": "Arch Lattice Marble Mandir",
+        "sku": "PBH-TMP-07",
+        "categoryId": "temple",
+        "collection": "Temple",
+        "price": 3000,
+        "pricingMode": "per-sqft",
+        "image": "/products/temple/temple-07-01.png"
+      },
+      {
+        "id": "pixel-jali-bifold-mandir",
+        "name": "Pixel Jali Bifold Mandir",
+        "sku": "PBH-TMP-10",
+        "categoryId": "temple",
+        "collection": "Temple",
+        "price": 1500,
+        "pricingMode": "per-sqft",
+        "image": "/products/temple/temple-10-01.jpg"
+      },
+      {
+        "id": "tree-relief-arch-jali-mandir",
+        "name": "Tree Relief Arch Jali Mandir",
+        "sku": "PBH-TMP-12",
+        "categoryId": "temple",
+        "collection": "Temple",
+        "price": 2500,
+        "pricingMode": "per-sqft",
+        "image": "/products/temple/temple-12-02.jpg"
+      },
+      {
+        "id": "bevel-panel-prayer-wall",
+        "name": "Bevel Panel Prayer Wall",
+        "sku": "PBH-TMP-W02",
+        "categoryId": "temple",
+        "collection": "Temple Wall",
+        "price": 1500,
+        "pricingMode": "per-sqft",
+        "image": "/products/temple/temple-wall/2/01.jpg"
+      }
+    ]
+  }
+}

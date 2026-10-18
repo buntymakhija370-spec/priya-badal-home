@@ -1,5 +1,5 @@
 /* Priyabadal Homes — lightweight app shell cache for install / offline open */
-const CACHE = 'pbh-shell-v2'
+const CACHE = 'pbh-shell-v3'
 const SHELL = [
   '/',
   '/index.html',
@@ -31,7 +31,16 @@ self.addEventListener('fetch', (event) => {
   const url = new URL(request.url)
   if (url.origin !== self.location.origin) return
 
-  // Network-first for navigations so event demos always get latest UI
+  // Never cache product / media assets — they are updated in place and must stay fresh.
+  if (
+    url.pathname.startsWith('/products/') ||
+    url.pathname.startsWith('/assets/') ||
+    url.pathname.startsWith('/brand/')
+  ) {
+    return
+  }
+
+  // Network-first for navigations so demos always get latest UI
   if (request.mode === 'navigate') {
     event.respondWith(
       fetch(request)

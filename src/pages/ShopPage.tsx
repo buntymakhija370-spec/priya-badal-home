@@ -143,7 +143,7 @@ export function ShopPage() {
           <div className="shop__pdf-actions">
             <a
               className="shop__pdf-btn"
-              href="/catalogs/priyabadal-sample-kits.pdf"
+              href="/catalogs/priyabadal-sample-kits-partner-v3.pdf"
               target="_blank"
               rel="noopener noreferrer"
             >
@@ -152,7 +152,7 @@ export function ShopPage() {
             <a
               className="shop__pdf-btn shop__pdf-btn--wa"
               href={`https://wa.me/?text=${encodeURIComponent(
-                'Priyabadal Homes — Sample Kit catalogue for partners\nhttps://www.priyabadalhomes.com/catalogs/priyabadal-sample-kits.pdf',
+                'Priyabadal Homes — Sample Kit Partner Book\nhttps://www.priyabadalhomes.com/catalogs/priyabadal-sample-kits-partner-v3.pdf',
               )}`}
               target="_blank"
               rel="noopener noreferrer"

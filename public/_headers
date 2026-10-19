@@ -8,3 +8,6 @@
 
 /products/*
   Cache-Control: public, max-age=3600, must-revalidate
+
+/catalogs/*
+  Cache-Control: public, max-age=300, must-revalidate

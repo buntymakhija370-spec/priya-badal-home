@@ -32,8 +32,8 @@ CARD = HexColor("#ffffff")
 WARM = HexColor("#f8f1e8")
 CREAM = HexColor("#e4c9a8")
 
-WHATSAPP = "+91 81099 49649"
-WA_LINK = "https://wa.me/918109949649"
+WHATSAPP = "+91 81095 55863"
+WA_LINK = "https://wa.me/918109555863"
 SITE = "www.priyabadalhomes.com"
 BRAND = "Priyabadal Homes"
 
@@ -254,13 +254,15 @@ def cover(c: canvas.Canvas, products: list[dict], body: str, bold: str, page: in
 
     # growth strip
     c.setFillColor(HexColor("#1c2a22"))
-    c.roundRect(18 * mm, 28 * mm, w - 36 * mm, 22 * mm, 4, fill=1, stroke=0)
+    c.roundRect(18 * mm, 22 * mm, w - 36 * mm, 30 * mm, 4, fill=1, stroke=0)
     c.setFillColor(CREAM)
     c.setFont(bold, 9)
-    c.drawString(24 * mm, 42 * mm, "Kit investment  →  Showroom sales  →  Project revenue")
+    c.drawString(24 * mm, 45 * mm, "Kit investment  →  Showroom sales  →  Project revenue")
     c.setFillColor(HexColor("#c9d6cd"))
     c.setFont(body, 8.5)
-    c.drawString(24 * mm, 33 * mm, f"WhatsApp {WHATSAPP}  ·  {WA_LINK}  ·  {len(products)} kits")
+    c.drawString(24 * mm, 35 * mm, f"WhatsApp {WHATSAPP}  ·  {len(products)} kits")
+    c.setFont(body, 8)
+    c.drawString(24 * mm, 26 * mm, WA_LINK)
     footer(c, page, total, body)
 
 
@@ -364,16 +366,24 @@ def overview(c: canvas.Canvas, products: list[dict], body: str, bold: str, page:
         c.setFillColor(INK)
         c.setFont(bold, 8.5)
         name = p["name"]
-        if c.stringWidth(name, bold, 8.5) > 88 * mm:
-            while c.stringWidth(name + "…", bold, 8.5) > 88 * mm and len(name) > 8:
+        name_max = 90 * mm
+        if c.stringWidth(name, bold, 8.5) > name_max:
+            while c.stringWidth(name + "…", bold, 8.5) > name_max and len(name) > 8:
                 name = name[:-1]
             name = name.rstrip() + "…"
         c.drawString(17 * mm, y - 2 * mm, name)
         c.setFont(body, 8.5)
         c.setFillColor(HONEY)
-        c.drawString(108 * mm, y - 2 * mm, format_inr(p["price"]))
+        c.drawString(110 * mm, y - 2 * mm, format_inr(p["price"]))
         c.setFillColor(MOSS)
-        c.drawRightString(w - 17 * mm, y - 2 * mm, p.get("liveFrom") or "—")
+        live = p.get("liveFrom") or "—"
+        # Keep live column short so it never collides with kit MRP
+        live_max = 52 * mm
+        if c.stringWidth(live, body, 8.5) > live_max:
+            while c.stringWidth(live + "…", body, 8.5) > live_max and len(live) > 6:
+                live = live[:-1]
+            live = live.rstrip() + "…"
+        c.drawRightString(w - 17 * mm, y - 2 * mm, live)
         y -= row_h
 
     y -= 4 * mm
@@ -417,7 +427,7 @@ def kit_page(
     c.line(16 * mm, h - 19 * mm, w - 16 * mm, h - 19 * mm)
 
     photo_top = h - 24 * mm
-    photo_h = 108 * mm
+    photo_h = 100 * mm
     photo_w = w - 32 * mm
     img = load_image(p["image"], 1000, 1200)
     if img:
@@ -435,33 +445,40 @@ def kit_page(
 
     x = 22 * mm
     tw = w - 44 * mm
-    y = card_top - 9 * mm
+    y = card_top - 10 * mm
+    # Reserve strip for WhatsApp CTA so facts never collide with it
+    content_floor = card_bottom + 14 * mm
 
     c.setFillColor(MOSS)
     c.setFont(body, 8)
     c.drawString(x, y, (p.get("sku") or "") + "  ·  Showroom display kit")
 
-    y -= 11
+    y -= 14
     c.setFillColor(INK)
-    y = draw_wrapped(c, p["name"], x, y, tw, bold, 12.5, 15, INK, max_lines=2)
+    y = draw_wrapped(c, p["name"], x, y, tw, bold, 12, 15, INK, max_lines=2)
 
-    y -= 11
+    # Clear gap below title baseline before price (avoids title/price overlap)
+    y -= 18
     c.setFillColor(HONEY)
-    c.setFont(bold, 15)
-    c.drawString(x, y, format_inr(p["price"]))
+    c.setFont(bold, 14)
+    price_txt = format_inr(p["price"])
+    c.drawString(x, y, price_txt)
     c.setFillColor(INK_SOFT)
     c.setFont(body, 8.5)
-    c.drawString(x + c.stringWidth(format_inr(p["price"]), bold, 15) + 5, y + 1, "kit investment")
+    c.drawString(x + c.stringWidth(price_txt, bold, 14) + 5, y + 1, "kit investment")
 
     if p.get("liveFrom"):
-        y -= 11
+        y -= 14
         c.setFillColor(MOSS)
-        c.setFont(bold, 9.5)
-        c.drawString(x, y, f"Live product from  {p['liveFrom']}  ·  partner project orders")
+        c.setFont(bold, 9)
+        live_line = f"Live product from  {p['liveFrom']}"
+        if c.stringWidth(live_line, bold, 9) > tw:
+            live_line = f"Live from  {p['liveFrom']}"
+        c.drawString(x, y, live_line)
 
     caption = KIT_CAPTIONS.get(p["id"]) or (p.get("description") or "")
-    y -= 11
-    y = draw_wrapped(c, caption, x, y, tw, body, 8.5, 11.5, INK_SOFT, max_lines=3)
+    y -= 14
+    y = draw_wrapped(c, caption, x, y, tw, body, 8.5, 11.5, INK_SOFT, max_lines=2)
 
     facts = []
     if p.get("samples"):
@@ -481,15 +498,15 @@ def kit_page(
     if p.get("optional"):
         facts.append(("Optional", p["optional"]))
 
-    y -= 9
-    for label, value in facts[:5]:
-        if y < card_bottom + 16 * mm:
+    y -= 12
+    for label, value in facts[:4]:
+        if y < content_floor + 4 * mm:
             break
         c.setFillColor(HONEY)
         c.setFont(bold, 8)
         c.drawString(x, y, label)
         y = draw_wrapped(c, value, x + 26 * mm, y, tw - 26 * mm, body, 8.5, 11, INK, max_lines=2)
-        y -= 9
+        y -= 11
 
     c.setFillColor(INK)
     c.setFont(bold, 8.5)
@@ -587,10 +604,10 @@ def closing(c: canvas.Canvas, body: str, bold: str, page: int, total: int) -> No
         ("02", "Display & pitch", "Use boards in meetings — clients decide faster with real samples."),
         ("03", "Book live work", "WhatsApp the kit SKU + project — we support production & dispatch."),
     ]
-    y = h - 108 * mm
+    y = h - 105 * mm
     for num, title, text in steps:
         c.setFillColor(HexColor("#1c2a22"))
-        c.roundRect(22 * mm, y - 22 * mm, w - 44 * mm, 26 * mm, 4, fill=1, stroke=0)
+        c.roundRect(22 * mm, y - 24 * mm, w - 44 * mm, 28 * mm, 4, fill=1, stroke=0)
         c.setFillColor(CREAM)
         c.setFont(bold, 12)
         c.drawString(28 * mm, y - 8 * mm, num)
@@ -599,29 +616,30 @@ def closing(c: canvas.Canvas, body: str, bold: str, page: int, total: int) -> No
         c.drawString(42 * mm, y - 8 * mm, title)
         c.setFillColor(HexColor("#c9d6cd"))
         c.setFont(body, 8.5)
-        draw_wrapped(c, text, 42 * mm, y - 16 * mm, w - 72 * mm, body, 8.5, 11, HexColor("#c9d6cd"), 2)
-        y -= 32 * mm
+        draw_wrapped(c, text, 42 * mm, y - 17 * mm, w - 72 * mm, body, 8.5, 11, HexColor("#c9d6cd"), 1)
+        y -= 34 * mm
 
-    # CTA panel
+    # CTA panel — generous line spacing so headline / number / link never overlap
     c.setFillColor(HexColor("#5c3a20"))
-    c.roundRect(22 * mm, 36 * mm, w - 44 * mm, 42 * mm, 5, fill=1, stroke=0)
+    c.roundRect(22 * mm, 24 * mm, w - 44 * mm, 58 * mm, 5, fill=1, stroke=0)
     c.setFillColor(white)
-    c.setFont(bold, 13)
-    c.drawCentredString(w / 2, 66 * mm, "WhatsApp to become a partner")
-    c.setFont(bold, 16)
+    c.setFont(bold, 12)
+    c.drawCentredString(w / 2, 70 * mm, "WhatsApp to become a partner")
+    c.setFont(bold, 18)
     c.setFillColor(CREAM)
     c.drawCentredString(w / 2, 54 * mm, WHATSAPP)
     c.setFillColor(HexColor("#f0dcc0"))
-    c.setFont(body, 9)
-    c.drawCentredString(w / 2, 44 * mm, f"{WA_LINK}  ·  {SITE}/shop/sample-kits")
+    c.setFont(body, 8.5)
+    c.drawCentredString(w / 2, 40 * mm, WA_LINK)
+    c.setFont(body, 8)
+    c.drawCentredString(w / 2, 30 * mm, f"{SITE}/shop/sample-kits")
 
     c.setFillColor(HexColor("#f0dcc0"))
     c.setFont(body, 8)
-    c.drawCentredString(w / 2, 7 * mm, f"{BRAND}  ·  Sample kits for studio growth")
-    # no standard footer on dark close — page number only
+    c.drawCentredString(w / 2, 10 * mm, f"{BRAND}  ·  Sample kits for studio growth")
     c.setFillColor(HexColor("#c9b59a"))
     c.setFont(body, 8)
-    c.drawRightString(w - 16 * mm, 7 * mm, f"{page} / {total}")
+    c.drawRightString(w - 16 * mm, 10 * mm, f"{page} / {total}")
 
 
 def unique_range_sections(showcase: dict) -> list[tuple[str, str, list[dict]]]:

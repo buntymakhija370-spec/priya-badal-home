@@ -17,7 +17,9 @@ from reportlab.pdfbase.ttfonts import TTFont
 from reportlab.pdfgen import canvas
 
 ROOT = Path(__file__).resolve().parents[1]
-OUT = ROOT / "public" / "catalogs" / "priyabadal-sample-kits.pdf"
+OUT = ROOT / "public" / "catalogs" / "priyabadal-sample-kits-partner-v3.pdf"
+# Keep legacy filename in sync so old WhatsApp links still get fresh content
+OUT_LEGACY = ROOT / "public" / "catalogs" / "priyabadal-sample-kits.pdf"
 DATA = ROOT / "scripts" / "sample-kit-products.json"
 RANGE = ROOT / "scripts" / "sample-kit-range-showcase.json"
 PUBLIC = ROOT / "public"
@@ -37,39 +39,39 @@ WA_LINK = "https://wa.me/918109555863"
 SITE = "www.priyabadalhomes.com"
 BRAND = "Priyabadal Homes"
 
-# Partner captions per kit (growth-focused, short)
+# Partner captions — clear growth script for general partners
 KIT_CAPTIONS = {
     "sample-kit-silaibunai": (
-        "Show Silai Bunai texture & stitch boards in your studio — clients choose "
-        "faster, you book more wall & shutter work at healthy partner margins."
+        "Explore Silai Bunai in your studio with real boards. No need to keep full "
+        "stock — invest in this kit and earn better margin on every wall & shutter order."
     ),
     "sample-kit-wall-panels-8x8": (
-        "A compact wall-panel library for your showroom. Sell design confidence "
-        "without stocking full panels — convert site visits into project orders."
+        "Show 25 wall-panel looks in one kit. Clients pick faster in your showroom, "
+        "you book more panel projects — without holding finished panels in stock."
     ),
     "sample-kit-mouldings-50": (
-        "Fifty moulding looks in one box for architects and retailers. Clients "
-        "touch the profile, you close the frame & trim order with better margin."
+        "50 moulding samples in a box for architects and retailers. Touch-and-choose "
+        "in meetings, then convert into frame & trim orders with strong partner profit."
     ),
     "sample-kit-kitchen-luxury-pu": (
-        "Luxury PU kitchen samples with rack — handle-less, 3D and moulding options "
-        "ready for turnkey pitches. Invest in the kit, not a full kitchen stock."
+        "Luxury PU kitchen kit with rack — handle-less, 3D and moulding options. "
+        "Invest in the kit only; grow kitchen revenue for turnkey and studio partners."
     ),
     "sample-kit-kitchen-laminate-asa": (
-        "Laminate & ASA kitchen kit for everyday luxury quotes. Ideal for OEM and "
-        "studio partners who want volume kitchen revenue without inventory risk."
+        "Laminate + ASA kitchen kit for high-volume quotes. Perfect for OEMs and "
+        "showrooms — more kitchen sales, no inventory of full kitchens."
     ),
     "sample-kit-wardrobe-luxury-pu": (
-        "Large wardrobe shutter samples that sell the façade look. Grow bedroom "
-        "project value from your showroom with kit-led presentations."
+        "Big wardrobe shutter samples that sell the façade look. Use this kit in your "
+        "studio to grow bedroom project value and protect your margin."
     ),
     "sample-kit-leather-wardrobe": (
-        "Leena leather shutter kit for premium wardrobe conversations. One kit "
-        "upgrade lets your studio quote high-margin leather façades with certainty."
+        "Leena leather shutter kit for premium wardrobe talks. One kit investment "
+        "helps your showroom quote high-value leather façades with confidence."
     ),
     "sample-kit-temple": (
-        "Temple / Mandir sample kit for a high-emotion, high-value category. "
-        "Display the look once — turn devotion projects into steady studio revenue."
+        "Temple / Mandir kit for a high-value category. Display once in your studio, "
+        "then convert devotion projects into steady partner revenue."
     ),
 }
 
@@ -229,9 +231,9 @@ def cover(c: canvas.Canvas, products: list[dict], body: str, bold: str, page: in
     c.drawString(18 * mm, h - 50 * mm, "Sample Kit Partner Book")
 
     blurb = (
-        "Explore our product families without carrying full stock. "
-        "Invest in Sample Kits for your studio or showroom — present finishes "
-        "with confidence, book more projects, and grow with healthier profit margins."
+        "For general partners: explore our full product range without keeping full stock. "
+        "Just invest in Sample Kits for your studio or showroom — show finishes, "
+        "book more projects, and grow with a better profit margin."
     )
     draw_wrapped(c, blurb, 18 * mm, h - 64 * mm, w - 36 * mm, body, 10.5, 15, HexColor("#c9d6cd"), 4)
 
@@ -292,23 +294,23 @@ def partner_pitch(c: canvas.Canvas, body: str, bold: str, page: int, total: int)
     cards = [
         (
             "No full stock needed",
-            "You do not need to carry finished products. One kit gives your studio "
-            "a real tactile library clients can see, touch, and choose from.",
+            "You do not need to keep finished goods. One Sample Kit gives your studio "
+            "real boards clients can see, touch, and choose from.",
         ),
         (
-            "Invest in kits, earn on projects",
-            "Your investment is the Sample Kit. Revenue comes when you convert "
-            "showroom conversations into live kitchen, wardrobe, panel, and temple orders.",
+            "Invest in kits, make more revenue",
+            "Your only investment is the kit. When a client selects a look, you place "
+            "the live project order — kitchen, wardrobe, panel, Silai, or temple.",
         ),
         (
-            "Stronger partner margins",
-            "Present premium looks early, quote with confidence, and protect your "
-            "margin — architects, retailers, OEMs, and turnkey teams all win.",
+            "Better profit margin",
+            "Present premium looks early and quote with confidence. Retailers, "
+            "architects, OEMs, and turnkey partners grow margin without warehouse risk.",
         ),
         (
-            "Studio & showroom ready",
-            "Use kits in client meetings, site visits, and display walls. Same "
-            "finishes power our live product range — showcase more, sell more.",
+            "Studio & showroom growth",
+            "Use kits in meetings and display walls. Same finishes power our live "
+            "product range on the next pages — explore more, sell more.",
         ),
     ]
 
@@ -377,13 +379,17 @@ def overview(c: canvas.Canvas, products: list[dict], body: str, bold: str, page:
         c.drawString(110 * mm, y - 2 * mm, format_inr(p["price"]))
         c.setFillColor(MOSS)
         live = p.get("liveFrom") or "—"
-        # Keep live column short so it never collides with kit MRP
-        live_max = 52 * mm
-        if c.stringWidth(live, body, 8.5) > live_max:
-            while c.stringWidth(live + "…", body, 8.5) > live_max and len(live) > 6:
-                live = live[:-1]
-            live = live.rstrip() + "…"
-        c.drawRightString(w - 17 * mm, y - 2 * mm, live)
+        # Short display labels for the menu table (full text stays on kit pages)
+        short_live = {
+            "₹300 per piece · 8 ft length": "₹300 / pc · 8 ft",
+            "₹600 / sq ft": "₹600 / sq ft",
+        }.get(live, live)
+        live_max = 48 * mm
+        if c.stringWidth(short_live, body, 8.5) > live_max:
+            while c.stringWidth(short_live + "…", body, 8.5) > live_max and len(short_live) > 6:
+                short_live = short_live[:-1]
+            short_live = short_live.rstrip() + "…"
+        c.drawRightString(w - 17 * mm, y - 2 * mm, short_live)
         y -= row_h
 
     y -= 4 * mm
@@ -394,9 +400,9 @@ def overview(c: canvas.Canvas, products: list[dict], body: str, bold: str, page:
     c.setFont(bold, 10)
     c.drawString(20 * mm, y - 12 * mm, "Partner tip")
     tip = (
-        "Start with 1–2 kits that match your studio traffic (kitchen / wardrobe / panels). "
-        "Use them to explore our full product range with clients — then place live project "
-        f"orders on WhatsApp {WHATSAPP}. No need to hold finished stock."
+        "Start with 1–2 kits for your studio (kitchen / wardrobe / panels). "
+        "Explore our product range with clients from the kit — then book live project "
+        f"orders on WhatsApp {WHATSAPP}. No full stock required."
     )
     draw_wrapped(c, tip, 20 * mm, y - 22 * mm, w - 40 * mm, body, 9, 12.5, INK_SOFT, 5)
     footer(c, page, total, body)
@@ -593,9 +599,9 @@ def closing(c: canvas.Canvas, body: str, bold: str, page: int, total: int) -> No
     c.drawCentredString(w / 2, h - 56 * mm, "Scale with projects.")
 
     pitch = (
-        "Explore Priyabadal Homes products through Sample Kits — then convert "
-        "studio and showroom interest into live orders. Better margins. "
-        "No need to hold full stock."
+        "Explore Priyabadal Homes products with Sample Kits. Convert studio and "
+        "showroom interest into live orders. Better profit margin — "
+        "you do not need to keep full stock."
     )
     draw_wrapped(c, pitch, 24 * mm, h - 72 * mm, w - 48 * mm, body, 10.5, 15, HexColor("#c9d6cd"), 4)
 
@@ -705,9 +711,14 @@ def main() -> None:
     page += 1
     closing(c, body, bold, page, total)
     c.save()
+    # Mirror to legacy path so older WhatsApp links also get the new file bytes
+    OUT_LEGACY.write_bytes(OUT.read_bytes())
 
     size_mb = OUT.stat().st_size / (1024 * 1024)
-    print(f"Wrote {OUT} ({size_mb:.2f} MB, {page} pages, {len(products)} kits, {len(sections)} range pages)")
+    print(
+        f"Wrote {OUT} (+ legacy {OUT_LEGACY.name}) "
+        f"({size_mb:.2f} MB, {page} pages, {len(products)} kits, {len(sections)} range pages)"
+    )
 
 
 if __name__ == "__main__":

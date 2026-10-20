@@ -1,5 +1,6 @@
 /* Shared home section rhythm (no nav-offset — that belongs on inner pages only) */
 .home-cats,
+.home-kitchmock,
 .home-leena,
 .home-trust,
 .home-impact,
@@ -715,6 +716,127 @@
 }
 
 
+.home-kitchmock {
+  padding:
+    clamp(1.35rem, 3.5vw, 2rem)
+    var(--home-inline)
+    clamp(1.25rem, 3vw, 1.75rem);
+  background: #eef2f5;
+  border-top: 1px solid rgba(18, 22, 26, 0.08);
+}
+
+.home-kitchmock__frame {
+  width: min(72rem, 100%);
+  margin: 0 auto;
+}
+
+.home-kitchmock__eyebrow {
+  margin: 0 0 0.65rem;
+  font-size: 0.72rem;
+  font-weight: 600;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: #8a4f2c;
+}
+
+.home-kitchmock__link {
+  position: relative;
+  display: grid;
+  min-height: min(30svh, 14.5rem);
+  color: #f3f5f7;
+  text-decoration: none;
+  overflow: hidden;
+  border: 1px solid rgba(14, 18, 22, 0.2);
+}
+
+.home-kitchmock__media {
+  position: absolute;
+  inset: 0;
+}
+
+.home-kitchmock__media img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  object-position: center 45%;
+  transform: scale(1.03);
+  animation: km-home-drift 16s var(--ease-out) both;
+}
+
+.home-kitchmock__wash {
+  position: absolute;
+  inset: 0;
+  background:
+    linear-gradient(
+      105deg,
+      rgba(14, 18, 22, 0.9) 0%,
+      rgba(14, 18, 22, 0.55) 50%,
+      rgba(14, 18, 22, 0.3) 100%
+    ),
+    radial-gradient(ellipse 60% 50% at 85% 20%, rgba(176, 106, 60, 0.35), transparent 60%);
+}
+
+.home-kitchmock__copy {
+  position: relative;
+  z-index: 1;
+  align-self: end;
+  width: min(36rem, 100%);
+  padding: 1rem 1.15rem 1.15rem;
+}
+
+.home-kitchmock__brand {
+  margin: 0 0 0.2rem;
+  font-size: clamp(1.75rem, 4.2vw, 2.35rem);
+  font-weight: 700;
+  letter-spacing: -0.03em;
+  line-height: 0.95;
+}
+
+.home-kitchmock__title {
+  margin: 0 0 0.4rem;
+  font-size: clamp(0.9rem, 1.8vw, 1.05rem);
+  font-weight: 500;
+  color: #e4b48a;
+}
+
+.home-kitchmock__lede {
+  margin: 0 0 0.75rem;
+  max-width: 44ch;
+  font-size: 0.88rem;
+  font-weight: 300;
+  line-height: 1.45;
+  opacity: 0.92;
+}
+
+.home-kitchmock__cta {
+  display: inline-flex;
+  align-items: center;
+  padding: 0.42rem 0.85rem;
+  border: 1px solid rgba(228, 180, 138, 0.55);
+  background: rgba(176, 106, 60, 0.22);
+  color: #f3f5f7;
+  font-size: 0.8rem;
+  letter-spacing: 0.02em;
+  transition: background 0.25s var(--ease-out), border-color 0.25s var(--ease-out);
+}
+
+.home-kitchmock__link:hover .home-kitchmock__cta,
+.home-kitchmock__link:focus-visible .home-kitchmock__cta {
+  background: rgba(176, 106, 60, 0.4);
+  border-color: rgba(228, 180, 138, 0.95);
+}
+
+.home-kitchmock__link:hover .home-kitchmock__media img,
+.home-kitchmock__link:focus-visible .home-kitchmock__media img {
+  transform: scale(1.06);
+  transition: transform 1.1s var(--ease-out);
+}
+
+@keyframes km-home-drift {
+  from { transform: scale(1.07); }
+  to { transform: scale(1.03); }
+}
+
 .home-leena {
   padding:
     clamp(1.35rem, 3.5vw, 2rem)
@@ -846,6 +968,23 @@
 }
 
 @media (max-width: 640px) {
+  .home-kitchmock {
+    padding: 1.15rem 1rem 1.2rem;
+  }
+
+  .home-kitchmock__link {
+    min-height: min(28svh, 13rem);
+  }
+
+  .home-kitchmock__brand {
+    font-size: clamp(1.55rem, 8vw, 1.95rem);
+  }
+
+  .home-kitchmock__lede {
+    font-size: 0.8rem;
+    max-width: 34ch;
+  }
+
   .home-leena {
     padding: 1.15rem 1rem 1.35rem;
   }

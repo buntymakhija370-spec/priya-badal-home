@@ -50,7 +50,7 @@ export function ProductCard({ product }: Props) {
   const customizable = isProductCustomizable(product)
   const [added, setAdded] = useState(false)
 
-  const isKitchen = product.categoryId === 'kitchen'
+  const isKitchen = product.categoryId === 'kitchmock'
 
   return (
     <article className={`product-card${isKitchen ? ' product-card--kitchen' : ''}`}>

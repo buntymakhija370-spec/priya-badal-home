@@ -99,17 +99,41 @@ export function ShopPage() {
         {category?.caption &&
         (category.id === 'live-edge-furniture' ||
           category.id === 'leather-shutters' ||
-          category.id === 'sample-kits') ? (
+          category.id === 'sample-kits' ||
+          category.id === 'kitchmock') ? (
           <p className="shop__caption">{category.caption}</p>
         ) : null}
         {category?.id === 'leather-shutters' ||
-        category?.id === 'sample-kits' ? (
+        category?.id === 'sample-kits' ||
+        category?.id === 'kitchmock' ? (
           <p className="shop__lede">{category.description}</p>
         ) : null}
         <p className="shop__back">
           <Link to="/shop">← All collections</Link>
+          {category?.id === 'kitchmock' ? (
+            <>
+              {' · '}
+              <Link to="/kitchmock">About KitchMock</Link>
+            </>
+          ) : null}
         </p>
       </header>
+
+      {category?.id === 'kitchmock' && category.conceptNote ? (
+        <aside className="shop__concept shop__concept--kitchmock" aria-label="KitchMock kitchen venture">
+          <p className="shop__concept-kicker">About KitchMock</p>
+          <p>{category.conceptNote}</p>
+          <ul>
+            <li>Dedicated modular kitchen venture of Priyabadal Homes</li>
+            <li>Real 2–3 ft cabinet prototype before full factory build</li>
+            <li>Book prototype for ₹25,000 — adjusted on full order, or ₹20,000 refunded</li>
+            <li>Indore automated plant · 80+ team · in-house design</li>
+            <li>
+              <Link to="/kitchmock">See the full KitchMock story</Link>
+            </li>
+          </ul>
+        </aside>
+      ) : null}
 
       {category?.id === 'leather-shutters' && category.conceptNote ? (
         <aside className="shop__concept shop__concept--leena" aria-label="Leena leather shutters">

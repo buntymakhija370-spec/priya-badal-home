@@ -107,7 +107,7 @@ const STYLE_WORDS = [
 ]
 
 const ROOM_MAP: { match: RegExp; label: string; categoryId?: string }[] = [
-  { match: /\b(kitchen|modular kitchen|cabinets?)\b/i, label: 'kitchen', categoryId: 'kitchen' },
+  { match: /\b(kitchen|kitchmock|modular kitchen|cabinets?)\b/i, label: 'kitchmock', categoryId: 'kitchmock' },
   {
     match: /\b(leena|leather shutters?|leather doors?|padded shutters?)\b/i,
     label: 'Leena leather shutters',
@@ -670,7 +670,7 @@ export function processConsultTurn(
                 {
                   ...next,
                   categoryId:
-                    next.categoryId === 'kitchen' || next.categoryId === 'wardrobe'
+                    next.categoryId === 'kitchmock' || next.categoryId === 'wardrobe'
                       ? next.categoryId
                       : next.categoryId ?? 'wardrobe',
                 },
@@ -854,7 +854,7 @@ export function processConsultTurn(
           /\bg[- ]?series\b/i.test(text) ||
           /\bpanel\b/i.test(text) ||
           (!/\b(kitchen|wardrobe|temple|door)\b/i.test(text) &&
-            next.categoryId !== 'kitchen' &&
+            next.categoryId !== 'kitchmock' &&
             next.categoryId !== 'wardrobe'))
           ? {
               ...next,

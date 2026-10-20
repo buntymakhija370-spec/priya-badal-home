@@ -561,7 +561,7 @@ export function answerRangeQuestion(
     brief.categoryId === 'wall-panels' ||
     /\bpanel\b/i.test(t)
 
-  const wantsKitchen = /\bkitchen\b/i.test(t) || brief.categoryId === 'kitchen'
+  const wantsKitchen = /\bkitchen\b/i.test(t) || brief.categoryId === 'kitchmock'
   const wantsWardrobe =
     /\bwardrobe|almirah|cupboard\b/i.test(t) || brief.categoryId === 'wardrobe'
 
@@ -571,7 +571,7 @@ export function answerRangeQuestion(
   }
 
   if (wantsWardrobe) return answerCategoryValueRange(brief, 'wardrobe', text)
-  if (wantsKitchen) return answerCategoryValueRange(brief, 'kitchen', text)
+  if (wantsKitchen) return answerCategoryValueRange(brief, 'kitchmock', text)
   return answerEconomicWallPanelRange(brief, text)
 }
 
@@ -659,7 +659,7 @@ function answerEconomicWallPanelRange(
 
 function answerCategoryValueRange(
   brief: ConsultBrief,
-  categoryId: 'wardrobe' | 'kitchen',
+  categoryId: 'wardrobe' | 'kitchmock',
   _text: string,
 ): ChatMessage {
   const list = getAllProducts()

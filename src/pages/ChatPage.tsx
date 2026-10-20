@@ -178,7 +178,12 @@ export function ChatPage() {
       extras.push(messageForProductSelected(product, nextBrief))
     }
 
-    if (intent.includes('carcass') || intent === 'kitchen' || intent === 'wardrobe') {
+    if (
+      intent.includes('carcass') ||
+      intent === 'kitchen' ||
+      intent === 'kitchmock' ||
+      intent === 'wardrobe'
+    ) {
       extras.push({
         id: crypto.randomUUID(),
         role: 'assistant',

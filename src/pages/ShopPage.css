@@ -198,6 +198,15 @@
   color: #5c3a20;
 }
 
+.shop__concept--kitchmock {
+  border-color: rgba(176, 106, 60, 0.35);
+  background: linear-gradient(180deg, #f7f1eb 0%, #fff 100%);
+}
+
+.shop__concept--kitchmock .shop__concept-kicker {
+  color: #8a4f2c;
+}
+
 
 .shop__pdf-actions {
   display: flex;

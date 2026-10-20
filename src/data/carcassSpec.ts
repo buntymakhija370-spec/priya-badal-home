@@ -70,7 +70,7 @@ export function productUsesCarcassConstruction(categoryId: string, hasCarcassPri
   if (hasCarcassPrice) return true
   return (
     categoryId === 'wardrobe' ||
-    categoryId === 'kitchen' ||
+    categoryId === 'kitchmock' ||
     categoryId === 'temple' ||
     categoryId === 'sculpted-furniture' ||
     categoryId === 'leather-shutters'

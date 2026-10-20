@@ -158,6 +158,31 @@ export function HomePage() {
         </div>
       </section>
 
+      <section className="home-kitchmock" aria-label="KitchMock kitchens">
+        <div className="home-kitchmock__frame">
+          <p className="home-kitchmock__eyebrow">Kitchen venture</p>
+          <Link className="home-kitchmock__link" to="/kitchmock">
+            <div className="home-kitchmock__media" aria-hidden="true">
+              <img
+                src="/products/categories/kitchen.jpg"
+                alt=""
+                loading="eager"
+              />
+              <div className="home-kitchmock__wash" />
+            </div>
+            <div className="home-kitchmock__copy">
+              <p className="home-kitchmock__brand">KitchMock</p>
+              <h2 className="home-kitchmock__title">See it. Touch it. Then build it.</h2>
+              <p className="home-kitchmock__lede">
+                Prototype-led modular kitchens — inspect a real 2–3 ft cabinet before
+                full factory build. A dedicated venture of Priyabadal Homes.
+              </p>
+              <span className="home-kitchmock__cta">Explore KitchMock</span>
+            </div>
+          </Link>
+        </div>
+      </section>
+
       <section className="home-leena" aria-label="Leena leather shutters">
         <div className="home-leena__frame">
           <p className="home-leena__eyebrow">Featured collection</p>

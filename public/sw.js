@@ -1,5 +1,5 @@
 /* Priyabadal Homes — lightweight app shell cache for install / offline open */
-const CACHE = 'pbh-shell-v4'
+const CACHE = 'pbh-shell-v5'
 const SHELL = [
   '/',
   '/index.html',

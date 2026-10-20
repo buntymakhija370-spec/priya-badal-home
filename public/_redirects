@@ -1,6 +1,11 @@
 # Cloudflare Pages — SPA fallback for React Router paths only.
 # Do NOT use a catch-all /* rule: it can serve index.html for /assets/*.js
 # on custom domains (broken MIME type / blank site).
+#
+# KitchMock domain (kitchmock.com / .in): attach the domain to this same
+# Pages project. App.tsx sends hostname root visits to /kitchmock.
+# Do not add https:// host redirects here — they can break path routing.
+
 /kitchmock /index.html 200
 /shop/kitchen /shop/kitchmock 301
 /shop/kitchen/* /shop/kitchmock 301
@@ -20,14 +25,3 @@
 /visualise /index.html 200
 /carcass /index.html 200
 /add-product /index.html 200
-
-# When kitchmock.com / kitchmock.in are attached to this Pages project,
-# send bare domain visits to the KitchMock segment on Priyabadal Homes.
-https://kitchmock.com/ https://www.priyabadalhomes.com/kitchmock 301
-https://www.kitchmock.com/ https://www.priyabadalhomes.com/kitchmock 301
-https://kitchmock.com/* https://www.priyabadalhomes.com/:splat 301
-https://www.kitchmock.com/* https://www.priyabadalhomes.com/:splat 301
-https://kitchmock.in/ https://www.priyabadalhomes.com/kitchmock 301
-https://www.kitchmock.in/ https://www.priyabadalhomes.com/kitchmock 301
-https://kitchmock.in/* https://www.priyabadalhomes.com/:splat 301
-https://www.kitchmock.in/* https://www.priyabadalhomes.com/:splat 301

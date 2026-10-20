@@ -29,7 +29,7 @@ function defaultImageCaption(
   const hasCarcassViews =
     product.carcassPrice != null ||
     product.categoryId === 'wardrobe' ||
-    product.categoryId === 'kitchen' ||
+    product.categoryId === 'kitchmock' ||
     product.categoryId === 'temple'
 
   if (imageCount <= 1) {
@@ -77,7 +77,7 @@ export function getProductMedia(product: Product): MediaItem[] {
       caption: defaultImageCaption(product, index, images.length),
       // Kitchen photos + drawings: show the full façade (no crop)
       fit:
-        isDimensionDrawingSrc(src) || product.categoryId === 'kitchen'
+        isDimensionDrawingSrc(src) || product.categoryId === 'kitchmock'
           ? ('contain' as const)
           : ('cover' as const),
     }))
@@ -105,7 +105,7 @@ export function getProductMedia(product: Product): MediaItem[] {
       src,
       caption: defaultImageCaption(product, imageIndex, images.length),
       fit:
-        isDimensionDrawingSrc(src) || product.categoryId === 'kitchen'
+        isDimensionDrawingSrc(src) || product.categoryId === 'kitchmock'
           ? 'contain'
           : 'cover',
     })

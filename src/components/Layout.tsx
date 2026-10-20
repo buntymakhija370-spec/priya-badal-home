@@ -78,11 +78,17 @@ export function Layout() {
         </NavLink>
 
         <nav className="nav__desktop" aria-label="Shop categories">
-          {categories.slice(0, 4).map((cat) => (
-            <NavLink key={cat.id} to={shopPath(cat.id)} onClick={close}>
-              {cat.name}
-            </NavLink>
-          ))}
+          <NavLink to="/kitchmock" onClick={close}>
+            KitchMock
+          </NavLink>
+          {categories
+            .filter((cat) => cat.id !== 'kitchmock')
+            .slice(0, 3)
+            .map((cat) => (
+              <NavLink key={cat.id} to={shopPath(cat.id)} onClick={close}>
+                {cat.name}
+              </NavLink>
+            ))}
           <NavLink to="/chat" onClick={close}>
             Chat
           </NavLink>
@@ -166,7 +172,7 @@ export function Layout() {
             alt="Priyabadal Homes — Shutters, Doors, Wall Panels"
           />
           <p className="footer__tag">
-            Shutters · Doors · Wall Panels · Wardrobes · Made-to-measure interiors
+            KitchMock kitchens · Shutters · Doors · Wall Panels · Wardrobes
           </p>
         </div>
 
@@ -174,6 +180,9 @@ export function Layout() {
           <div>
             <p className="footer__heading">Shop</p>
             <ul>
+              <li>
+                <NavLink to="/kitchmock">KitchMock</NavLink>
+              </li>
               {categories.map((cat) => (
                 <li key={cat.id}>
                   <NavLink to={shopPath(cat.id)}>{cat.name}</NavLink>

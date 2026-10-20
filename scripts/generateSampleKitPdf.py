@@ -662,7 +662,7 @@ def unique_range_sections(showcase: dict) -> list[tuple[str, str, list[dict]]]:
     subtitles = {
         "silaibunai": "Same family your Silai Bunai kit sells — wall & shutter looks clients can order live.",
         "wall-panels": "Live wall-panel looks your kit helps you present — grow panel & trim project revenue.",
-        "kitchen": "Kitchen looks powered by your PU / laminate kits — quote full kitchens from the showroom.",
+        "kitchmock": "KitchMock kitchen looks powered by your PU / laminate kits — quote full kitchens from the showroom.",
         "wardrobe": "Wardrobe shutter range your luxury kit opens — bedroom projects with stronger margins.",
         "leather-shutters": "Leena leather shutter range — premium upgrades from the leather kit conversation.",
         "temple": "Temple / Mandir live range — high-value projects started from your temple kit.",

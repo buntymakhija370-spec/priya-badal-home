@@ -350,7 +350,7 @@ export function plannerAsProduct(
   return {
     price: rates.shutterPerSqft,
     carcassPrice: rates.carcassPerSqft,
-    categoryId: category,
+    categoryId: category === 'kitchen' ? 'kitchmock' : 'wardrobe',
     pricingMode: 'per-sqft',
     defaultFinishId: rates.finishId,
     defaultThicknessId: rates.thicknessId,
@@ -535,9 +535,9 @@ export function resolveCarcassCategory(
   product?: Product | null,
   categoryId?: string | null,
 ): CarcassCategory | null {
-  if (product?.categoryId === 'kitchen') return 'kitchen'
+  if (product?.categoryId === 'kitchmock') return 'kitchen'
   if (product?.categoryId === 'wardrobe') return 'wardrobe'
-  if (categoryId === 'kitchen') return 'kitchen'
+  if (categoryId === 'kitchmock' || categoryId === 'kitchen') return 'kitchen'
   if (categoryId === 'wardrobe') return 'wardrobe'
   return null
 }

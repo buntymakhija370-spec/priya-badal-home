@@ -67,7 +67,7 @@ const BUILD_SCOPE_LOOKUP: Record<BuildScopeId, BuildScopeOption> = {
 
 /** Kitchen, wardrobe, temple & shutters use shutter vs carcass pricing */
 const BUILD_SCOPE_CATEGORIES = new Set([
-  'kitchen',
+  'kitchmock',
   'wardrobe',
   'temple',
   'sculpted-furniture',

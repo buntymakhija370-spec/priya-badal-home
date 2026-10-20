@@ -58,8 +58,8 @@ export function VisualisePage() {
   const category = product ? getCategory(product.categoryId) : undefined
 
   const kitchenFirst = useMemo(() => {
-    const kitchen = products.filter((p) => p.categoryId === 'kitchen')
-    const rest = products.filter((p) => p.categoryId !== 'kitchen')
+    const kitchen = products.filter((p) => p.categoryId === 'kitchmock')
+    const rest = products.filter((p) => p.categoryId !== 'kitchmock')
     return [...kitchen, ...rest]
   }, [products])
 

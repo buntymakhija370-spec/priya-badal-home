@@ -328,7 +328,7 @@ export function resolveProductPresentation(product: Product) {
     {
       label: 'Pricing',
       value:
-        product.categoryId === 'kitchen' ||
+        product.categoryId === 'kitchmock' ||
         product.categoryId === 'wardrobe' ||
         product.categoryId === 'temple' ||
         product.categoryId === 'sculpted-furniture' ||

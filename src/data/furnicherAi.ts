@@ -706,8 +706,9 @@ export function furnicherAiReply(userText: string, brief: ProjectBrief): AiTurn 
     return {
       brief: next,
       reply:
-        'Tap **Upload plan** under the chat, then tell me: how many units, and kitchen length in feet (example: *24 units, kitchen 8 ft*). I’ll run the **live calculator** and show matching marketplace products here.',
+        'Open the file picker to attach your floor plan (JPG / PNG / PDF), then tell me: how many units, and kitchen length in feet (example: *24 units, kitchen 8 ft*). I’ll run the **live calculator** and show matching marketplace products here.',
       choices: [
+        { id: 'picker', label: 'Open file picker', value: 'UPLOAD_PLAN_PICKER' },
         { id: 'ex', label: '24 units, kitchen 8 ft', value: '24 hotel 1BHK, kitchen 8 ft' },
       ],
     }

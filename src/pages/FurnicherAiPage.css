@@ -550,6 +550,8 @@
 }
 
 .fa-chat__tools {
+  position: relative;
+  z-index: 6;
   display: flex;
   flex-wrap: wrap;
   gap: 0.4rem;
@@ -557,7 +559,22 @@
   margin-bottom: 0.55rem;
 }
 
+.fa-plan-input {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  margin: -1px;
+  overflow: hidden;
+  clip: rect(0, 0, 0, 0);
+  white-space: nowrap;
+  border: 0;
+}
+
 .fa-tool {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
   min-height: 2rem;
   padding: 0.3rem 0.7rem;
   border: 1px solid var(--fa-line);
@@ -567,6 +584,13 @@
   cursor: pointer;
   text-decoration: none;
   color: var(--fa-ink);
+  box-sizing: border-box;
+}
+
+.fa-tool--upload {
+  background: #e8f5f3;
+  border-color: var(--fa-teal);
+  color: var(--fa-teal-deep);
 }
 
 .fa-tool--wa {
@@ -578,6 +602,12 @@
 .fa-tool-note {
   font-size: 0.75rem;
   color: var(--fa-ink-soft);
+}
+
+/* Keep chat tools clickable — hide competing site chrome (same pattern as /chat) */
+body:has(.fa--chat-only) .wa-fab,
+body:has(.fa--chat-only) .tabbar {
+  display: none !important;
 }
 
 /* —— Market —— */

@@ -99,9 +99,53 @@ export function FurnicherAiPage() {
     ])
   }
 
+  function openPlanPicker() {
+    const input = fileRef.current
+    if (!input) return
+    // Reset so the same file can be chosen again
+    input.value = ''
+    input.click()
+  }
+
+  function isUploadPlanIntent(text: string) {
+    return /^(i will upload( my)? floor plan|upload( my)? floor plan|upload plan)$/i.test(
+      text.trim(),
+    )
+  }
+
   function sendUser(text: string) {
     const trimmed = text.trim()
     if (!trimmed) return
+
+    // Chat chips / typed intent should open the file picker immediately
+    if (isUploadPlanIntent(trimmed)) {
+      setBrief((b) => ({ ...b, entry: 'plan', step: b.hasPlan ? b.step : 'intake' }))
+      setMessages((prev) => [
+        ...prev,
+        { id: uid(), role: 'user', text: trimmed },
+        {
+          id: uid(),
+          role: 'ai',
+          text: 'Choose a floor plan file (JPG, PNG, or PDF). The picker should open now — if it doesn’t, tap **Upload floor plan** under the chat.',
+          choices: [
+            { id: 'picker', label: 'Open file picker', value: 'UPLOAD_PLAN_PICKER' },
+            {
+              id: 'ex',
+              label: 'Skip — type units + kitchen ft',
+              value: '24 hotel 1BHK, kitchen 8 ft',
+            },
+          ],
+        },
+      ])
+      setInput('')
+      openPlanPicker()
+      return
+    }
+
+    if (trimmed === 'UPLOAD_PLAN_PICKER') {
+      openPlanPicker()
+      return
+    }
 
     // Special: add matched set from chat
     if (trimmed === 'ADD_MATCHED_SET') {
@@ -196,6 +240,26 @@ export function FurnicherAiPage() {
 
   function onPlanFile(file: File | null) {
     if (!file) return
+    const okType =
+      file.type.startsWith('image/') ||
+      file.type === 'application/pdf' ||
+      /\.(pdf|png|jpe?g|webp|gif)$/i.test(file.name)
+    if (!okType) {
+      setMessages((prev) => [
+        ...prev,
+        {
+          id: uid(),
+          role: 'ai',
+          text: 'Please upload a **JPG, PNG, or PDF** floor plan.',
+          choices: [
+            { id: 'picker', label: 'Open file picker', value: 'UPLOAD_PLAN_PICKER' },
+          ],
+        },
+      ])
+      if (fileRef.current) fileRef.current.value = ''
+      return
+    }
+
     setPlanName(file.name)
     const nextBrief: ProjectBrief = {
       ...brief,
@@ -221,6 +285,7 @@ export function FurnicherAiPage() {
         ? turn.reply
         : `Floor plan **${file.name}** received. I’ll cost a **similar bulk product range** from this plan — kitchen length in feet matters most for price.\n\nConfirm unit type, then count + kitchen run. Marketplace picks will appear in this chat.`,
     })
+    if (fileRef.current) fileRef.current.value = ''
   }
 
   if (!started) {
@@ -418,15 +483,16 @@ export function FurnicherAiPage() {
 
         <div className="fa-chat__tools">
           <input
+            id="fa-plan-upload"
             ref={fileRef}
+            className="fa-plan-input"
             type="file"
-            accept="image/*,.pdf"
-            hidden
+            accept="image/*,.pdf,application/pdf"
             onChange={(e) => onPlanFile(e.target.files?.[0] || null)}
           />
-          <button type="button" className="fa-tool" onClick={() => fileRef.current?.click()}>
+          <label htmlFor="fa-plan-upload" className="fa-tool fa-tool--upload">
             Upload floor plan
-          </button>
+          </label>
           <button
             type="button"
             className="fa-tool"

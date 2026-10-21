@@ -30,14 +30,23 @@ export function FurnicherAiPage() {
   const [brief, setBrief] = useState<ProjectBrief>({ needs: [], step: 'start' })
   const [selections, setSelections] = useState<Record<string, number>>({})
   const [planName, setPlanName] = useState<string | undefined>()
-  const chatEndRef = useRef<HTMLDivElement>(null)
+  const chatThreadRef = useRef<HTMLDivElement>(null)
   const fileRef = useRef<HTMLInputElement>(null)
+  const prevMessageCount = useRef(0)
 
   const boq = useMemo(() => buildBoq(selections), [selections])
 
+  // Scroll only the chat thread (not the whole page), and only when a new message arrives
   useEffect(() => {
-    chatEndRef.current?.scrollIntoView({ behavior: 'smooth' })
-  }, [messages, started, selections, boq.grandTotal])
+    const thread = chatThreadRef.current
+    if (!thread || !started) return
+    if (messages.length <= prevMessageCount.current) {
+      prevMessageCount.current = messages.length
+      return
+    }
+    prevMessageCount.current = messages.length
+    thread.scrollTo({ top: thread.scrollHeight, behavior: 'smooth' })
+  }, [messages.length, started])
 
   const waHref = useMemo(() => {
     const text = boqWhatsAppText({
@@ -219,7 +228,7 @@ export function FurnicherAiPage() {
       </header>
 
       <section className="fa-panel fa-chat fa-chat--full" aria-label="FurnicherAI chat">
-        <div className="fa-chat__thread">
+        <div className="fa-chat__thread" ref={chatThreadRef}>
           {messages.map((m) => (
             <div key={m.id} className="fa-msg">
               <div
@@ -315,7 +324,6 @@ export function FurnicherAiPage() {
               ) : null}
             </div>
           ))}
-          <div ref={chatEndRef} />
         </div>
 
         <div className="fa-chat__tools">

@@ -524,8 +524,11 @@ function productIdsForBrief(brief: ProjectBrief): string[] {
   if (brief.wardrobe === 'slider') ids.push('fa-wr-slider')
   if (brief.wardrobe === 'openable') ids.push('fa-wr-openable')
   if (brief.wardrobe === 'compact') ids.push('fa-wr-compact')
-  if (brief.kitchen === 'small') ids.push('fa-kit-small')
-  if (brief.kitchen === 'big') ids.push('fa-kit-big')
+  // Showcase kit packages only when run-ft calculator is not driving kitchen cost
+  if (!brief.kitchenRunFt) {
+    if (brief.kitchen === 'small') ids.push('fa-kit-small')
+    if (brief.kitchen === 'big') ids.push('fa-kit-big')
+  }
 
   // Always offer bed + bedside for room projects once format known
   if (brief.roomFormat && brief.step !== 'start') {
@@ -896,13 +899,16 @@ export function boqWhatsAppText(opts: {
   grandTotal: number
   listTotal: number
   planName?: string
+  /** Extra draft lines (e.g. kitchen run-ft) not in product cart */
+  extraLines?: { label: string; amount: number }[]
 }) {
-  const { brief, lines, tier, grandTotal, listTotal, planName } = opts
+  const { brief, lines, tier, grandTotal, listTotal, planName, extraLines = [] } = opts
   const save = listTotal - grandTotal
   const rows = lines.map(
     (l) =>
       `• ${l.product.name} × ${l.qty} — ${formatInr(l.unitNet)} each = ${formatInr(l.lineTotal)}`,
   )
+  const extras = extraLines.map((l) => `• ${l.label} — ${formatInr(l.amount)}`)
   return [
     'Hi Priyabadal Homes — FurnicherAI bulk enquiry',
     '',
@@ -913,7 +919,7 @@ export function boqWhatsAppText(opts: {
     brief.tv ? `TV unit: ${brief.tv}″` : null,
     brief.wardrobe ? `Wardrobe: ${brief.wardrobe}` : null,
     brief.kitchenRunFt
-      ? `Kitchen run: ${brief.kitchenRunFt} ft (~₹${(brief.kitchenRunFt * KITCHEN_RATE_PER_FT).toLocaleString('en-IN')} / unit draft)`
+      ? `Kitchen run: ${brief.kitchenRunFt} ft (~${formatInr(brief.kitchenRunFt * KITCHEN_RATE_PER_FT)} / unit draft)`
       : brief.kitchen
         ? `Kitchen: ${brief.kitchen}`
         : null,
@@ -923,6 +929,7 @@ export function boqWhatsAppText(opts: {
     '',
     'BOQ draft:',
     ...rows,
+    ...extras,
     '',
     `Bulk tier: ${tier.label} (${Math.round(tier.discount * 100)}% off)`,
     `List total: ${formatInr(listTotal)}`,

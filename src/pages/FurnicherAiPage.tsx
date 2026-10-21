@@ -54,17 +54,35 @@ export function FurnicherAiPage() {
     thread.scrollTo({ top: thread.scrollHeight, behavior: 'smooth' })
   }, [messages.length, started])
 
+  const kitchenExtraLines = useMemo(() => {
+    if (!brief.kitchenRunFt || brief.kitchen === 'none') return []
+    const hasKitSku = boq.lines.some(
+      (l) => l.product.id === 'fa-kit-small' || l.product.id === 'fa-kit-big',
+    )
+    if (hasKitSku) return []
+    const per = Math.round(brief.kitchenRunFt * KITCHEN_RATE_PER_FT)
+    const qty = brief.roomCount || 0
+    if (!qty) return [{ label: `Kitchen · ${brief.kitchenRunFt} ft run (per unit)`, amount: per }]
+    return [
+      {
+        label: `Kitchen · ${brief.kitchenRunFt} ft × ${qty}`,
+        amount: per * qty,
+      },
+    ]
+  }, [brief.kitchenRunFt, brief.kitchen, brief.roomCount, boq.lines])
+
   const waHref = useMemo(() => {
     const text = boqWhatsAppText({
       brief,
       lines: boq.lines,
-      tier: boq.tier,
-      grandTotal: boq.grandTotal,
-      listTotal: boq.listTotal,
+      tier: live.ready ? live.tier : boq.tier,
+      grandTotal: live.ready ? live.draftTotal : boq.grandTotal,
+      listTotal: live.ready ? live.listTotal : boq.listTotal,
       planName,
+      extraLines: kitchenExtraLines,
     })
     return `${WHATSAPP_CHAT_URL}?text=${encodeURIComponent(text)}`
-  }, [brief, boq, planName])
+  }, [brief, boq, planName, live, kitchenExtraLines])
 
   function pushAi(turn: ReturnType<typeof furnicherAiReply>) {
     setBrief(turn.brief)
@@ -354,12 +372,13 @@ export function FurnicherAiPage() {
                 </div>
               ) : null}
 
-              {m.showBoq && boq.lines.length > 0 ? (
+              {m.showBoq && (boq.lines.length > 0 || kitchenExtraLines.length > 0) ? (
                 <div className="fa-inline-boq">
                   <header>
                     <strong>BOQ draft</strong>
                     <span>
-                      {boq.tier.label} · −{Math.round(boq.tier.discount * 100)}%
+                      {(live.ready ? live.tier : boq.tier).label} · −
+                      {Math.round((live.ready ? live.tier : boq.tier).discount * 100)}%
                     </span>
                   </header>
                   <ul>
@@ -371,11 +390,21 @@ export function FurnicherAiPage() {
                         <span>{formatInr(l.lineTotal)}</span>
                       </li>
                     ))}
+                    {kitchenExtraLines.map((l) => (
+                      <li key={l.label}>
+                        <span>{l.label}</span>
+                        <span>{formatInr(l.amount)}</span>
+                      </li>
+                    ))}
                   </ul>
                   <p className="fa-inline-boq__total">
-                    Draft total <strong>{formatInr(boq.grandTotal)}</strong>
-                    {boq.listTotal > boq.grandTotal ? (
-                      <small>Save {formatInr(boq.listTotal - boq.grandTotal)}</small>
+                    Draft total{' '}
+                    <strong>{formatInr(live.ready ? live.draftTotal : boq.grandTotal)}</strong>
+                    {(live.ready ? live.saving : boq.listTotal - boq.grandTotal) > 0 ? (
+                      <small>
+                        Save{' '}
+                        {formatInr(live.ready ? live.saving : boq.listTotal - boq.grandTotal)}
+                      </small>
                     ) : null}
                   </p>
                   <a className="fa-btn fa-btn--primary" href={waHref} target="_blank" rel="noopener noreferrer">

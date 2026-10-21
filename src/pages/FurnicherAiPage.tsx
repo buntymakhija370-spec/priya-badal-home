@@ -5,17 +5,26 @@ import {
   FURNICHER_PARENT,
   FURNICHER_PRODUCTS,
   FURNICHER_TAGLINE,
+  KITCHEN_RATE_PER_FT,
+  type AiTurn,
   type ChatMessage,
   type ProjectBrief,
   buildBoq,
   boqWhatsAppText,
-  formatInr,
+  computeLiveEstimate,
+  PRICE_DISCLAIMER,
+  formatInrApprox,
+  formatInrRange,
   furnicherAiReply,
   getFurnicherProduct,
   initialAiMessages,
   matchedProductIds,
   unitAfterDiscount,
 } from '../data/furnicherAi'
+import {
+  askFurnicherGemini,
+  fetchFurnicherAiStatus,
+} from '../lib/furnicherAiGemini'
 import { WHATSAPP_CHAT_URL, WHATSAPP_DISPLAY } from '../lib/whatsapp'
 import './FurnicherAiPage.css'
 
@@ -30,11 +39,29 @@ export function FurnicherAiPage() {
   const [brief, setBrief] = useState<ProjectBrief>({ needs: [], step: 'start' })
   const [selections, setSelections] = useState<Record<string, number>>({})
   const [planName, setPlanName] = useState<string | undefined>()
+  const [planDataUrl, setPlanDataUrl] = useState<string | undefined>()
+  const [geminiOn, setGeminiOn] = useState(false)
+  const [geminiModel, setGeminiModel] = useState<string | undefined>()
+  const [busyGemini, setBusyGemini] = useState(false)
   const chatThreadRef = useRef<HTMLDivElement>(null)
   const fileRef = useRef<HTMLInputElement>(null)
   const prevMessageCount = useRef(0)
+  const messagesRef = useRef(messages)
+  messagesRef.current = messages
 
   const boq = useMemo(() => buildBoq(selections), [selections])
+  const live = useMemo(
+    () => computeLiveEstimate(brief, selections),
+    [brief, selections],
+  )
+
+  useEffect(() => {
+    if (!started) return
+    void fetchFurnicherAiStatus().then((s) => {
+      setGeminiOn(s.provider === 'gemini')
+      setGeminiModel(s.chatModel)
+    })
+  }, [started])
 
   // Scroll only the chat thread (not the whole page), and only when a new message arrives
   useEffect(() => {
@@ -48,36 +75,135 @@ export function FurnicherAiPage() {
     thread.scrollTo({ top: thread.scrollHeight, behavior: 'smooth' })
   }, [messages.length, started])
 
+  const kitchenExtraLines = useMemo(() => {
+    if (!brief.kitchenRunFt || brief.kitchen === 'none') return []
+    const hasKitSku = boq.lines.some(
+      (l) => l.product.id === 'fa-kit-small' || l.product.id === 'fa-kit-big',
+    )
+    if (hasKitSku) return []
+    const per = Math.round(brief.kitchenRunFt * KITCHEN_RATE_PER_FT)
+    const qty = brief.roomCount || 0
+    if (!qty) return [{ label: `Kitchen · ${brief.kitchenRunFt} ft run (per unit)`, amount: per }]
+    return [
+      {
+        label: `Kitchen · ${brief.kitchenRunFt} ft × ${qty}`,
+        amount: per * qty,
+      },
+    ]
+  }, [brief.kitchenRunFt, brief.kitchen, brief.roomCount, boq.lines])
+
   const waHref = useMemo(() => {
     const text = boqWhatsAppText({
       brief,
       lines: boq.lines,
-      tier: boq.tier,
-      grandTotal: boq.grandTotal,
-      listTotal: boq.listTotal,
+      tier: live.ready ? live.tier : boq.tier,
+      grandTotal: live.ready ? live.draftTotal : boq.grandTotal,
+      listTotal: live.ready ? live.listTotal : boq.listTotal,
       planName,
+      extraLines: kitchenExtraLines,
     })
     return `${WHATSAPP_CHAT_URL}?text=${encodeURIComponent(text)}`
-  }, [brief, boq, planName])
+  }, [brief, boq, planName, live, kitchenExtraLines])
 
-  function pushAi(turn: ReturnType<typeof furnicherAiReply>) {
+  /** Local FSM owns prices/products; Gemini polishes communication when connected */
+  async function deliverTurn(
+    userText: string,
+    turn: AiTurn,
+    opts?: { planDataUrl?: string },
+  ) {
     setBrief(turn.brief)
+    const aiId = uid()
     setMessages((prev) => [
       ...prev,
+      { id: uid(), role: 'user' as const, text: userText },
       {
-        id: uid(),
-        role: 'ai',
+        id: aiId,
+        role: 'ai' as const,
         text: turn.reply,
         productIds: turn.productIds,
         choices: turn.choices,
         showBoq: turn.showBoq,
       },
     ])
+
+    // Check live status each turn so key pasted mid-session still works
+    const status = await fetchFurnicherAiStatus()
+    const aiReady = status.configured
+    setGeminiOn(status.provider === 'gemini')
+    if (status.chatModel) setGeminiModel(status.chatModel)
+    if (!aiReady) return
+
+    setBusyGemini(true)
+    try {
+      const history = messagesRef.current
+        .filter((m) => m.role === 'user' || m.role === 'ai')
+        .map((m) => ({ role: m.role, text: m.text }))
+      const polished = await askFurnicherGemini({
+        message: userText,
+        brief: turn.brief,
+        history,
+        authoritativeDraft: turn.reply,
+        planDataUrl: opts?.planDataUrl || planDataUrl,
+        planName: turn.brief.planName || planName,
+      })
+      if (polished?.text) {
+        setGeminiModel(polished.model)
+        setMessages((prev) =>
+          prev.map((m) => (m.id === aiId ? { ...m, text: polished.text } : m)),
+        )
+      }
+    } finally {
+      setBusyGemini(false)
+    }
+  }
+
+  function openPlanPicker() {
+    const input = fileRef.current
+    if (!input) return
+    // Reset so the same file can be chosen again
+    input.value = ''
+    input.click()
+  }
+
+  function isUploadPlanIntent(text: string) {
+    return /^(i will upload( my)? floor plan|upload( my)? floor plan|upload plan)$/i.test(
+      text.trim(),
+    )
   }
 
   function sendUser(text: string) {
     const trimmed = text.trim()
     if (!trimmed) return
+
+    // Chat chips / typed intent should open the file picker immediately
+    if (isUploadPlanIntent(trimmed)) {
+      setBrief((b) => ({ ...b, entry: 'plan', step: b.hasPlan ? b.step : 'intake' }))
+      setMessages((prev) => [
+        ...prev,
+        { id: uid(), role: 'user', text: trimmed },
+        {
+          id: uid(),
+          role: 'ai',
+          text: 'Choose a floor plan file (JPG, PNG, or PDF). The picker should open now — if it doesn’t, tap **Upload floor plan** under the chat.',
+          choices: [
+            { id: 'picker', label: 'Open file picker', value: 'UPLOAD_PLAN_PICKER' },
+            {
+              id: 'ex',
+              label: 'Skip — type units + kitchen ft',
+              value: '24 hotel 1BHK, kitchen 8 ft',
+            },
+          ],
+        },
+      ])
+      setInput('')
+      openPlanPicker()
+      return
+    }
+
+    if (trimmed === 'UPLOAD_PLAN_PICKER') {
+      openPlanPicker()
+      return
+    }
 
     // Special: add matched set from chat
     if (trimmed === 'ADD_MATCHED_SET') {
@@ -88,13 +214,10 @@ export function FurnicherAiPage() {
         for (const id of ids) next[id] = qty
         return next
       })
-      setMessages((prev) => [
-        ...prev,
-        { id: uid(), role: 'user', text: `Add matched set × ${qty}` },
-      ])
-      pushAi({
+      setInput('')
+      void deliverTurn(`Add matched set × ${qty}`, {
         brief: { ...brief, step: 'boq' },
-        reply: `Added **${ids.length}** matched products × **${qty}** into your chat BOQ. Scroll the BOQ card below — or tap **Build BOQ now** / WhatsApp when ready.`,
+        reply: `Added **${ids.length}** matched products × **${qty}** into your chat BOQ. The **live calculator** above updates with your cart. Tap WhatsApp when ready for Priyabadal Homes.`,
         productIds: ids,
         showBoq: true,
         defaultQty: qty,
@@ -103,44 +226,25 @@ export function FurnicherAiPage() {
           { id: 'wa', label: 'WhatsApp Priyabadal Homes', value: 'I am ready for WhatsApp BOQ' },
         ],
       })
-      setInput('')
       return
     }
 
     if (/ready for whatsapp/i.test(trimmed)) {
-      setMessages((prev) => [
-        ...prev,
-        { id: uid(), role: 'user', text: trimmed },
-        {
-          id: uid(),
-          role: 'ai',
-          text: boq.lines.length
-            ? `Your BOQ is ready. Tap **WhatsApp ${WHATSAPP_DISPLAY}** below to send this draft to Priyabadal Homes for final rates, finishes, and install.`
-            : 'Add products from the cards in chat first — then we can WhatsApp the BOQ.',
-          showBoq: true,
-          productIds: Object.keys(selections),
-        },
-      ])
+      void deliverTurn(trimmed, {
+        brief,
+        reply: boq.lines.length
+          ? `Your BOQ is ready. Tap **WhatsApp ${WHATSAPP_DISPLAY}** below to send this draft to Priyabadal Homes for final rates, finishes, and install.`
+          : 'Add products from the marketplace cards in chat first — then we can WhatsApp the BOQ.',
+        showBoq: true,
+        productIds: Object.keys(selections),
+      })
       setInput('')
       return
     }
 
-    const userMsg: ChatMessage = { id: uid(), role: 'user', text: trimmed }
     const turn = furnicherAiReply(trimmed, brief)
-    setBrief(turn.brief)
-    setMessages((prev) => [
-      ...prev,
-      userMsg,
-      {
-        id: uid(),
-        role: 'ai',
-        text: turn.reply,
-        productIds: turn.productIds,
-        choices: turn.choices,
-        showBoq: turn.showBoq,
-      },
-    ])
     setInput('')
+    void deliverTurn(trimmed, turn)
   }
 
   function setQty(productId: string, qty: number) {
@@ -160,7 +264,7 @@ export function FurnicherAiPage() {
       {
         id: uid(),
         role: 'ai',
-        text: `Added **${p?.name || productId}** × **${qty}** to your BOQ.`,
+        text: `Added **${p?.name || productId}** × **${qty}** to your BOQ. Live calculator updates instantly.`,
         showBoq: true,
         choices: [
           { id: 'more', label: 'Continue choosing', value: 'Continue — show next options' },
@@ -172,17 +276,66 @@ export function FurnicherAiPage() {
 
   function onPlanFile(file: File | null) {
     if (!file) return
+    const okType =
+      file.type.startsWith('image/') ||
+      file.type === 'application/pdf' ||
+      /\.(pdf|png|jpe?g|webp|gif)$/i.test(file.name)
+    if (!okType) {
+      setMessages((prev) => [
+        ...prev,
+        {
+          id: uid(),
+          role: 'ai',
+          text: 'Please upload a **JPG, PNG, or PDF** floor plan.',
+          choices: [
+            { id: 'picker', label: 'Open file picker', value: 'UPLOAD_PLAN_PICKER' },
+          ],
+        },
+      ])
+      if (fileRef.current) fileRef.current.value = ''
+      return
+    }
+
     setPlanName(file.name)
-    setBrief((b) => ({ ...b, hasPlan: true }))
-    setMessages((prev) => [
-      ...prev,
-      {
-        id: uid(),
-        role: 'ai',
-        text: `Floor plan **${file.name}** attached to this chat project. Keep selecting products here — BOQ will mention the plan for Priyabadal Homes.`,
-        showBoq: boq.lines.length > 0,
-      },
-    ])
+    const nextBrief: ProjectBrief = {
+      ...brief,
+      entry: 'plan',
+      hasPlan: true,
+      planName: file.name,
+      step: brief.roomFormat ? brief.step : 'format',
+    }
+    setBrief(nextBrief)
+
+    const finish = (dataUrl?: string) => {
+      if (dataUrl) setPlanDataUrl(dataUrl)
+      const userText = `Uploaded floor plan: ${file.name}`
+      const turn = furnicherAiReply(
+        `Floor plan ${file.name} attached. ${brief.roomCount ? `${brief.roomCount} units` : ''}`.trim(),
+        nextBrief,
+      )
+      void deliverTurn(
+        userText,
+        {
+          ...turn,
+          brief: { ...turn.brief, hasPlan: true, planName: file.name, entry: 'plan' },
+          reply: turn.brief.roomFormat
+            ? turn.reply
+            : `Floor plan **${file.name}** received. I’ll draft a **similar bulk product range** from this plan — kitchen length in feet matters most for the guide cost.\n\nConfirm unit type, then count + kitchen run. Marketplace picks will appear in this chat.`,
+        },
+        { planDataUrl: dataUrl },
+      )
+      if (fileRef.current) fileRef.current.value = ''
+    }
+
+    if (file.type.startsWith('image/') || /\.(png|jpe?g|webp|gif)$/i.test(file.name)) {
+      const reader = new FileReader()
+      reader.onload = () => finish(typeof reader.result === 'string' ? reader.result : undefined)
+      reader.onerror = () => finish()
+      reader.readAsDataURL(file)
+      return
+    }
+
+    finish()
   }
 
   if (!started) {
@@ -195,13 +348,14 @@ export function FurnicherAiPage() {
             <h1 className="fa-gate__brand">{FURNICHER_BRAND}</h1>
             <p className="fa-gate__tag">{FURNICHER_TAGLINE}</p>
             <p className="fa-gate__lede">
-              Chat only. Tell us Hotel 1BHK / hostel / commercial — we’ll ask sofa size, TV size,
-              wardrobe type, kitchen size, show products in chat, and hand you a BOQ for WhatsApp
-              close with Priyabadal Homes.
+              Start with your <strong>floor plan</strong> or a short <strong>project prompt</strong>.
+              <strong> Gemini</strong> handles natural conversation; our live calculator keeps{' '}
+              <strong>draft price bands</strong> accurate (not factory MRP). Marketplace stays in chat;
+              Priyabadal Homes confirms exact figures on WhatsApp.
             </p>
             <div className="fa-gate__actions">
               <button type="button" className="fa-btn fa-btn--primary" onClick={() => setStarted(true)}>
-                Start chat
+                Start with plan or prompt
               </button>
             </div>
           </div>
@@ -214,18 +368,72 @@ export function FurnicherAiPage() {
     <main className="fa fa--app fa--chat-only">
       <header className="fa-top">
         <div className="fa-top__brand">
-          <p className="fa-top__eyebrow">Chat · Marketplace · BOQ</p>
+          <p className="fa-top__eyebrow">Plan / Prompt · Live calc · Marketplace</p>
           <h1>{FURNICHER_BRAND}</h1>
           <p className="fa-top__sub">{FURNICHER_PARENT}</p>
         </div>
         <div className="fa-top__meta">
           <span>
-            {brief.roomFormat || brief.projectType || 'Briefing'}
+            {brief.entry === 'plan'
+              ? 'Floor plan'
+              : brief.entry === 'prompt'
+                ? 'Prompt'
+                : 'Briefing'}
+            {brief.roomFormat ? ` · ${brief.roomFormat}` : ''}
             {brief.roomCount ? ` · ${brief.roomCount}` : ''}
+            {brief.kitchenRunFt ? ` · kit ${brief.kitchenRunFt}ft` : ''}
+          </span>
+          <span className={geminiOn ? 'is-hot' : ''}>
+            {busyGemini
+              ? 'Gemini writing…'
+              : geminiOn
+                ? `Gemini on${geminiModel ? ` · ${geminiModel}` : ''}`
+                : 'Local guide · add Gemini key in /ai-admin'}
           </span>
           <span className={boq.totalQty ? 'is-hot' : ''}>{boq.totalQty} lines in BOQ</span>
         </div>
       </header>
+
+      <aside className="fa-live" aria-live="polite" aria-label="Live draft cost calculator">
+        <div className="fa-live__head">
+          <strong>Live draft range</strong>
+          <span>
+            Kitchen guide {formatInrApprox(KITCHEN_RATE_PER_FT)}/ft
+            {planName ? ` · ${planName}` : ''}
+          </span>
+        </div>
+        {live.ready ? (
+          <>
+            <div className="fa-live__grid">
+              <div>
+                <em>Per unit band</em>
+                <strong>{formatInrRange(live.perUnitTotal)}</strong>
+                {live.kitchenPerUnit > 0 ? (
+                  <small>Kitchen {formatInrApprox(live.kitchenPerUnit)}</small>
+                ) : null}
+              </div>
+              <div>
+                <em>× {live.roomCount || '—'} units</em>
+                <strong>{formatInrRange(live.listTotal)}</strong>
+                <small>List band before bulk</small>
+              </div>
+              <div className="fa-live__draft">
+                <em>{live.tier.label} draft</em>
+                <strong>{formatInrRange(live.draftTotal)}</strong>
+                {live.saving > 0 ? (
+                  <small>Guide save {formatInrApprox(live.saving)}</small>
+                ) : null}
+              </div>
+            </div>
+            <p className="fa-live__note">{PRICE_DISCLAIMER}</p>
+          </>
+        ) : (
+          <p className="fa-live__wait">
+            Waiting for floor plan or prompt + unit count. Kitchen length (ft) moves the draft range
+            most — figures stay approximate until WhatsApp confirmation.
+          </p>
+        )}
+      </aside>
 
       <section className="fa-panel fa-chat fa-chat--full" aria-label="FurnicherAI chat">
         <div className="fa-chat__thread" ref={chatThreadRef}>
@@ -256,7 +464,7 @@ export function FurnicherAiPage() {
                     const p = getFurnicherProduct(id)
                     if (!p) return null
                     const qty = selections[id] || 0
-                    const net = unitAfterDiscount(p.unitPrice, boq.tier.discount)
+                    const net = unitAfterDiscount(p.unitPrice, live.tier.discount)
                     const addQty = brief.roomCount || p.moq
                     return (
                       <article key={id} className="fa-mini-card">
@@ -265,8 +473,8 @@ export function FurnicherAiPage() {
                           <h3>{p.name}</h3>
                           <p>{p.tagline}</p>
                           <p className="fa-mini-card__price">
-                            <strong>{formatInr(net)}</strong>
-                            <span>MOQ {p.moq}</span>
+                            <strong>from {formatInrApprox(net)}</strong>
+                            <span>MOQ {p.moq} · guide</span>
                           </p>
                           <div className="fa-mini-card__actions">
                             <button type="button" onClick={() => addProduct(id, addQty)}>
@@ -293,12 +501,13 @@ export function FurnicherAiPage() {
                 </div>
               ) : null}
 
-              {m.showBoq && boq.lines.length > 0 ? (
+              {m.showBoq && (boq.lines.length > 0 || kitchenExtraLines.length > 0) ? (
                 <div className="fa-inline-boq">
                   <header>
-                    <strong>BOQ draft</strong>
+                    <strong>BOQ draft range</strong>
                     <span>
-                      {boq.tier.label} · −{Math.round(boq.tier.discount * 100)}%
+                      {(live.ready ? live.tier : boq.tier).label} · ~
+                      {Math.round((live.ready ? live.tier : boq.tier).discount * 100)}% guide
                     </span>
                   </header>
                   <ul>
@@ -307,15 +516,30 @@ export function FurnicherAiPage() {
                         <span>
                           {l.product.name} × {l.qty}
                         </span>
-                        <span>{formatInr(l.lineTotal)}</span>
+                        <span>{formatInrApprox(l.lineTotal)}</span>
+                      </li>
+                    ))}
+                    {kitchenExtraLines.map((l) => (
+                      <li key={l.label}>
+                        <span>{l.label}</span>
+                        <span>{formatInrApprox(l.amount)}</span>
                       </li>
                     ))}
                   </ul>
                   <p className="fa-inline-boq__total">
-                    Draft total <strong>{formatInr(boq.grandTotal)}</strong>
-                    {boq.listTotal > boq.grandTotal ? (
-                      <small>Save {formatInr(boq.listTotal - boq.grandTotal)}</small>
+                    Project draft band{' '}
+                    <strong>
+                      {formatInrRange(live.ready ? live.draftTotal : boq.grandTotal)}
+                    </strong>
+                    {(live.ready ? live.saving : boq.listTotal - boq.grandTotal) > 0 ? (
+                      <small>
+                        Guide save{' '}
+                        {formatInrApprox(
+                          live.ready ? live.saving : boq.listTotal - boq.grandTotal,
+                        )}
+                      </small>
                     ) : null}
+                    <small>{PRICE_DISCLAIMER}</small>
                   </p>
                   <a className="fa-btn fa-btn--primary" href={waHref} target="_blank" rel="noopener noreferrer">
                     WhatsApp BOQ · {WHATSAPP_DISPLAY}
@@ -328,19 +552,31 @@ export function FurnicherAiPage() {
 
         <div className="fa-chat__tools">
           <input
+            id="fa-plan-upload"
             ref={fileRef}
+            className="fa-plan-input"
             type="file"
-            accept="image/*,.pdf"
-            hidden
+            accept="image/*,.pdf,application/pdf"
             onChange={(e) => onPlanFile(e.target.files?.[0] || null)}
           />
-          <button type="button" className="fa-tool" onClick={() => fileRef.current?.click()}>
-            Upload plan
+          <label htmlFor="fa-plan-upload" className="fa-tool fa-tool--upload">
+            Upload floor plan
+          </label>
+          <button
+            type="button"
+            className="fa-tool"
+            onClick={() =>
+              sendUser(
+                'I will describe my project in a prompt: 24 hotel 1BHK full package, kitchen 8 ft, sliding wardrobe, 3-seater sofa, 42 inch TV',
+              )
+            }
+          >
+            Example prompt
           </button>
           <button type="button" className="fa-tool" onClick={() => sendUser('Build BOQ now')}>
             Build BOQ
           </button>
-          {boq.lines.length ? (
+          {boq.lines.length || live.ready ? (
             <a className="fa-tool fa-tool--wa" href={waHref} target="_blank" rel="noopener noreferrer">
               WhatsApp
             </a>
@@ -358,7 +594,7 @@ export function FurnicherAiPage() {
           <input
             value={input}
             onChange={(e) => setInput(e.target.value)}
-            placeholder="e.g. Hotel 1BHK full package for 24 units…"
+            placeholder="Upload a plan, or type: 24 hotel 1BHK, kitchen 8 ft…"
             aria-label="Message FurnicherAI"
           />
           <button type="submit" className="fa-btn fa-btn--primary">
@@ -369,7 +605,8 @@ export function FurnicherAiPage() {
 
       <footer className="fa-foot">
         <p>
-          {FURNICHER_BRAND} · chat-first bulk desk · {FURNICHER_PRODUCTS.length} marketplace SKUs
+          {FURNICHER_BRAND} · floor plan or prompt · live calc · {FURNICHER_PRODUCTS.length} marketplace
+          SKUs
         </p>
         <p>
           <Link to="/">Priyabadal Homes</Link>

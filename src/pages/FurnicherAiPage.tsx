@@ -354,7 +354,7 @@ export function FurnicherAiPage() {
                 <em>Per unit band</em>
                 <strong>{formatInrRange(live.perUnitTotal)}</strong>
                 {live.kitchenPerUnit > 0 ? (
-                  <small>Kitchen ~{formatInrApprox(live.kitchenPerUnit)}</small>
+                  <small>Kitchen {formatInrApprox(live.kitchenPerUnit)}</small>
                 ) : null}
               </div>
               <div>
@@ -366,7 +366,7 @@ export function FurnicherAiPage() {
                 <em>{live.tier.label} draft</em>
                 <strong>{formatInrRange(live.draftTotal)}</strong>
                 {live.saving > 0 ? (
-                  <small>Guide save ~{formatInrApprox(live.saving)}</small>
+                  <small>Guide save {formatInrApprox(live.saving)}</small>
                 ) : null}
               </div>
             </div>
@@ -461,13 +461,13 @@ export function FurnicherAiPage() {
                         <span>
                           {l.product.name} × {l.qty}
                         </span>
-                        <span>~{formatInrApprox(l.lineTotal)}</span>
+                        <span>{formatInrApprox(l.lineTotal)}</span>
                       </li>
                     ))}
                     {kitchenExtraLines.map((l) => (
                       <li key={l.label}>
                         <span>{l.label}</span>
-                        <span>~{formatInrApprox(l.amount)}</span>
+                        <span>{formatInrApprox(l.amount)}</span>
                       </li>
                     ))}
                   </ul>
@@ -478,7 +478,7 @@ export function FurnicherAiPage() {
                     </strong>
                     {(live.ready ? live.saving : boq.listTotal - boq.grandTotal) > 0 ? (
                       <small>
-                        Guide save ~{' '}
+                        Guide save{' '}
                         {formatInrApprox(
                           live.ready ? live.saving : boq.listTotal - boq.grandTotal,
                         )}

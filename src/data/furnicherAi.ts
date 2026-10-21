@@ -663,7 +663,7 @@ function estimateBlurb(brief: ProjectBrief): string {
     `**Live draft range** (similar bulk look — not production MRP):`,
     `• Per unit **${formatInrRange(est.perUnitTotal)}**` +
       (est.kitchenPerUnit
-        ? ` (kitchen band ~${formatInrApprox(est.kitchenPerUnit)} for ${brief.kitchenRunFt || brief.kitchen})`
+        ? ` (kitchen band ${formatInrApprox(est.kitchenPerUnit)} for ${brief.kitchenRunFt || brief.kitchen})`
         : ''),
     `• × **${est.roomCount}** units → list band **${formatInrRange(est.listTotal)}**`,
     `• Bulk tier **${est.tier.label}** → project draft **${formatInrRange(est.draftTotal)}**`,
@@ -869,7 +869,7 @@ export function furnicherAiReply(userText: string, brief: ProjectBrief): AiTurn 
     `Type: **${next.projectType}** · **${next.roomFormat}** × **${next.roomCount}**`,
     next.unitSqft ? `Unit area note: **${next.unitSqft} sq ft**` : null,
     next.kitchenRunFt
-      ? `Kitchen: **${next.kitchenRunFt} ft** (draft ~${formatInrApprox(next.kitchenRunFt * KITCHEN_RATE_PER_FT)} / unit)`
+      ? `Kitchen: **${next.kitchenRunFt} ft** (draft ${formatInrApprox(next.kitchenRunFt * KITCHEN_RATE_PER_FT)} / unit)`
       : next.kitchen
         ? `Kitchen: **${next.kitchen}**`
         : null,
@@ -949,7 +949,7 @@ export function boqWhatsAppText(opts: {
     brief.tv ? `TV unit: ${brief.tv}″` : null,
     brief.wardrobe ? `Wardrobe: ${brief.wardrobe}` : null,
     brief.kitchenRunFt
-      ? `Kitchen run: ${brief.kitchenRunFt} ft (draft ~${formatInrApprox(brief.kitchenRunFt * KITCHEN_RATE_PER_FT)} / unit)`
+      ? `Kitchen run: ${brief.kitchenRunFt} ft (draft ${formatInrApprox(brief.kitchenRunFt * KITCHEN_RATE_PER_FT)} / unit)`
       : brief.kitchen
         ? `Kitchen: ${brief.kitchen}`
         : null,

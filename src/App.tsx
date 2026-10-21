@@ -21,6 +21,7 @@ import { CarcassAssemblyPage } from './pages/CarcassAssemblyPage'
 import { AiSubscribePage } from './pages/AiSubscribePage'
 import { AiAdminPage } from './pages/AiAdminPage'
 import { KitchMockPage } from './pages/KitchMockPage'
+import { FurnicherAiPage } from './pages/FurnicherAiPage'
 import './App.css'
 
 /** Old Design / Visualise / Carcass Planner URLs → unified Chat hub */
@@ -32,13 +33,15 @@ function RedirectToChat() {
   return <Navigate to={next} replace />
 }
 
-/** kitchmock.com (same Pages project) opens Priyabadal Homes on the KitchMock segment */
-function KitchMockDomainEntry() {
+/** Brand domains on this Pages project open the matching segment */
+function BrandDomainEntry() {
   const location = useLocation()
   const navigate = useNavigate()
 
   useEffect(() => {
     const host = window.location.hostname.toLowerCase()
+    if (location.pathname !== '/' && location.pathname !== '') return
+
     const isKitchMockHost =
       host === 'kitchmock.com' ||
       host === 'www.kitchmock.com' ||
@@ -46,9 +49,19 @@ function KitchMockDomainEntry() {
       host === 'www.kitchmock.in' ||
       host.endsWith('.kitchmock.com') ||
       host.endsWith('.kitchmock.in')
-    if (!isKitchMockHost) return
-    if (location.pathname === '/' || location.pathname === '') {
+    if (isKitchMockHost) {
       navigate('/kitchmock', { replace: true })
+      return
+    }
+
+    const isFurnicherHost =
+      host === 'furnicherai.com' ||
+      host === 'www.furnicherai.com' ||
+      host === 'furnicher.ai' ||
+      host === 'www.furnicher.ai' ||
+      host.endsWith('.furnicherai.com')
+    if (isFurnicherHost) {
+      navigate('/furnicher-ai', { replace: true })
     }
   }, [location.pathname, navigate])
 
@@ -59,11 +72,13 @@ export default function App() {
   return (
     <BrowserRouter>
       <ScrollToTop />
-      <KitchMockDomainEntry />
+      <BrandDomainEntry />
       <Routes>
         <Route element={<Layout />}>
           <Route index element={<HomePage />} />
           <Route path="kitchmock" element={<KitchMockPage />} />
+          <Route path="furnicher-ai" element={<FurnicherAiPage />} />
+          <Route path="furnicherai" element={<Navigate to="/furnicher-ai" replace />} />
           <Route path="shop/kitchen" element={<Navigate to="/shop/kitchmock" replace />} />
           <Route
             path="shop/kitchen/:subcategoryId"

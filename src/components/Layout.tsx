@@ -78,12 +78,15 @@ export function Layout() {
         </NavLink>
 
         <nav className="nav__desktop" aria-label="Shop categories">
+          <NavLink to="/furnicher-ai" onClick={close}>
+            FurnicherAI
+          </NavLink>
           <NavLink to="/kitchmock" onClick={close}>
             KitchMock
           </NavLink>
           {categories
             .filter((cat) => cat.id !== 'kitchmock')
-            .slice(0, 3)
+            .slice(0, 2)
             .map((cat) => (
               <NavLink key={cat.id} to={shopPath(cat.id)} onClick={close}>
                 {cat.name}
@@ -180,6 +183,9 @@ export function Layout() {
           <div>
             <p className="footer__heading">Shop</p>
             <ul>
+              <li>
+                <NavLink to="/furnicher-ai">FurnicherAI</NavLink>
+              </li>
               <li>
                 <NavLink to="/kitchmock">KitchMock</NavLink>
               </li>

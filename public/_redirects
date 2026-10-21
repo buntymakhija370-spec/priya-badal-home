@@ -4,5 +4,6 @@
 
 /shop/kitchen /shop/kitchmock 301
 /shop/kitchen/* /shop/kitchmock 301
+/furnicherai /furnicher-ai 301
 
 /* /index.html 200

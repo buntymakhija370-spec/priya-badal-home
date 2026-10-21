@@ -904,6 +904,158 @@ async function handleAiAdmin(req: IncomingMessage, res: ServerResponse) {
   }
 }
 
+type FurnicherChatBody = {
+  message?: string
+  systemPrompt?: string
+  authoritativeDraft?: string
+  planDataUrl?: string
+  planName?: string
+  brief?: Record<string, unknown>
+  history?: Array<{ role?: string; text?: string }>
+}
+
+/**
+ * FurnicherAI bulk desk — prefers Gemini for communication.
+ * Numbers must come from authoritativeDraft (local calculator). No subscriber gate:
+ * this is the business sales desk; requires server Gemini/Fal key only.
+ */
+async function handleFurnicherChat(req: IncomingMessage, res: ServerResponse) {
+  if (req.method === 'OPTIONS') {
+    sendOptions(res)
+    return
+  }
+
+  if (req.method === 'GET') {
+    const gemini = Boolean(getGeminiKey())
+    const fal = falConfigured()
+    const provider = gemini ? 'gemini' : fal ? 'fal' : 'none'
+    sendJson(res, 200, {
+      configured: gemini || fal,
+      provider,
+      chatModel: gemini ? getChatModel() : fal ? getFalChatModel() : null,
+      note: 'FurnicherAI uses Gemini for talk; draft INR bands come from the local calculator.',
+    })
+    return
+  }
+
+  if (req.method !== 'POST') {
+    sendJson(res, 405, { error: 'Method not allowed' })
+    return
+  }
+
+  if (!aiConfigured()) {
+    sendJson(res, 503, {
+      error: 'Gemini is not connected — add GEMINI_API_KEY in /ai-admin',
+      code: 'MISSING_GEMINI_KEY',
+    })
+    return
+  }
+
+  try {
+    const raw = await readBody(req)
+    const body = JSON.parse(raw) as FurnicherChatBody
+    const message = (body.message || '').trim()
+    if (!message) {
+      sendJson(res, 400, { error: 'Message is required' })
+      return
+    }
+
+    const historyItems = (body.history ?? [])
+      .filter(
+        (h): h is { role: 'user' | 'assistant'; text: string } =>
+          Boolean(h.text) && (h.role === 'user' || h.role === 'assistant'),
+      )
+      .slice(-16)
+      .map((h) => ({
+        role: h.role,
+        text: String(h.text).slice(0, 1400),
+      }))
+
+    const briefBits = body.brief
+      ? Object.entries(body.brief)
+          .filter(([, v]) => v != null && v !== '' && v !== false)
+          .map(([k, v]) => `${k}: ${String(v)}`)
+          .join(', ')
+      : ''
+
+    const draft = (body.authoritativeDraft || '').trim()
+    const systemPrompt = [
+      body.systemPrompt?.trim() ||
+        'You are FurnicherAI for Priyabadal Homes bulk furniture.',
+      '',
+      draft
+        ? [
+            'AUTHORITATIVE DRAFT ESTIMATE (use these INR bands / facts only — do not invent production MRP):',
+            draft.slice(0, 6000),
+          ].join('\n')
+        : 'AUTHORITATIVE DRAFT ESTIMATE: not ready yet — do not invent totals; ask for missing specs.',
+      '',
+      body.planName ? `Floor plan file name: ${body.planName}` : '',
+    ]
+      .filter(Boolean)
+      .join('\n')
+
+    const prompt = [
+      briefBits ? `Brief snapshot: ${briefBits}` : '',
+      body.planDataUrl
+        ? 'A floor plan image/PDF is attached — use it only to infer unit type / kitchen hints. Never invent exact dimensions you cannot see.'
+        : '',
+      `Client message: ${message}`,
+      '',
+      'Rewrite / continue as FurnicherAI. Keep every INR figure from AUTHORITATIVE DRAFT ESTIMATE unchanged (or say the draft is still waiting). Invite marketplace add / Build BOQ / WhatsApp for final confirmation. No PRODUCTS: or SUGGESTIONS: lines.',
+    ]
+      .filter(Boolean)
+      .join('\n')
+
+    let images: Awaited<ReturnType<typeof loadInlineImage>>[] = []
+    if (body.planDataUrl?.startsWith('data:image') || body.planDataUrl?.startsWith('http')) {
+      try {
+        images = [await loadInlineImage(body.planDataUrl)]
+      } catch {
+        images = []
+      }
+    }
+
+    // Prefer Gemini for FurnicherAI communication when key is present
+    const useGemini = Boolean(getGeminiKey())
+    const { reply, model } = useGemini
+      ? await geminiChat({
+          system: systemPrompt.slice(0, 120_000),
+          prompt: prompt.slice(0, 24_000),
+          model: getChatModel(),
+          history: historyItems,
+          images,
+        })
+      : await falChat({
+          system: systemPrompt.slice(0, 120_000),
+          prompt: [
+            historyItems
+              .map(
+                (h) =>
+                  `${h.role === 'assistant' ? 'Assistant' : 'Client'}: ${h.text}`,
+              )
+              .join('\n'),
+            prompt,
+          ]
+            .filter(Boolean)
+            .join('\n')
+            .slice(0, 24_000),
+          model: getFalChatModel(),
+        })
+
+    sendJson(res, 200, {
+      reply,
+      provider: useGemini ? 'gemini' : 'fal',
+      model,
+    })
+  } catch (err) {
+    sendJson(res, 500, {
+      error: err instanceof Error ? err.message : 'FurnicherAI chat failed',
+      code: 'SERVER_ERROR',
+    })
+  }
+}
+
 function attach(middlewares: Connect.Server) {
   middlewares.use('/api/ai-unlock', (req, res, next) => {
     void handleAiUnlock(req, res).catch(next)
@@ -925,6 +1077,9 @@ function attach(middlewares: Connect.Server) {
   })
   middlewares.use('/api/chat', (req, res, next) => {
     void handleChat(req, res).catch(next)
+  })
+  middlewares.use('/api/furnicher-chat', (req, res, next) => {
+    void handleFurnicherChat(req, res).catch(next)
   })
   middlewares.use('/api/visualise-status', (req, res) => {
     const token = readAccessToken(req)

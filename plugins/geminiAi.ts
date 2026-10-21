@@ -300,12 +300,14 @@ export async function geminiEditImage(opts: {
   )
 }
 
-/** Text chat with Gemini Flash (optional multi-turn history) */
+/** Text chat with Gemini Flash (optional multi-turn history + optional floor-plan images) */
 export async function geminiChat(opts: {
   system: string
   prompt: string
   model?: string
   history?: Array<{ role: 'user' | 'assistant'; text: string }>
+  /** Optional plan / photo attachments (data URLs or http) */
+  images?: GeminiInlineImage[]
 }): Promise<{ reply: string; model: string }> {
   const model = opts.model || getChatModel()
   // Gemini requires alternating user/model turns — merge consecutive same roles
@@ -324,9 +326,13 @@ export async function geminiChat(opts: {
   // History must start with user if present
   while (history.length && history[0].role !== 'user') history.shift()
 
+  const imageParts: GeminiPart[] = (opts.images ?? []).map((img) => ({
+    inlineData: { mimeType: img.mimeType, data: img.data },
+  }))
+
   const json = await generateContent({
     model,
-    parts: [{ text: opts.prompt }],
+    parts: [...imageParts, { text: opts.prompt }],
     system: opts.system,
     imageOutput: false,
     history,

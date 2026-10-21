@@ -6,6 +6,7 @@ import {
   FURNICHER_PRODUCTS,
   FURNICHER_TAGLINE,
   KITCHEN_RATE_PER_FT,
+  type AiTurn,
   type ChatMessage,
   type ProjectBrief,
   buildBoq,
@@ -20,6 +21,10 @@ import {
   matchedProductIds,
   unitAfterDiscount,
 } from '../data/furnicherAi'
+import {
+  askFurnicherGemini,
+  fetchFurnicherAiStatus,
+} from '../lib/furnicherAiGemini'
 import { WHATSAPP_CHAT_URL, WHATSAPP_DISPLAY } from '../lib/whatsapp'
 import './FurnicherAiPage.css'
 
@@ -34,15 +39,29 @@ export function FurnicherAiPage() {
   const [brief, setBrief] = useState<ProjectBrief>({ needs: [], step: 'start' })
   const [selections, setSelections] = useState<Record<string, number>>({})
   const [planName, setPlanName] = useState<string | undefined>()
+  const [planDataUrl, setPlanDataUrl] = useState<string | undefined>()
+  const [geminiOn, setGeminiOn] = useState(false)
+  const [geminiModel, setGeminiModel] = useState<string | undefined>()
+  const [busyGemini, setBusyGemini] = useState(false)
   const chatThreadRef = useRef<HTMLDivElement>(null)
   const fileRef = useRef<HTMLInputElement>(null)
   const prevMessageCount = useRef(0)
+  const messagesRef = useRef(messages)
+  messagesRef.current = messages
 
   const boq = useMemo(() => buildBoq(selections), [selections])
   const live = useMemo(
     () => computeLiveEstimate(brief, selections),
     [brief, selections],
   )
+
+  useEffect(() => {
+    if (!started) return
+    void fetchFurnicherAiStatus().then((s) => {
+      setGeminiOn(s.provider === 'gemini')
+      setGeminiModel(s.chatModel)
+    })
+  }, [started])
 
   // Scroll only the chat thread (not the whole page), and only when a new message arrives
   useEffect(() => {
@@ -86,19 +105,56 @@ export function FurnicherAiPage() {
     return `${WHATSAPP_CHAT_URL}?text=${encodeURIComponent(text)}`
   }, [brief, boq, planName, live, kitchenExtraLines])
 
-  function pushAi(turn: ReturnType<typeof furnicherAiReply>) {
+  /** Local FSM owns prices/products; Gemini polishes communication when connected */
+  async function deliverTurn(
+    userText: string,
+    turn: AiTurn,
+    opts?: { planDataUrl?: string },
+  ) {
     setBrief(turn.brief)
+    const aiId = uid()
     setMessages((prev) => [
       ...prev,
+      { id: uid(), role: 'user' as const, text: userText },
       {
-        id: uid(),
-        role: 'ai',
+        id: aiId,
+        role: 'ai' as const,
         text: turn.reply,
         productIds: turn.productIds,
         choices: turn.choices,
         showBoq: turn.showBoq,
       },
     ])
+
+    // Check live status each turn so key pasted mid-session still works
+    const status = await fetchFurnicherAiStatus()
+    const aiReady = status.configured
+    setGeminiOn(status.provider === 'gemini')
+    if (status.chatModel) setGeminiModel(status.chatModel)
+    if (!aiReady) return
+
+    setBusyGemini(true)
+    try {
+      const history = messagesRef.current
+        .filter((m) => m.role === 'user' || m.role === 'ai')
+        .map((m) => ({ role: m.role, text: m.text }))
+      const polished = await askFurnicherGemini({
+        message: userText,
+        brief: turn.brief,
+        history,
+        authoritativeDraft: turn.reply,
+        planDataUrl: opts?.planDataUrl || planDataUrl,
+        planName: turn.brief.planName || planName,
+      })
+      if (polished?.text) {
+        setGeminiModel(polished.model)
+        setMessages((prev) =>
+          prev.map((m) => (m.id === aiId ? { ...m, text: polished.text } : m)),
+        )
+      }
+    } finally {
+      setBusyGemini(false)
+    }
   }
 
   function openPlanPicker() {
@@ -158,11 +214,8 @@ export function FurnicherAiPage() {
         for (const id of ids) next[id] = qty
         return next
       })
-      setMessages((prev) => [
-        ...prev,
-        { id: uid(), role: 'user', text: `Add matched set × ${qty}` },
-      ])
-      pushAi({
+      setInput('')
+      void deliverTurn(`Add matched set × ${qty}`, {
         brief: { ...brief, step: 'boq' },
         reply: `Added **${ids.length}** matched products × **${qty}** into your chat BOQ. The **live calculator** above updates with your cart. Tap WhatsApp when ready for Priyabadal Homes.`,
         productIds: ids,
@@ -173,44 +226,25 @@ export function FurnicherAiPage() {
           { id: 'wa', label: 'WhatsApp Priyabadal Homes', value: 'I am ready for WhatsApp BOQ' },
         ],
       })
-      setInput('')
       return
     }
 
     if (/ready for whatsapp/i.test(trimmed)) {
-      setMessages((prev) => [
-        ...prev,
-        { id: uid(), role: 'user', text: trimmed },
-        {
-          id: uid(),
-          role: 'ai',
-          text: boq.lines.length
-            ? `Your BOQ is ready. Tap **WhatsApp ${WHATSAPP_DISPLAY}** below to send this draft to Priyabadal Homes for final rates, finishes, and install.`
-            : 'Add products from the marketplace cards in chat first — then we can WhatsApp the BOQ.',
-          showBoq: true,
-          productIds: Object.keys(selections),
-        },
-      ])
+      void deliverTurn(trimmed, {
+        brief,
+        reply: boq.lines.length
+          ? `Your BOQ is ready. Tap **WhatsApp ${WHATSAPP_DISPLAY}** below to send this draft to Priyabadal Homes for final rates, finishes, and install.`
+          : 'Add products from the marketplace cards in chat first — then we can WhatsApp the BOQ.',
+        showBoq: true,
+        productIds: Object.keys(selections),
+      })
       setInput('')
       return
     }
 
-    const userMsg: ChatMessage = { id: uid(), role: 'user', text: trimmed }
     const turn = furnicherAiReply(trimmed, brief)
-    setBrief(turn.brief)
-    setMessages((prev) => [
-      ...prev,
-      userMsg,
-      {
-        id: uid(),
-        role: 'ai',
-        text: turn.reply,
-        productIds: turn.productIds,
-        choices: turn.choices,
-        showBoq: turn.showBoq,
-      },
-    ])
     setInput('')
+    void deliverTurn(trimmed, turn)
   }
 
   function setQty(productId: string, qty: number) {
@@ -271,23 +305,37 @@ export function FurnicherAiPage() {
       step: brief.roomFormat ? brief.step : 'format',
     }
     setBrief(nextBrief)
-    setMessages((prev) => [
-      ...prev,
-      { id: uid(), role: 'user', text: `Uploaded floor plan: ${file.name}` },
-    ])
-    const turn = furnicherAiReply(
-      `Floor plan ${file.name} attached. ${brief.roomCount ? `${brief.roomCount} units` : ''}`.trim(),
-      nextBrief,
-    )
-    // Ensure hasPlan stays true after detectFromText
-    pushAi({
-      ...turn,
-      brief: { ...turn.brief, hasPlan: true, planName: file.name, entry: 'plan' },
-      reply: turn.brief.roomFormat
-        ? turn.reply
-        : `Floor plan **${file.name}** received. I’ll cost a **similar bulk product range** from this plan — kitchen length in feet matters most for price.\n\nConfirm unit type, then count + kitchen run. Marketplace picks will appear in this chat.`,
-    })
-    if (fileRef.current) fileRef.current.value = ''
+
+    const finish = (dataUrl?: string) => {
+      if (dataUrl) setPlanDataUrl(dataUrl)
+      const userText = `Uploaded floor plan: ${file.name}`
+      const turn = furnicherAiReply(
+        `Floor plan ${file.name} attached. ${brief.roomCount ? `${brief.roomCount} units` : ''}`.trim(),
+        nextBrief,
+      )
+      void deliverTurn(
+        userText,
+        {
+          ...turn,
+          brief: { ...turn.brief, hasPlan: true, planName: file.name, entry: 'plan' },
+          reply: turn.brief.roomFormat
+            ? turn.reply
+            : `Floor plan **${file.name}** received. I’ll draft a **similar bulk product range** from this plan — kitchen length in feet matters most for the guide cost.\n\nConfirm unit type, then count + kitchen run. Marketplace picks will appear in this chat.`,
+        },
+        { planDataUrl: dataUrl },
+      )
+      if (fileRef.current) fileRef.current.value = ''
+    }
+
+    if (file.type.startsWith('image/') || /\.(png|jpe?g|webp|gif)$/i.test(file.name)) {
+      const reader = new FileReader()
+      reader.onload = () => finish(typeof reader.result === 'string' ? reader.result : undefined)
+      reader.onerror = () => finish()
+      reader.readAsDataURL(file)
+      return
+    }
+
+    finish()
   }
 
   if (!started) {
@@ -301,9 +349,9 @@ export function FurnicherAiPage() {
             <p className="fa-gate__tag">{FURNICHER_TAGLINE}</p>
             <p className="fa-gate__lede">
               Start with your <strong>floor plan</strong> or a short <strong>project prompt</strong>.
-              The live AI calculator shows a <strong>draft bulk range</strong> (kitchen size matters) —
-              not factory/production MRP. Marketplace products stay in chat; Priyabadal Homes confirms
-              exact figures on WhatsApp.
+              <strong> Gemini</strong> handles natural conversation; our live calculator keeps{' '}
+              <strong>draft price bands</strong> accurate (not factory MRP). Marketplace stays in chat;
+              Priyabadal Homes confirms exact figures on WhatsApp.
             </p>
             <div className="fa-gate__actions">
               <button type="button" className="fa-btn fa-btn--primary" onClick={() => setStarted(true)}>
@@ -334,6 +382,13 @@ export function FurnicherAiPage() {
             {brief.roomFormat ? ` · ${brief.roomFormat}` : ''}
             {brief.roomCount ? ` · ${brief.roomCount}` : ''}
             {brief.kitchenRunFt ? ` · kit ${brief.kitchenRunFt}ft` : ''}
+          </span>
+          <span className={geminiOn ? 'is-hot' : ''}>
+            {busyGemini
+              ? 'Gemini writing…'
+              : geminiOn
+                ? `Gemini on${geminiModel ? ` · ${geminiModel}` : ''}`
+                : 'Local guide · add Gemini key in /ai-admin'}
           </span>
           <span className={boq.totalQty ? 'is-hot' : ''}>{boq.totalQty} lines in BOQ</span>
         </div>

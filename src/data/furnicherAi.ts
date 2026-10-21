@@ -307,6 +307,32 @@ export function formatInr(n: number) {
   }).format(n)
 }
 
+/** Coarse rounding — never present rupee-exact “production” figures in the AI desk */
+export function roundIndicative(n: number) {
+  if (!Number.isFinite(n) || n <= 0) return 0
+  if (n >= 100_000) return Math.round(n / 5_000) * 5_000
+  if (n >= 10_000) return Math.round(n / 1_000) * 1_000
+  return Math.round(n / 500) * 500
+}
+
+/** ~₹1,40,000 style — draft / similar-range only */
+export function formatInrApprox(n: number) {
+  return `~${formatInr(roundIndicative(n))}`
+}
+
+/** Band around a draft total so Gemini/AI never looks like a factory quote */
+export function formatInrRange(n: number, spread = 0.08) {
+  const mid = roundIndicative(n)
+  const lo = roundIndicative(n * (1 - spread))
+  const hi = roundIndicative(n * (1 + spread))
+  if (!mid) return '—'
+  if (lo === hi) return formatInrApprox(mid)
+  return `${formatInr(lo)}–${formatInr(hi)}`
+}
+
+export const PRICE_DISCLAIMER =
+  'Draft bulk range only — not a factory / production quote. Priyabadal Homes confirms exact rates on WhatsApp.'
+
 /* ——— Chat flow (everything stays in chat) ——— */
 
 export type ChatRole = 'ai' | 'user'
@@ -367,7 +393,10 @@ export type ProjectBrief = {
     | 'boq'
 }
 
-/** Indicative kitchen rate used by live calculator (INR / running ft) */
+/**
+ * Indicative kitchen rate for live calculator (INR / running ft).
+ * Shown as a guide band — never as locked production MRP.
+ */
 export const KITCHEN_RATE_PER_FT = 4500
 
 export type LiveEstimate = {
@@ -488,7 +517,7 @@ export function initialAiMessages(): ChatMessage[] {
       id: 'm0',
       role: 'ai',
       text:
-        'Welcome to **FurnicherAI** — live bulk costing for hotels & hostels.\n\nStart in **one of two ways**:\n\n**1) Floor plan** — upload your 2D/3D/PDF and I’ll cost a similar bulk product range around kitchen size, wardrobe, sofa & TV.\n\n**2) Prompt** — type your project (example: *“24 hotel 1BHK, kitchen 8 ft, sliding wardrobe, 42 inch TV”*).\n\nThe live calculator updates as we talk. Marketplace picks appear here in chat.',
+        'Welcome to **FurnicherAI** — live bulk **draft** costing for hotels & hostels.\n\nStart in **one of two ways**:\n\n**1) Floor plan** — upload your 2D/3D/PDF and I’ll estimate a **similar bulk product range** (kitchen size, wardrobe, sofa & TV).\n\n**2) Prompt** — type your project (example: *“24 hotel 1BHK, kitchen 8 ft, sliding wardrobe, 42 inch TV”*).\n\nThe live calculator shows **approx ranges**, not factory/production MRP. Final figures are confirmed by Priyabadal Homes on WhatsApp. Marketplace picks stay in this chat.',
       choices: [
         {
           id: 'c-plan',
@@ -628,17 +657,17 @@ function detectFromText(t: string, brief: ProjectBrief): ProjectBrief {
 function estimateBlurb(brief: ProjectBrief): string {
   const est = computeLiveEstimate(brief, {})
   if (!est.ready) {
-    return 'Live calculator is waiting for room count + a few specs (kitchen size matters a lot for cost).'
+    return 'Live calculator is waiting for room count + a few specs (kitchen size matters a lot for the draft range).'
   }
   return [
-    `**Live estimate** (similar bulk range · draft):`,
-    `• Per unit ≈ **${formatInr(est.perUnitTotal)}**` +
+    `**Live draft range** (similar bulk look — not production MRP):`,
+    `• Per unit **${formatInrRange(est.perUnitTotal)}**` +
       (est.kitchenPerUnit
-        ? ` (kitchen ≈ ${formatInr(est.kitchenPerUnit)} for ${brief.kitchenRunFt || brief.kitchen} )`
+        ? ` (kitchen band ~${formatInrApprox(est.kitchenPerUnit)} for ${brief.kitchenRunFt || brief.kitchen})`
         : ''),
-    `• × **${est.roomCount}** units → list **${formatInr(est.listTotal)}**`,
-    `• Bulk tier **${est.tier.label}** → draft **${formatInr(est.draftTotal)}**`,
-    `Final rates confirmed by Priyabadal Homes on WhatsApp.`,
+    `• × **${est.roomCount}** units → list band **${formatInrRange(est.listTotal)}**`,
+    `• Bulk tier **${est.tier.label}** → project draft **${formatInrRange(est.draftTotal)}**`,
+    PRICE_DISCLAIMER,
   ].join('\n')
 }
 
@@ -776,7 +805,7 @@ export function furnicherAiReply(userText: string, brief: ProjectBrief): AiTurn 
     return {
       brief: next,
       reply:
-        `Kitchen size drives a big part of bulk cost. From your ${next.hasPlan ? 'floor plan' : 'prompt'}, what kitchen run do you want per unit?\n\n(Live rate ≈ **${formatInr(KITCHEN_RATE_PER_FT)} / ft**)`,
+        `Kitchen size drives a big part of the **draft** bulk range. From your ${next.hasPlan ? 'floor plan' : 'prompt'}, what kitchen run do you want per unit?\n\n(Guide rate ≈ **${formatInrApprox(KITCHEN_RATE_PER_FT)} / ft** — indicative, not factory MRP)`,
       choices: [
         { id: 'k6', label: 'Kitchen 6 ft (small)', value: 'kitchen 6 ft' },
         { id: 'k8', label: 'Kitchen 8 ft', value: 'kitchen 8 ft' },
@@ -840,7 +869,7 @@ export function furnicherAiReply(userText: string, brief: ProjectBrief): AiTurn 
     `Type: **${next.projectType}** · **${next.roomFormat}** × **${next.roomCount}**`,
     next.unitSqft ? `Unit area note: **${next.unitSqft} sq ft**` : null,
     next.kitchenRunFt
-      ? `Kitchen: **${next.kitchenRunFt} ft** (~${formatInr(next.kitchenRunFt * KITCHEN_RATE_PER_FT)} / unit)`
+      ? `Kitchen: **${next.kitchenRunFt} ft** (draft ~${formatInrApprox(next.kitchenRunFt * KITCHEN_RATE_PER_FT)} / unit)`
       : next.kitchen
         ? `Kitchen: **${next.kitchen}**`
         : null,
@@ -858,7 +887,7 @@ export function furnicherAiReply(userText: string, brief: ProjectBrief): AiTurn 
     defaultQty: next.roomCount,
     productIds: picks,
     showBoq: false,
-    reply: `${summary}\n\nMatching **marketplace** products for this bulk range are below. Add what you want — calculator stays live. Then **Build BOQ**.`,
+    reply: `${summary}\n\nMatching **marketplace** products for this **similar bulk range** are below (guide prices). Add what you want — calculator stays live as a draft. Then **Build BOQ** for WhatsApp confirmation.`,
     choices: [
       { id: 'add-all', label: `Add matched set × ${next.roomCount}`, value: 'ADD_MATCHED_SET' },
       { id: 'boq', label: 'Build BOQ now', value: 'Build BOQ now' },
@@ -920,7 +949,7 @@ export function boqWhatsAppText(opts: {
     brief.tv ? `TV unit: ${brief.tv}″` : null,
     brief.wardrobe ? `Wardrobe: ${brief.wardrobe}` : null,
     brief.kitchenRunFt
-      ? `Kitchen run: ${brief.kitchenRunFt} ft (~${formatInr(brief.kitchenRunFt * KITCHEN_RATE_PER_FT)} / unit draft)`
+      ? `Kitchen run: ${brief.kitchenRunFt} ft (draft ~${formatInrApprox(brief.kitchenRunFt * KITCHEN_RATE_PER_FT)} / unit)`
       : brief.kitchen
         ? `Kitchen: ${brief.kitchen}`
         : null,
@@ -928,16 +957,17 @@ export function boqWhatsAppText(opts: {
     brief.city ? `City: ${brief.city}` : null,
     planName || brief.planName ? `Floor plan: ${planName || brief.planName}` : null,
     '',
-    'BOQ draft:',
+    'BOQ draft (indicative range — NOT a production / factory quote):',
     ...rows,
     ...extras,
     '',
-    `Bulk tier: ${tier.label} (${Math.round(tier.discount * 100)}% off)`,
-    `List total: ${formatInr(listTotal)}`,
-    `Draft total: ${formatInr(grandTotal)}`,
-    save > 0 ? `Estimated bulk saving: ${formatInr(save)}` : null,
+    `Bulk tier: ${tier.label} (${Math.round(tier.discount * 100)}% guide off)`,
+    `List band: ${formatInrRange(listTotal)}`,
+    `Project draft band: ${formatInrRange(grandTotal)}`,
+    save > 0 ? `Indicative bulk saving band: ${formatInrRange(save)}` : null,
     '',
-    'Please confirm final rates, finishes, timeline & install.',
+    PRICE_DISCLAIMER,
+    'Please confirm final rates, finishes, timeline & install on this WhatsApp.',
     '— Sent from FurnicherAI chat (Priyabadal Homes)',
   ]
     .filter(Boolean)

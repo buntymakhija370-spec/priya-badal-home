@@ -11,7 +11,9 @@ import {
   buildBoq,
   boqWhatsAppText,
   computeLiveEstimate,
-  formatInr,
+  PRICE_DISCLAIMER,
+  formatInrApprox,
+  formatInrRange,
   furnicherAiReply,
   getFurnicherProduct,
   initialAiMessages,
@@ -299,8 +301,9 @@ export function FurnicherAiPage() {
             <p className="fa-gate__tag">{FURNICHER_TAGLINE}</p>
             <p className="fa-gate__lede">
               Start with your <strong>floor plan</strong> or a short <strong>project prompt</strong>.
-              The live AI calculator prices a similar bulk range (kitchen size matters), shows
-              marketplace products in chat, then builds a BOQ for WhatsApp with Priyabadal Homes.
+              The live AI calculator shows a <strong>draft bulk range</strong> (kitchen size matters) —
+              not factory/production MRP. Marketplace products stay in chat; Priyabadal Homes confirms
+              exact figures on WhatsApp.
             </p>
             <div className="fa-gate__actions">
               <button type="button" className="fa-btn fa-btn--primary" onClick={() => setStarted(true)}>
@@ -336,37 +339,43 @@ export function FurnicherAiPage() {
         </div>
       </header>
 
-      <aside className="fa-live" aria-live="polite" aria-label="Live cost calculator">
+      <aside className="fa-live" aria-live="polite" aria-label="Live draft cost calculator">
         <div className="fa-live__head">
-          <strong>Live calculator</strong>
+          <strong>Live draft range</strong>
           <span>
-            Kitchen ≈ {formatInr(KITCHEN_RATE_PER_FT)}/ft
+            Kitchen guide {formatInrApprox(KITCHEN_RATE_PER_FT)}/ft
             {planName ? ` · ${planName}` : ''}
           </span>
         </div>
         {live.ready ? (
-          <div className="fa-live__grid">
-            <div>
-              <em>Per unit</em>
-              <strong>{formatInr(live.perUnitTotal)}</strong>
-              {live.kitchenPerUnit > 0 ? (
-                <small>Kitchen {formatInr(live.kitchenPerUnit)}</small>
-              ) : null}
+          <>
+            <div className="fa-live__grid">
+              <div>
+                <em>Per unit band</em>
+                <strong>{formatInrRange(live.perUnitTotal)}</strong>
+                {live.kitchenPerUnit > 0 ? (
+                  <small>Kitchen ~{formatInrApprox(live.kitchenPerUnit)}</small>
+                ) : null}
+              </div>
+              <div>
+                <em>× {live.roomCount || '—'} units</em>
+                <strong>{formatInrRange(live.listTotal)}</strong>
+                <small>List band before bulk</small>
+              </div>
+              <div className="fa-live__draft">
+                <em>{live.tier.label} draft</em>
+                <strong>{formatInrRange(live.draftTotal)}</strong>
+                {live.saving > 0 ? (
+                  <small>Guide save ~{formatInrApprox(live.saving)}</small>
+                ) : null}
+              </div>
             </div>
-            <div>
-              <em>× {live.roomCount || '—'} units</em>
-              <strong>{formatInr(live.listTotal)}</strong>
-              <small>List before bulk</small>
-            </div>
-            <div className="fa-live__draft">
-              <em>{live.tier.label}</em>
-              <strong>{formatInr(live.draftTotal)}</strong>
-              {live.saving > 0 ? <small>Save {formatInr(live.saving)}</small> : null}
-            </div>
-          </div>
+            <p className="fa-live__note">{PRICE_DISCLAIMER}</p>
+          </>
         ) : (
           <p className="fa-live__wait">
-            Waiting for floor plan or prompt + unit count. Kitchen length (ft) moves the total most.
+            Waiting for floor plan or prompt + unit count. Kitchen length (ft) moves the draft range
+            most — figures stay approximate until WhatsApp confirmation.
           </p>
         )}
       </aside>
@@ -409,8 +418,8 @@ export function FurnicherAiPage() {
                           <h3>{p.name}</h3>
                           <p>{p.tagline}</p>
                           <p className="fa-mini-card__price">
-                            <strong>{formatInr(net)}</strong>
-                            <span>MOQ {p.moq}</span>
+                            <strong>from {formatInrApprox(net)}</strong>
+                            <span>MOQ {p.moq} · guide</span>
                           </p>
                           <div className="fa-mini-card__actions">
                             <button type="button" onClick={() => addProduct(id, addQty)}>
@@ -440,10 +449,10 @@ export function FurnicherAiPage() {
               {m.showBoq && (boq.lines.length > 0 || kitchenExtraLines.length > 0) ? (
                 <div className="fa-inline-boq">
                   <header>
-                    <strong>BOQ draft</strong>
+                    <strong>BOQ draft range</strong>
                     <span>
-                      {(live.ready ? live.tier : boq.tier).label} · −
-                      {Math.round((live.ready ? live.tier : boq.tier).discount * 100)}%
+                      {(live.ready ? live.tier : boq.tier).label} · ~
+                      {Math.round((live.ready ? live.tier : boq.tier).discount * 100)}% guide
                     </span>
                   </header>
                   <ul>
@@ -452,25 +461,30 @@ export function FurnicherAiPage() {
                         <span>
                           {l.product.name} × {l.qty}
                         </span>
-                        <span>{formatInr(l.lineTotal)}</span>
+                        <span>~{formatInrApprox(l.lineTotal)}</span>
                       </li>
                     ))}
                     {kitchenExtraLines.map((l) => (
                       <li key={l.label}>
                         <span>{l.label}</span>
-                        <span>{formatInr(l.amount)}</span>
+                        <span>~{formatInrApprox(l.amount)}</span>
                       </li>
                     ))}
                   </ul>
                   <p className="fa-inline-boq__total">
-                    Draft total{' '}
-                    <strong>{formatInr(live.ready ? live.draftTotal : boq.grandTotal)}</strong>
+                    Project draft band{' '}
+                    <strong>
+                      {formatInrRange(live.ready ? live.draftTotal : boq.grandTotal)}
+                    </strong>
                     {(live.ready ? live.saving : boq.listTotal - boq.grandTotal) > 0 ? (
                       <small>
-                        Save{' '}
-                        {formatInr(live.ready ? live.saving : boq.listTotal - boq.grandTotal)}
+                        Guide save ~{' '}
+                        {formatInrApprox(
+                          live.ready ? live.saving : boq.listTotal - boq.grandTotal,
+                        )}
                       </small>
                     ) : null}
+                    <small>{PRICE_DISCLAIMER}</small>
                   </p>
                   <a className="fa-btn fa-btn--primary" href={waHref} target="_blank" rel="noopener noreferrer">
                     WhatsApp BOQ · {WHATSAPP_DISPLAY}

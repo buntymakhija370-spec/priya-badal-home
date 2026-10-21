@@ -294,6 +294,189 @@
   font-size: 0.95rem;
 }
 
+.fa--chat-only .fa-chat--full {
+  max-width: 48rem;
+}
+
+.fa--chat-only .fa-chat__thread {
+  min-height: 55vh;
+  max-height: min(70vh, 720px);
+}
+
+.fa-msg {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+  margin-bottom: 0.35rem;
+}
+
+.fa-chat__quick--inline {
+  max-width: min(36rem, 96%);
+}
+
+.fa-inline-products {
+  display: grid;
+  gap: 0.65rem;
+  max-width: min(36rem, 96%);
+}
+
+.fa-mini-card {
+  display: grid;
+  grid-template-columns: 88px 1fr;
+  gap: 0.65rem;
+  padding: 0.55rem;
+  background: var(--fa-card);
+  border: 1px solid var(--fa-line);
+}
+
+.fa-mini-card img {
+  width: 88px;
+  height: 88px;
+  object-fit: cover;
+  background: #e8eef2;
+}
+
+.fa-mini-card h3 {
+  margin: 0;
+  font-size: 0.92rem;
+  letter-spacing: -0.02em;
+}
+
+.fa-mini-card p {
+  margin: 0.15rem 0 0;
+  font-size: 0.78rem;
+  color: var(--fa-ink-soft);
+}
+
+.fa-mini-card__price {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.4rem;
+  align-items: baseline;
+  margin-top: 0.35rem !important;
+}
+
+.fa-mini-card__price strong {
+  color: var(--fa-ink);
+  font-size: 0.95rem;
+}
+
+.fa-mini-card__actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.35rem;
+  margin-top: 0.45rem;
+  align-items: center;
+}
+
+.fa-mini-card__actions button {
+  min-height: 1.9rem;
+  padding: 0.25rem 0.55rem;
+  border: 1px solid var(--fa-teal);
+  background: var(--fa-teal);
+  color: #fff;
+  font-size: 0.75rem;
+  font-weight: 600;
+  cursor: pointer;
+}
+
+.fa-mini-card__actions button:nth-child(n + 2) {
+  background: var(--fa-paper);
+  color: var(--fa-ink);
+  border-color: var(--fa-line);
+  min-width: 1.9rem;
+}
+
+.fa-mini-card__qty {
+  font-size: 0.72rem;
+  font-weight: 600;
+  color: var(--fa-teal-deep);
+}
+
+.fa-inline-boq {
+  max-width: min(36rem, 96%);
+  padding: 0.85rem 1rem;
+  background: var(--fa-ink);
+  color: #eef3f6;
+}
+
+.fa-inline-boq header {
+  display: flex;
+  justify-content: space-between;
+  gap: 0.5rem;
+  font-size: 0.85rem;
+  margin-bottom: 0.55rem;
+}
+
+.fa-inline-boq ul {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: grid;
+  gap: 0.35rem;
+  font-size: 0.84rem;
+}
+
+.fa-inline-boq li {
+  display: flex;
+  justify-content: space-between;
+  gap: 0.75rem;
+  padding: 0.25rem 0;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+}
+
+.fa-inline-boq__total {
+  margin: 0.75rem 0;
+  display: flex;
+  flex-direction: column;
+  gap: 0.2rem;
+  font-size: 0.95rem;
+}
+
+.fa-inline-boq__total strong {
+  color: var(--fa-amber);
+  font-size: 1.15rem;
+}
+
+.fa-inline-boq__total small {
+  color: rgba(238, 243, 246, 0.7);
+}
+
+.fa-inline-boq .fa-btn {
+  width: 100%;
+}
+
+.fa-chat__tools {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.4rem;
+  align-items: center;
+  margin-bottom: 0.55rem;
+}
+
+.fa-tool {
+  min-height: 2rem;
+  padding: 0.3rem 0.7rem;
+  border: 1px solid var(--fa-line);
+  background: var(--fa-card);
+  font-size: 0.78rem;
+  font-weight: 600;
+  cursor: pointer;
+  text-decoration: none;
+  color: var(--fa-ink);
+}
+
+.fa-tool--wa {
+  background: var(--fa-teal);
+  border-color: var(--fa-teal);
+  color: #fff;
+}
+
+.fa-tool-note {
+  font-size: 0.75rem;
+  color: var(--fa-ink-soft);
+}
+
 /* —— Market —— */
 .fa-market__head {
   display: flex;

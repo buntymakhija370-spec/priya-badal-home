@@ -158,6 +158,27 @@ export function HomePage() {
         </div>
       </section>
 
+      <section className="home-furnicher" aria-label="FurnicherAI bulk furniture">
+        <div className="home-furnicher__frame">
+          <p className="home-furnicher__eyebrow">Bulk · Hotels &amp; hostels</p>
+          <Link className="home-furnicher__link" to="/furnicher-ai">
+            <div className="home-furnicher__media" aria-hidden="true">
+              <img src="/products/categories/wardrobe.jpg" alt="" loading="eager" />
+              <div className="home-furnicher__wash" />
+            </div>
+            <div className="home-furnicher__copy">
+              <p className="home-furnicher__brand">FurnicherAI</p>
+              <h2 className="home-furnicher__title">Bulk furniture, AI project desk</h2>
+              <p className="home-furnicher__lede">
+                For hotel &amp; hostel fit-outs — explore beds, bedside, wardrobes, TV units,
+                build a full BOQ. Separate bulk lineup from Priyabadal Homes.
+              </p>
+              <span className="home-furnicher__cta">Start FurnicherAI</span>
+            </div>
+          </Link>
+        </div>
+      </section>
+
       <section className="home-kitchmock" aria-label="KitchMock kitchens">
         <div className="home-kitchmock__frame">
           <p className="home-kitchmock__eyebrow">Kitchen venture</p>

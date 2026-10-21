@@ -332,9 +332,15 @@ export type ChatMessage = {
 
 /** Guided configuration collected in chat */
 export type ProjectBrief = {
+  /** How the client started */
+  entry?: 'plan' | 'prompt'
   projectType?: 'hotel' | 'hostel' | 'commercial'
   roomFormat?: '1bhk' | 'standard-room' | 'hostel-bed' | 'custom'
   roomCount?: number
+  /** Optional unit carpet area from prompt / plan note */
+  unitSqft?: number
+  /** Kitchen run length in feet (drives live kitchen cost) */
+  kitchenRunFt?: number
   city?: string
   sofa?: '3-seater' | '5-seater' | 'none'
   tv?: '32' | '42' | 'none'
@@ -343,10 +349,14 @@ export type ProjectBrief = {
   needs: string[]
   notes?: string
   hasPlan?: boolean
+  planName?: string
+  /** Client free-text project prompt */
+  promptText?: string
   /** Internal dialogue step */
   step?:
     | 'start'
-    | 'type'
+    | 'entry'
+    | 'intake'
     | 'format'
     | 'count'
     | 'sofa'
@@ -357,18 +367,145 @@ export type ProjectBrief = {
     | 'boq'
 }
 
+/** Indicative kitchen rate used by live calculator (INR / running ft) */
+export const KITCHEN_RATE_PER_FT = 4500
+
+export type LiveEstimate = {
+  perUnitFurniture: number
+  kitchenPerUnit: number
+  perUnitTotal: number
+  roomCount: number
+  subtotal: number
+  tier: BulkTier
+  draftTotal: number
+  listTotal: number
+  saving: number
+  lines: { label: string; amount: number }[]
+  ready: boolean
+}
+
+/** Live AI calculator — updates as brief + cart change */
+export function computeLiveEstimate(
+  brief: ProjectBrief,
+  selections: Record<string, number>,
+): LiveEstimate {
+  const roomCount = brief.roomCount || 0
+  const ids = matchedProductIds(brief)
+  const lines: { label: string; amount: number }[] = []
+  let perUnitFurniture = 0
+
+  // Prefer explicit cart selections when present
+  const hasCart = Object.values(selections).some((q) => q > 0)
+  if (hasCart) {
+    const boq = buildBoq(selections)
+    const hasKitSku = boq.lines.some(
+      (l) => l.product.id === 'fa-kit-small' || l.product.id === 'fa-kit-big',
+    )
+    const kitchenPerUnit =
+      !hasKitSku && brief.kitchenRunFt && brief.kitchen !== 'none'
+        ? Math.round(brief.kitchenRunFt * KITCHEN_RATE_PER_FT)
+        : 0
+    const kitchenBulk = kitchenPerUnit * Math.max(roomCount, 0)
+    const listTotal = boq.listTotal + kitchenBulk
+    const tier = tierForQty(Math.max(roomCount, boq.totalQty))
+    const draftTotal = Math.round(listTotal * (1 - tier.discount))
+    const lines = boq.lines.map((l) => ({
+      label: `${l.product.name} × ${l.qty}`,
+      amount: l.lineTotal,
+    }))
+    if (kitchenBulk > 0) {
+      lines.push({
+        label: `Kitchen · ${brief.kitchenRunFt} ft × ${roomCount}`,
+        amount: kitchenBulk,
+      })
+    }
+    const units = Math.max(roomCount, 1)
+    return {
+      perUnitFurniture: Math.round(boq.listTotal / units),
+      kitchenPerUnit,
+      perUnitTotal: Math.round(listTotal / units),
+      roomCount: roomCount || boq.totalQty,
+      subtotal: listTotal,
+      tier,
+      draftTotal,
+      listTotal,
+      saving: Math.max(0, listTotal - draftTotal),
+      lines,
+      ready: boq.lines.length > 0 || kitchenBulk > 0,
+    }
+  }
+
+  for (const id of ids) {
+    const p = getFurnicherProduct(id)
+    if (!p) continue
+    // Kitchen packages superseded by run-ft calculator when kitchenRunFt set
+    if (
+      brief.kitchenRunFt &&
+      (id === 'fa-kit-small' || id === 'fa-kit-big')
+    ) {
+      continue
+    }
+    perUnitFurniture += p.unitPrice
+    lines.push({ label: p.name, amount: p.unitPrice })
+  }
+
+  let kitchenPerUnit = 0
+  if (brief.kitchenRunFt && brief.kitchen !== 'none') {
+    kitchenPerUnit = Math.round(brief.kitchenRunFt * KITCHEN_RATE_PER_FT)
+    lines.push({
+      label: `Kitchen · ${brief.kitchenRunFt} ft run`,
+      amount: kitchenPerUnit,
+    })
+  } else if (brief.kitchen === 'small') {
+    kitchenPerUnit = getFurnicherProduct('fa-kit-small')?.unitPrice || 0
+  } else if (brief.kitchen === 'big') {
+    kitchenPerUnit = getFurnicherProduct('fa-kit-big')?.unitPrice || 0
+  }
+
+  const perUnitTotal = perUnitFurniture + kitchenPerUnit
+  const listTotal = perUnitTotal * Math.max(roomCount, 0)
+  const tier = tierForQty(Math.max(roomCount, ids.length || 0))
+  const draftTotal = Math.round(listTotal * (1 - tier.discount))
+
+  return {
+    perUnitFurniture,
+    kitchenPerUnit,
+    perUnitTotal,
+    roomCount,
+    subtotal: listTotal,
+    tier,
+    draftTotal,
+    listTotal,
+    saving: Math.max(0, listTotal - draftTotal),
+    lines,
+    ready: Boolean(roomCount && (ids.length || kitchenPerUnit)),
+  }
+}
+
 export function initialAiMessages(): ChatMessage[] {
   return [
     {
       id: 'm0',
       role: 'ai',
       text:
-        'Welcome to **FurnicherAI**. Stay in this chat — I’ll help you pick every piece, show products here, and build your BOQ. Priyabadal Homes is the final verdict for production.\n\nWhat are you furnishing?',
+        'Welcome to **FurnicherAI** — live bulk costing for hotels & hostels.\n\nStart in **one of two ways**:\n\n**1) Floor plan** — upload your 2D/3D/PDF and I’ll cost a similar bulk product range around kitchen size, wardrobe, sofa & TV.\n\n**2) Prompt** — type your project (example: *“24 hotel 1BHK, kitchen 8 ft, sliding wardrobe, 42 inch TV”*).\n\nThe live calculator updates as we talk. Marketplace picks appear here in chat.',
       choices: [
-        { id: 'c-hotel-1bhk', label: 'Hotel 1BHK full package', value: 'Hotel 1BHK full package' },
-        { id: 'c-hotel-std', label: 'Hotel standard rooms', value: 'Hotel standard rooms' },
-        { id: 'c-hostel', label: 'Hostel / PG', value: 'Hostel rooms bulk' },
-        { id: 'c-commercial', label: 'Commercial bulk', value: 'Commercial bulk furniture' },
+        {
+          id: 'c-plan',
+          label: 'I will upload floor plan',
+          value: 'I will upload my floor plan',
+        },
+        {
+          id: 'c-prompt',
+          label: 'I will type a project prompt',
+          value: 'I will describe my project in a prompt',
+        },
+        {
+          id: 'c-example',
+          label: 'Try example prompt',
+          value:
+            '24 hotel 1BHK full package, kitchen 8 ft, sliding wardrobe, 3-seater sofa, 42 inch TV',
+        },
       ],
     },
   ]
@@ -402,6 +539,18 @@ function productIdsForBrief(brief: ProjectBrief): string[] {
 function detectFromText(t: string, brief: ProjectBrief): ProjectBrief {
   const next: ProjectBrief = { ...brief, needs: [...brief.needs] }
 
+  if (/\bupload.*(floor\s*plan|plan)|will upload|have (a )?floor plan|sending (the )?plan\b/.test(t)) {
+    next.entry = 'plan'
+    next.step = next.hasPlan ? next.step : 'intake'
+  }
+  if (
+    /\bdescribe|prompt|type (my )?project|will (type|write|describe)\b/.test(t) ||
+    (t.length > 40 && !next.entry)
+  ) {
+    next.entry = next.entry || 'prompt'
+    if (t.length > 40) next.promptText = t
+  }
+
   if (/\b1\s*bhk\b|\bone bhk\b/.test(t)) {
     next.roomFormat = '1bhk'
     next.projectType = next.projectType || 'hotel'
@@ -429,6 +578,19 @@ function detectFromText(t: string, brief: ProjectBrief): ProjectBrief {
     if (n >= 1 && n <= 5000) next.roomCount = n
   }
 
+  const sqftMatch = t.match(/(\d{2,4})\s*(sq\.?\s*ft|sqft|sft)/)
+  if (sqftMatch) next.unitSqft = Number(sqftMatch[1])
+
+  const kitFt =
+    t.match(/kitchen[^0-9]{0,12}(\d{1,2}(?:\.\d)?)\s*(ft|feet|foot|'|′)/) ||
+    t.match(/(\d{1,2}(?:\.\d)?)\s*(ft|feet)\s*kitchen/)
+  if (kitFt) {
+    next.kitchenRunFt = Number(kitFt[1])
+    if (next.kitchenRunFt <= 7) next.kitchen = 'small'
+    else if (next.kitchenRunFt >= 11) next.kitchen = 'big'
+    else next.kitchen = next.kitchen || 'small'
+  }
+
   if (/\b5\s*-?\s*seater|five seater\b/.test(t)) next.sofa = '5-seater'
   else if (/\b3\s*-?\s*seater|three seater\b/.test(t)) next.sofa = '3-seater'
   else if (/\bno sofa|without sofa\b/.test(t)) next.sofa = 'none'
@@ -446,9 +608,35 @@ function detectFromText(t: string, brief: ProjectBrief): ProjectBrief {
   else if (/\bsmall kitchen|compact kitchen\b/.test(t)) next.kitchen = 'small'
   else if (/\bno kitchen|without kitchen\b/.test(t)) next.kitchen = 'none'
 
-  if (/\b(floor\s*plan|2d|3d|drawing|layout|pdf)\b/.test(t)) next.hasPlan = true
+  // Only mark plan as attached when client says they already sent/have it — not “will upload”
+  if (
+    !next.hasPlan &&
+    /\b(attached|uploaded|sent|here is|here'?s)\b.{0,24}\b(floor\s*plan|plan|drawing|layout|pdf)\b/.test(
+      t,
+    )
+  ) {
+    next.hasPlan = true
+    next.entry = next.entry || 'plan'
+  }
 
   return next
+}
+
+function estimateBlurb(brief: ProjectBrief): string {
+  const est = computeLiveEstimate(brief, {})
+  if (!est.ready) {
+    return 'Live calculator is waiting for room count + a few specs (kitchen size matters a lot for cost).'
+  }
+  return [
+    `**Live estimate** (similar bulk range · draft):`,
+    `• Per unit ≈ **${formatInr(est.perUnitTotal)}**` +
+      (est.kitchenPerUnit
+        ? ` (kitchen ≈ ${formatInr(est.kitchenPerUnit)} for ${brief.kitchenRunFt || brief.kitchen} )`
+        : ''),
+    `• × **${est.roomCount}** units → list **${formatInr(est.listTotal)}**`,
+    `• Bulk tier **${est.tier.label}** → draft **${formatInr(est.draftTotal)}**`,
+    `Final rates confirmed by Priyabadal Homes on WhatsApp.`,
+  ].join('\n')
 }
 
 export type AiTurn = {
@@ -462,13 +650,10 @@ export type AiTurn = {
 }
 
 export function furnicherAiReply(userText: string, brief: ProjectBrief): AiTurn {
-  const t = userText.trim().toLowerCase()
+  const raw = userText.trim()
+  const t = raw.toLowerCase()
   let next = detectFromText(t, brief)
   const qtyDefault = next.roomCount || 10
-
-  if (/\bcontinue|show next|next option\b/.test(t)) {
-    // Re-enter step machine with current brief
-  }
 
   // Explicit BOQ request
   if (/\b(boq|quotation|quote|final|whatsapp|done|finish|grab)\b/.test(t)) {
@@ -477,7 +662,7 @@ export function furnicherAiReply(userText: string, brief: ProjectBrief): AiTurn 
       brief: next,
       showBoq: true,
       reply:
-        'Here is your **live BOQ draft** from this chat. Review lines below, adjust quantities on the product cards above if needed, then send to **WhatsApp** for Priyabadal Homes final confirmation.',
+        `${estimateBlurb(next)}\n\nHere is your **BOQ draft** from this chat. Adjust quantities on product cards, then WhatsApp Priyabadal Homes for final confirmation.`,
       productIds: productIdsForBrief(next),
       defaultQty: qtyDefault,
       choices: [
@@ -494,21 +679,67 @@ export function furnicherAiReply(userText: string, brief: ProjectBrief): AiTurn 
       tv: undefined,
       wardrobe: undefined,
       kitchen: undefined,
+      kitchenRunFt: undefined,
       step: 'sofa',
     }
   }
 
-  // Step machine
+  // ——— Entry: plan vs prompt ———
+  if (!next.entry && !next.hasPlan && !next.promptText && !(next.projectType && next.roomFormat)) {
+    next.step = 'entry'
+    return {
+      brief: next,
+      reply:
+        'First step: **floor plan** or **written prompt**?\n\n• Upload plan (button below), or\n• Type something like: *“30 hotel 1BHK, kitchen 8 ft, sliding wardrobe, 42 inch TV, 3-seater sofa”*',
+      choices: [
+        { id: 'plan', label: 'Upload floor plan', value: 'I will upload my floor plan' },
+        { id: 'prompt', label: 'Type project prompt', value: 'I will describe my project in a prompt' },
+      ],
+    }
+  }
+
+  if (next.entry === 'plan' && !next.hasPlan) {
+    next.step = 'intake'
+    return {
+      brief: next,
+      reply:
+        'Tap **Upload plan** under the chat, then tell me: how many units, and kitchen length in feet (example: *24 units, kitchen 8 ft*). I’ll run the **live calculator** and show matching marketplace products here.',
+      choices: [
+        { id: 'ex', label: '24 units, kitchen 8 ft', value: '24 hotel 1BHK, kitchen 8 ft' },
+      ],
+    }
+  }
+
+  // Rich prompt arrived before format — treat as intake complete enough to parse
+  if (next.entry === 'prompt' && !next.projectType && !next.roomFormat && raw.length < 24) {
+    next.step = 'intake'
+    return {
+      brief: next,
+      reply:
+        'Paste your project prompt. Include count + kitchen size if possible.\n\nExample: **24 hotel 1BHK full package, kitchen 8 ft, sliding wardrobe, 42 inch TV, 3-seater sofa**',
+      choices: [
+        {
+          id: 'ex',
+          label: 'Use example prompt',
+          value:
+            '24 hotel 1BHK full package, kitchen 8 ft, sliding wardrobe, 3-seater sofa, 42 inch TV',
+        },
+      ],
+    }
+  }
+
   if (!next.projectType || !next.roomFormat) {
     next.step = 'format'
     return {
       brief: next,
       reply:
-        'Let’s lock the package type first. Are you doing a **Hotel 1BHK full package**, **standard hotel rooms**, or **hostel beds**?',
+        next.hasPlan
+          ? 'Plan noted. For costing, confirm the unit type on that plan:'
+          : 'Got your prompt start. Confirm the unit type so the live calculator can price a similar bulk range:',
       choices: [
         { id: '1bhk', label: 'Hotel 1BHK full package', value: 'Hotel 1BHK full package' },
-        { id: 'std', label: 'Hotel standard rooms', value: 'Hotel standard rooms 40 keys' },
-        { id: 'hostel', label: 'Hostel / PG', value: 'Hostel 40 rooms' },
+        { id: 'std', label: 'Hotel standard rooms', value: 'Hotel standard rooms' },
+        { id: 'hostel', label: 'Hostel / PG', value: 'Hostel rooms bulk' },
       ],
       productIds: ['fa-pkg-1bhk', 'fa-pkg-hotel-standard', 'fa-pkg-hostel'],
       defaultQty: qtyDefault,
@@ -517,15 +748,9 @@ export function furnicherAiReply(userText: string, brief: ProjectBrief): AiTurn 
 
   if (!next.roomCount) {
     next.step = 'count'
-    const label =
-      next.roomFormat === '1bhk'
-        ? '1BHK units'
-        : next.roomFormat === 'hostel-bed'
-          ? 'hostel rooms'
-          : 'hotel rooms'
     return {
       brief: next,
-      reply: `Great — **${next.projectType}** · **${next.roomFormat}**. How many ${label} do you need? (Example: 24)`,
+      reply: `How many **${next.roomFormat}** units are on the plan / project? (Live cost scales with quantity.)`,
       choices: [
         { id: 'q10', label: '10', value: '10 units' },
         { id: 'q20', label: '20', value: '20 units' },
@@ -535,17 +760,35 @@ export function furnicherAiReply(userText: string, brief: ProjectBrief): AiTurn 
     }
   }
 
-  // 1BHK / full package configuration path
   const needsConfig =
     next.roomFormat === '1bhk' ||
-    /\bfull package\b/.test(t) ||
-    next.needs.includes('room-packages')
+    next.needs.includes('room-packages') ||
+    next.entry === 'plan' ||
+    next.entry === 'prompt'
+
+  // Kitchen size early — biggest cost swing
+  if (needsConfig && next.kitchen === undefined && next.kitchenRunFt == null) {
+    next.step = 'kitchen'
+    return {
+      brief: next,
+      reply:
+        `Kitchen size drives a big part of bulk cost. From your ${next.hasPlan ? 'floor plan' : 'prompt'}, what kitchen run do you want per unit?\n\n(Live rate ≈ **${formatInr(KITCHEN_RATE_PER_FT)} / ft**)`,
+      choices: [
+        { id: 'k6', label: 'Kitchen 6 ft (small)', value: 'kitchen 6 ft' },
+        { id: 'k8', label: 'Kitchen 8 ft', value: 'kitchen 8 ft' },
+        { id: 'k12', label: 'Kitchen 12 ft (big)', value: 'kitchen 12 ft' },
+        { id: 'kn', label: 'No kitchen', value: 'no kitchen' },
+      ],
+      productIds: ['fa-kit-small', 'fa-kit-big'],
+      defaultQty: next.roomCount,
+    }
+  }
 
   if (needsConfig && !next.sofa) {
     next.step = 'sofa'
     return {
       brief: next,
-      reply: `For your **${next.roomCount} × ${next.roomFormat}** project — which sofa do you want in the living area?`,
+      reply: `${estimateBlurb(next)}\n\nSofa for living — same look across all **${next.roomCount}** units?`,
       choices: [
         { id: 's3', label: '3-seater sofa', value: '3-seater sofa' },
         { id: 's5', label: '5-seater sofa', value: '5-seater sofa' },
@@ -560,7 +803,7 @@ export function furnicherAiReply(userText: string, brief: ProjectBrief): AiTurn 
     next.step = 'tv'
     return {
       brief: next,
-      reply: 'Which TV size should the TV unit be made for?',
+      reply: `${estimateBlurb(next)}\n\nTV unit size for each room?`,
       choices: [
         { id: 't32', label: '32″ TV unit', value: '32 inch TV unit' },
         { id: 't42', label: '42″ TV unit', value: '42 inch TV unit' },
@@ -575,7 +818,7 @@ export function furnicherAiReply(userText: string, brief: ProjectBrief): AiTurn 
     next.step = 'wardrobe'
     return {
       brief: next,
-      reply: 'Which wardrobe type for the bedroom?',
+      reply: `${estimateBlurb(next)}\n\nWardrobe type (bulk identical façades)?`,
       choices: [
         { id: 'ws', label: 'Sliding wardrobe', value: 'sliding wardrobe' },
         { id: 'wo', label: 'Openable wardrobe', value: 'openable wardrobe' },
@@ -586,33 +829,24 @@ export function furnicherAiReply(userText: string, brief: ProjectBrief): AiTurn 
     }
   }
 
-  if (needsConfig && !next.kitchen) {
-    next.step = 'kitchen'
-    return {
-      brief: next,
-      reply: 'Kitchen size for each 1BHK?',
-      choices: [
-        { id: 'ks', label: 'Small kitchen', value: 'small kitchen' },
-        { id: 'kb', label: 'Big kitchen', value: 'big kitchen' },
-        { id: 'kn', label: 'No kitchen', value: 'no kitchen' },
-      ],
-      productIds: ['fa-kit-small', 'fa-kit-big'],
-      defaultQty: next.roomCount,
-    }
-  }
-
-  // Config complete → show curated picks + ask to add / BOQ
   next.step = 'picks'
   const picks = productIdsForBrief(next)
   const summary = [
-    `Type: **${next.projectType}**`,
-    `Format: **${next.roomFormat}** × **${next.roomCount}**`,
+    next.hasPlan || next.planName ? `Source: **floor plan**${next.planName ? ` (${next.planName})` : ''}` : 'Source: **prompt**',
+    `Type: **${next.projectType}** · **${next.roomFormat}** × **${next.roomCount}**`,
+    next.unitSqft ? `Unit area note: **${next.unitSqft} sq ft**` : null,
+    next.kitchenRunFt
+      ? `Kitchen: **${next.kitchenRunFt} ft** (~${formatInr(next.kitchenRunFt * KITCHEN_RATE_PER_FT)} / unit)`
+      : next.kitchen
+        ? `Kitchen: **${next.kitchen}**`
+        : null,
     next.sofa ? `Sofa: **${next.sofa}**` : null,
-    next.tv ? `TV: **${next.tv}″ unit**` : null,
+    next.tv ? `TV: **${next.tv}″**` : null,
     next.wardrobe ? `Wardrobe: **${next.wardrobe}**` : null,
-    next.kitchen ? `Kitchen: **${next.kitchen}**` : null,
+    '',
+    estimateBlurb(next),
   ]
-    .filter(Boolean)
+    .filter((x) => x !== null)
     .join('\n')
 
   return {
@@ -620,7 +854,7 @@ export function furnicherAiReply(userText: string, brief: ProjectBrief): AiTurn 
     defaultQty: next.roomCount,
     productIds: picks,
     showBoq: false,
-    reply: `Your FurnicherAI brief (Priyabadal Homes bulk desk):\n\n${summary}\n\nBelow are the marketplace products that match. Tap **Add × ${next.roomCount}** on each card you want — stay in chat. When ready, tap **Build BOQ**.`,
+    reply: `${summary}\n\nMatching **marketplace** products for this bulk range are below. Add what you want — calculator stays live. Then **Build BOQ**.`,
     choices: [
       { id: 'add-all', label: `Add matched set × ${next.roomCount}`, value: 'ADD_MATCHED_SET' },
       { id: 'boq', label: 'Build BOQ now', value: 'Build BOQ now' },
@@ -642,8 +876,11 @@ export function matchedProductIds(brief: ProjectBrief): string[] {
     if (brief.wardrobe === 'slider') ids.push('fa-wr-slider')
     if (brief.wardrobe === 'openable') ids.push('fa-wr-openable')
     if (brief.wardrobe === 'compact') ids.push('fa-wr-compact')
-    if (brief.kitchen === 'small') ids.push('fa-kit-small')
-    if (brief.kitchen === 'big') ids.push('fa-kit-big')
+    // When run-ft kitchen is set, live calc prices kitchen — avoid double kit SKUs in cart
+    if (!brief.kitchenRunFt) {
+      if (brief.kitchen === 'small') ids.push('fa-kit-small')
+      if (brief.kitchen === 'big') ids.push('fa-kit-big')
+    }
   } else if (brief.roomFormat === 'standard-room') {
     ids.push('fa-pkg-hotel-standard')
   } else if (brief.roomFormat === 'hostel-bed') {
@@ -670,12 +907,19 @@ export function boqWhatsAppText(opts: {
     'Hi Priyabadal Homes — FurnicherAI bulk enquiry',
     '',
     `Project: ${brief.projectType || '—'} · ${brief.roomFormat || '—'} · ${brief.roomCount ?? '—'} units`,
+    brief.entry ? `Started with: ${brief.entry === 'plan' ? 'floor plan' : 'project prompt'}` : null,
+    brief.promptText ? `Client prompt: ${brief.promptText.slice(0, 280)}` : null,
     brief.sofa ? `Sofa: ${brief.sofa}` : null,
     brief.tv ? `TV unit: ${brief.tv}″` : null,
     brief.wardrobe ? `Wardrobe: ${brief.wardrobe}` : null,
-    brief.kitchen ? `Kitchen: ${brief.kitchen}` : null,
+    brief.kitchenRunFt
+      ? `Kitchen run: ${brief.kitchenRunFt} ft (~₹${(brief.kitchenRunFt * KITCHEN_RATE_PER_FT).toLocaleString('en-IN')} / unit draft)`
+      : brief.kitchen
+        ? `Kitchen: ${brief.kitchen}`
+        : null,
+    brief.unitSqft ? `Unit area note: ${brief.unitSqft} sq ft` : null,
     brief.city ? `City: ${brief.city}` : null,
-    planName ? `Floor plan: ${planName}` : null,
+    planName || brief.planName ? `Floor plan: ${planName || brief.planName}` : null,
     '',
     'BOQ draft:',
     ...rows,

@@ -195,6 +195,94 @@
   font-weight: 600;
 }
 
+/* —— Sticky live AI calculator —— */
+.fa-live {
+  position: sticky;
+  top: var(--nav-h, 4rem);
+  z-index: 4;
+  margin: 0;
+  padding: 0.75rem var(--fa-inline);
+  background: linear-gradient(110deg, #102018 0%, #15282a 55%, #1a2228 100%);
+  color: #eef3f6;
+  border-bottom: 1px solid rgba(42, 157, 143, 0.35);
+  box-shadow: 0 8px 24px rgba(12, 18, 24, 0.18);
+  animation: fa-rise 0.45s ease-out both;
+}
+
+.fa-live__head {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: space-between;
+  gap: 0.35rem 1rem;
+  margin-bottom: 0.45rem;
+  font-size: 0.78rem;
+}
+
+.fa-live__head strong {
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  color: var(--fa-teal);
+}
+
+.fa-live__head span {
+  color: rgba(238, 243, 246, 0.65);
+}
+
+.fa-live__grid {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 0.65rem;
+}
+
+.fa-live__grid > div {
+  display: flex;
+  flex-direction: column;
+  gap: 0.15rem;
+  min-width: 0;
+}
+
+.fa-live__grid em {
+  font-style: normal;
+  font-size: 0.7rem;
+  color: rgba(238, 243, 246, 0.6);
+}
+
+.fa-live__grid strong {
+  font-size: clamp(0.95rem, 2.4vw, 1.15rem);
+  letter-spacing: -0.02em;
+  font-variant-numeric: tabular-nums;
+}
+
+.fa-live__grid small {
+  font-size: 0.68rem;
+  color: rgba(238, 243, 246, 0.55);
+}
+
+.fa-live__draft strong {
+  color: var(--fa-amber);
+}
+
+.fa-live__wait {
+  margin: 0;
+  font-size: 0.85rem;
+  line-height: 1.4;
+  color: rgba(238, 243, 246, 0.78);
+}
+
+@media (max-width: 640px) {
+  .fa-live__grid {
+    grid-template-columns: 1fr;
+    gap: 0.5rem;
+  }
+
+  .fa-live__grid > div {
+    flex-direction: row;
+    flex-wrap: wrap;
+    align-items: baseline;
+    gap: 0.35rem 0.65rem;
+  }
+}
+
 .fa-tabs {
   display: flex;
   gap: 0.25rem;

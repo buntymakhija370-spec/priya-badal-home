@@ -236,7 +236,9 @@
   min-height: 42vh;
   max-height: min(58vh, 520px);
   overflow-y: auto;
+  overscroll-behavior: contain;
   padding: 0.5rem 0 1rem;
+  scroll-behavior: smooth;
 }
 
 .fa-bubble {
@@ -273,6 +275,19 @@
   background: var(--fa-card);
   font-size: 0.78rem;
   cursor: pointer;
+}
+
+.fa-chat__quick button:focus {
+  outline: 2px solid rgba(42, 157, 143, 0.35);
+  outline-offset: 1px;
+}
+
+/* Keep focus inside chat controls from jumping the page */
+.fa-chat__composer input:focus,
+.fa-mini-card__actions button:focus,
+.fa-tool:focus {
+  outline: 2px solid rgba(42, 157, 143, 0.35);
+  outline-offset: 1px;
 }
 
 .fa-chat__quick button:hover {

@@ -84,6 +84,9 @@ export function Layout() {
           <NavLink to="/kitchmock" onClick={close}>
             KitchMock
           </NavLink>
+          <NavLink to="/boxbhandaar" onClick={close}>
+            Boxbhandaar
+          </NavLink>
           {categories
             .filter((cat) => cat.id !== 'kitchmock')
             .slice(0, 2)
@@ -175,7 +178,8 @@ export function Layout() {
             alt="Priyabadal Homes — Shutters, Doors, Wall Panels"
           />
           <p className="footer__tag">
-            KitchMock kitchens · Shutters · Doors · Wall Panels · Wardrobes
+            KitchMock kitchens · Boxbhandaar festive boxes · Shutters · Doors · Wall
+            Panels · Wardrobes
           </p>
         </div>
 
@@ -188,6 +192,9 @@ export function Layout() {
               </li>
               <li>
                 <NavLink to="/kitchmock">KitchMock</NavLink>
+              </li>
+              <li>
+                <NavLink to="/boxbhandaar">Boxbhandaar</NavLink>
               </li>
               {categories.map((cat) => (
                 <li key={cat.id}>

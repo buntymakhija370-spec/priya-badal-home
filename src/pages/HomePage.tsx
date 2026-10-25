@@ -204,6 +204,35 @@ export function HomePage() {
         </div>
       </section>
 
+      <section className="home-boxbhandaar" aria-label="Boxbhandaar festive boxes">
+        <div className="home-boxbhandaar__frame">
+          <p className="home-boxbhandaar__eyebrow">Festive gifting</p>
+          <Link className="home-boxbhandaar__link" to="/boxbhandaar">
+            <div className="home-boxbhandaar__media" aria-hidden="true">
+              <video
+                src="/boxbhandaar/videos/wrap-hero.mp4"
+                poster="/boxbhandaar/videos/wrap-hero.jpg"
+                muted
+                playsInline
+                autoPlay
+                loop
+                preload="metadata"
+              />
+              <div className="home-boxbhandaar__wash" />
+            </div>
+            <div className="home-boxbhandaar__copy">
+              <p className="home-boxbhandaar__brand">Boxbhandaar</p>
+              <h2 className="home-boxbhandaar__title">Festive boxes, thoughtfully kept.</h2>
+              <p className="home-boxbhandaar__lede">
+                A short shelf of Diwali, wedding, and corporate gift boxes — filmed with
+                care, ordered on WhatsApp.
+              </p>
+              <span className="home-boxbhandaar__cta">Enter Boxbhandaar</span>
+            </div>
+          </Link>
+        </div>
+      </section>
+
       <section className="home-leena" aria-label="Leena leather shutters">
         <div className="home-leena__frame">
           <p className="home-leena__eyebrow">Featured collection</p>

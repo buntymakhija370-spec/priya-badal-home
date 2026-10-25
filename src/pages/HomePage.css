@@ -2,6 +2,7 @@
 .home-cats,
 .home-furnicher,
 .home-kitchmock,
+.home-boxbhandaar,
 .home-leena,
 .home-trust,
 .home-impact,
@@ -941,6 +942,122 @@
   to { transform: scale(1.03); }
 }
 
+.home-boxbhandaar {
+  padding:
+    clamp(1.35rem, 3.5vw, 2rem)
+    var(--home-inline)
+    clamp(1.25rem, 3vw, 1.75rem);
+  background: #eef1ef;
+  border-top: 1px solid rgba(19, 38, 31, 0.08);
+}
+
+.home-boxbhandaar__frame {
+  width: min(72rem, 100%);
+  margin: 0 auto;
+}
+
+.home-boxbhandaar__eyebrow {
+  margin: 0 0 0.65rem;
+  font-size: 0.72rem;
+  font-weight: 600;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: #a68b4b;
+}
+
+.home-boxbhandaar__link {
+  position: relative;
+  display: grid;
+  min-height: min(30svh, 14.5rem);
+  color: #f3f6f4;
+  text-decoration: none;
+  overflow: hidden;
+  border: 1px solid rgba(19, 38, 31, 0.2);
+}
+
+.home-boxbhandaar__media {
+  position: absolute;
+  inset: 0;
+}
+
+.home-boxbhandaar__media video {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  object-position: center 40%;
+  transform: scale(1.04);
+}
+
+.home-boxbhandaar__wash {
+  position: absolute;
+  inset: 0;
+  background:
+    linear-gradient(
+      105deg,
+      rgba(12, 22, 18, 0.92) 0%,
+      rgba(12, 22, 18, 0.55) 52%,
+      rgba(12, 22, 18, 0.28) 100%
+    ),
+    radial-gradient(ellipse 55% 45% at 90% 15%, rgba(185, 60, 46, 0.3), transparent 60%);
+}
+
+.home-boxbhandaar__copy {
+  position: relative;
+  z-index: 1;
+  align-self: end;
+  width: min(36rem, 100%);
+  padding: 1rem 1.15rem 1.15rem;
+}
+
+.home-boxbhandaar__brand {
+  margin: 0 0 0.2rem;
+  font-family: 'Cormorant Garamond', 'Times New Roman', serif;
+  font-size: clamp(1.85rem, 4.4vw, 2.5rem);
+  font-weight: 600;
+  letter-spacing: -0.03em;
+  line-height: 0.95;
+}
+
+.home-boxbhandaar__title {
+  margin: 0 0 0.4rem;
+  font-size: clamp(0.9rem, 1.8vw, 1.05rem);
+  font-weight: 500;
+  color: #d4b978;
+}
+
+.home-boxbhandaar__lede {
+  margin: 0 0 0.75rem;
+  max-width: 44ch;
+  font-size: 0.88rem;
+  font-weight: 300;
+  line-height: 1.45;
+  opacity: 0.92;
+}
+
+.home-boxbhandaar__cta {
+  display: inline-flex;
+  align-items: center;
+  padding: 0.42rem 0.85rem;
+  border: 1px solid rgba(212, 185, 120, 0.55);
+  background: rgba(185, 60, 46, 0.25);
+  color: #f3f6f4;
+  font-size: 0.8rem;
+  letter-spacing: 0.02em;
+  transition: background 0.25s var(--ease-out), border-color 0.25s var(--ease-out);
+}
+
+.home-boxbhandaar__link:hover .home-boxbhandaar__cta,
+.home-boxbhandaar__link:focus-visible .home-boxbhandaar__cta {
+  background: rgba(185, 60, 46, 0.42);
+  border-color: rgba(212, 185, 120, 0.95);
+}
+
+.home-boxbhandaar__link:hover .home-boxbhandaar__media video,
+.home-boxbhandaar__link:focus-visible .home-boxbhandaar__media video {
+  transform: scale(1.07);
+  transition: transform 1.1s var(--ease-out);
+}
+
 .home-leena {
   padding:
     clamp(1.35rem, 3.5vw, 2rem)
@@ -1097,6 +1214,23 @@
   }
 
   .home-kitchmock__lede {
+    font-size: 0.8rem;
+    max-width: 34ch;
+  }
+
+  .home-boxbhandaar {
+    padding: 1.15rem 1rem 1.2rem;
+  }
+
+  .home-boxbhandaar__link {
+    min-height: min(28svh, 13rem);
+  }
+
+  .home-boxbhandaar__brand {
+    font-size: clamp(1.6rem, 8.5vw, 2rem);
+  }
+
+  .home-boxbhandaar__lede {
     font-size: 0.8rem;
     max-width: 34ch;
   }

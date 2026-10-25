@@ -5,10 +5,10 @@ import {
   BOXBHANDAAR_CATEGORIES,
   BOXBHANDAAR_FILMS,
   BOXBHANDAAR_PRODUCTS,
-  BOXBHANDAAR_TAGLINE,
   boxWhatsAppUrl,
   formatBoxPrice,
   getBoxCategory,
+  getHeroProduct,
 } from '../data/boxbhandaar'
 import './BoxbhandaarHomePage.css'
 
@@ -74,7 +74,11 @@ function FilmCard({
 }
 
 export function BoxbhandaarHomePage() {
-  const featured = BOXBHANDAAR_PRODUCTS.slice(0, 6)
+  const hero = getHeroProduct()
+  const featured = [
+    hero,
+    ...BOXBHANDAAR_PRODUCTS.filter((p) => p.id !== hero.id).slice(0, 5),
+  ]
 
   return (
     <main className="bb-home">
@@ -82,8 +86,8 @@ export function BoxbhandaarHomePage() {
         <div className="bb-hero__media" aria-hidden="true">
           <video
             className="bb-hero__video"
-            src="/boxbhandaar/product-videos/pastel-cutout-crates.mp4"
-            poster="/boxbhandaar/product-videos/pastel-cutout-crates.jpg"
+            src={hero.video ?? '/boxbhandaar/product-videos/pastel-cutout-crates.mp4'}
+            poster={hero.videoPoster ?? hero.image}
             muted
             playsInline
             autoPlay
@@ -93,20 +97,20 @@ export function BoxbhandaarHomePage() {
           <div className="bb-hero__wash" />
         </div>
         <div className="bb-hero__content">
-          <p className="bb-hero__eyebrow">Standalone box brand</p>
+          <p className="bb-hero__eyebrow">Hero product</p>
           <h1 className="bb-hero__brand">{BOXBHANDAAR_BRAND}</h1>
-          <p className="bb-hero__tag">{BOXBHANDAAR_TAGLINE}</p>
+          <p className="bb-hero__tag">{hero.name}</p>
           <p className="bb-hero__lede">
-            Eighteen wooden crates, trays, carriers, and organizers — photographed
-            as they are, sorted into clear categories, ordered on WhatsApp.
+            {hero.short} {formatBoxPrice(hero.price)} — mint and blush cutout crates
+            filmed for festive fills.
           </p>
           <div className="bb-hero__actions">
-            <Link className="bb-btn bb-btn--primary" to="/boxbhandaar/shop">
-              Shop the collection
+            <Link className="bb-btn bb-btn--primary" to={`/boxbhandaar/box/${hero.id}`}>
+              View hero product
             </Link>
             <a
               className="bb-btn bb-btn--ghost"
-              href={boxWhatsAppUrl()}
+              href={boxWhatsAppUrl(hero)}
               target="_blank"
               rel="noopener noreferrer"
             >

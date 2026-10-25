@@ -100,8 +100,25 @@ export const BOXBHANDAAR_CATEGORIES: BoxCategory[] = [
   },
 ]
 
-/** 18 products curated from Drive photographs */
+/** Hero product — Drive festive video (pastel cutout crates) */
+export const BOXBHANDAAR_HERO_PRODUCT_ID = 'pastel-cutout-crates'
+
+/** Products curated from Drive photographs + hero film */
 export const BOXBHANDAAR_PRODUCTS: BoxProduct[] = [
+  {
+    id: 'pastel-cutout-crates',
+    name: 'Pastel Cutout Crates',
+    categoryId: 'gift-crates',
+    short: 'Mint & blush festive crates.',
+    description:
+      'Slatted cutout-handle crates in soft mint and blush — filmed for festive fills with marigolds and diyas. Our hero gift crate.',
+    size: 'Pair of cutout crates',
+    finish: 'Pastel mint · blush pink',
+    price: 1499,
+    image: '/boxbhandaar/products/pastel-cutout-crates.jpg',
+    video: '/boxbhandaar/product-videos/pastel-cutout-crates.mp4',
+    videoPoster: '/boxbhandaar/product-videos/pastel-cutout-crates.jpg',
+  },
   {
     id: 'handled-festive-tray',
     name: 'Handled Festive Tray',
@@ -266,11 +283,9 @@ export const BOXBHANDAAR_PRODUCTS: BoxProduct[] = [
     description:
       'Natural-finish slatted crates with oval cutout handles — stack clean for storage and gifting bases. Also available in festive pastel finishes.',
     size: 'Stackable set',
-    finish: 'Natural wood tone · pastel options',
+    finish: 'Natural wood tone',
     price: 1699,
     image: '/boxbhandaar/products/stackable-utility-crates.jpg',
-    video: '/boxbhandaar/product-videos/pastel-cutout-crates.mp4',
-    videoPoster: '/boxbhandaar/product-videos/pastel-cutout-crates.jpg',
   },
   {
     id: 'succulent-planter',
@@ -338,7 +353,7 @@ export const BOXBHANDAAR_FILMS: BoxFilm[] = [
     caption: 'Festive cutout crates in mint & blush.',
     src: '/boxbhandaar/product-videos/pastel-cutout-crates.mp4',
     poster: '/boxbhandaar/product-videos/pastel-cutout-crates.jpg',
-    productId: 'stackable-utility-crates',
+    productId: 'pastel-cutout-crates',
   },
   {
     id: 'wrap',
@@ -379,6 +394,10 @@ export function getBoxCategory(id: string) {
 
 export function getBoxProduct(id: string) {
   return BOXBHANDAAR_PRODUCTS.find((p) => p.id === id)
+}
+
+export function getHeroProduct() {
+  return getBoxProduct(BOXBHANDAAR_HERO_PRODUCT_ID) ?? BOXBHANDAAR_PRODUCTS[0]
 }
 
 export function getProductsByCategory(categoryId: string) {

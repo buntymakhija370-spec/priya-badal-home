@@ -21,8 +21,8 @@
   width: 100%;
   height: 100%;
   object-fit: cover;
-  object-position: center 35%;
-  transform: scale(1.06);
+  object-position: center 42%;
+  transform: scale(1.08);
   animation: bb-drift 22s var(--ease-out, ease) both;
 }
 

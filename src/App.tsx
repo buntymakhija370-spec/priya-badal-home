@@ -25,6 +25,7 @@ import { FurnicherAiPage } from './pages/FurnicherAiPage'
 import { BoxbhandaarLayout } from './pages/BoxbhandaarLayout'
 import { BoxbhandaarHomePage } from './pages/BoxbhandaarHomePage'
 import { BoxbhandaarProductPage } from './pages/BoxbhandaarProductPage'
+import { BoxbhandaarShopPage } from './pages/BoxbhandaarShopPage'
 import './App.css'
 
 /** Old Design / Visualise / Carcass Planner URLs → unified Chat hub */
@@ -91,6 +92,8 @@ export default function App() {
       <Routes>
         <Route path="boxbhandaar" element={<BoxbhandaarLayout />}>
           <Route index element={<BoxbhandaarHomePage />} />
+          <Route path="shop" element={<BoxbhandaarShopPage />} />
+          <Route path="shop/:categoryId" element={<BoxbhandaarShopPage />} />
           <Route path="box/:productId" element={<BoxbhandaarProductPage />} />
         </Route>
         <Route element={<Layout />}>

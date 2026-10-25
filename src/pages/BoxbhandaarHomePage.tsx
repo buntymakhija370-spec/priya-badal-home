@@ -1,13 +1,14 @@
 import { Link } from 'react-router-dom'
-import { useEffect, useRef, type CSSProperties } from 'react'
+import { useEffect, useRef } from 'react'
 import {
   BOXBHANDAAR_BRAND,
+  BOXBHANDAAR_CATEGORIES,
   BOXBHANDAAR_FILMS,
-  BOXBHANDAAR_PARENT,
   BOXBHANDAAR_PRODUCTS,
   BOXBHANDAAR_TAGLINE,
   boxWhatsAppUrl,
   formatBoxPrice,
+  getBoxCategory,
 } from '../data/boxbhandaar'
 import './BoxbhandaarHomePage.css'
 
@@ -29,11 +30,8 @@ function FilmCard({
     if (!el) return
     const io = new IntersectionObserver(
       ([entry]) => {
-        if (entry.isIntersecting) {
-          void el.play().catch(() => undefined)
-        } else {
-          el.pause()
-        }
+        if (entry.isIntersecting) void el.play().catch(() => undefined)
+        else el.pause()
       },
       { threshold: 0.45 },
     )
@@ -64,6 +62,8 @@ function FilmCard({
 }
 
 export function BoxbhandaarHomePage() {
+  const featured = BOXBHANDAAR_PRODUCTS.slice(0, 6)
+
   return (
     <main className="bb-home">
       <section className="bb-hero" aria-label={`${BOXBHANDAAR_BRAND} home`}>
@@ -81,17 +81,17 @@ export function BoxbhandaarHomePage() {
           <div className="bb-hero__wash" />
         </div>
         <div className="bb-hero__content">
-          <p className="bb-hero__eyebrow">{BOXBHANDAAR_PARENT}</p>
+          <p className="bb-hero__eyebrow">Standalone box brand</p>
           <h1 className="bb-hero__brand">{BOXBHANDAAR_BRAND}</h1>
           <p className="bb-hero__tag">{BOXBHANDAAR_TAGLINE}</p>
           <p className="bb-hero__lede">
-            A short shelf of festive boxes — Diwali, weddings, corporate gifting —
-            each one kept simple, filmed with care, and ready to order on WhatsApp.
+            Eighteen wooden crates, trays, carriers, and organizers — photographed
+            as they are, sorted into clear categories, ordered on WhatsApp.
           </p>
           <div className="bb-hero__actions">
-            <a className="bb-btn bb-btn--primary" href="#boxes">
-              View the boxes
-            </a>
+            <Link className="bb-btn bb-btn--primary" to="/boxbhandaar/shop">
+              Shop the collection
+            </Link>
             <a
               className="bb-btn bb-btn--ghost"
               href={boxWhatsAppUrl()}
@@ -104,14 +104,40 @@ export function BoxbhandaarHomePage() {
         </div>
       </section>
 
-      <section className="bb-section bb-about" aria-labelledby="bb-about-title">
-        <p className="bb-kicker">The idea</p>
-        <h2 id="bb-about-title">Fewer boxes. Stronger presence.</h2>
+      <section
+        id="categories"
+        className="bb-section bb-cats"
+        aria-labelledby="bb-cats-title"
+      >
+        <p className="bb-kicker">Browse</p>
+        <h2 id="bb-cats-title">Categories from the photographs</h2>
         <p className="bb-lead">
-          Boxbhandaar is not a catalogue warehouse. It is a small festive line —
-          four boxes, clear prices, and short films that show how each gift feels
-          in the hand before you send it.
+          Grouped by what each piece is made to do — not by festival alone.
         </p>
+        <div className="bb-cats__grid">
+          {BOXBHANDAAR_CATEGORIES.map((cat) => {
+            const count = BOXBHANDAAR_PRODUCTS.filter((p) => p.categoryId === cat.id)
+              .length
+            return (
+              <Link
+                key={cat.id}
+                className="bb-cat"
+                to={`/boxbhandaar/shop/${cat.id}`}
+              >
+                <div className="bb-cat__media">
+                  <img src={cat.image} alt="" loading="lazy" />
+                </div>
+                <div className="bb-cat__copy">
+                  <h3>{cat.name}</h3>
+                  <p>{cat.short}</p>
+                  <span>
+                    {count} {count === 1 ? 'piece' : 'pieces'}
+                  </span>
+                </div>
+              </Link>
+            )
+          })}
+        </div>
       </section>
 
       <section
@@ -141,24 +167,27 @@ export function BoxbhandaarHomePage() {
         aria-labelledby="bb-boxes-title"
       >
         <div className="bb-boxes__head">
-          <p className="bb-kicker">The collection</p>
-          <h2 id="bb-boxes-title">Four festive boxes</h2>
-          <p className="bb-lead">Limited line. Order what you need — nothing extra.</p>
+          <p className="bb-kicker">Featured</p>
+          <h2 id="bb-boxes-title">From the shelf</h2>
+          <p className="bb-lead">A first look at six pieces. Shop all eighteen in the catalogue.</p>
         </div>
         <div className="bb-boxes__grid">
-          {BOXBHANDAAR_PRODUCTS.map((product, index) => (
-            <article
-              key={product.id}
-              className="bb-box"
-              style={{ '--bb-accent': product.accent } as CSSProperties}
-            >
+          {featured.map((product, index) => (
+            <article key={product.id} className="bb-box">
               <Link className="bb-box__media" to={`/boxbhandaar/box/${product.id}`}>
-                <img src={product.image} alt="" loading={index < 2 ? 'eager' : 'lazy'} />
+                <img
+                  src={product.image}
+                  alt=""
+                  loading={index < 2 ? 'eager' : 'lazy'}
+                />
                 <span className="bb-box__index">
                   {String(index + 1).padStart(2, '0')}
                 </span>
               </Link>
               <div className="bb-box__body">
+                <p className="bb-box__cat">
+                  {getBoxCategory(product.categoryId)?.name}
+                </p>
                 <div className="bb-box__titles">
                   <h3>
                     <Link to={`/boxbhandaar/box/${product.id}`}>{product.name}</Link>
@@ -167,7 +196,7 @@ export function BoxbhandaarHomePage() {
                 </div>
                 <div className="bb-box__meta">
                   <p className="bb-box__price">{formatBoxPrice(product.price)}</p>
-                  <p className="bb-box__serves">{product.serves}</p>
+                  <p className="bb-box__serves">{product.size}</p>
                 </div>
                 <div className="bb-box__actions">
                   <Link className="bb-btn bb-btn--quiet" to={`/boxbhandaar/box/${product.id}`}>
@@ -186,14 +215,19 @@ export function BoxbhandaarHomePage() {
             </article>
           ))}
         </div>
+        <div className="bb-boxes__more">
+          <Link className="bb-btn bb-btn--quiet" to="/boxbhandaar/shop">
+            View all 18 products
+          </Link>
+        </div>
       </section>
 
       <section className="bb-cta" aria-labelledby="bb-cta-title">
         <div className="bb-cta__inner">
           <p className="bb-kicker bb-kicker--on-dark">Ready</p>
-          <h2 id="bb-cta-title">Send a box that feels considered.</h2>
+          <h2 id="bb-cta-title">Order the box that fits the moment.</h2>
           <p>
-            Message us with the occasion and quantity. We confirm stock, packing,
+            Message us with the product name and quantity. We confirm stock, packing,
             and delivery on WhatsApp.
           </p>
           <a

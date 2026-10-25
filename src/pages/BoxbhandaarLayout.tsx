@@ -9,6 +9,7 @@ import './BoxbhandaarLayout.css'
 
 export function BoxbhandaarLayout() {
   const [scrolled, setScrolled] = useState(false)
+  const [menuOpen, setMenuOpen] = useState(false)
   const location = useLocation()
   const onHome = location.pathname === '/boxbhandaar' || location.pathname === '/boxbhandaar/'
 
@@ -21,14 +22,14 @@ export function BoxbhandaarLayout() {
 
   useEffect(() => {
     document.documentElement.classList.add('bb-root')
-    document.title = `${BOXBHANDAAR_BRAND} — Festive boxes`
+    document.title = `${BOXBHANDAAR_BRAND} — Boxes & organizers`
     return () => {
       document.documentElement.classList.remove('bb-root')
-      document.title = 'Priyabadal Homes'
     }
   }, [])
 
   useEffect(() => {
+    setMenuOpen(false)
     const state = location.state as { scrollTo?: string } | null
     const targetId = location.hash.replace(/^#/, '') || state?.scrollTo
     if (targetId) {
@@ -46,12 +47,21 @@ export function BoxbhandaarLayout() {
     window.scrollTo(0, 0)
   }, [location.pathname, location.hash, location.state])
 
+  useEffect(() => {
+    document.body.style.overflow = menuOpen ? 'hidden' : ''
+    return () => {
+      document.body.style.overflow = ''
+    }
+  }, [menuOpen])
+
   return (
     <div className="bb">
       <header
-        className={`bb-nav ${scrolled || !onHome ? 'bb-nav--scrolled' : ''}`}
+        className={`bb-nav ${scrolled || !onHome ? 'bb-nav--scrolled' : ''} ${
+          menuOpen ? 'bb-nav--open' : ''
+        }`}
       >
-        <NavLink className="bb-nav__brand" to="/boxbhandaar" end>
+        <NavLink className="bb-nav__brand" to="/boxbhandaar" end onClick={() => setMenuOpen(false)}>
           <img
             className="bb-nav__mark"
             src="/brand/boxbhandaar-mark.svg"
@@ -61,8 +71,15 @@ export function BoxbhandaarLayout() {
           <span>{BOXBHANDAAR_BRAND}</span>
         </NavLink>
         <nav className="bb-nav__links" aria-label="Boxbhandaar">
-          <NavLink to="/boxbhandaar#boxes">Boxes</NavLink>
-          <NavLink to="/boxbhandaar#films">Films</NavLink>
+          <NavLink to="/boxbhandaar/shop" onClick={() => setMenuOpen(false)}>
+            Shop
+          </NavLink>
+          <NavLink to="/boxbhandaar#categories" onClick={() => setMenuOpen(false)}>
+            Categories
+          </NavLink>
+          <NavLink to="/boxbhandaar#films" onClick={() => setMenuOpen(false)}>
+            Films
+          </NavLink>
           <a
             className="bb-nav__order"
             href={boxWhatsAppUrl()}
@@ -72,6 +89,16 @@ export function BoxbhandaarLayout() {
             Order
           </a>
         </nav>
+        <button
+          className={`bb-nav__toggle ${menuOpen ? 'is-open' : ''}`}
+          type="button"
+          aria-label={menuOpen ? 'Close menu' : 'Open menu'}
+          aria-expanded={menuOpen}
+          onClick={() => setMenuOpen((v) => !v)}
+        >
+          <span />
+          <span />
+        </button>
       </header>
 
       <Outlet />
@@ -79,13 +106,15 @@ export function BoxbhandaarLayout() {
       <footer className="bb-footer">
         <div className="bb-footer__brand">
           <p className="bb-footer__name">{BOXBHANDAAR_BRAND}</p>
-          <p className="bb-footer__note">Limited festive boxes · Made to gift</p>
+          <p className="bb-footer__note">
+            Festive crates, trays, carriers, and organizers — a standalone box brand.
+          </p>
         </div>
         <div className="bb-footer__meta">
+          <NavLink to="/boxbhandaar/shop">Shop all</NavLink>
           <a href={boxWhatsAppUrl()} target="_blank" rel="noopener noreferrer">
             WhatsApp {BOXBHANDAAR_WA_DISPLAY}
           </a>
-          <NavLink to="/">Priyabadal Homes</NavLink>
         </div>
       </footer>
     </div>

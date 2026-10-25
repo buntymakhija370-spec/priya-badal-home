@@ -22,6 +22,10 @@ import { AiSubscribePage } from './pages/AiSubscribePage'
 import { AiAdminPage } from './pages/AiAdminPage'
 import { KitchMockPage } from './pages/KitchMockPage'
 import { FurnicherAiPage } from './pages/FurnicherAiPage'
+import { BoxbhandaarLayout } from './pages/BoxbhandaarLayout'
+import { BoxbhandaarHomePage } from './pages/BoxbhandaarHomePage'
+import { BoxbhandaarProductPage } from './pages/BoxbhandaarProductPage'
+import { BoxbhandaarShopPage } from './pages/BoxbhandaarShopPage'
 import './App.css'
 
 /** Old Design / Visualise / Carcass Planner URLs → unified Chat hub */
@@ -62,6 +66,18 @@ function BrandDomainEntry() {
       host.endsWith('.furnicherai.com')
     if (isFurnicherHost) {
       navigate('/furnicher-ai', { replace: true })
+      return
+    }
+
+    const isBoxbhandaarHost =
+      host === 'boxbhandaar.com' ||
+      host === 'www.boxbhandaar.com' ||
+      host === 'boxbhandaar.in' ||
+      host === 'www.boxbhandaar.in' ||
+      host.endsWith('.boxbhandaar.com') ||
+      host.endsWith('.boxbhandaar.in')
+    if (isBoxbhandaarHost) {
+      navigate('/boxbhandaar', { replace: true })
     }
   }, [location.pathname, navigate])
 
@@ -74,6 +90,12 @@ export default function App() {
       <ScrollToTop />
       <BrandDomainEntry />
       <Routes>
+        <Route path="boxbhandaar" element={<BoxbhandaarLayout />}>
+          <Route index element={<BoxbhandaarHomePage />} />
+          <Route path="shop" element={<BoxbhandaarShopPage />} />
+          <Route path="shop/:categoryId" element={<BoxbhandaarShopPage />} />
+          <Route path="box/:productId" element={<BoxbhandaarProductPage />} />
+        </Route>
         <Route element={<Layout />}>
           <Route index element={<HomePage />} />
           <Route path="kitchmock" element={<KitchMockPage />} />

@@ -1,0 +1,120 @@
+.bb-shop {
+  padding:
+    calc(var(--bb-nav-h) + env(safe-area-inset-top, 0px) + 2rem)
+    0
+    var(--bb-block);
+}
+
+.bb-shop__frame {
+  max-width: 72rem;
+  margin: 0 auto;
+  padding: 0 var(--bb-inline);
+}
+
+.bb-shop h1 {
+  margin: 0;
+  font-family: var(--bb-font-display);
+  font-size: clamp(2.2rem, 6vw, 3.4rem);
+  font-weight: 600;
+  letter-spacing: -0.03em;
+  line-height: 1;
+}
+
+.bb-shop__video {
+  margin: 1.35rem 0 0;
+  max-width: 22rem;
+  overflow: hidden;
+  background: #0c1612;
+}
+
+.bb-shop__video video {
+  display: block;
+  width: 100%;
+  max-height: 28rem;
+  object-fit: contain;
+}
+
+.bb-shop__filters {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+  margin: 1.5rem 0 2rem;
+}
+
+.bb-box__film-tag {
+  position: absolute;
+  top: 0.75rem;
+  right: 0.75rem;
+  padding: 0.28rem 0.55rem;
+  background: rgba(12, 22, 18, 0.78);
+  color: #f3f6f4;
+  font-size: 0.68rem;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+}
+
+.bb-shop__chip {
+  display: inline-flex;
+  align-items: center;
+  min-height: 2.25rem;
+  padding: 0.35rem 0.85rem;
+  border: 1px solid var(--bb-line);
+  color: var(--bb-ink-soft);
+  font-size: 0.84rem;
+  font-weight: 500;
+  text-decoration: none;
+}
+
+.bb-shop__chip:hover,
+.bb-shop__chip:focus-visible {
+  border-color: var(--bb-ink);
+  color: var(--bb-ink);
+}
+
+.bb-shop__chip.is-active {
+  background: var(--bb-ink);
+  border-color: var(--bb-ink);
+  color: var(--bb-mist);
+}
+
+.bb-shop__grid {
+  display: grid;
+  gap: 2.25rem 1.5rem;
+}
+
+@media (min-width: 720px) {
+  .bb-shop__grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+}
+
+@media (min-width: 1100px) {
+  .bb-shop__grid {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+  }
+}
+
+.bb-box__cat {
+  margin: 0;
+  font-size: 0.72rem;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: var(--bb-brass);
+}
+
+.bb-shop .bb-box__titles h2 {
+  margin: 0.2rem 0 0;
+  font-family: var(--bb-font-display);
+  font-size: 1.55rem;
+  font-weight: 600;
+  letter-spacing: -0.02em;
+}
+
+.bb-shop .bb-box__titles h2 a {
+  text-decoration: none;
+}
+
+.bb-shop .bb-box__titles h2 a:hover,
+.bb-shop .bb-box__titles h2 a:focus-visible {
+  color: var(--bb-lacquer);
+}

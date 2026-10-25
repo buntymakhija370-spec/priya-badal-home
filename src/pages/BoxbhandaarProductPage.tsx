@@ -31,6 +31,20 @@ export function BoxbhandaarProductPage() {
         <div className="bb-pdp__grid">
           <div className="bb-pdp__media">
             <img src={product.image} alt={product.name} />
+            {product.video && (
+              <div className="bb-pdp__film">
+                <video
+                  src={product.video}
+                  poster={product.videoPoster ?? product.image}
+                  muted
+                  playsInline
+                  autoPlay
+                  loop
+                  controls
+                  preload="metadata"
+                />
+              </div>
+            )}
           </div>
 
           <div className="bb-pdp__copy">

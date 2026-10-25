@@ -20,6 +20,9 @@ export type BoxCategory = {
   short: string
   description: string
   image: string
+  /** Optional category film from Drive product videos */
+  video?: string
+  videoPoster?: string
 }
 
 export type BoxProduct = {
@@ -32,6 +35,9 @@ export type BoxProduct = {
   finish: string
   price: number
   image: string
+  /** Optional product film from Drive */
+  video?: string
+  videoPoster?: string
 }
 
 export const BOXBHANDAAR_CATEGORIES: BoxCategory[] = [
@@ -42,6 +48,8 @@ export const BOXBHANDAAR_CATEGORIES: BoxCategory[] = [
     description:
       'Slatted wooden crates with fabric or jute handles — styled for festive and lifestyle gifting.',
     image: '/boxbhandaar/categories/gift-crates.jpg',
+    video: '/boxbhandaar/product-videos/pastel-cutout-crates.mp4',
+    videoPoster: '/boxbhandaar/product-videos/pastel-cutout-crates.jpg',
   },
   {
     id: 'gift-boxes',
@@ -256,11 +264,13 @@ export const BOXBHANDAAR_PRODUCTS: BoxProduct[] = [
     categoryId: 'organizers',
     short: 'Cutout-handle stacking crates.',
     description:
-      'Natural-finish slatted crates with oval cutout handles — stack clean for storage and gifting bases.',
+      'Natural-finish slatted crates with oval cutout handles — stack clean for storage and gifting bases. Also available in festive pastel finishes.',
     size: 'Stackable set',
-    finish: 'Natural wood tone',
+    finish: 'Natural wood tone · pastel options',
     price: 1699,
     image: '/boxbhandaar/products/stackable-utility-crates.jpg',
+    video: '/boxbhandaar/product-videos/pastel-cutout-crates.mp4',
+    videoPoster: '/boxbhandaar/product-videos/pastel-cutout-crates.jpg',
   },
   {
     id: 'succulent-planter',
@@ -312,7 +322,24 @@ export const BOXBHANDAAR_PRODUCTS: BoxProduct[] = [
   },
 ]
 
-export const BOXBHANDAAR_FILMS = [
+export type BoxFilm = {
+  id: string
+  title: string
+  caption: string
+  src: string
+  poster: string
+  productId?: string
+}
+
+export const BOXBHANDAAR_FILMS: BoxFilm[] = [
+  {
+    id: 'pastel-crates',
+    title: 'Pastel crates',
+    caption: 'Festive cutout crates in mint & blush.',
+    src: '/boxbhandaar/product-videos/pastel-cutout-crates.mp4',
+    poster: '/boxbhandaar/product-videos/pastel-cutout-crates.jpg',
+    productId: 'stackable-utility-crates',
+  },
   {
     id: 'wrap',
     title: 'The wrap',
@@ -335,6 +362,16 @@ export const BOXBHANDAAR_FILMS = [
     poster: '/boxbhandaar/videos/film-detail.jpg',
   },
 ]
+
+/** All Drive product videos currently wired into the catalogue */
+export function getProductVideos() {
+  return BOXBHANDAAR_PRODUCTS.filter((p) => p.video).map((p) => ({
+    productId: p.id,
+    name: p.name,
+    src: p.video!,
+    poster: p.videoPoster ?? p.image,
+  }))
+}
 
 export function getBoxCategory(id: string) {
   return BOXBHANDAAR_CATEGORIES.find((c) => c.id === id)

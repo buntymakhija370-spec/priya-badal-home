@@ -20,11 +20,37 @@
   line-height: 1;
 }
 
+.bb-shop__video {
+  margin: 1.35rem 0 0;
+  max-width: 22rem;
+  overflow: hidden;
+  background: #0c1612;
+}
+
+.bb-shop__video video {
+  display: block;
+  width: 100%;
+  max-height: 28rem;
+  object-fit: contain;
+}
+
 .bb-shop__filters {
   display: flex;
   flex-wrap: wrap;
   gap: 0.5rem;
   margin: 1.5rem 0 2rem;
+}
+
+.bb-box__film-tag {
+  position: absolute;
+  top: 0.75rem;
+  right: 0.75rem;
+  padding: 0.28rem 0.55rem;
+  background: rgba(12, 22, 18, 0.78);
+  color: #f3f6f4;
+  font-size: 0.68rem;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
 }
 
 .bb-shop__chip {

@@ -37,12 +37,30 @@
   }
 }
 
-.bb-pdp__media img {
+.bb-pdp__media {
+  display: grid;
+  gap: 0.75rem;
+}
+
+.bb-pdp__media > img {
   width: 100%;
   aspect-ratio: 4 / 3;
   object-fit: cover;
   object-position: top center;
   background: #dfe6e2;
+}
+
+.bb-pdp__film {
+  overflow: hidden;
+  background: var(--bb-film);
+}
+
+.bb-pdp__film video {
+  display: block;
+  width: 100%;
+  max-height: 36rem;
+  object-fit: contain;
+  background: #0c1612;
 }
 
 .bb-pdp__copy h1 {

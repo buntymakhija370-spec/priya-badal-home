@@ -17,11 +17,13 @@ function FilmCard({
   caption,
   src,
   poster,
+  href,
 }: {
   title: string
   caption: string
   src: string
   poster: string
+  href?: string
 }) {
   const ref = useRef<HTMLVideoElement>(null)
 
@@ -39,8 +41,8 @@ function FilmCard({
     return () => io.disconnect()
   }, [])
 
-  return (
-    <article className="bb-film">
+  const body = (
+    <>
       <div className="bb-film__media">
         <video
           ref={ref}
@@ -57,8 +59,18 @@ function FilmCard({
         <h3>{title}</h3>
         <p>{caption}</p>
       </div>
-    </article>
+    </>
   )
+
+  if (href) {
+    return (
+      <Link className="bb-film bb-film--link" to={href}>
+        {body}
+      </Link>
+    )
+  }
+
+  return <article className="bb-film">{body}</article>
 }
 
 export function BoxbhandaarHomePage() {
@@ -70,8 +82,8 @@ export function BoxbhandaarHomePage() {
         <div className="bb-hero__media" aria-hidden="true">
           <video
             className="bb-hero__video"
-            src="/boxbhandaar/videos/wrap-hero.mp4"
-            poster="/boxbhandaar/videos/wrap-hero.jpg"
+            src="/boxbhandaar/product-videos/pastel-cutout-crates.mp4"
+            poster="/boxbhandaar/product-videos/pastel-cutout-crates.jpg"
             muted
             playsInline
             autoPlay
@@ -155,7 +167,17 @@ export function BoxbhandaarHomePage() {
         <div className="bb-films__rail" role="list">
           {BOXBHANDAAR_FILMS.map((film) => (
             <div key={film.id} role="listitem">
-              <FilmCard {...film} />
+              <FilmCard
+                title={film.title}
+                caption={film.caption}
+                src={film.src}
+                poster={film.poster}
+                href={
+                  film.productId
+                    ? `/boxbhandaar/box/${film.productId}`
+                    : undefined
+                }
+              />
             </div>
           ))}
         </div>

@@ -305,6 +305,12 @@
   scroll-snap-align: start;
 }
 
+.bb-film--link {
+  display: block;
+  text-decoration: none;
+  color: inherit;
+}
+
 .bb-film__media {
   aspect-ratio: 4 / 5;
   overflow: hidden;

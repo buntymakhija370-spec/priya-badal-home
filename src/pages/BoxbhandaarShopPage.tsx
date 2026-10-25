@@ -41,6 +41,21 @@ export function BoxbhandaarShopPage() {
             : 'Eighteen pieces across crates, boxes, trays, carriers, organizers, planters, and workspace.'}
         </p>
 
+        {category?.video && (
+          <div className="bb-shop__video">
+            <video
+              src={category.video}
+              poster={category.videoPoster ?? category.image}
+              muted
+              playsInline
+              autoPlay
+              loop
+              controls
+              preload="metadata"
+            />
+          </div>
+        )}
+
         <div className="bb-shop__filters" role="navigation" aria-label="Categories">
           <Link
             className={`bb-shop__chip ${!categoryId ? 'is-active' : ''}`}
@@ -68,6 +83,7 @@ export function BoxbhandaarShopPage() {
                   alt=""
                   loading={index < 4 ? 'eager' : 'lazy'}
                 />
+                {product.video && <span className="bb-box__film-tag">Film</span>}
                 <span className="bb-box__index">
                   {String(index + 1).padStart(2, '0')}
                 </span>

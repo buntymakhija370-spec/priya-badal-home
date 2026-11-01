@@ -44,10 +44,11 @@
 
 .bb-pdp__media > img {
   width: 100%;
-  aspect-ratio: 4 / 3;
-  object-fit: cover;
-  object-position: top center;
-  background: #dfe6e2;
+  aspect-ratio: 4 / 5;
+  object-fit: contain;
+  object-position: center;
+  background:
+    linear-gradient(160deg, #e8eeea 0%, #dfe6e2 55%, #d5ddd8 100%);
 }
 
 .bb-pdp__film {
@@ -157,10 +158,11 @@
 
 .bb-pdp__related-card img {
   width: 100%;
-  aspect-ratio: 4 / 3;
-  object-fit: cover;
-  object-position: top center;
-  background: #dfe6e2;
+  aspect-ratio: 4 / 5;
+  object-fit: contain;
+  object-position: center;
+  background:
+    linear-gradient(160deg, #e8eeea 0%, #dfe6e2 55%, #d5ddd8 100%);
 }
 
 .bb-pdp__related-card span {

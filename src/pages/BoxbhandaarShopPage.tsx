@@ -38,7 +38,7 @@ export function BoxbhandaarShopPage() {
         <p className="bb-lead">
           {category
             ? category.description
-            : 'Eighteen pieces across crates, boxes, trays, carriers, organizers, planters, and workspace.'}
+            : `${BOXBHANDAAR_PRODUCTS.length} pieces across crates, boxes, trays, carriers, organizers, planters, and workspace — each with its own photo.`}
         </p>
 
         {category?.video && (

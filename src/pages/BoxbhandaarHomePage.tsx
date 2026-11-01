@@ -195,7 +195,10 @@ export function BoxbhandaarHomePage() {
         <div className="bb-boxes__head">
           <p className="bb-kicker">Featured</p>
           <h2 id="bb-boxes-title">From the shelf</h2>
-          <p className="bb-lead">A first look at six pieces. Shop all eighteen in the catalogue.</p>
+          <p className="bb-lead">
+            A first look at six pieces. Shop all {BOXBHANDAAR_PRODUCTS.length} in
+            the catalogue.
+          </p>
         </div>
         <div className="bb-boxes__grid">
           {featured.map((product, index) => (

@@ -2,7 +2,13 @@ name: Deploy to Cloudflare Pages
 
 on:
   push:
-    branches: [main, cursor/live-catalog-deploy-82c6, cursor/cloudflare-pages-deploy-82c6]
+    branches:
+      [
+        main,
+        cursor/live-catalog-deploy-82c6,
+        cursor/cloudflare-pages-deploy-82c6,
+        cursor/boxbhandaar-festive-brand-bc2c,
+      ]
   workflow_dispatch:
 
 jobs:

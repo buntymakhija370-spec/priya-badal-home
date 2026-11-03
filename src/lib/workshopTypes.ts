@@ -5,7 +5,12 @@ export const WORK_STAGES = [
   { id: 'cutting', label: 'Cutting', short: 'Cut', code: 'CUT', hint: 'Panels cut to size' },
   { id: 'edge_bending', label: 'Edge bending', short: 'Edge', code: 'EDG', hint: 'Edge banding' },
   { id: 'boring', label: 'Boring', short: 'Bore', code: 'BOR', hint: 'Hinge / shelf / connector holes' },
-  { id: 'painting', label: 'Painting', short: 'Paint', code: 'PNT', hint: 'Colour, polish & paint booth' },
+  { id: 'pasting', label: 'Pasting', short: 'Paste', code: 'PST', hint: 'Laminate / veneer pasting' },
+  { id: 'sending', label: 'Sending', short: 'Send', code: 'SND', hint: 'Send panels to next bay / booth' },
+  { id: 'basecoating', label: 'Basecoating', short: 'Base', code: 'BSC', hint: 'Primer / base coat' },
+  { id: 'painting_booth_1', label: 'Painting booth 1', short: 'Booth 1', code: 'PB1', hint: 'Paint booth 1 colour & finish' },
+  { id: 'painting_booth_2', label: 'Painting booth 2', short: 'Booth 2', code: 'PB2', hint: 'Paint booth 2 colour & finish' },
+  { id: 'painting', label: 'Painting', short: 'Paint', code: 'PNT', hint: 'General colour, polish & paint' },
   { id: 'leather_job', label: 'Leather job', short: 'Leather', code: 'LTH', hint: 'Leather wrap, stitch & finish' },
   { id: 'oxidisation', label: 'Oxidisation', short: 'Oxide', code: 'OXD', hint: 'Metal oxide / antique treatment' },
 ] as const

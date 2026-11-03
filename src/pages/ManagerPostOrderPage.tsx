@@ -1,7 +1,6 @@
 import {
   useEffect,
   useMemo,
-  useRef,
   useState,
   type FormEvent,
   type KeyboardEvent,
@@ -42,9 +41,7 @@ type StagePick = {
 }
 
 type SizeRow = {
-  id: string
   sizeLabel: string
-  /** Keep as string while editing so backspace / multi-digit typing works */
   quantity: string
 }
 
@@ -56,6 +53,10 @@ function emptyPicks(): Record<string, StagePick> {
   return picks
 }
 
+function blankRow(): SizeRow {
+  return { sizeLabel: '', quantity: '1' }
+}
+
 function parseQty(raw: string): number {
   const n = Math.floor(Number(raw))
   return Number.isFinite(n) && n > 0 ? n : 0
@@ -65,17 +66,13 @@ export function ManagerPostOrderPage() {
   const { auth } = useOutletContext<Ctx>()
   const pin = auth?.role === 'manager' ? auth.pin : ''
   const navigate = useNavigate()
-  const sizeIdRef = useRef(1)
 
   const [orderNo, setOrderNo] = useState('')
   const [customerName, setCustomerName] = useState('')
   const [productLabel, setProductLabel] = useState('')
   const [notes, setNotes] = useState('')
   const [priority, setPriority] = useState<OrderPriority>('normal')
-  const [sizeRows, setSizeRows] = useState<SizeRow[]>(() => [
-    { id: 'size-1', sizeLabel: '', quantity: '1' },
-    { id: 'size-2', sizeLabel: '', quantity: '1' },
-  ])
+  const [sizeRows, setSizeRows] = useState<SizeRow[]>(() => [blankRow(), blankRow()])
   const [material, setMaterial] = useState('')
   const [finish, setFinish] = useState('')
   const [bay, setBay] = useState('')
@@ -129,29 +126,25 @@ export function ManagerPostOrderPage() {
     return preferred.length ? preferred : workers
   }
 
-  function setSizeLabel(id: string, sizeLabel: string) {
-    setSizeRows((rows) => rows.map((r) => (r.id === id ? { ...r, sizeLabel } : r)))
+  function updateSizeAt(index: number, patch: Partial<SizeRow>) {
+    setSizeRows((rows) => rows.map((row, i) => (i === index ? { ...row, ...patch } : row)))
   }
 
-  function setSizeQuantity(id: string, quantity: string) {
-    // Allow empty / partial digits while typing (do not force back to 1)
-    if (quantity !== '' && !/^\d{0,4}$/.test(quantity)) return
-    setSizeRows((rows) => rows.map((r) => (r.id === id ? { ...r, quantity } : r)))
-  }
-
-  function addSizeRow() {
-    sizeIdRef.current += 1
-    const id = `size-${sizeIdRef.current}`
-    setSizeRows((rows) => [...rows, { id, sizeLabel: '', quantity: '1' }])
-  }
-
-  function removeSizeRow(id: string) {
+  function setSizeCount(count: number) {
+    const next = Math.max(1, Math.min(30, Math.floor(count) || 1))
     setSizeRows((rows) => {
-      if (rows.length <= 1) {
-        // Clear the only row instead of blocking remove
-        return [{ id: rows[0].id, sizeLabel: '', quantity: '1' }]
+      if (next === rows.length) return rows
+      if (next > rows.length) {
+        return [...rows, ...Array.from({ length: next - rows.length }, () => blankRow())]
       }
-      return rows.filter((r) => r.id !== id)
+      return rows.slice(0, next)
+    })
+  }
+
+  function removeSizeAt(index: number) {
+    setSizeRows((rows) => {
+      if (rows.length <= 1) return [blankRow()]
+      return rows.filter((_, i) => i !== index)
     })
   }
 
@@ -230,61 +223,69 @@ export function ManagerPostOrderPage() {
 
       {msg && <p className="ws-banner ws-banner--error">{msg}</p>}
 
-      {/* Sizes sit outside <form> so Add/Remove clicks are never swallowed by form validation */}
       <section className="ws-panel ws-size-lines" aria-label="Sizes to manufacture">
-        <h3 className="ws-size-lines__title">
-          Sizes to manufacture <span className="ws-muted">({totalPieces} barcodes)</span>
-        </h3>
+        <div className="ws-size-lines__head">
+          <h3 className="ws-size-lines__title">
+            Sizes to manufacture <span className="ws-muted">({totalPieces} barcodes)</span>
+          </h3>
+          <label className="ws-size-count">
+            How many sizes?
+            <select
+              value={sizeRows.length}
+              onChange={(e) => setSizeCount(Number(e.target.value))}
+            >
+              {Array.from({ length: 20 }, (_, i) => i + 1).map((n) => (
+                <option key={n} value={n}>
+                  {n}
+                </option>
+              ))}
+            </select>
+          </label>
+        </div>
         <p className="ws-muted ws-stage-join__hint">
-          Type each size, set how many pieces, then add more rows if needed.
+          Each filled size × pieces becomes unique barcodes. Empty size lines are ignored.
         </p>
+
         <div className="ws-size-lines__list">
           {sizeRows.map((row, index) => (
-            <div key={row.id} className="ws-size-lines__row">
+            <div key={`size-row-${index}`} className="ws-size-lines__row" data-size-index={index}>
               <div className="ws-size-field">
-                <span className="ws-size-field__label">Size {index + 1}</span>
+                <label htmlFor={`size-label-${index}`}>Size {index + 1}</label>
                 <input
+                  id={`size-label-${index}`}
                   type="text"
-                  name={`size-label-${row.id}`}
                   value={row.sizeLabel}
-                  onChange={(e) => setSizeLabel(row.id, e.target.value)}
+                  onChange={(e) => updateSizeAt(index, { sizeLabel: e.target.value })}
                   onKeyDown={blockEnterSubmit}
-                  placeholder="600 x 450 mm"
+                  placeholder="e.g. 600 x 450 mm"
                   autoComplete="off"
-                  inputMode="text"
                 />
               </div>
               <div className="ws-size-field">
-                <span className="ws-size-field__label">Pieces</span>
+                <label htmlFor={`size-qty-${index}`}>Pieces</label>
                 <input
+                  id={`size-qty-${index}`}
                   type="text"
-                  name={`size-qty-${row.id}`}
-                  value={row.quantity}
-                  onChange={(e) => setSizeQuantity(row.id, e.target.value)}
-                  onKeyDown={blockEnterSubmit}
                   inputMode="numeric"
-                  autoComplete="off"
+                  value={row.quantity}
+                  onChange={(e) => {
+                    const v = e.target.value
+                    if (v === '' || /^\d{1,4}$/.test(v)) updateSizeAt(index, { quantity: v })
+                  }}
+                  onKeyDown={blockEnterSubmit}
                   placeholder="1"
+                  autoComplete="off"
                 />
               </div>
               <button
                 type="button"
                 className="ws__ghost ws-size-remove"
-                onClick={() => removeSizeRow(row.id)}
+                onClick={() => removeSizeAt(index)}
               >
                 {sizeRows.length <= 1 ? 'Clear' : 'Remove'}
               </button>
             </div>
           ))}
-        </div>
-        <div className="ws-size-add-row">
-          <button type="button" className="ws__secondary ws-size-add" onClick={() => addSizeRow()}>
-            + Add another size
-          </button>
-          <p className="ws-muted ws-size-add-hint">
-            {sizeRows.length} size line{sizeRows.length === 1 ? '' : 's'} — empty lines are ignored
-            when posting.
-          </p>
         </div>
       </section>
 

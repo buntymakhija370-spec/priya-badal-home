@@ -152,6 +152,49 @@ export function ManagerOrderDetailPage() {
         <OrderMetaGrid order={order} />
       </section>
 
+      {(order.designFiles?.length || 0) > 0 && (
+        <section className="ws-panel">
+          <h3>Designer files</h3>
+          <p className="ws-muted">For designing stage — site photos / CAD reference.</p>
+          <ul className="ws-design-files__list">
+            {order.designFiles.map((f) => (
+              <li key={f.id} className="ws-design-files__item">
+                {f.mimeType.startsWith('image/') ? (
+                  <a href={f.dataUrl} target="_blank" rel="noreferrer">
+                    <img src={f.dataUrl} alt={f.name} className="ws-design-files__thumb" />
+                  </a>
+                ) : (
+                  <a className="ws-design-files__badge" href={f.dataUrl} download={f.name}>
+                    FILE
+                  </a>
+                )}
+                <span className="ws-design-files__name">{f.name}</span>
+              </li>
+            ))}
+          </ul>
+        </section>
+      )}
+
+      <section className="ws-panel">
+        <h3>Worker start photos</h3>
+        <div className="ws-start-photo-grid">
+          {order.stages.filter((s) => s.startPhoto).length === 0 && (
+            <p className="ws-muted">No start photos yet — workers must snap one before starting.</p>
+          )}
+          {order.stages
+            .filter((s) => s.startPhoto)
+            .map((s) => (
+              <figure key={s.stageId} className="ws-start-photo-card">
+                <img src={s.startPhoto!.dataUrl} alt={`${stageLabel(s.stageId)} start`} />
+                <figcaption>
+                  {stageLabel(s.stageId)}
+                  {s.startPhoto?.uploadedBy ? ` · ${workerName(s.startPhoto.uploadedBy)}` : ''}
+                </figcaption>
+              </figure>
+            ))}
+        </div>
+      </section>
+
       <section className="ws-panel">
         <h3>Stage pipeline</h3>
         <StagePipeline order={order} workerName={workerName} />

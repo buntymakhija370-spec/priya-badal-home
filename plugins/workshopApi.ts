@@ -113,6 +113,7 @@ async function handleWorkerAction(req: IncomingMessage, res: ServerResponse) {
       stageId: WorkStageId
       action: 'start' | 'statement' | 'complete'
       statement?: string
+      startPhoto?: { name: string; mimeType: string; dataUrl: string }
     }>(req)
     const order = workerUpdate(body)
     send(res, 200, { order, snapshot: snapshot() })
@@ -160,6 +161,7 @@ async function handleCreateOrder(req: IncomingMessage, res: ServerResponse) {
       finish?: string
       bay?: string
       dueDate?: string | null
+      designFiles?: Array<{ name: string; mimeType: string; dataUrl: string }>
       assignments?: Array<{ stageId: WorkStageId; workerId: string; managerNote?: string }>
     }>(req)
     const order = createOrder({
@@ -174,6 +176,7 @@ async function handleCreateOrder(req: IncomingMessage, res: ServerResponse) {
       finish: body.finish,
       bay: body.bay,
       dueDate: body.dueDate,
+      designFiles: body.designFiles,
       assignments: body.assignments,
     })
     send(res, 200, { order, snapshot: snapshot() })

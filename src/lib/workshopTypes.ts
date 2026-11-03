@@ -40,6 +40,17 @@ export type StageUpdate = {
   kind: 'started' | 'statement' | 'completed'
 }
 
+/** Photo or CAD/PDF attached to an order or stage start. */
+export type WorkshopAttachment = {
+  id: string
+  name: string
+  mimeType: string
+  dataUrl: string
+  uploadedAt: string
+  uploadedBy: string
+  kind: 'design' | 'start'
+}
+
 export type OrderStage = {
   stageId: WorkStageId
   status: StageStatus
@@ -51,6 +62,8 @@ export type OrderStage = {
   managerNote: string
   /** Scannable Code128 payload for this department stage */
   barcode: string
+  /** Compulsory site photo taken by the worker before starting this stage */
+  startPhoto: WorkshopAttachment | null
 }
 
 export type StatusEvent = {
@@ -104,6 +117,8 @@ export type WorkshopOrder = {
   sizes: OrderSizeLine[]
   /** One barcode per piece to manufacture */
   pieces: OrderPiece[]
+  /** Designer reference photos / CAD — for designing stage (not every worker) */
+  designFiles: WorkshopAttachment[]
 }
 
 export type MachineStatus = 'idle' | 'running' | 'maintenance' | 'offline'
@@ -215,6 +230,7 @@ export function emptyStages(orderNo = 'TEMP'): OrderStage[] {
     updates: [],
     managerNote: '',
     barcode: makeStageBarcode(orderNo, s.id),
+    startPhoto: null,
   }))
 }
 

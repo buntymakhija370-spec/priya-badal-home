@@ -156,6 +156,7 @@ export async function postWorkerAction(body: {
   stageId: WorkStageId
   action: 'start' | 'statement' | 'complete'
   statement?: string
+  startPhoto?: { name: string; mimeType: string; dataUrl: string }
 }): Promise<{ order: WorkshopOrder; snapshot: WorkshopSnapshot }> {
   return parse(
     await fetch('/api/workshop/worker-action', {
@@ -248,6 +249,7 @@ export async function createWorkshopOrder(
     finish?: string
     bay?: string
     dueDate?: string | null
+    designFiles?: Array<{ name: string; mimeType: string; dataUrl: string }>
     assignments?: Array<{ stageId: WorkStageId; workerId: string; managerNote?: string }>
   },
 ) {

@@ -19,7 +19,10 @@ import {
   type OrderPriority,
   type WorkStageId,
 } from '../lib/workshopTypes'
+import { fileToAttachmentPayload } from '../lib/workshopMedia'
 import './WorkersApp.css'
+
+type DesignDraft = { name: string; mimeType: string; dataUrl: string; preview?: string }
 
 type Ctx = { auth: WorkshopAuth | null }
 
@@ -73,6 +76,8 @@ export function ManagerPostOrderPage() {
   const [notes, setNotes] = useState('')
   const [priority, setPriority] = useState<OrderPriority>('normal')
   const [sizeRows, setSizeRows] = useState<SizeRow[]>(() => [blankRow(), blankRow()])
+  const [designFiles, setDesignFiles] = useState<DesignDraft[]>([])
+  const [designBusy, setDesignBusy] = useState(false)
   const [material, setMaterial] = useState('')
   const [finish, setFinish] = useState('')
   const [bay, setBay] = useState('')
@@ -169,6 +174,10 @@ export function ManagerPostOrderPage() {
       setMsg('Add at least one size with pieces — one unique barcode is printed per piece')
       return
     }
+    if (!designFiles.length) {
+      setMsg('Attach at least one JPG photo or CAD/PDF for the designer')
+      return
+    }
 
     const assignments = pipeline
       .filter((stageId) => stagePicks[stageId]?.enabled)
@@ -195,6 +204,7 @@ export function ManagerPostOrderPage() {
         notes,
         priority,
         sizes,
+        designFiles: designFiles.map(({ name, mimeType, dataUrl }) => ({ name, mimeType, dataUrl })),
         material: material || undefined,
         finish: finish || undefined,
         bay: bay || undefined,
@@ -205,6 +215,28 @@ export function ManagerPostOrderPage() {
     } catch (err) {
       setMsg(err instanceof Error ? err.message : 'Could not create order')
       setBusy(false)
+    }
+  }
+
+  async function onDesignFilesPicked(fileList: FileList | null) {
+    if (!fileList?.length) return
+    setDesignBusy(true)
+    setMsg(null)
+    try {
+      const next: DesignDraft[] = [...designFiles]
+      for (const file of Array.from(fileList)) {
+        if (next.length >= 8) break
+        const payload = await fileToAttachmentPayload(file)
+        next.push({
+          ...payload,
+          preview: payload.mimeType.startsWith('image/') ? payload.dataUrl : undefined,
+        })
+      }
+      setDesignFiles(next)
+    } catch (err) {
+      setMsg(err instanceof Error ? err.message : 'Could not read design file')
+    } finally {
+      setDesignBusy(false)
     }
   }
 
@@ -222,6 +254,49 @@ export function ManagerPostOrderPage() {
       </header>
 
       {msg && <p className="ws-banner ws-banner--error">{msg}</p>}
+
+      <section className="ws-panel ws-design-files" aria-label="Designer files">
+        <h3 className="ws-size-lines__title">
+          Designer files <span className="ws-muted">(required)</span>
+        </h3>
+        <p className="ws-muted ws-stage-join__hint">
+          JPG site photos or CAD/CAM / PDF for the designer only — not shown to every worker.
+        </p>
+        <label className="ws-file-pick">
+          <span>{designBusy ? 'Reading files…' : 'Add JPG / CAD / PDF'}</span>
+          <input
+            type="file"
+            accept="image/jpeg,image/jpg,image/png,image/webp,application/pdf,.dwg,.dxf,.step,.stp,.iges,.igs"
+            multiple
+            disabled={designBusy || designFiles.length >= 8}
+            onChange={(e) => {
+              void onDesignFilesPicked(e.target.files)
+              e.target.value = ''
+            }}
+          />
+        </label>
+        {designFiles.length > 0 && (
+          <ul className="ws-design-files__list">
+            {designFiles.map((f, i) => (
+              <li key={`${f.name}-${i}`} className="ws-design-files__item">
+                {f.preview ? (
+                  <img src={f.preview} alt="" className="ws-design-files__thumb" />
+                ) : (
+                  <span className="ws-design-files__badge">FILE</span>
+                )}
+                <span className="ws-design-files__name">{f.name}</span>
+                <button
+                  type="button"
+                  className="ws__ghost"
+                  onClick={() => setDesignFiles((list) => list.filter((_, idx) => idx !== i))}
+                >
+                  Remove
+                </button>
+              </li>
+            ))}
+          </ul>
+        )}
+      </section>
 
       <section className="ws-panel ws-size-lines" aria-label="Sizes to manufacture">
         <div className="ws-size-lines__head">
@@ -434,7 +509,11 @@ export function ManagerPostOrderPage() {
           </div>
         </section>
 
-        <button type="submit" className="ws__primary" disabled={busy || totalPieces < 1}>
+        <button
+          type="submit"
+          className="ws__primary"
+          disabled={busy || totalPieces < 1 || designFiles.length < 1}
+        >
           {busy
             ? 'Posting…'
             : `Post order · print ${totalPieces} piece barcode${totalPieces === 1 ? '' : 's'}`}

@@ -171,6 +171,7 @@ export async function handleWorkshopRequest(
           stageId: WorkStageId
           action: 'start' | 'statement' | 'complete'
           statement?: string
+          startPhoto?: { name: string; mimeType: string; dataUrl: string }
         }>(request)
         const order = workerUpdate(body)
         return json(200, { order, snapshot: snapshot() })
@@ -203,6 +204,7 @@ export async function handleWorkshopRequest(
           finish?: string
           bay?: string
           dueDate?: string | null
+          designFiles?: Array<{ name: string; mimeType: string; dataUrl: string }>
           assignments?: Array<{ stageId: WorkStageId; workerId: string; managerNote?: string }>
         }>(request)
         const order = createOrder({
@@ -217,6 +219,7 @@ export async function handleWorkshopRequest(
           finish: body.finish,
           bay: body.bay,
           dueDate: body.dueDate,
+          designFiles: body.designFiles,
           assignments: body.assignments,
         })
         return json(200, { order, snapshot: snapshot() })

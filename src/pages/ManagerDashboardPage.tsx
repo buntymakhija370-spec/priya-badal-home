@@ -20,7 +20,6 @@ import {
 } from '../lib/workshopTypes'
 import {
   assignWorkshopStage,
-  createWorkshopOrder,
   fetchBoard,
   fetchWorkers,
   resetWorkshop,
@@ -56,17 +55,6 @@ export function ManagerDashboardPage() {
   const [priorityFilter, setPriorityFilter] = useState<OrderPriority | 'all'>('all')
   const [workerSearch, setWorkerSearch] = useState('')
   const [eventFilter, setEventFilter] = useState<StatusEvent['kind'] | 'all'>('all')
-
-  const [orderNo, setOrderNo] = useState('')
-  const [customerName, setCustomerName] = useState('')
-  const [productLabel, setProductLabel] = useState('')
-  const [notes, setNotes] = useState('')
-  const [priority, setPriority] = useState<OrderPriority>('normal')
-  const [quantity, setQuantity] = useState(1)
-  const [material, setMaterial] = useState('')
-  const [finish, setFinish] = useState('')
-  const [bay, setBay] = useState('')
-  const [dueDate, setDueDate] = useState('')
 
   const [assignOrderId, setAssignOrderId] = useState('')
   const [assignStageId, setAssignStageId] = useState<WorkStageId>('cutting')
@@ -140,41 +128,6 @@ export function ManagerDashboardPage() {
 
   function setTab(next: Tab) {
     setParams({ tab: next })
-  }
-
-  async function onCreate(e: FormEvent) {
-    e.preventDefault()
-    if (!pin) return
-    setBusy(true)
-    setMsg(null)
-    try {
-      await createWorkshopOrder(pin, {
-        orderNo,
-        customerName,
-        productLabel,
-        notes,
-        priority,
-        sizes: [{ sizeLabel: 'Standard', quantity: quantity > 0 ? quantity : 1 }],
-        material: material || undefined,
-        finish: finish || undefined,
-        bay: bay || undefined,
-        dueDate: dueDate || null,
-      })
-      setOrderNo('')
-      setCustomerName('')
-      setProductLabel('')
-      setNotes('')
-      setMaterial('')
-      setFinish('')
-      setBay('')
-      setDueDate('')
-      setMsg('Order posted — assign stages to workers')
-      await refresh()
-    } catch (err) {
-      setMsg(err instanceof Error ? err.message : 'Could not create order')
-    } finally {
-      setBusy(false)
-    }
   }
 
   async function onAssign(e: FormEvent) {
@@ -306,85 +259,16 @@ export function ManagerDashboardPage() {
           <section className="ws-panel ws-quick-actions">
             <h3>Quick actions</h3>
             <div className="ws-quick-actions__grid">
-              <form className="ws-form" onSubmit={onCreate}>
+              <div className="ws-form ws-post-order-cta">
                 <h4>New order</h4>
-                <label>
-                  Order no.
-                  <input
-                    value={orderNo}
-                    onChange={(e) => setOrderNo(e.target.value)}
-                    placeholder="PBH-2410"
-                    required
-                  />
-                </label>
-                <label>
-                  Customer
-                  <input
-                    value={customerName}
-                    onChange={(e) => setCustomerName(e.target.value)}
-                    placeholder="Sharma Residence"
-                    required
-                  />
-                </label>
-                <label>
-                  Product / job
-                  <input
-                    value={productLabel}
-                    onChange={(e) => setProductLabel(e.target.value)}
-                    placeholder="Kitchen shutters — oak matt"
-                    required
-                  />
-                </label>
-                <div className="ws-form__row">
-                  <label>
-                    Priority
-                    <select
-                      value={priority}
-                      onChange={(e) => setPriority(e.target.value as OrderPriority)}
-                    >
-                      <option value="normal">Normal</option>
-                      <option value="urgent">Urgent</option>
-                      <option value="rush">Rush</option>
-                    </select>
-                  </label>
-                  <label>
-                    Qty
-                    <input
-                      type="number"
-                      min={1}
-                      value={quantity}
-                      onChange={(e) => setQuantity(Number(e.target.value) || 1)}
-                    />
-                  </label>
-                </div>
-                <div className="ws-form__row">
-                  <label>
-                    Material
-                    <input value={material} onChange={(e) => setMaterial(e.target.value)} />
-                  </label>
-                  <label>
-                    Finish
-                    <input value={finish} onChange={(e) => setFinish(e.target.value)} />
-                  </label>
-                </div>
-                <div className="ws-form__row">
-                  <label>
-                    Bay
-                    <input value={bay} onChange={(e) => setBay(e.target.value)} />
-                  </label>
-                  <label>
-                    Due date
-                    <input type="date" value={dueDate} onChange={(e) => setDueDate(e.target.value)} />
-                  </label>
-                </div>
-                <label>
-                  Notes
-                  <textarea value={notes} onChange={(e) => setNotes(e.target.value)} rows={2} />
-                </label>
-                <button type="submit" className="ws__primary" disabled={busy}>
-                  Post order
-                </button>
-              </form>
+                <p className="ws-muted">
+                  Posting requires designer JPG / CAD files and size barcodes. Workers must also take a
+                  start photo before beginning any stage.
+                </p>
+                <Link to="/workers/manage/post-order" className="ws__primary ws-post-order-cta__btn">
+                  Post order with designer files
+                </Link>
+              </div>
 
               <form className="ws-form" onSubmit={onAssign}>
                 <h4>Assign stage</h4>

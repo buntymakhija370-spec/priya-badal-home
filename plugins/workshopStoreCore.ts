@@ -13,6 +13,7 @@ import type {
   StatusEvent,
   WorkStageId,
   Worker,
+  WorkshopAttachment,
   WorkshopOrder,
   WorkshopSnapshot,
 } from '../src/lib/workshopTypes.ts'
@@ -218,6 +219,7 @@ function seedOrders(workers: Worker[]): { orders: WorkshopOrder[]; events: Statu
       stages,
       sizes: built.sizes,
       pieces: built.pieces,
+      designFiles: Array.isArray(extra.designFiles) ? extra.designFiles : [],
     }
   }
 
@@ -256,6 +258,16 @@ function seedOrders(workers: Worker[]): { orders: WorkshopOrder[]; events: Statu
       c.startedAt = hoursAgo(4)
       c.statement = 'Cutting panels — bay 2, 6/8 done'
       c.managerNote = 'Priority for Tuesday install'
+      c.startPhoto = {
+        id: uid('att'),
+        name: `${cutter.code}-start.jpg`,
+        mimeType: 'image/jpeg',
+        dataUrl:
+          'data:image/jpeg;base64,/9j/4AAQSkZJRgABAQAAAQABAAD/2wBDAAgGBgcGBQgHBwcJCQgKDBQNDAsLDBkSEw8UHRofHh0aHBwgJC4nICIsIxwcKDcpLDAxNDQ0Hyc5PTgyPC4zNDL/2wBDAQkJCQwLDBgNDRgyIRwhMjIyMjIyMjIyMjIyMjIyMjIyMjIyMjIyMjIyMjIyMjIyMjIyMjIyMjIyMjIyMjIyMjL/wAARCAABAAEDASIAAhEBAxEB/8QAFQABAQAAAAAAAAAAAAAAAAAAAAn/xAAUEAEAAAAAAAAAAAAAAAAAAAAA/8QAFQEBAQAAAAAAAAAAAAAAAAAAAAX/xAAUEQEAAAAAAAAAAAAAAAAAAAAA/9oADAMBAAIQAxAAAAGfAP/EABQQAQAAAAAAAAAAAAAAAAAAAAD/2gAIAQEAAQUCf//EABQRAQAAAAAAAAAAAAAAAAAAAAD/2gAIAQMBAT8Bf//EABQRAQAAAAAAAAAAAAAAAAAAAAD/2gAIAQIBAT8Bf//EABQQAQAAAAAAAAAAAAAAAAAAAAD/2gAIAQEABj8Cf//EABQQAQAAAAAAAAAAAAAAAAAAAAD/2gAIAQEAAT8hf//Z',
+        uploadedAt: hoursAgo(4),
+        uploadedBy: cutter.id,
+        kind: 'start',
+      }
       c.updates = [
         { id: uid('upd'), at: hoursAgo(4), workerId: cutter.id, text: 'Started cutting panels', kind: 'started' },
         { id: uid('upd'), at: hoursAgo(1), workerId: cutter.id, text: 'Cutting panels — 6/8 done', kind: 'statement' },
@@ -333,12 +345,17 @@ function seedOrders(workers: Worker[]): { orders: WorkshopOrder[]; events: Statu
         cutting: cutter,
         edge_bending: edger,
         boring: borer,
+        pasting: cutter,
+        sending: edger,
+        basecoating: painter,
+        painting_booth_1: painter,
+        painting_booth_2: painter,
         painting: painter,
         leather_job: leather,
         oxidisation: oxide,
       }
       for (const s of stages) {
-        const w = map[s.stageId]!
+        const w = map[s.stageId] || painter
         s.status = 'done'
         s.workerId = w.id
         s.startedAt = hoursAgo(100)
@@ -464,6 +481,7 @@ function normalizeStage(
     updates: Array.isArray(raw.updates) ? raw.updates : [],
     managerNote: raw.managerNote || '',
     barcode: raw.barcode || makeStageBarcode(orderNo, raw.stageId),
+    startPhoto: raw.startPhoto ?? null,
   }
 }
 
@@ -522,6 +540,7 @@ function normalizeOrder(raw: WorkshopOrder & { floorType?: string; stages?: Arra
     stages,
     sizes,
     pieces,
+    designFiles: Array.isArray(raw.designFiles) ? raw.designFiles : [],
   }
 }
 
@@ -627,6 +646,7 @@ export function createOrder(input: {
   finish?: string
   bay?: string
   dueDate?: string | null
+  designFiles?: Array<{ name: string; mimeType: string; dataUrl: string }>
   assignments?: Array<{ stageId: WorkStageId; workerId: string; managerNote?: string }>
 }): WorkshopOrder {
   const store = ensureStore()
@@ -642,6 +662,22 @@ export function createOrder(input: {
   const built = buildPiecesFromSizes(orderNo, sizeInputs)
   if (!built.pieces.length) {
     throw new Error('Add at least one size with quantity (pieces to manufacture)')
+  }
+
+  const designFiles: WorkshopAttachment[] = (input.designFiles || [])
+    .filter((f) => f?.dataUrl && f?.name)
+    .slice(0, 8)
+    .map((f) => ({
+      id: uid('att'),
+      name: f.name.trim(),
+      mimeType: f.mimeType || 'application/octet-stream',
+      dataUrl: f.dataUrl,
+      uploadedAt: nowIso(),
+      uploadedBy: 'manager',
+      kind: 'design' as const,
+    }))
+  if (!designFiles.length) {
+    throw new Error('Attach at least one JPG photo or CAD/PDF file for the designer')
   }
 
   const stages = emptyStages(orderNo)
@@ -663,6 +699,7 @@ export function createOrder(input: {
     stages,
     sizes: built.sizes,
     pieces: built.pieces,
+    designFiles,
   }
   store.orders.unshift(order)
   pushEvent(store, {
@@ -670,7 +707,7 @@ export function createOrder(input: {
     workerId: 'manager',
     stageId: 'designing',
     kind: 'assigned',
-    message: `Manager posted order ${order.orderNo} — ${order.productLabel} (${order.quantity} piece barcode${order.quantity === 1 ? '' : 's'})`,
+    message: `Manager posted order ${order.orderNo} — ${order.productLabel} (${order.quantity} piece barcode${order.quantity === 1 ? '' : 's'}, ${designFiles.length} design file${designFiles.length === 1 ? '' : 's'})`,
   })
 
   const allowed = new Set(WORK_STAGES.map((s) => s.id))
@@ -891,6 +928,8 @@ export function workerUpdate(input: {
   stageId: WorkStageId
   action: 'start' | 'statement' | 'complete'
   statement?: string
+  /** Compulsory start photo (JPEG data URL) when action is start */
+  startPhoto?: { name: string; mimeType: string; dataUrl: string }
 }): WorkshopOrder {
   const store = ensureStore()
   const worker = store.workers.find((w) => w.id === input.workerId && w.active)
@@ -904,6 +943,19 @@ export function workerUpdate(input: {
 
   if (input.action === 'start') {
     if (stage.status === 'done') throw new Error('Already completed')
+    const photo = input.startPhoto
+    if (!photo?.dataUrl || !photo.dataUrl.startsWith('data:image/')) {
+      throw new Error('Take a start photo before beginning this work')
+    }
+    stage.startPhoto = {
+      id: uid('att'),
+      name: photo.name || `${worker.code}-start.jpg`,
+      mimeType: photo.mimeType || 'image/jpeg',
+      dataUrl: photo.dataUrl,
+      uploadedAt: nowIso(),
+      uploadedBy: worker.id,
+      kind: 'start',
+    }
     stage.status = 'in_progress'
     stage.startedAt = stage.startedAt || nowIso()
     const msg = (input.statement || '').trim() || `Started ${stageLabel(input.stageId)}`
@@ -914,16 +966,15 @@ export function workerUpdate(input: {
       workerId: worker.id,
       stageId: input.stageId,
       kind: 'started',
-      message: `${worker.name} started ${stageLabel(input.stageId)} on ${order.orderNo}: ${msg}`,
+      message: `${worker.name} (${worker.code}) started ${stageLabel(input.stageId)} on ${order.orderNo} with start photo: ${msg}`,
     })
   } else if (input.action === 'statement') {
     const msg = (input.statement || '').trim()
     if (!msg) throw new Error('Write what you are doing')
-    if (stage.status === 'assigned') {
-      stage.status = 'in_progress'
-      stage.startedAt = stage.startedAt || nowIso()
-    }
     if (stage.status === 'done') throw new Error('Stage already done')
+    if (stage.status === 'assigned' || !stage.startPhoto) {
+      throw new Error('Take a start photo and tap Start work before posting status')
+    }
     stage.statement = msg
     pushUpdate(stage, worker.id, msg, 'statement')
     pushEvent(store, {
@@ -935,6 +986,9 @@ export function workerUpdate(input: {
     })
   } else if (input.action === 'complete') {
     if (stage.status === 'done') throw new Error('Already completed')
+    if (!stage.startPhoto || stage.status === 'assigned') {
+      throw new Error('Take a start photo and start work before marking complete')
+    }
     const msg = (input.statement || '').trim() || stage.statement || 'Stage completed'
     stage.statement = msg
     stage.status = 'done'

@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useState } from 'react'
+import { useCallback, useEffect, useRef, useState } from 'react'
 import { useNavigate, useOutletContext, useParams } from 'react-router-dom'
 import {
   BackLink,
@@ -7,6 +7,7 @@ import {
   StatusPill,
 } from '../components/workshop/WorkshopUi'
 import { stageLabel, type WorkStageId } from '../lib/workshopTypes'
+import { cameraFileToJpeg } from '../lib/workshopMedia'
 import {
   fetchJobDetail,
   postWorkerAction,
@@ -17,16 +18,21 @@ import './WorkersApp.css'
 
 type Ctx = { auth: WorkshopAuth | null }
 
+type StartPhotoDraft = { name: string; mimeType: string; dataUrl: string }
+
 export function WorkerJobDetailPage() {
   const { orderId, stageId } = useParams<{ orderId: string; stageId: string }>()
   const { auth } = useOutletContext<Ctx>()
   const navigate = useNavigate()
   const workerId = auth?.role === 'worker' ? auth.workerId : ''
+  const cameraRef = useRef<HTMLInputElement | null>(null)
 
   const [detail, setDetail] = useState<JobDetailResponse | null>(null)
   const [statement, setStatement] = useState('')
   const [msg, setMsg] = useState<string | null>(null)
   const [busy, setBusy] = useState(false)
+  const [startPhoto, setStartPhoto] = useState<StartPhotoDraft | null>(null)
+  const [photoBusy, setPhotoBusy] = useState(false)
 
   const refresh = useCallback(async () => {
     if (!orderId || !stageId) return
@@ -46,8 +52,26 @@ export function WorkerJobDetailPage() {
     }
   }, [detail?.stage.statement, statement])
 
+  async function onCameraPicked(file: File | null) {
+    if (!file) return
+    setPhotoBusy(true)
+    setMsg(null)
+    try {
+      const payload = await cameraFileToJpeg(file)
+      setStartPhoto(payload)
+    } catch (e) {
+      setMsg(e instanceof Error ? e.message : 'Could not read photo')
+    } finally {
+      setPhotoBusy(false)
+    }
+  }
+
   async function act(action: 'start' | 'statement' | 'complete') {
     if (!workerId || !orderId || !stageId || !detail) return
+    if (action === 'start' && !startPhoto) {
+      setMsg('Take a start photo first — then tap Start work')
+      return
+    }
     setBusy(true)
     setMsg(null)
     try {
@@ -57,12 +81,15 @@ export function WorkerJobDetailPage() {
         stageId: stageId as WorkStageId,
         action,
         statement: action !== 'start' ? statement : undefined,
+        startPhoto: action === 'start' && startPhoto ? startPhoto : undefined,
       })
       await refresh()
       setMsg(
         action === 'complete'
           ? `${stageLabel(detail.stage.stageId)} marked done`
-          : 'Status saved — manager can see this live',
+          : action === 'start'
+            ? 'Start photo saved — work started. Manager can see this live.'
+            : 'Status saved — manager can see this live',
       )
       if (action === 'complete') {
         setTimeout(() => navigate('/workers/home'), 1200)
@@ -87,6 +114,8 @@ export function WorkerJobDetailPage() {
   const { order, stage } = detail
   const status = stage.status
   const canAct = stage.workerId === workerId || !stage.workerId
+  const isDesigner = stage.stageId === 'designing'
+  const showDesignFiles = isDesigner && (order.designFiles?.length || 0) > 0
 
   return (
     <main className="ws-detail">
@@ -106,6 +135,29 @@ export function WorkerJobDetailPage() {
         <OrderMetaGrid order={order} />
       </section>
 
+      {showDesignFiles && (
+        <section className="ws-panel">
+          <h3>Designer files</h3>
+          <p className="ws-muted">Reference photos / CAD for this design job only.</p>
+          <ul className="ws-design-files__list">
+            {order.designFiles.map((f) => (
+              <li key={f.id} className="ws-design-files__item">
+                {f.mimeType.startsWith('image/') ? (
+                  <a href={f.dataUrl} target="_blank" rel="noreferrer">
+                    <img src={f.dataUrl} alt={f.name} className="ws-design-files__thumb" />
+                  </a>
+                ) : (
+                  <a className="ws-design-files__badge" href={f.dataUrl} download={f.name}>
+                    FILE
+                  </a>
+                )}
+                <span className="ws-design-files__name">{f.name}</span>
+              </li>
+            ))}
+          </ul>
+        </section>
+      )}
+
       {stage.managerNote && (
         <section className="ws-panel ws-panel--note">
           <h3>Manager note</h3>
@@ -113,9 +165,59 @@ export function WorkerJobDetailPage() {
         </section>
       )}
 
-      {canAct && status !== 'done' && (
+      {canAct && status === 'assigned' && (
+        <section className="ws-panel ws-panel--actions">
+          <h3>Start photo (required)</h3>
+          <p className="ws-muted">
+            Click a picture of the sheet / panel / bay before you start. Saved with your worker ID (
+            {auth.code}).
+          </p>
+          <input
+            ref={cameraRef}
+            type="file"
+            accept="image/*"
+            capture="environment"
+            className="ws-file-hidden"
+            onChange={(e) => {
+              void onCameraPicked(e.target.files?.[0] || null)
+              e.target.value = ''
+            }}
+          />
+          <button
+            type="button"
+            className="ws__secondary"
+            disabled={photoBusy || busy}
+            onClick={() => cameraRef.current?.click()}
+          >
+            {photoBusy ? 'Saving photo…' : startPhoto ? 'Retake start photo' : 'Take start photo'}
+          </button>
+          {startPhoto && (
+            <img src={startPhoto.dataUrl} alt="Start photo preview" className="ws-start-photo" />
+          )}
+          <button
+            type="button"
+            className="ws__primary"
+            disabled={busy || !startPhoto}
+            onClick={() => void act('start')}
+          >
+            Start work
+          </button>
+        </section>
+      )}
+
+      {canAct && status === 'in_progress' && (
         <section className="ws-panel ws-panel--actions">
           <h3>Your stage</h3>
+          {stage.startPhoto && (
+            <div className="ws-start-photo-saved">
+              <p className="ws-muted">Start photo on file</p>
+              <img
+                src={stage.startPhoto.dataUrl}
+                alt="Saved start photo"
+                className="ws-start-photo"
+              />
+            </div>
+          )}
           <label className="ws-job__statement">
             Status statement
             <textarea
@@ -126,36 +228,22 @@ export function WorkerJobDetailPage() {
             />
           </label>
           <div className="ws-job__actions">
-            {status === 'assigned' && (
-              <button
-                type="button"
-                className="ws__primary"
-                disabled={busy}
-                onClick={() => void act('start')}
-              >
-                Start work
-              </button>
-            )}
-            {(status === 'assigned' || status === 'in_progress') && (
-              <button
-                type="button"
-                className="ws__secondary"
-                disabled={busy}
-                onClick={() => void act('statement')}
-              >
-                Post status
-              </button>
-            )}
-            {status === 'in_progress' && (
-              <button
-                type="button"
-                className="ws__done"
-                disabled={busy}
-                onClick={() => void act('complete')}
-              >
-                Stage complete
-              </button>
-            )}
+            <button
+              type="button"
+              className="ws__secondary"
+              disabled={busy}
+              onClick={() => void act('statement')}
+            >
+              Post status
+            </button>
+            <button
+              type="button"
+              className="ws__done"
+              disabled={busy}
+              onClick={() => void act('complete')}
+            >
+              Stage complete
+            </button>
           </div>
         </section>
       )}

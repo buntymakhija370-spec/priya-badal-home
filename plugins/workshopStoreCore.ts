@@ -185,7 +185,7 @@ function seedOrders(workers: Worker[]): { orders: WorkshopOrder[]; events: Statu
     productLabel: string,
     notes: string,
     extra: Partial<WorkshopOrder> & {
-      sizeLines?: Array<{ sizeLabel: string; quantity: number }>
+      sizeLines?: Array<{ sizeLabel: string; quantity: number; material?: string; colour?: string }>
     },
     mutate: (stages: OrderStage[]) => void,
   ): WorkshopOrder => {
@@ -195,12 +195,30 @@ function seedOrders(workers: Worker[]): { orders: WorkshopOrder[]; events: Statu
     for (const s of stages) s.barcode = makeStageBarcode(orderNo, s.stageId)
     const anyProgress = stages.some((s) => s.status !== 'pending')
     const allDone = stages.every((s) => s.status === 'done')
+    const fallbackMaterial = (extra.material || '').trim()
     const sizeLines =
       extra.sizeLines ||
       (extra.sizes?.length
-        ? extra.sizes.map((s) => ({ sizeLabel: s.sizeLabel, quantity: s.quantity }))
-        : [{ sizeLabel: 'Standard', quantity: extra.quantity ?? 1 }])
-    const built = buildPiecesFromSizes(orderNo, sizeLines)
+        ? extra.sizes.map((s) => ({
+            sizeLabel: s.sizeLabel,
+            quantity: s.quantity,
+            material: s.material || fallbackMaterial,
+            colour: s.colour,
+          }))
+        : [
+            {
+              sizeLabel: 'Standard',
+              quantity: extra.quantity ?? 1,
+              material: fallbackMaterial,
+            },
+          ])
+    const built = buildPiecesFromSizes(
+      orderNo,
+      sizeLines.map((s) => ({
+        ...s,
+        material: s.material || fallbackMaterial,
+      })),
+    )
     return {
       id: uid('ord'),
       orderNo,
@@ -233,8 +251,8 @@ function seedOrders(workers: Worker[]): { orders: WorkshopOrder[]; events: Statu
     {
       priority: 'urgent',
       sizeLines: [
-        { sizeLabel: '600 × 450 mm', quantity: 4 },
-        { sizeLabel: '900 × 600 mm', quantity: 4 },
+        { sizeLabel: '600 × 450 mm', quantity: 4, material: 'BWP 18mm', colour: 'Oak matt' },
+        { sizeLabel: '900 × 600 mm', quantity: 4, material: 'BWP 18mm', colour: 'Oak matt' },
       ],
       material: 'BWP 18mm',
       finish: 'Oak matt laminate',
@@ -500,27 +518,66 @@ function normalizeOrder(raw: WorkshopOrder & { floorType?: string; stages?: Arra
       : { ...blank, barcode: makeStageBarcode(raw.orderNo, blank.stageId) }
   })
 
-  let sizes: OrderSizeLine[] = Array.isArray(raw.sizes) ? raw.sizes.filter((s) => s?.sizeLabel && s.quantity > 0) : []
+  let sizes: OrderSizeLine[] = Array.isArray(raw.sizes)
+    ? raw.sizes
+        .filter((s) => s?.sizeLabel && s.quantity > 0)
+        .map((s, i) => ({
+          id: s.id || `sz_${i + 1}`,
+          sizeLabel: s.sizeLabel,
+          quantity: s.quantity,
+          material: (s.material || '').trim(),
+          colour: (s.colour || '').trim(),
+        }))
+    : []
   let pieces: OrderPiece[] = Array.isArray(raw.pieces) ? raw.pieces.filter((p) => p?.barcode) : []
   if (!pieces.length) {
     const built = buildPiecesFromSizes(
       raw.orderNo,
       sizes.length
-        ? sizes.map((s) => ({ id: s.id, sizeLabel: s.sizeLabel, quantity: s.quantity }))
-        : [{ sizeLabel: 'Standard', quantity: typeof raw.quantity === 'number' && raw.quantity > 0 ? raw.quantity : 1 }],
+        ? sizes.map((s) => ({
+            id: s.id,
+            sizeLabel: s.sizeLabel,
+            quantity: s.quantity,
+            material: s.material,
+            colour: s.colour,
+          }))
+        : [
+            {
+              sizeLabel: 'Standard',
+              quantity: typeof raw.quantity === 'number' && raw.quantity > 0 ? raw.quantity : 1,
+              material: (raw.material || '').trim(),
+            },
+          ],
     )
     sizes = built.sizes
     pieces = built.pieces
-  } else if (!sizes.length) {
-    const byLabel = new Map<string, number>()
-    for (const p of pieces) {
-      byLabel.set(p.sizeLabel, (byLabel.get(p.sizeLabel) || 0) + 1)
+  } else {
+    pieces = pieces.map((p) => {
+      const line = sizes.find((s) => s.id === p.sizeLineId)
+      return {
+        ...p,
+        material: (p.material || line?.material || '').trim(),
+        colour: (p.colour || line?.colour || '').trim(),
+      }
+    })
+    if (!sizes.length) {
+      const byKey = new Map<string, OrderSizeLine>()
+      for (const p of pieces) {
+        const key = `${p.sizeLabel}|${p.material}|${p.colour}`
+        const existing = byKey.get(key)
+        if (existing) existing.quantity += 1
+        else {
+          byKey.set(key, {
+            id: p.sizeLineId || `sz_${byKey.size + 1}`,
+            sizeLabel: p.sizeLabel,
+            quantity: 1,
+            material: p.material || '',
+            colour: p.colour || '',
+          })
+        }
+      }
+      sizes = [...byKey.values()]
     }
-    sizes = [...byLabel.entries()].map(([sizeLabel, quantity], i) => ({
-      id: `sz_${i + 1}`,
-      sizeLabel,
-      quantity,
-    }))
   }
 
   return {
@@ -643,7 +700,7 @@ export function createOrder(input: {
   notes?: string
   priority?: OrderPriority
   quantity?: number
-  sizes?: Array<{ sizeLabel: string; quantity: number }>
+  sizes?: Array<{ sizeLabel: string; quantity: number; material?: string; colour?: string }>
   material?: string
   finish?: string
   bay?: string
@@ -661,7 +718,18 @@ export function createOrder(input: {
   const sizeInputs =
     Array.isArray(input.sizes) && input.sizes.length
       ? input.sizes
-      : [{ sizeLabel: 'Standard', quantity: input.quantity && input.quantity > 0 ? input.quantity : 1 }]
+      : [
+          {
+            sizeLabel: 'Standard',
+            quantity: input.quantity && input.quantity > 0 ? input.quantity : 1,
+            material: input.material,
+          },
+        ]
+  for (const line of sizeInputs) {
+    if (line.sizeLabel?.trim() && (line.quantity || 0) > 0 && !(line.material || '').trim()) {
+      throw new Error(`Add material for size "${line.sizeLabel.trim()}" — needed for procurement`)
+    }
+  }
   const built = buildPiecesFromSizes(orderNo, sizeInputs)
   if (!built.pieces.length) {
     throw new Error('Add at least one size with quantity (pieces to manufacture)')
@@ -681,6 +749,10 @@ export function createOrder(input: {
       kind: 'design' as const,
     }))
 
+  const materialsSummary = [
+    ...new Set(built.sizes.map((s) => s.material).filter(Boolean)),
+  ].join(' · ')
+
   const stages = emptyStages(orderNo)
   const order: WorkshopOrder = {
     id: uid('ord'),
@@ -693,7 +765,7 @@ export function createOrder(input: {
     status: 'open',
     priority: input.priority || 'normal',
     quantity: built.quantity,
-    material: (input.material || '').trim(),
+    material: materialsSummary || (input.material || '').trim(),
     finish: (input.finish || '').trim(),
     bay: (input.bay || '').trim(),
     dueDate: input.dueDate || null,

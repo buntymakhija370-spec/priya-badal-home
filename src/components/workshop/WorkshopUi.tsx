@@ -157,7 +157,14 @@ export function OrderMetaGrid({ order }: { order: WorkshopOrder }) {
   const { percent } = orderProgress(order)
   const sizeSummary =
     order.sizes?.length > 0
-      ? order.sizes.map((s) => `${s.sizeLabel} × ${s.quantity}`).join(' · ')
+      ? order.sizes
+          .map((s) => {
+            const bits = [s.sizeLabel, `×${s.quantity}`]
+            if (s.material) bits.push(s.material)
+            if (s.colour) bits.push(s.colour)
+            return bits.join(' ')
+          })
+          .join(' · ')
       : null
   return (
     <dl className="ws-meta">
@@ -186,7 +193,7 @@ export function OrderMetaGrid({ order }: { order: WorkshopOrder }) {
         </div>
       )}
       <div>
-        <dt>Material</dt>
+        <dt>Materials</dt>
         <dd>{order.material || '—'}</dd>
       </div>
       <div>

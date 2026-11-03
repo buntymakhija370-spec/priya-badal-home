@@ -102,6 +102,11 @@ export function ManagerBarcodeLabelsPage() {
             <p className="ws-label-card__customer">{order.customerName}</p>
             <p className="ws-label-card__product">{order.productLabel}</p>
             <p className="ws-label-card__size">{piece.sizeLabel}</p>
+            {(piece.material || piece.colour) && (
+              <p className="ws-label-card__material">
+                {[piece.material, piece.colour].filter(Boolean).join(' · ')}
+              </p>
+            )}
             <BarcodeSvg value={piece.barcode} />
             <p className="ws-label-card__code">{piece.barcode}</p>
           </article>

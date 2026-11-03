@@ -46,7 +46,30 @@ type StagePick = {
 type SizeRow = {
   sizeLabel: string
   quantity: string
+  material: string
+  colour: string
 }
+
+const MATERIAL_SUGGESTIONS = [
+  'BWP 18mm',
+  'BWP 12mm',
+  'HDHMR 25mm',
+  'HDHMR 18mm',
+  'MDF fluted',
+  'Teak',
+  'Marine ply',
+  'Particle board',
+]
+
+const COLOUR_SUGGESTIONS = [
+  'Oak matt',
+  'Walnut',
+  'White gloss',
+  'Ivory',
+  'Charcoal',
+  'Teak natural',
+  'Custom laminate',
+]
 
 function emptyPicks(): Record<string, StagePick> {
   const picks: Record<string, StagePick> = {}
@@ -57,7 +80,7 @@ function emptyPicks(): Record<string, StagePick> {
 }
 
 function blankRow(): SizeRow {
-  return { sizeLabel: '', quantity: '1' }
+  return { sizeLabel: '', quantity: '1', material: '', colour: '' }
 }
 
 function parseQty(raw: string): number {
@@ -79,7 +102,6 @@ export function ManagerPostOrderPage() {
   const [designCode, setDesignCode] = useState('')
   const [designFiles, setDesignFiles] = useState<DesignDraft[]>([])
   const [designBusy, setDesignBusy] = useState(false)
-  const [material, setMaterial] = useState('')
   const [finish, setFinish] = useState('')
   const [bay, setBay] = useState('')
   const [dueDate, setDueDate] = useState('')
@@ -168,12 +190,20 @@ export function ManagerPostOrderPage() {
       .map((r) => ({
         sizeLabel: r.sizeLabel.trim(),
         quantity: parseQty(r.quantity),
+        material: r.material.trim(),
+        colour: r.colour.trim(),
       }))
       .filter((r) => r.sizeLabel && r.quantity > 0)
 
     if (!sizes.length) {
       setMsg('Add at least one size with pieces — one unique barcode is printed per piece')
       return
+    }
+    for (const line of sizes) {
+      if (!line.material) {
+        setMsg(`Add material for size "${line.sizeLabel}" — procurement needs this to buy raw stock`)
+        return
+      }
     }
 
     const assignments = pipeline
@@ -203,7 +233,6 @@ export function ManagerPostOrderPage() {
         sizes,
         designCode: designCode.trim() || undefined,
         designFiles: designFiles.map(({ name, mimeType, dataUrl }) => ({ name, mimeType, dataUrl })),
-        material: material || undefined,
         finish: finish || undefined,
         bay: bay || undefined,
         dueDate: dueDate || null,
@@ -310,7 +339,7 @@ export function ManagerPostOrderPage() {
       <section className="ws-panel ws-size-lines" aria-label="Sizes to manufacture">
         <div className="ws-size-lines__head">
           <h3 className="ws-size-lines__title">
-            Sizes to manufacture <span className="ws-muted">({totalPieces} barcodes)</span>
+            Sizes & materials <span className="ws-muted">({totalPieces} barcodes)</span>
           </h3>
           <label className="ws-size-count">
             How many sizes?
@@ -327,12 +356,17 @@ export function ManagerPostOrderPage() {
           </label>
         </div>
         <p className="ws-muted ws-stage-join__hint">
-          Each filled size × pieces becomes unique barcodes. Empty size lines are ignored.
+          Each size needs material (for procurement) and optional colour. Empty size lines are
+          ignored.
         </p>
 
         <div className="ws-size-lines__list">
           {sizeRows.map((row, index) => (
-            <div key={`size-row-${index}`} className="ws-size-lines__row" data-size-index={index}>
+            <div
+              key={`size-row-${index}`}
+              className="ws-size-lines__row ws-size-lines__row--materials"
+              data-size-index={index}
+            >
               <div className="ws-size-field">
                 <label htmlFor={`size-label-${index}`}>Size {index + 1}</label>
                 <input
@@ -361,6 +395,32 @@ export function ManagerPostOrderPage() {
                   autoComplete="off"
                 />
               </div>
+              <div className="ws-size-field">
+                <label htmlFor={`size-material-${index}`}>Material</label>
+                <input
+                  id={`size-material-${index}`}
+                  type="text"
+                  list="ws-material-suggestions"
+                  value={row.material}
+                  onChange={(e) => updateSizeAt(index, { material: e.target.value })}
+                  onKeyDown={blockEnterSubmit}
+                  placeholder="e.g. BWP 18mm"
+                  autoComplete="off"
+                />
+              </div>
+              <div className="ws-size-field">
+                <label htmlFor={`size-colour-${index}`}>Colour</label>
+                <input
+                  id={`size-colour-${index}`}
+                  type="text"
+                  list="ws-colour-suggestions"
+                  value={row.colour}
+                  onChange={(e) => updateSizeAt(index, { colour: e.target.value })}
+                  onKeyDown={blockEnterSubmit}
+                  placeholder="e.g. Oak matt"
+                  autoComplete="off"
+                />
+              </div>
               <button
                 type="button"
                 className="ws__ghost ws-size-remove"
@@ -371,6 +431,16 @@ export function ManagerPostOrderPage() {
             </div>
           ))}
         </div>
+        <datalist id="ws-material-suggestions">
+          {MATERIAL_SUGGESTIONS.map((m) => (
+            <option key={m} value={m} />
+          ))}
+        </datalist>
+        <datalist id="ws-colour-suggestions">
+          {COLOUR_SUGGESTIONS.map((c) => (
+            <option key={c} value={c} />
+          ))}
+        </datalist>
       </section>
 
       <form className="ws-form ws-panel" onSubmit={onSubmit}>
@@ -420,24 +490,14 @@ export function ManagerPostOrderPage() {
           </div>
         </div>
 
-        <div className="ws-form__row">
-          <label>
-            Material
-            <input
-              value={material}
-              onChange={(e) => setMaterial(e.target.value)}
-              placeholder="BWP 18mm"
-            />
-          </label>
-          <label>
-            Finish
-            <input
-              value={finish}
-              onChange={(e) => setFinish(e.target.value)}
-              placeholder="Matt laminate / paint / polish"
-            />
-          </label>
-        </div>
+        <label>
+          Overall finish note (optional)
+          <input
+            value={finish}
+            onChange={(e) => setFinish(e.target.value)}
+            placeholder="Matt laminate / paint / polish — extras beyond per-size colour"
+          />
+        </label>
         <div className="ws-form__row">
           <label>
             Bay

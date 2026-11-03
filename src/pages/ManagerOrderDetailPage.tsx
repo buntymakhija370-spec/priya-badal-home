@@ -12,6 +12,7 @@ import {
 } from '../components/workshop/WorkshopUi'
 import {
   formatDuration,
+  procurementMaterials,
   stageLabel,
   type WorkStageId,
 } from '../lib/workshopTypes'
@@ -119,6 +120,7 @@ export function ManagerOrderDetailPage() {
 
   const { order, events, progress } = detail
   const isClosed = order.status === 'closed'
+  const buyList = procurementMaterials(order)
 
   return (
     <main className="ws-detail">
@@ -150,6 +152,42 @@ export function ManagerOrderDetailPage() {
       <section className="ws-panel">
         <ProgressBar percent={progress.percent} />
         <OrderMetaGrid order={order} />
+      </section>
+
+      <section className="ws-panel ws-procurement">
+        <h3>Procurement — raw materials</h3>
+        <p className="ws-muted">
+          Pick list for market purchase from this order’s size materials.
+        </p>
+        {buyList.length === 0 ? (
+          <p className="ws-muted">No materials listed on size lines yet.</p>
+        ) : (
+          <ul className="ws-procurement__list">
+            {buyList.map((row) => (
+              <li key={`${row.material}|${row.colour}`} className="ws-procurement__item">
+                <strong>{row.material}</strong>
+                {row.colour ? <span className="ws-procurement__colour">{row.colour}</span> : null}
+                <span className="ws-procurement__qty">{row.quantity} pc</span>
+                <span className="ws-muted ws-procurement__sizes">{row.sizes.join(' · ')}</span>
+              </li>
+            ))}
+          </ul>
+        )}
+        {(order.sizes?.length || 0) > 0 && (
+          <div className="ws-procurement__sizes-table">
+            <h4>Size lines</h4>
+            <ul className="ws-procurement__size-rows">
+              {order.sizes.map((s) => (
+                <li key={s.id}>
+                  <span>{s.sizeLabel}</span>
+                  <span>×{s.quantity}</span>
+                  <span>{s.material || '—'}</span>
+                  <span>{s.colour || '—'}</span>
+                </li>
+              ))}
+            </ul>
+          </div>
+        )}
       </section>
 
       {(order.designCode || (order.designFiles?.length || 0) > 0) && (

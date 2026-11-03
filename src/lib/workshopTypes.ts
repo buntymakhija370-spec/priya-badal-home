@@ -81,6 +81,10 @@ export type OrderSizeLine = {
   id: string
   sizeLabel: string
   quantity: number
+  /** Raw material for this size — for floor + procurement */
+  material: string
+  /** Colour / laminate / finish option for this size */
+  colour: string
 }
 
 /** One manufactured piece — gets its own unique barcode sticker. */
@@ -88,6 +92,8 @@ export type OrderPiece = {
   id: string
   sizeLineId: string
   sizeLabel: string
+  material: string
+  colour: string
   /** 1-based across the whole order */
   pieceIndex: number
   /** 1-based within this size line */
@@ -194,7 +200,13 @@ export function makePieceBarcode(orderNo: string, sizeLineIndex: number, pieceIn
 
 export function buildPiecesFromSizes(
   orderNo: string,
-  sizeInputs: Array<{ id?: string; sizeLabel: string; quantity: number }>,
+  sizeInputs: Array<{
+    id?: string
+    sizeLabel: string
+    quantity: number
+    material?: string
+    colour?: string
+  }>,
 ): { sizes: OrderSizeLine[]; pieces: OrderPiece[]; quantity: number } {
   const sizes: OrderSizeLine[] = []
   const pieces: OrderPiece[] = []
@@ -204,13 +216,17 @@ export function buildPiecesFromSizes(
     const quantity = Math.max(0, Math.floor(Number(input.quantity) || 0))
     if (!sizeLabel || quantity < 1) return
     const id = input.id?.trim() || `sz_${lineIdx + 1}`
-    sizes.push({ id, sizeLabel, quantity })
+    const material = (input.material || '').trim()
+    const colour = (input.colour || '').trim()
+    sizes.push({ id, sizeLabel, quantity, material, colour })
     for (let i = 1; i <= quantity; i++) {
       pieceIndex += 1
       pieces.push({
         id: `pc_${cleanOrderNo(orderNo)}_${pieceIndex}`,
         sizeLineId: id,
         sizeLabel,
+        material,
+        colour,
         pieceIndex,
         pieceInSize: i,
         barcode: makePieceBarcode(orderNo, sizes.length, i),
@@ -219,6 +235,35 @@ export function buildPiecesFromSizes(
     }
   })
   return { sizes, pieces, quantity: pieces.length }
+}
+
+/** Aggregate unique materials from size lines for procurement pick-list. */
+export function procurementMaterials(order: WorkshopOrder): Array<{
+  material: string
+  colour: string
+  quantity: number
+  sizes: string[]
+}> {
+  const map = new Map<string, { material: string; colour: string; quantity: number; sizes: string[] }>()
+  for (const line of order.sizes || []) {
+    const material = (line.material || order.material || '').trim()
+    if (!material) continue
+    const colour = (line.colour || '').trim()
+    const key = `${material.toLowerCase()}|${colour.toLowerCase()}`
+    const existing = map.get(key)
+    if (existing) {
+      existing.quantity += line.quantity
+      if (!existing.sizes.includes(line.sizeLabel)) existing.sizes.push(line.sizeLabel)
+    } else {
+      map.set(key, {
+        material,
+        colour,
+        quantity: line.quantity,
+        sizes: [line.sizeLabel],
+      })
+    }
+  }
+  return [...map.values()]
 }
 
 export function emptyStages(orderNo = 'TEMP'): OrderStage[] {

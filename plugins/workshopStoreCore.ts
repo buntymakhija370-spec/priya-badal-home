@@ -1120,12 +1120,17 @@ export function closeOrder(orderId: string, managerName = 'Manager'): WorkshopOr
 }
 
 export function resetDemoData(): WorkshopSnapshot {
+  // Always build a fresh seed and persist through save() so file + KV backends
+  // both replace the live snapshot (do not rely on optional reset() alone).
+  const store = createSeedStore()
   if (storeAccess?.reset) {
-    storeAccess.reset()
-  } else {
-    const store = createSeedStore()
-    saveStore(store)
+    try {
+      storeAccess.reset()
+    } catch {
+      /* save() below is the source of truth */
+    }
   }
+  saveStore(store)
   return snapshot()
 }
 

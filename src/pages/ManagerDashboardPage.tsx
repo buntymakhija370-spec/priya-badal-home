@@ -153,12 +153,20 @@ export function ManagerDashboardPage() {
   }
 
   async function onReset() {
-    if (!pin) return
-    if (!window.confirm('Reset demo floor data (60 workers + sample orders)?')) return
+    if (!pin) {
+      setMsg('Sign in again as manager to reset the floor')
+      return
+    }
+    if (!window.confirm('Reset demo floor data (60 workers + sample orders)? This clears current orders.')) {
+      return
+    }
     setBusy(true)
+    setMsg(null)
     try {
-      await resetWorkshop(pin)
-      setMsg('Demo floor reset')
+      const snap = await resetWorkshop(pin)
+      setMsg(
+        `Demo floor reset — ${snap.workers?.length ?? 0} workers, ${snap.orders?.length ?? 0} sample orders`,
+      )
       await refresh()
     } catch (err) {
       setMsg(err instanceof Error ? err.message : 'Reset failed')

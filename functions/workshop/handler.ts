@@ -65,6 +65,8 @@ async function withKvStore<T>(
       memory = createSeedStore()
     },
   })
+  // Note: resetDemoData() always createSeedStore() + save(), so KV gets the new
+  // snapshot via the put() after the handler returns.
 
   if (env.WORKSHOP_MANAGER_PIN) {
     // getManagerPin reads process.env in Node; mirror via globalThis for Workers

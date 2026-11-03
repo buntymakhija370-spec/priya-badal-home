@@ -3,7 +3,7 @@ import { Link, useOutletContext, useParams, useSearchParams } from 'react-router
 import JsBarcode from 'jsbarcode'
 import { BackLink } from '../components/workshop/WorkshopUi'
 import { fetchOrderDetail, type WorkshopAuth } from '../lib/workshopClient'
-import { stageLabel, type WorkshopOrder } from '../lib/workshopTypes'
+import type { WorkshopOrder } from '../lib/workshopTypes'
 import { useCallback, useState } from 'react'
 import './WorkersApp.css'
 import './BarcodeLabels.css'
@@ -18,8 +18,8 @@ function BarcodeSvg({ value }: { value: string }) {
       JsBarcode(ref.current, value, {
         format: 'CODE128',
         displayValue: true,
-        fontSize: 12,
-        height: 56,
+        fontSize: 11,
+        height: 52,
         margin: 4,
         background: '#ffffff',
         lineColor: '#111111',
@@ -56,7 +56,7 @@ export function ManagerBarcodeLabelsPage() {
     return () => window.clearTimeout(t)
   }, [autoPrint, order])
 
-  const labels = useMemo(() => order?.stages ?? [], [order])
+  const labels = useMemo(() => order?.pieces ?? [], [order])
 
   if (!auth || auth.role !== 'manager') return null
   if (!order) {
@@ -75,34 +75,42 @@ export function ManagerBarcodeLabelsPage() {
         <div>
           <h2>Print barcodes — {order.orderNo}</h2>
           <p className="ws-muted">
-            One label per department. Stick on the job / panel, then workers scan to claim work.
+            One unique sticker per manufactured piece ({labels.length}). Stick on the panel — scan
+            shows client, product, size, and order.
           </p>
         </div>
         <button type="button" className="ws__primary" onClick={() => window.print()}>
-          Print labels
+          Print {labels.length} labels
         </button>
       </header>
 
       {msg && <p className="ws-banner no-print">{msg}</p>}
 
+      {!labels.length && (
+        <p className="ws-banner no-print">No piece barcodes on this order yet.</p>
+      )}
+
       <div className="ws-labels__sheet">
-        {labels.map((stage) => (
-          <article key={stage.stageId} className="ws-label-card">
+        {labels.map((piece) => (
+          <article key={piece.id} className="ws-label-card">
             <div className="ws-label-card__head">
               <strong>{order.orderNo}</strong>
-              <span>{stageLabel(stage.stageId)}</span>
+              <span>
+                Piece {piece.pieceIndex}/{order.quantity}
+              </span>
             </div>
-            <p className="ws-label-card__product">{order.productLabel}</p>
             <p className="ws-label-card__customer">{order.customerName}</p>
-            <BarcodeSvg value={stage.barcode} />
-            <p className="ws-label-card__code">{stage.barcode}</p>
+            <p className="ws-label-card__product">{order.productLabel}</p>
+            <p className="ws-label-card__size">{piece.sizeLabel}</p>
+            <BarcodeSvg value={piece.barcode} />
+            <p className="ws-label-card__code">{piece.barcode}</p>
           </article>
         ))}
       </div>
 
       <p className="ws-muted no-print" style={{ marginTop: '1rem' }}>
-        Tip: after printing, go to worker app → <Link to="/workers">Scan barcode</Link> (workers use
-        Scan on their home menu).
+        Tip: after printing, workers open <Link to="/workers/home/scan">Scan barcode</Link> to
+        identify the piece and claim work.
       </p>
     </main>
   )

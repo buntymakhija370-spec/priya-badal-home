@@ -155,6 +155,7 @@ async function handleCreateOrder(req: IncomingMessage, res: ServerResponse) {
       notes?: string
       priority?: OrderPriority
       quantity?: number
+      sizes?: Array<{ sizeLabel: string; quantity: number }>
       material?: string
       finish?: string
       bay?: string
@@ -168,6 +169,7 @@ async function handleCreateOrder(req: IncomingMessage, res: ServerResponse) {
       notes: body.notes,
       priority: body.priority,
       quantity: body.quantity,
+      sizes: body.sizes,
       material: body.material,
       finish: body.finish,
       bay: body.bay,

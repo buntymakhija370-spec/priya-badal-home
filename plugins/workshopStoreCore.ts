@@ -5,7 +5,9 @@
 import type {
   Machine,
   MachineStatus,
+  OrderPiece,
   OrderPriority,
+  OrderSizeLine,
   OrderStage,
   StageUpdate,
   StatusEvent,
@@ -16,6 +18,7 @@ import type {
 } from '../src/lib/workshopTypes.ts'
 import {
   WORK_STAGES,
+  buildPiecesFromSizes,
   emptyStages,
   makeStageBarcode,
   normalizeStageId,
@@ -175,7 +178,9 @@ function seedOrders(workers: Worker[]): { orders: WorkshopOrder[]; events: Statu
     customerName: string,
     productLabel: string,
     notes: string,
-    extra: Partial<WorkshopOrder>,
+    extra: Partial<WorkshopOrder> & {
+      sizeLines?: Array<{ sizeLabel: string; quantity: number }>
+    },
     mutate: (stages: OrderStage[]) => void,
   ): WorkshopOrder => {
     const stages = emptyStages(orderNo)
@@ -184,6 +189,12 @@ function seedOrders(workers: Worker[]): { orders: WorkshopOrder[]; events: Statu
     for (const s of stages) s.barcode = makeStageBarcode(orderNo, s.stageId)
     const anyProgress = stages.some((s) => s.status !== 'pending')
     const allDone = stages.every((s) => s.status === 'done')
+    const sizeLines =
+      extra.sizeLines ||
+      (extra.sizes?.length
+        ? extra.sizes.map((s) => ({ sizeLabel: s.sizeLabel, quantity: s.quantity }))
+        : [{ sizeLabel: 'Standard', quantity: extra.quantity ?? 1 }])
+    const built = buildPiecesFromSizes(orderNo, sizeLines)
     return {
       id: uid('ord'),
       orderNo,
@@ -194,12 +205,14 @@ function seedOrders(workers: Worker[]): { orders: WorkshopOrder[]; events: Statu
       closedAt: allDone ? nowIso() : null,
       status: allDone ? 'closed' : anyProgress ? 'in_progress' : 'open',
       priority: extra.priority || 'normal',
-      quantity: extra.quantity ?? 1,
+      quantity: built.quantity,
       material: extra.material || 'BWP plywood',
       finish: extra.finish || 'Matt laminate',
       bay: extra.bay || 'Bay A',
       dueDate: extra.dueDate ?? daysFromNow(5),
       stages,
+      sizes: built.sizes,
+      pieces: built.pieces,
     }
   }
 
@@ -211,7 +224,10 @@ function seedOrders(workers: Worker[]): { orders: WorkshopOrder[]; events: Statu
     '8 carcass units, soft-close',
     {
       priority: 'urgent',
-      quantity: 8,
+      sizeLines: [
+        { sizeLabel: '600 × 450 mm', quantity: 4 },
+        { sizeLabel: '900 × 600 mm', quantity: 4 },
+      ],
       material: 'BWP 18mm',
       finish: 'Oak matt laminate',
       bay: 'Bay B',
@@ -459,6 +475,30 @@ function normalizeOrder(raw: WorkshopOrder & { floorType?: string; stages?: Arra
       ? normalizeStage({ ...found, stageId: blank.stageId }, raw.orderNo)
       : { ...blank, barcode: makeStageBarcode(raw.orderNo, blank.stageId) }
   })
+
+  let sizes: OrderSizeLine[] = Array.isArray(raw.sizes) ? raw.sizes.filter((s) => s?.sizeLabel && s.quantity > 0) : []
+  let pieces: OrderPiece[] = Array.isArray(raw.pieces) ? raw.pieces.filter((p) => p?.barcode) : []
+  if (!pieces.length) {
+    const built = buildPiecesFromSizes(
+      raw.orderNo,
+      sizes.length
+        ? sizes.map((s) => ({ id: s.id, sizeLabel: s.sizeLabel, quantity: s.quantity }))
+        : [{ sizeLabel: 'Standard', quantity: typeof raw.quantity === 'number' && raw.quantity > 0 ? raw.quantity : 1 }],
+    )
+    sizes = built.sizes
+    pieces = built.pieces
+  } else if (!sizes.length) {
+    const byLabel = new Map<string, number>()
+    for (const p of pieces) {
+      byLabel.set(p.sizeLabel, (byLabel.get(p.sizeLabel) || 0) + 1)
+    }
+    sizes = [...byLabel.entries()].map(([sizeLabel, quantity], i) => ({
+      id: `sz_${i + 1}`,
+      sizeLabel,
+      quantity,
+    }))
+  }
+
   return {
     id: raw.id,
     orderNo: raw.orderNo,
@@ -469,12 +509,14 @@ function normalizeOrder(raw: WorkshopOrder & { floorType?: string; stages?: Arra
     closedAt: raw.closedAt ?? null,
     status: raw.status,
     priority: raw.priority || 'normal',
-    quantity: typeof raw.quantity === 'number' ? raw.quantity : 1,
+    quantity: pieces.length || (typeof raw.quantity === 'number' ? raw.quantity : 1),
     material: raw.material || '',
     finish: raw.finish || '',
     bay: raw.bay || '',
     dueDate: raw.dueDate ?? null,
     stages,
+    sizes,
+    pieces,
   }
 }
 
@@ -575,6 +617,7 @@ export function createOrder(input: {
   notes?: string
   priority?: OrderPriority
   quantity?: number
+  sizes?: Array<{ sizeLabel: string; quantity: number }>
   material?: string
   finish?: string
   bay?: string
@@ -586,6 +629,16 @@ export function createOrder(input: {
   if (store.orders.some((o) => o.orderNo === orderNo && !o.closedAt)) {
     throw new Error(`Open order ${orderNo} already exists`)
   }
+
+  const sizeInputs =
+    Array.isArray(input.sizes) && input.sizes.length
+      ? input.sizes
+      : [{ sizeLabel: 'Standard', quantity: input.quantity && input.quantity > 0 ? input.quantity : 1 }]
+  const built = buildPiecesFromSizes(orderNo, sizeInputs)
+  if (!built.pieces.length) {
+    throw new Error('Add at least one size with quantity (pieces to manufacture)')
+  }
+
   const stages = emptyStages(orderNo)
   const order: WorkshopOrder = {
     id: uid('ord'),
@@ -597,12 +650,14 @@ export function createOrder(input: {
     closedAt: null,
     status: 'open',
     priority: input.priority || 'normal',
-    quantity: input.quantity && input.quantity > 0 ? input.quantity : 1,
+    quantity: built.quantity,
     material: (input.material || '').trim(),
     finish: (input.finish || '').trim(),
     bay: (input.bay || '').trim(),
     dueDate: input.dueDate || null,
     stages,
+    sizes: built.sizes,
+    pieces: built.pieces,
   }
   store.orders.unshift(order)
   pushEvent(store, {
@@ -610,7 +665,7 @@ export function createOrder(input: {
     workerId: 'manager',
     stageId: 'designing',
     kind: 'assigned',
-    message: `Manager posted order ${order.orderNo} — ${order.productLabel}`,
+    message: `Manager posted order ${order.orderNo} — ${order.productLabel} (${order.quantity} piece barcode${order.quantity === 1 ? '' : 's'})`,
   })
 
   const allowed = new Set(WORK_STAGES.map((s) => s.id))
@@ -679,11 +734,78 @@ export function assignStage(input: {
   return order
 }
 
-/** Resolve a scanned barcode and claim the stage for the worker. */
+function pickStageForWorker(order: WorkshopOrder, worker: Worker): OrderStage | null {
+  const open = order.stages.filter((s) => s.status !== 'done')
+  if (!open.length) return null
+  const alreadyMine = open.find((s) => s.workerId === worker.id)
+  if (alreadyMine) return alreadyMine
+  if (worker.role !== 'multi') {
+    const byRole = open.find((s) => s.stageId === worker.role)
+    if (byRole) return byRole
+  }
+  return open.find((s) => !s.workerId) || open[0] || null
+}
+
+function claimStageForScan(
+  store: StoreFile,
+  order: WorkshopOrder,
+  stage: OrderStage,
+  worker: Worker,
+  piece: OrderPiece | null,
+): { claimed: boolean; message: string } {
+  if (stage.status === 'done') {
+    throw new Error(`${stageLabel(stage.stageId)} on ${order.orderNo} is already complete`)
+  }
+
+  const pieceBit = piece
+    ? ` · ${piece.sizeLabel} · piece ${piece.pieceIndex}/${order.quantity}`
+    : ''
+
+  if (stage.workerId === worker.id) {
+    if (piece && piece.status === 'pending') {
+      piece.status = 'in_progress'
+      saveStore(store)
+    }
+    return {
+      claimed: false,
+      message: `Already your job — ${stageLabel(stage.stageId)} on ${order.orderNo}${pieceBit}`,
+    }
+  }
+
+  stage.workerId = worker.id
+  if (stage.status === 'pending' || stage.status === 'assigned') {
+    stage.status = 'assigned'
+    stage.startedAt = null
+    stage.completedAt = null
+  }
+  if (!stage.barcode) stage.barcode = makeStageBarcode(order.orderNo, stage.stageId)
+  if (piece && piece.status === 'pending') piece.status = 'in_progress'
+  recomputeOrderStatus(order)
+  pushEvent(store, {
+    orderId: order.id,
+    workerId: worker.id,
+    stageId: stage.stageId,
+    kind: 'assigned',
+    message: `${worker.name} scanned barcode and claimed ${stageLabel(stage.stageId)} on ${order.orderNo}${pieceBit}`,
+  })
+  saveStore(store)
+  return {
+    claimed: true,
+    message: `Claimed ${stageLabel(stage.stageId)} on ${order.orderNo}${pieceBit}`,
+  }
+}
+
+/** Resolve a scanned piece or department barcode; claim work for the worker. */
 export function scanBarcode(input: {
   barcode: string
   workerId: string
-}): { order: WorkshopOrder; stage: OrderStage; claimed: boolean; message: string } {
+}): {
+  order: WorkshopOrder
+  stage: OrderStage | null
+  piece: OrderPiece | null
+  claimed: boolean
+  message: string
+} {
   const store = ensureStore()
   const code = input.barcode.trim().toUpperCase()
   if (!code) throw new Error('Scan or type a barcode')
@@ -691,6 +813,27 @@ export function scanBarcode(input: {
   const worker = store.workers.find((w) => w.id === input.workerId && w.active)
   if (!worker) throw new Error('Worker not found')
 
+  // Prefer unique piece barcodes (one sticker per manufactured piece)
+  for (const order of store.orders) {
+    if (order.status === 'closed') continue
+    const piece = (order.pieces || []).find((p) => p.barcode.toUpperCase() === code)
+    if (!piece) continue
+
+    const stage = pickStageForWorker(order, worker)
+    if (!stage) {
+      return {
+        order,
+        stage: null,
+        piece,
+        claimed: false,
+        message: `${order.customerName} · ${order.productLabel} · ${piece.sizeLabel} · ${order.orderNo} (piece ${piece.pieceIndex}/${order.quantity}) — no open stage to claim`,
+      }
+    }
+    const result = claimStageForScan(store, order, stage, worker, piece)
+    return { order, stage, piece, ...result }
+  }
+
+  // Fallback: department stage barcodes
   let found: { order: WorkshopOrder; stage: OrderStage } | null = null
   for (const order of store.orders) {
     if (order.status === 'closed') continue
@@ -706,43 +849,8 @@ export function scanBarcode(input: {
 
   if (!found) throw new Error('Barcode not found — check the label')
   const { order, stage } = found
-
-  if (stage.status === 'done') {
-    throw new Error(`${stageLabel(stage.stageId)} on ${order.orderNo} is already complete`)
-  }
-
-  if (stage.workerId === worker.id) {
-    return {
-      order,
-      stage,
-      claimed: false,
-      message: `Already your job — ${stageLabel(stage.stageId)} on ${order.orderNo}`,
-    }
-  }
-
-  // Claim / reassign to the scanner
-  stage.workerId = worker.id
-  if (stage.status === 'pending' || stage.status === 'assigned') {
-    stage.status = 'assigned'
-    stage.startedAt = null
-    stage.completedAt = null
-  }
-  if (!stage.barcode) stage.barcode = makeStageBarcode(order.orderNo, stage.stageId)
-  recomputeOrderStatus(order)
-  pushEvent(store, {
-    orderId: order.id,
-    workerId: worker.id,
-    stageId: stage.stageId,
-    kind: 'assigned',
-    message: `${worker.name} scanned barcode and claimed ${stageLabel(stage.stageId)} on ${order.orderNo}`,
-  })
-  saveStore(store)
-  return {
-    order,
-    stage,
-    claimed: true,
-    message: `Claimed ${stageLabel(stage.stageId)} on ${order.orderNo}`,
-  }
+  const result = claimStageForScan(store, order, stage, worker, null)
+  return { order, stage, piece: null, ...result }
 }
 
 export function unassignStage(orderId: string, stageId: WorkStageId): WorkshopOrder {

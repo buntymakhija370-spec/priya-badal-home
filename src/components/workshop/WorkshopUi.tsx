@@ -155,6 +155,10 @@ export function EventTimeline({
 
 export function OrderMetaGrid({ order }: { order: WorkshopOrder }) {
   const { percent } = orderProgress(order)
+  const sizeSummary =
+    order.sizes?.length > 0
+      ? order.sizes.map((s) => `${s.sizeLabel} × ${s.quantity}`).join(' · ')
+      : null
   return (
     <dl className="ws-meta">
       <div>
@@ -166,9 +170,15 @@ export function OrderMetaGrid({ order }: { order: WorkshopOrder }) {
         <dd>{order.productLabel}</dd>
       </div>
       <div>
-        <dt>Qty</dt>
+        <dt>Pieces</dt>
         <dd>{order.quantity}</dd>
       </div>
+      {sizeSummary && (
+        <div>
+          <dt>Sizes</dt>
+          <dd>{sizeSummary}</dd>
+        </div>
+      )}
       <div>
         <dt>Material</dt>
         <dd>{order.material || '—'}</dd>

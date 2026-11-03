@@ -1,6 +1,7 @@
 import type {
   Machine,
   MachineStatus,
+  OrderPiece,
   OrderPriority,
   OrderStage,
   StatusEvent,
@@ -167,7 +168,8 @@ export async function postWorkerAction(body: {
 
 export async function scanWorkshopBarcode(body: { barcode: string; workerId: string }): Promise<{
   order: WorkshopOrder
-  stage: OrderStage
+  stage: OrderStage | null
+  piece: OrderPiece | null
   claimed: boolean
   message: string
 }> {
@@ -241,6 +243,7 @@ export async function createWorkshopOrder(
     notes?: string
     priority?: OrderPriority
     quantity?: number
+    sizes?: Array<{ sizeLabel: string; quantity: number }>
     material?: string
     finish?: string
     bay?: string

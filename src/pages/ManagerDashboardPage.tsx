@@ -154,7 +154,7 @@ export function ManagerDashboardPage() {
         productLabel,
         notes,
         priority,
-        quantity,
+        sizes: [{ sizeLabel: 'Standard', quantity: quantity > 0 ? quantity : 1 }],
         material: material || undefined,
         finish: finish || undefined,
         bay: bay || undefined,

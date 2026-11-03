@@ -198,6 +198,7 @@ export async function handleWorkshopRequest(
           notes?: string
           priority?: OrderPriority
           quantity?: number
+          sizes?: Array<{ sizeLabel: string; quantity: number }>
           material?: string
           finish?: string
           bay?: string
@@ -211,6 +212,7 @@ export async function handleWorkshopRequest(
           notes: body.notes,
           priority: body.priority,
           quantity: body.quantity,
+          sizes: body.sizes,
           material: body.material,
           finish: body.finish,
           bay: body.bay,

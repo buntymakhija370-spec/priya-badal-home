@@ -58,6 +58,26 @@ export type StatusEvent = {
   message: string
 }
 
+/** One custom size line on an order (applies to every product / category). */
+export type OrderSizeLine = {
+  id: string
+  sizeLabel: string
+  quantity: number
+}
+
+/** One manufactured piece — gets its own unique barcode sticker. */
+export type OrderPiece = {
+  id: string
+  sizeLineId: string
+  sizeLabel: string
+  /** 1-based across the whole order */
+  pieceIndex: number
+  /** 1-based within this size line */
+  pieceInSize: number
+  barcode: string
+  status: 'pending' | 'in_progress' | 'done'
+}
+
 export type WorkshopOrder = {
   id: string
   orderNo: string
@@ -68,12 +88,17 @@ export type WorkshopOrder = {
   closedAt: string | null
   status: 'open' | 'in_progress' | 'closed'
   priority: OrderPriority
+  /** Total manufactured pieces (= sum of size quantities / pieces.length) */
   quantity: number
   material: string
   finish: string
   bay: string
   dueDate: string | null
   stages: OrderStage[]
+  /** Custom sizes for this order (any product / category) */
+  sizes: OrderSizeLine[]
+  /** One barcode per piece to manufacture */
+  pieces: OrderPiece[]
 }
 
 export type MachineStatus = 'idle' | 'running' | 'maintenance' | 'offline'
@@ -128,11 +153,50 @@ export function stageMeta(id: WorkStageId | string) {
   return normalized ? WORK_STAGES.find((s) => s.id === normalized) : undefined
 }
 
+function cleanOrderNo(orderNo: string): string {
+  return orderNo.trim().toUpperCase().replace(/\s+/g, '')
+}
+
 /** Build a stable department barcode for an order stage (Code128-friendly). */
 export function makeStageBarcode(orderNo: string, stageId: WorkStageId): string {
   const code = WORK_STAGES.find((s) => s.id === stageId)?.code ?? stageId.slice(0, 3).toUpperCase()
-  const cleanOrder = orderNo.trim().toUpperCase().replace(/\s+/g, '')
-  return `PB|${cleanOrder}|${code}`
+  return `PB|${cleanOrderNo(orderNo)}|${code}`
+}
+
+/** Unique piece barcode: PB|{ORDER}|S{sizeLine}|{pieceInSize} — size text printed on the label. */
+export function makePieceBarcode(orderNo: string, sizeLineIndex: number, pieceInSize: number): string {
+  const line = `S${sizeLineIndex}`
+  const n = String(pieceInSize).padStart(2, '0')
+  return `PB|${cleanOrderNo(orderNo)}|${line}|${n}`
+}
+
+export function buildPiecesFromSizes(
+  orderNo: string,
+  sizeInputs: Array<{ id?: string; sizeLabel: string; quantity: number }>,
+): { sizes: OrderSizeLine[]; pieces: OrderPiece[]; quantity: number } {
+  const sizes: OrderSizeLine[] = []
+  const pieces: OrderPiece[] = []
+  let pieceIndex = 0
+  sizeInputs.forEach((input, lineIdx) => {
+    const sizeLabel = input.sizeLabel.trim()
+    const quantity = Math.max(0, Math.floor(Number(input.quantity) || 0))
+    if (!sizeLabel || quantity < 1) return
+    const id = input.id?.trim() || `sz_${lineIdx + 1}`
+    sizes.push({ id, sizeLabel, quantity })
+    for (let i = 1; i <= quantity; i++) {
+      pieceIndex += 1
+      pieces.push({
+        id: `pc_${cleanOrderNo(orderNo)}_${pieceIndex}`,
+        sizeLineId: id,
+        sizeLabel,
+        pieceIndex,
+        pieceInSize: i,
+        barcode: makePieceBarcode(orderNo, sizes.length, i),
+        status: 'pending',
+      })
+    }
+  })
+  return { sizes, pieces, quantity: pieces.length }
 }
 
 export function emptyStages(orderNo = 'TEMP'): OrderStage[] {

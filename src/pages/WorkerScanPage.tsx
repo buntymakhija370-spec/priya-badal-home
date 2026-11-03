@@ -2,13 +2,19 @@ import { useEffect, useRef, useState, type FormEvent } from 'react'
 import { useNavigate, useOutletContext } from 'react-router-dom'
 import { BackLink } from '../components/workshop/WorkshopUi'
 import { scanWorkshopBarcode, type WorkshopAuth } from '../lib/workshopClient'
-import { stageLabel } from '../lib/workshopTypes'
+import { stageLabel, type OrderPiece, type WorkshopOrder } from '../lib/workshopTypes'
 import './WorkersApp.css'
 
 type Ctx = { auth: WorkshopAuth | null }
 
 type BarcodeDetectorLike = {
   detect: (source: ImageBitmapSource) => Promise<Array<{ rawValue?: string }>>
+}
+
+type ScanHit = {
+  order: WorkshopOrder
+  piece: OrderPiece | null
+  message: string
 }
 
 export function WorkerScanPage() {
@@ -19,6 +25,7 @@ export function WorkerScanPage() {
   const [code, setCode] = useState('')
   const [busy, setBusy] = useState(false)
   const [msg, setMsg] = useState<string | null>(null)
+  const [hit, setHit] = useState<ScanHit | null>(null)
   const [cameraOn, setCameraOn] = useState(false)
   const [cameraError, setCameraError] = useState<string | null>(null)
   const videoRef = useRef<HTMLVideoElement | null>(null)
@@ -36,12 +43,18 @@ export function WorkerScanPage() {
     if (!workerId || !barcode.trim()) return
     setBusy(true)
     setMsg(null)
+    setHit(null)
     try {
       const result = await scanWorkshopBarcode({ barcode: barcode.trim(), workerId })
       setMsg(result.message)
-      setTimeout(() => {
-        navigate(`/workers/home/job/${result.order.id}/${result.stage.stageId}`, { replace: true })
-      }, 500)
+      setHit({ order: result.order, piece: result.piece, message: result.message })
+      if (result.stage) {
+        setTimeout(() => {
+          navigate(`/workers/home/job/${result.order.id}/${result.stage!.stageId}`, { replace: true })
+        }, 900)
+      } else {
+        setBusy(false)
+      }
     } catch (e) {
       setMsg(e instanceof Error ? e.message : 'Scan failed')
       setBusy(false)
@@ -115,18 +128,51 @@ export function WorkerScanPage() {
         <div>
           <h2>Scan barcode</h2>
           <p className="ws-muted">
-            Scan the department label stuck on the job to claim that work as {auth.name.split(' ')[0]}.
+            Scan a piece label to see client, product, and size, then claim work as{' '}
+            {auth.name.split(' ')[0]}.
           </p>
         </div>
       </header>
 
       {msg && <p className="ws-banner">{msg}</p>}
 
+      {hit && (
+        <section className="ws-panel ws-scan-identity">
+          <h3>Identified piece</h3>
+          <dl className="ws-meta">
+            <div>
+              <dt>Client</dt>
+              <dd>{hit.order.customerName}</dd>
+            </div>
+            <div>
+              <dt>Product</dt>
+              <dd>{hit.order.productLabel}</dd>
+            </div>
+            <div>
+              <dt>Order</dt>
+              <dd>{hit.order.orderNo}</dd>
+            </div>
+            <div>
+              <dt>Size</dt>
+              <dd>{hit.piece?.sizeLabel || '—'}</dd>
+            </div>
+            <div>
+              <dt>Piece</dt>
+              <dd>
+                {hit.piece
+                  ? `${hit.piece.pieceIndex} of ${hit.order.quantity}`
+                  : 'Department label'}
+              </dd>
+            </div>
+          </dl>
+        </section>
+      )}
+
       <section className="ws-panel ws-panel--actions">
         <h3>Barcode / scanner</h3>
         <p className="ws-muted">
-          USB / Bluetooth scanners work like a keyboard — click the box and scan. Or type the code from
-          the label (example: <code>PB|PBH-2403|EDG</code>).
+          USB / Bluetooth scanners work like a keyboard — click the box and scan. Or type the code
+          from the label (example: <code>PB|PBH-2401|S1|01</code>).
         </p>
         <form className="ws-form" onSubmit={(e) => void onSubmit(e)}>
           <label>
@@ -135,14 +181,14 @@ export function WorkerScanPage() {
               autoFocus
               value={code}
               onChange={(e) => setCode(e.target.value)}
-              placeholder="PB|PBH-2403|EDG"
+              placeholder="PB|PBH-2401|S1|01"
               disabled={busy}
               autoComplete="off"
               spellCheck={false}
             />
           </label>
           <button type="submit" className="ws__primary" disabled={busy || !code.trim()}>
-            {busy ? 'Claiming…' : 'Claim work'}
+            {busy ? 'Checking…' : 'Scan / claim'}
           </button>
         </form>
       </section>
@@ -167,12 +213,10 @@ export function WorkerScanPage() {
       <section className="ws-panel">
         <h3>How it works</h3>
         <ol className="ws-steps">
-          <li>Manager posts order and prints department barcodes.</li>
-          <li>Stick the matching label on the panel / job sheet.</li>
-          <li>Worker scans → work is assigned to them → open job screen.</li>
-          <li>Start work, post status, mark stage complete.</li>
+          <li>Manager posts order with every custom size × piece count.</li>
+          <li>Print one unique barcode per piece and stick it on that panel.</li>
+          <li>Worker scans → see client, product, size, order → claim stage work.</li>
         </ol>
-        <p className="ws-muted">Departments: {['DSN', 'CUT', 'EDG', 'BOR', 'PNT', 'LTH', 'OXD'].join(' · ')}</p>
         <p className="ws-muted">
           Your role:{' '}
           {auth.workerRole === 'multi' ? 'Multi' : stageLabel(auth.workerRole as 'designing')}

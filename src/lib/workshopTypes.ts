@@ -117,7 +117,9 @@ export type WorkshopOrder = {
   sizes: OrderSizeLine[]
   /** One barcode per piece to manufacture */
   pieces: OrderPiece[]
-  /** Designer reference photos / CAD — for designing stage (not every worker) */
+  /** Optional catalogue / quote design code (e.g. regular design quote ref) */
+  designCode: string
+  /** Optional designer reference photos / CAD — for designing stage (not every worker) */
   designFiles: WorkshopAttachment[]
 }
 

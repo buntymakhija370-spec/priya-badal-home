@@ -161,6 +161,7 @@ async function handleCreateOrder(req: IncomingMessage, res: ServerResponse) {
       finish?: string
       bay?: string
       dueDate?: string | null
+      designCode?: string
       designFiles?: Array<{ name: string; mimeType: string; dataUrl: string }>
       assignments?: Array<{ stageId: WorkStageId; workerId: string; managerNote?: string }>
     }>(req)
@@ -176,6 +177,7 @@ async function handleCreateOrder(req: IncomingMessage, res: ServerResponse) {
       finish: body.finish,
       bay: body.bay,
       dueDate: body.dueDate,
+      designCode: body.designCode,
       designFiles: body.designFiles,
       assignments: body.assignments,
     })

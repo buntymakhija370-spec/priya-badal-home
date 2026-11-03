@@ -76,6 +76,7 @@ export function ManagerPostOrderPage() {
   const [notes, setNotes] = useState('')
   const [priority, setPriority] = useState<OrderPriority>('normal')
   const [sizeRows, setSizeRows] = useState<SizeRow[]>(() => [blankRow(), blankRow()])
+  const [designCode, setDesignCode] = useState('')
   const [designFiles, setDesignFiles] = useState<DesignDraft[]>([])
   const [designBusy, setDesignBusy] = useState(false)
   const [material, setMaterial] = useState('')
@@ -174,10 +175,6 @@ export function ManagerPostOrderPage() {
       setMsg('Add at least one size with pieces — one unique barcode is printed per piece')
       return
     }
-    if (!designFiles.length) {
-      setMsg('Attach at least one JPG photo or CAD/PDF for the designer')
-      return
-    }
 
     const assignments = pipeline
       .filter((stageId) => stagePicks[stageId]?.enabled)
@@ -204,6 +201,7 @@ export function ManagerPostOrderPage() {
         notes,
         priority,
         sizes,
+        designCode: designCode.trim() || undefined,
         designFiles: designFiles.map(({ name, mimeType, dataUrl }) => ({ name, mimeType, dataUrl })),
         material: material || undefined,
         finish: finish || undefined,
@@ -255,18 +253,29 @@ export function ManagerPostOrderPage() {
 
       {msg && <p className="ws-banner ws-banner--error">{msg}</p>}
 
-      <section className="ws-panel ws-design-files" aria-label="Designer files">
+      <section className="ws-panel ws-design-files" aria-label="Design reference">
         <h3 className="ws-size-lines__title">
-          Designer files <span className="ws-muted">(required)</span>
+          Design reference <span className="ws-muted">(optional)</span>
         </h3>
         <p className="ws-muted ws-stage-join__hint">
-          JPG site photos or CAD/CAM / PDF for the designer only — not shown to every worker.
+          Use a design code for regular catalogue / quote designs, and/or attach JPG photos or CAD/PDF
+          for the designer only — not shown to every worker.
         </p>
+        <label className="ws-design-code">
+          Design code
+          <input
+            value={designCode}
+            onChange={(e) => setDesignCode(e.target.value)}
+            onKeyDown={blockEnterSubmit}
+            placeholder="e.g. LEENA-W01 / quote ref"
+            autoComplete="off"
+          />
+        </label>
         <label className="ws-file-pick">
-          <span>{designBusy ? 'Reading files…' : 'Add JPG / CAD / PDF'}</span>
+          <span>{designBusy ? 'Reading files…' : 'Add JPG / CAD / PDF (optional)'}</span>
           <input
             type="file"
-            accept="image/jpeg,image/jpg,image/png,image/webp,application/pdf,.dwg,.dxf,.step,.stp,.iges,.igs"
+            accept="image/*,application/pdf,.pdf,.dwg,.dxf,.step,.stp,.iges,.igs,.cdr,.ai"
             multiple
             disabled={designBusy || designFiles.length >= 8}
             onChange={(e) => {
@@ -509,11 +518,7 @@ export function ManagerPostOrderPage() {
           </div>
         </section>
 
-        <button
-          type="submit"
-          className="ws__primary"
-          disabled={busy || totalPieces < 1 || designFiles.length < 1}
-        >
+        <button type="submit" className="ws__primary" disabled={busy || totalPieces < 1}>
           {busy
             ? 'Posting…'
             : `Post order · print ${totalPieces} piece barcode${totalPieces === 1 ? '' : 's'}`}

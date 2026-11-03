@@ -169,6 +169,12 @@ export function OrderMetaGrid({ order }: { order: WorkshopOrder }) {
         <dt>Product</dt>
         <dd>{order.productLabel}</dd>
       </div>
+      {order.designCode ? (
+        <div>
+          <dt>Design code</dt>
+          <dd>{order.designCode}</dd>
+        </div>
+      ) : null}
       <div>
         <dt>Pieces</dt>
         <dd>{order.quantity}</dd>

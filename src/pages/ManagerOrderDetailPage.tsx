@@ -152,26 +152,36 @@ export function ManagerOrderDetailPage() {
         <OrderMetaGrid order={order} />
       </section>
 
-      {(order.designFiles?.length || 0) > 0 && (
+      {(order.designCode || (order.designFiles?.length || 0) > 0) && (
         <section className="ws-panel">
-          <h3>Designer files</h3>
-          <p className="ws-muted">For designing stage — site photos / CAD reference.</p>
-          <ul className="ws-design-files__list">
-            {order.designFiles.map((f) => (
-              <li key={f.id} className="ws-design-files__item">
-                {f.mimeType.startsWith('image/') ? (
-                  <a href={f.dataUrl} target="_blank" rel="noreferrer">
-                    <img src={f.dataUrl} alt={f.name} className="ws-design-files__thumb" />
-                  </a>
-                ) : (
-                  <a className="ws-design-files__badge" href={f.dataUrl} download={f.name}>
-                    FILE
-                  </a>
-                )}
-                <span className="ws-design-files__name">{f.name}</span>
-              </li>
-            ))}
-          </ul>
+          <h3>Design reference</h3>
+          {order.designCode ? (
+            <p>
+              <span className="ws-muted">Design code · </span>
+              <strong>{order.designCode}</strong>
+            </p>
+          ) : null}
+          {(order.designFiles?.length || 0) > 0 && (
+            <>
+              <p className="ws-muted">Optional site photos / CAD for designing.</p>
+              <ul className="ws-design-files__list">
+                {order.designFiles.map((f) => (
+                  <li key={f.id} className="ws-design-files__item">
+                    {f.mimeType.startsWith('image/') ? (
+                      <a href={f.dataUrl} target="_blank" rel="noreferrer">
+                        <img src={f.dataUrl} alt={f.name} className="ws-design-files__thumb" />
+                      </a>
+                    ) : (
+                      <a className="ws-design-files__badge" href={f.dataUrl} download={f.name}>
+                        FILE
+                      </a>
+                    )}
+                    <span className="ws-design-files__name">{f.name}</span>
+                  </li>
+                ))}
+              </ul>
+            </>
+          )}
         </section>
       )}
 

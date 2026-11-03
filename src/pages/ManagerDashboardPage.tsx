@@ -262,11 +262,11 @@ export function ManagerDashboardPage() {
               <div className="ws-form ws-post-order-cta">
                 <h4>New order</h4>
                 <p className="ws-muted">
-                  Posting requires designer JPG / CAD files and size barcodes. Workers must also take a
-                  start photo before beginning any stage.
+                  Add sizes for piece barcodes. Optionally add a design code and/or JPG / CAD for the
+                  designer. Workers still take a start photo before beginning a stage.
                 </p>
                 <Link to="/workers/manage/post-order" className="ws__primary ws-post-order-cta__btn">
-                  Post order with designer files
+                  Post order
                 </Link>
               </div>
 

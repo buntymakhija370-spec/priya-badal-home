@@ -219,6 +219,7 @@ function seedOrders(workers: Worker[]): { orders: WorkshopOrder[]; events: Statu
       stages,
       sizes: built.sizes,
       pieces: built.pieces,
+      designCode: (extra.designCode || '').trim(),
       designFiles: Array.isArray(extra.designFiles) ? extra.designFiles : [],
     }
   }
@@ -540,6 +541,7 @@ function normalizeOrder(raw: WorkshopOrder & { floorType?: string; stages?: Arra
     stages,
     sizes,
     pieces,
+    designCode: typeof raw.designCode === 'string' ? raw.designCode.trim() : '',
     designFiles: Array.isArray(raw.designFiles) ? raw.designFiles : [],
   }
 }
@@ -646,6 +648,7 @@ export function createOrder(input: {
   finish?: string
   bay?: string
   dueDate?: string | null
+  designCode?: string
   designFiles?: Array<{ name: string; mimeType: string; dataUrl: string }>
   assignments?: Array<{ stageId: WorkStageId; workerId: string; managerNote?: string }>
 }): WorkshopOrder {
@@ -664,6 +667,7 @@ export function createOrder(input: {
     throw new Error('Add at least one size with quantity (pieces to manufacture)')
   }
 
+  const designCode = (input.designCode || '').trim()
   const designFiles: WorkshopAttachment[] = (input.designFiles || [])
     .filter((f) => f?.dataUrl && f?.name)
     .slice(0, 8)
@@ -676,9 +680,6 @@ export function createOrder(input: {
       uploadedBy: 'manager',
       kind: 'design' as const,
     }))
-  if (!designFiles.length) {
-    throw new Error('Attach at least one JPG photo or CAD/PDF file for the designer')
-  }
 
   const stages = emptyStages(orderNo)
   const order: WorkshopOrder = {
@@ -699,15 +700,24 @@ export function createOrder(input: {
     stages,
     sizes: built.sizes,
     pieces: built.pieces,
+    designCode,
     designFiles,
   }
   store.orders.unshift(order)
+  const designBits = [
+    designCode ? `design code ${designCode}` : '',
+    designFiles.length
+      ? `${designFiles.length} design file${designFiles.length === 1 ? '' : 's'}`
+      : '',
+  ]
+    .filter(Boolean)
+    .join(', ')
   pushEvent(store, {
     orderId: order.id,
     workerId: 'manager',
     stageId: 'designing',
     kind: 'assigned',
-    message: `Manager posted order ${order.orderNo} — ${order.productLabel} (${order.quantity} piece barcode${order.quantity === 1 ? '' : 's'}, ${designFiles.length} design file${designFiles.length === 1 ? '' : 's'})`,
+    message: `Manager posted order ${order.orderNo} — ${order.productLabel} (${order.quantity} piece barcode${order.quantity === 1 ? '' : 's'}${designBits ? `, ${designBits}` : ''})`,
   })
 
   const allowed = new Set(WORK_STAGES.map((s) => s.id))

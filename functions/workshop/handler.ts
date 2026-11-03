@@ -204,6 +204,7 @@ export async function handleWorkshopRequest(
           finish?: string
           bay?: string
           dueDate?: string | null
+          designCode?: string
           designFiles?: Array<{ name: string; mimeType: string; dataUrl: string }>
           assignments?: Array<{ stageId: WorkStageId; workerId: string; managerNote?: string }>
         }>(request)
@@ -219,6 +220,7 @@ export async function handleWorkshopRequest(
           finish: body.finish,
           bay: body.bay,
           dueDate: body.dueDate,
+          designCode: body.designCode,
           designFiles: body.designFiles,
           assignments: body.assignments,
         })

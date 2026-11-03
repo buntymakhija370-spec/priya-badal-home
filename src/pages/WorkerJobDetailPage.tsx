@@ -115,7 +115,8 @@ export function WorkerJobDetailPage() {
   const status = stage.status
   const canAct = stage.workerId === workerId || !stage.workerId
   const isDesigner = stage.stageId === 'designing'
-  const showDesignFiles = isDesigner && (order.designFiles?.length || 0) > 0
+  const showDesignRef =
+    isDesigner && (!!order.designCode || (order.designFiles?.length || 0) > 0)
 
   return (
     <main className="ws-detail">
@@ -135,26 +136,36 @@ export function WorkerJobDetailPage() {
         <OrderMetaGrid order={order} />
       </section>
 
-      {showDesignFiles && (
+      {showDesignRef && (
         <section className="ws-panel">
-          <h3>Designer files</h3>
-          <p className="ws-muted">Reference photos / CAD for this design job only.</p>
-          <ul className="ws-design-files__list">
-            {order.designFiles.map((f) => (
-              <li key={f.id} className="ws-design-files__item">
-                {f.mimeType.startsWith('image/') ? (
-                  <a href={f.dataUrl} target="_blank" rel="noreferrer">
-                    <img src={f.dataUrl} alt={f.name} className="ws-design-files__thumb" />
-                  </a>
-                ) : (
-                  <a className="ws-design-files__badge" href={f.dataUrl} download={f.name}>
-                    FILE
-                  </a>
-                )}
-                <span className="ws-design-files__name">{f.name}</span>
-              </li>
-            ))}
-          </ul>
+          <h3>Design reference</h3>
+          {order.designCode ? (
+            <p>
+              <span className="ws-muted">Design code · </span>
+              <strong>{order.designCode}</strong>
+            </p>
+          ) : null}
+          {(order.designFiles?.length || 0) > 0 && (
+            <>
+              <p className="ws-muted">Photos / CAD for this design job only.</p>
+              <ul className="ws-design-files__list">
+                {order.designFiles.map((f) => (
+                  <li key={f.id} className="ws-design-files__item">
+                    {f.mimeType.startsWith('image/') ? (
+                      <a href={f.dataUrl} target="_blank" rel="noreferrer">
+                        <img src={f.dataUrl} alt={f.name} className="ws-design-files__thumb" />
+                      </a>
+                    ) : (
+                      <a className="ws-design-files__badge" href={f.dataUrl} download={f.name}>
+                        FILE
+                      </a>
+                    )}
+                    <span className="ws-design-files__name">{f.name}</span>
+                  </li>
+                ))}
+              </ul>
+            </>
+          )}
         </section>
       )}
 

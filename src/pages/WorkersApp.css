@@ -2259,6 +2259,25 @@
   background: rgba(0, 0, 0, 0.18);
 }
 
+.ws-design-code {
+  display: grid;
+  gap: 0.35rem;
+  margin: 0.65rem 0 0.85rem;
+  font-size: 0.85rem;
+  color: var(--ws-muted);
+}
+
+.ws-design-code input {
+  width: 100%;
+  min-height: 2.85rem;
+  padding: 0.7rem 0.85rem;
+  border-radius: 0.55rem;
+  border: 1px solid var(--ws-line);
+  background: rgba(10, 14, 12, 0.45);
+  color: var(--ws-ink);
+  font-family: inherit;
+}
+
 .ws-design-files__list {
   list-style: none;
   margin: 0.75rem 0 0;

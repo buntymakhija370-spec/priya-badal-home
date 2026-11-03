@@ -1,4 +1,11 @@
-import { useEffect, useMemo, useState, type FormEvent } from 'react'
+import {
+  useEffect,
+  useMemo,
+  useRef,
+  useState,
+  type FormEvent,
+  type KeyboardEvent,
+} from 'react'
 import { useNavigate, useOutletContext } from 'react-router-dom'
 import {
   createWorkshopOrder,
@@ -35,9 +42,10 @@ type StagePick = {
 }
 
 type SizeRow = {
-  key: string
+  id: string
   sizeLabel: string
-  quantity: number
+  /** Keep as string while editing so backspace / multi-digit typing works */
+  quantity: string
 }
 
 function emptyPicks(): Record<string, StagePick> {
@@ -48,21 +56,26 @@ function emptyPicks(): Record<string, StagePick> {
   return picks
 }
 
-function newSizeRow(): SizeRow {
-  return { key: `sz_${Date.now()}_${Math.random().toString(36).slice(2, 7)}`, sizeLabel: '', quantity: 1 }
+function parseQty(raw: string): number {
+  const n = Math.floor(Number(raw))
+  return Number.isFinite(n) && n > 0 ? n : 0
 }
 
 export function ManagerPostOrderPage() {
   const { auth } = useOutletContext<Ctx>()
   const pin = auth?.role === 'manager' ? auth.pin : ''
   const navigate = useNavigate()
+  const sizeIdRef = useRef(1)
 
   const [orderNo, setOrderNo] = useState('')
   const [customerName, setCustomerName] = useState('')
   const [productLabel, setProductLabel] = useState('')
   const [notes, setNotes] = useState('')
   const [priority, setPriority] = useState<OrderPriority>('normal')
-  const [sizeRows, setSizeRows] = useState<SizeRow[]>(() => [newSizeRow()])
+  const [sizeRows, setSizeRows] = useState<SizeRow[]>(() => [
+    { id: 'size-1', sizeLabel: '', quantity: '1' },
+    { id: 'size-2', sizeLabel: '', quantity: '1' },
+  ])
   const [material, setMaterial] = useState('')
   const [finish, setFinish] = useState('')
   const [bay, setBay] = useState('')
@@ -75,7 +88,7 @@ export function ManagerPostOrderPage() {
   const pipeline = useMemo(() => WORK_STAGES.map((s) => s.id), [])
   const selectedCount = pipeline.filter((id) => stagePicks[id]?.enabled).length
   const totalPieces = sizeRows.reduce((sum, row) => {
-    const q = Math.max(0, Math.floor(Number(row.quantity) || 0))
+    const q = parseQty(row.quantity)
     return row.sizeLabel.trim() && q > 0 ? sum + q : sum
   }, 0)
 
@@ -116,12 +129,34 @@ export function ManagerPostOrderPage() {
     return preferred.length ? preferred : workers
   }
 
-  function updateSizeRow(key: string, patch: Partial<SizeRow>) {
-    setSizeRows((rows) => rows.map((r) => (r.key === key ? { ...r, ...patch } : r)))
+  function setSizeLabel(id: string, sizeLabel: string) {
+    setSizeRows((rows) => rows.map((r) => (r.id === id ? { ...r, sizeLabel } : r)))
   }
 
-  function removeSizeRow(key: string) {
-    setSizeRows((rows) => (rows.length <= 1 ? rows : rows.filter((r) => r.key !== key)))
+  function setSizeQuantity(id: string, quantity: string) {
+    // Allow empty / partial digits while typing (do not force back to 1)
+    if (quantity !== '' && !/^\d{0,4}$/.test(quantity)) return
+    setSizeRows((rows) => rows.map((r) => (r.id === id ? { ...r, quantity } : r)))
+  }
+
+  function addSizeRow() {
+    sizeIdRef.current += 1
+    const id = `size-${sizeIdRef.current}`
+    setSizeRows((rows) => [...rows, { id, sizeLabel: '', quantity: '1' }])
+  }
+
+  function removeSizeRow(id: string) {
+    setSizeRows((rows) => {
+      if (rows.length <= 1) {
+        // Clear the only row instead of blocking remove
+        return [{ id: rows[0].id, sizeLabel: '', quantity: '1' }]
+      }
+      return rows.filter((r) => r.id !== id)
+    })
+  }
+
+  function blockEnterSubmit(e: KeyboardEvent<HTMLInputElement>) {
+    if (e.key === 'Enter') e.preventDefault()
   }
 
   if (!auth || auth.role !== 'manager') return null
@@ -133,12 +168,12 @@ export function ManagerPostOrderPage() {
     const sizes = sizeRows
       .map((r) => ({
         sizeLabel: r.sizeLabel.trim(),
-        quantity: Math.max(0, Math.floor(Number(r.quantity) || 0)),
+        quantity: parseQty(r.quantity),
       }))
       .filter((r) => r.sizeLabel && r.quantity > 0)
 
     if (!sizes.length) {
-      setMsg('Add at least one size with quantity — one unique barcode is printed per piece')
+      setMsg('Add at least one size with pieces — one unique barcode is printed per piece')
       return
     }
 
@@ -195,6 +230,64 @@ export function ManagerPostOrderPage() {
 
       {msg && <p className="ws-banner ws-banner--error">{msg}</p>}
 
+      {/* Sizes sit outside <form> so Add/Remove clicks are never swallowed by form validation */}
+      <section className="ws-panel ws-size-lines" aria-label="Sizes to manufacture">
+        <h3 className="ws-size-lines__title">
+          Sizes to manufacture <span className="ws-muted">({totalPieces} barcodes)</span>
+        </h3>
+        <p className="ws-muted ws-stage-join__hint">
+          Type each size, set how many pieces, then add more rows if needed.
+        </p>
+        <div className="ws-size-lines__list">
+          {sizeRows.map((row, index) => (
+            <div key={row.id} className="ws-size-lines__row">
+              <div className="ws-size-field">
+                <span className="ws-size-field__label">Size {index + 1}</span>
+                <input
+                  type="text"
+                  name={`size-label-${row.id}`}
+                  value={row.sizeLabel}
+                  onChange={(e) => setSizeLabel(row.id, e.target.value)}
+                  onKeyDown={blockEnterSubmit}
+                  placeholder="600 x 450 mm"
+                  autoComplete="off"
+                  inputMode="text"
+                />
+              </div>
+              <div className="ws-size-field">
+                <span className="ws-size-field__label">Pieces</span>
+                <input
+                  type="text"
+                  name={`size-qty-${row.id}`}
+                  value={row.quantity}
+                  onChange={(e) => setSizeQuantity(row.id, e.target.value)}
+                  onKeyDown={blockEnterSubmit}
+                  inputMode="numeric"
+                  autoComplete="off"
+                  placeholder="1"
+                />
+              </div>
+              <button
+                type="button"
+                className="ws__ghost ws-size-remove"
+                onClick={() => removeSizeRow(row.id)}
+              >
+                {sizeRows.length <= 1 ? 'Clear' : 'Remove'}
+              </button>
+            </div>
+          ))}
+        </div>
+        <div className="ws-size-add-row">
+          <button type="button" className="ws__secondary ws-size-add" onClick={() => addSizeRow()}>
+            + Add another size
+          </button>
+          <p className="ws-muted ws-size-add-hint">
+            {sizeRows.length} size line{sizeRows.length === 1 ? '' : 's'} — empty lines are ignored
+            when posting.
+          </p>
+        </div>
+      </section>
+
       <form className="ws-form ws-panel" onSubmit={onSubmit}>
         <label>
           Order no.
@@ -236,59 +329,11 @@ export function ManagerPostOrderPage() {
               <option value="rush">Rush</option>
             </select>
           </label>
-          <label>
-            Total pieces
-            <input type="text" value={String(totalPieces)} readOnly />
-          </label>
-        </div>
-
-        <fieldset className="ws-size-lines">
-          <legend>
-            Sizes to manufacture <span className="ws-muted">({totalPieces} barcodes)</span>
-          </legend>
-          <p className="ws-muted ws-stage-join__hint">
-            Each size × quantity becomes separate stickers. Scan any sticker to see client, product,
-            size, and order.
-          </p>
-          <div className="ws-size-lines__list">
-            {sizeRows.map((row, index) => (
-              <div key={row.key} className="ws-size-lines__row">
-                <label>
-                  Size {index + 1}
-                  <input
-                    value={row.sizeLabel}
-                    onChange={(e) => updateSizeRow(row.key, { sizeLabel: e.target.value })}
-                    placeholder="e.g. 600 × 450 mm / W 2ft × H 4ft"
-                    required={index === 0}
-                  />
-                </label>
-                <label>
-                  Pieces
-                  <input
-                    type="number"
-                    min={1}
-                    value={row.quantity}
-                    onChange={(e) =>
-                      updateSizeRow(row.key, { quantity: Number(e.target.value) || 1 })
-                    }
-                    required
-                  />
-                </label>
-                <button
-                  type="button"
-                  className="ws__ghost"
-                  onClick={() => removeSizeRow(row.key)}
-                  disabled={sizeRows.length <= 1}
-                >
-                  Remove
-                </button>
-              </div>
-            ))}
+          <div className="ws-size-total">
+            <span className="ws-size-total__label">Total barcodes</span>
+            <strong className="ws-size-total__value">{totalPieces}</strong>
           </div>
-          <button type="button" className="ws__secondary" onClick={() => setSizeRows((r) => [...r, newSizeRow()])}>
-            Add another size
-          </button>
-        </fieldset>
+        </div>
 
         <div className="ws-form__row">
           <label>
@@ -326,10 +371,10 @@ export function ManagerPostOrderPage() {
           </label>
         </div>
 
-        <fieldset className="ws-stage-join">
-          <legend>
+        <section className="ws-stage-join" aria-label="Join work to this order">
+          <h3 className="ws-size-lines__title">
             Join work to this order <span className="ws-muted">({selectedCount} selected)</span>
-          </legend>
+          </h3>
           <p className="ws-muted ws-stage-join__hint">
             Tick the process stages that should start on this order, then select the worker for each
             ticked stage.
@@ -375,7 +420,9 @@ export function ManagerPostOrderPage() {
                         <input
                           value={pick.note}
                           onChange={(e) => setStageNote(stageId, e.target.value)}
+                          onKeyDown={blockEnterSubmit}
                           placeholder="Instruction for this stage"
+                          autoComplete="off"
                         />
                       </label>
                     </div>
@@ -384,7 +431,7 @@ export function ManagerPostOrderPage() {
               )
             })}
           </div>
-        </fieldset>
+        </section>
 
         <button type="submit" className="ws__primary" disabled={busy || totalPieces < 1}>
           {busy
